@@ -1,5 +1,5 @@
-const SUPABASE_URL = "COLLE_ICI_TON_PROJECT_URL";
-const SUPABASE_KEY = "COLLE_ICI_TON_ANON_PUBLIC_KEY";
+const SUPABASE_URL = "https://ytcochuaiprkzbptgkvn.supabase.co/rest/v1/";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl0Y29jaHVhaXBya3picHRna3ZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3NTc1NzYsImV4cCI6MjA5NjMzMzU3Nn0.IvVCdv4pHXiy0X4SNVtP8KWtAmMBxQx4c-NwS2hEA7o";
 
 async function login() {
   const username = document.getElementById("username").value.trim();
