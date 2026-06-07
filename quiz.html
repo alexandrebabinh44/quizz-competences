@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+  <h2 id="welcome">Bienvenue</h2>
+
+  <p id="progress">Question...</p>
+  <p id="category"></p>
+
+  <h3 id="questionText"></h3>
+
+  <textarea id="answerText" placeholder="Écris ta réponse ici..." rows="6"></textarea>
+
+  <button onclick="submitAnswer()">Valider et passer à la suivante</button>
+</div>
+
+<script src="app.js"></script>
+<script>
+  loadQuestion();
+</script>
+
+</body>
+</html>
