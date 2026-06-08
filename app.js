@@ -569,9 +569,29 @@ async function addXp(amount) {
     }
 }
 async function loadCorrections() {
+    const myRole = localStorage.getItem("role");
+    const myId = localStorage.getItem("profile_id");
+
+    const meResponse = await fetch(
+        `${SUPABASE_URL}/rest/v1/profiles?id=eq.${myId}`,
+        {
+            headers: {
+                apikey: SUPABASE_KEY,
+                Authorization: `Bearer ${SUPABASE_KEY}`
+            }
+        }
+    );
+
+    const meData = await meResponse.json();
+    const me = meData[0];
+
+    if (!me) {
+        alert("Profil introuvable.");
+        return;
+    }
 
     const response = await fetch(
-        `${SUPABASE_URL}/rest/v1/answers?select=*`,
+        `${SUPABASE_URL}/rest/v1/answers?select=*,profiles(*),questions(*)&order=submitted_at.desc`,
         {
             headers: {
                 apikey: SUPABASE_KEY,
@@ -581,31 +601,49 @@ async function loadCorrections() {
     );
 
     const answers = await response.json();
-
     const container = document.getElementById("correctionList");
 
     container.innerHTML = "";
 
-    answers.forEach(answer => {
+    const filteredAnswers = answers.filter(answer => {
+        if (myRole === "admin" || myRole === "direction" || myRole === "responsable") {
+            return true;
+        }
+
+        if (myRole === "team_leader") {
+            return answer.profiles && answer.profiles.team_id === me.team_id;
+        }
+
+        return false;
+    });
+
+    if (filteredAnswers.length === 0) {
+        container.innerHTML = "<p>Aucune réponse à corriger pour le moment.</p>";
+        return;
+    }
+
+    filteredAnswers.forEach(answer => {
+        const user = answer.profiles;
+        const question = answer.questions;
 
         container.innerHTML += `
             <div class="card">
-                <h2>Réponse</h2>
+                <h2>${user?.full_name || "Utilisateur inconnu"}</h2>
 
-                <p>
-                    <strong>Question ID :</strong>
-                    ${answer.question_id}
-                </p>
+                <p><strong>Catégorie :</strong> ${question?.category || ""}</p>
 
-                <p>
-                    <strong>Réponse donnée :</strong>
-                </p>
+                <p><strong>Question :</strong><br>
+                ${question?.question || ""}</p>
 
-                <p>
-                    ${answer.answer_text}
-                </p>
+                <p><strong>Réponse attendue :</strong><br>
+                ${question?.expected_answer || "Non renseignée"}</p>
 
-                <button onclick="alert('Correction bientôt disponible')">
+                <p><strong>Réponse donnée :</strong><br>
+                ${answer.answer_text}</p>
+
+                <p><strong>Barème :</strong> ${question?.max_points || 0} points</p>
+
+                <button onclick="alert('Notation bientôt disponible')">
                     Corriger
                 </button>
             </div>
