@@ -568,3 +568,47 @@ async function addXp(amount) {
         localStorage.setItem("level", newLevel);
     }
 }
+async function loadCorrections() {
+
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/answers?select=*`,
+        {
+            headers: {
+                apikey: SUPABASE_KEY,
+                Authorization: `Bearer ${SUPABASE_KEY}`
+            }
+        }
+    );
+
+    const answers = await response.json();
+
+    const container = document.getElementById("correctionList");
+
+    container.innerHTML = "";
+
+    answers.forEach(answer => {
+
+        container.innerHTML += `
+            <div class="card">
+                <h2>Réponse</h2>
+
+                <p>
+                    <strong>Question ID :</strong>
+                    ${answer.question_id}
+                </p>
+
+                <p>
+                    <strong>Réponse donnée :</strong>
+                </p>
+
+                <p>
+                    ${answer.answer_text}
+                </p>
+
+                <button onclick="alert('Correction bientôt disponible')">
+                    Corriger
+                </button>
+            </div>
+        `;
+    });
+}
