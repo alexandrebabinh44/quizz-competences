@@ -501,7 +501,7 @@ async function submitTrainingAnswer() {
     const profileId = localStorage.getItem("profile_id");
     const q = trainingQuestions[trainingIndex];
 
-    await fetch(`${SUPABASE_URL}/rest/v1/answers`, {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/answers`, {
         method: "POST",
         headers: {
             apikey: SUPABASE_KEY,
@@ -515,6 +515,12 @@ async function submitTrainingAnswer() {
             answer_text: answer
         })
     });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        alert("Erreur enregistrement : " + errorText);
+        return;
+    }
 
     trainingIndex++;
     showTrainingQuestion();
