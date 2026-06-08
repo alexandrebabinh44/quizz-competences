@@ -39,4 +39,45 @@ button {
 button:hover {
   background: #4338ca;
 }
+.wide {
+  width: 800px;
+  max-width: 90%;
+}
+
+.subtitle {
+  text-align: center;
+  color: #666;
+}
+
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.card {
+  background: #f8fafc;
+  padding: 20px;
+  border-radius: 15px;
+  cursor: pointer;
+  border: 1px solid #e5e7eb;
+  transition: 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+
+.card h2 {
+  margin-top: 0;
+}
+
+.card p {
+  color: #666;
+}
+
+.locked {
+  opacity: 0.55;
+}
   
