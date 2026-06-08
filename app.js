@@ -473,14 +473,25 @@ async function loadTrainingQuiz() {
 
 function showTrainingQuestion() {
     if (trainingIndex >= trainingQuestions.length) {
-        document.querySelector(".container").innerHTML = `
-            <h2>Entraînement terminé ✅</h2>
-            <p>Tu as terminé cette catégorie.</p>
-            <button onclick="window.location.href='training.html'">Choisir une autre catégorie</button>
-            <button onclick="window.location.href='home.html'">Retour accueil</button>
-        `;
-        return;
-    }
+
+    addXp(5);
+
+    document.querySelector(".container").innerHTML = `
+        <h2>Entraînement terminé ✅</h2>
+        <p>Tu as terminé cette catégorie.</p>
+        <p><strong>+5 XP de participation gagnés</strong></p>
+
+        <button onclick="window.location.href='training.html'">
+            Choisir une autre catégorie
+        </button>
+
+        <button onclick="window.location.href='home.html'">
+            Retour accueil
+        </button>
+    `;
+
+    return;
+}
 
     const q = trainingQuestions[trainingIndex];
 
@@ -523,8 +534,6 @@ async function submitTrainingAnswer() {
         alert("Erreur enregistrement : " + errorText);
         return;
     }
-    await addXp(10);
-    alert("+10 XP gagnés !");
     
     trainingIndex++;
     showTrainingQuestion();
