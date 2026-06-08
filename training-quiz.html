@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Quiz entraînement</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+  <h1 id="trainingTitle">Entraînement</h1>
+
+  <p id="trainingProgress"></p>
+  <h2 id="trainingQuestion"></h2>
+
+  <textarea id="trainingAnswer" rows="6" placeholder="Écris ta réponse ici..."></textarea>
+
+  <button onclick="submitTrainingAnswer()">Valider</button>
+</div>
+
+<script src="app.js"></script>
+<script>
+  loadTrainingQuiz();
+</script>
+
+</body>
+</html>
