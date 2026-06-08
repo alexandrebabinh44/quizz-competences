@@ -529,3 +529,33 @@ async function submitTrainingAnswer() {
     trainingIndex++;
     showTrainingQuestion();
 }
+async function addXp(amount) {
+    const profileId = localStorage.getItem("profile_id");
+
+    if (!profileId) {
+        return;
+    }
+
+    const currentXp = parseInt(localStorage.getItem("xp") || "0");
+    const newXp = currentXp + amount;
+    const newLevel = Math.floor(newXp / 100) + 1;
+
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${profileId}`, {
+        method: "PATCH",
+        headers: {
+            apikey: SUPABASE_KEY,
+            Authorization: `Bearer ${SUPABASE_KEY}`,
+            "Content-Type": "application/json",
+            Prefer: "return=minimal"
+        },
+        body: JSON.stringify({
+            xp: newXp,
+            level: newLevel
+        })
+    });
+
+    if (response.ok) {
+        localStorage.setItem("xp", newXp);
+        localStorage.setItem("level", newLevel);
+    }
+}
