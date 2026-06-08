@@ -572,59 +572,51 @@ async function loadCorrections() {
     const myRole = localStorage.getItem("role");
     const myId = localStorage.getItem("profile_id");
 
-    const meResponse = await fetch(
-        `${SUPABASE_URL}/rest/v1/profiles?id=eq.${myId}`,
-        {
-            headers: {
-                apikey: SUPABASE_KEY,
-                Authorization: `Bearer ${SUPABASE_KEY}`
-            }
+    const meResponse = await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${myId}`, {
+        headers: {
+            apikey: SUPABASE_KEY,
+            Authorization: `Bearer ${SUPABASE_KEY}`
         }
-    );
+    });
 
     const meData = await meResponse.json();
     const me = meData[0];
 
-    if (!me) {
-        alert("Profil introuvable.");
-        return;
-    }
+    const answersResponse = await fetch(`${SUPABASE_URL}/rest/v1/answers?select=*&order=submitted_at.desc`, {
+        headers: {
+            apikey: SUPABASE_KEY,
+            Authorization: `Bearer ${SUPABASE_KEY}`
+        }
+    });
 
-    const response = await fetch(
-        `${SUPABASE_URL}/rest/v1/answers?select=*,profiles(*),questions(*)&order=submitted_at.desc`,
-        {
+    const answers = await answersResponse.json();
+    const container = document.getElementById("correctionList");
+    container.innerHTML = "";
+
+    for (const answer of answers) {
+        const userResponse = await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${answer.profile_id}`, {
             headers: {
                 apikey: SUPABASE_KEY,
                 Authorization: `Bearer ${SUPABASE_KEY}`
             }
-        }
-    );
+        });
 
-    const answers = await response.json();
-    const container = document.getElementById("correctionList");
+        const userData = await userResponse.json();
+        const user = userData[0];
 
-    container.innerHTML = "";
-
-    const filteredAnswers = answers.filter(answer => {
-        if (myRole === "admin" || myRole === "direction" || myRole === "responsable") {
-            return true;
+        if (myRole === "team_leader" && user?.team_id !== me?.team_id) {
+            continue;
         }
 
-        if (myRole === "team_leader") {
-            return answer.profiles && answer.profiles.team_id === me.team_id;
-        }
+        const questionResponse = await fetch(`${SUPABASE_URL}/rest/v1/questions?id=eq.${answer.question_id}`, {
+            headers: {
+                apikey: SUPABASE_KEY,
+                Authorization: `Bearer ${SUPABASE_KEY}`
+            }
+        });
 
-        return false;
-    });
-
-    if (filteredAnswers.length === 0) {
-        container.innerHTML = "<p>Aucune réponse à corriger pour le moment.</p>";
-        return;
-    }
-
-    filteredAnswers.forEach(answer => {
-        const user = answer.profiles;
-        const question = answer.questions;
+        const questionData = await questionResponse.json();
+        const question = questionData[0];
 
         container.innerHTML += `
             <div class="card">
@@ -632,14 +624,11 @@ async function loadCorrections() {
 
                 <p><strong>Catégorie :</strong> ${question?.category || ""}</p>
 
-                <p><strong>Question :</strong><br>
-                ${question?.question || ""}</p>
+                <p><strong>Question :</strong><br>${question?.question || ""}</p>
 
-                <p><strong>Réponse attendue :</strong><br>
-                ${question?.expected_answer || "Non renseignée"}</p>
+                <p><strong>Réponse attendue :</strong><br>${question?.expected_answer || "Non renseignée"}</p>
 
-                <p><strong>Réponse donnée :</strong><br>
-                ${answer.answer_text}</p>
+                <p><strong>Réponse donnée :</strong><br>${answer.answer_text}</p>
 
                 <p><strong>Barème :</strong> ${question?.max_points || 0} points</p>
 
@@ -648,5 +637,9 @@ async function loadCorrections() {
                 </button>
             </div>
         `;
-    });
+    }
+
+    if (container.innerHTML === "") {
+        container.innerHTML = "<p>Aucune réponse à corriger pour le moment.</p>";
+    }
 }
