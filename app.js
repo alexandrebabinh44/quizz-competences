@@ -133,3 +133,49 @@ async function submitAnswer() {
         alert("Erreur lors de l'enregistrement.");
     }
 }
+async function changePassword() {
+    const profileId = localStorage.getItem("profile_id");
+    const newPassword = document.getElementById("newPassword").value.trim();
+    const confirmPassword = document.getElementById("confirmPassword").value.trim();
+
+    if (!profileId) {
+        window.location.href = "index.html";
+        return;
+    }
+
+    if (!newPassword || !confirmPassword) {
+        alert("Merci de remplir les deux champs.");
+        return;
+    }
+
+    if (newPassword !== confirmPassword) {
+        alert("Les mots de passe ne correspondent pas.");
+        return;
+    }
+
+    if (newPassword.length < 6) {
+        alert("Le mot de passe doit contenir au moins 6 caractères.");
+        return;
+    }
+
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${profileId}`, {
+        method: "PATCH",
+        headers: {
+            apikey: SUPABASE_KEY,
+            Authorization: `Bearer ${SUPABASE_KEY}`,
+            "Content-Type": "application/json",
+            Prefer: "return=minimal"
+        },
+        body: JSON.stringify({
+            password: newPassword,
+            must_change_password: false
+        })
+    });
+
+    if (response.ok) {
+        alert("Mot de passe mis à jour.");
+        window.location.href = "home.html";
+    } else {
+        alert("Erreur lors de la mise à jour du mot de passe.");
+    }
+}
