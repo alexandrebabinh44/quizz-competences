@@ -406,3 +406,40 @@ function logout() {
     localStorage.clear();
     window.location.href = "index.html";
 }
+async function loadTrainingCategories() {
+
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/questions?select=category`,
+        {
+            headers: {
+                apikey: SUPABASE_KEY,
+                Authorization: `Bearer ${SUPABASE_KEY}`
+            }
+        }
+    );
+
+    const data = await response.json();
+
+    const uniqueCategories = [...new Set(data.map(x => x.category))];
+
+    const container = document.getElementById("categories");
+
+    uniqueCategories.forEach(category => {
+
+        container.innerHTML += `
+            <div class="card"
+                 onclick="startTraining('${category}')">
+                <h2>${category}</h2>
+                <p>Lancer l'entraînement</p>
+            </div>
+        `;
+    });
+}
+
+function startTraining(category) {
+
+    localStorage.setItem("training_category", category);
+
+    alert("Catégorie sélectionnée : " + category);
+
+}
