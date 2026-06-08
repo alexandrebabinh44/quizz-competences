@@ -332,3 +332,72 @@ async function loadUserDetailAdmin() {
         <p><strong>XP :</strong> ${user.xp}</p>
     `;
 }
+async function loadMyTeam() {
+    const profileId = localStorage.getItem("profile_id");
+
+    if (!profileId) {
+        window.location.href = "index.html";
+        return;
+    }
+
+    const meResponse = await fetch(
+        `${SUPABASE_URL}/rest/v1/profiles?id=eq.${profileId}`,
+        {
+            headers: {
+                apikey: SUPABASE_KEY,
+                Authorization: `Bearer ${SUPABASE_KEY}`
+            }
+        }
+    );
+
+    const meData = await meResponse.json();
+    const me = meData[0];
+
+    if (!me || !me.team_id) {
+        document.getElementById("teamTitle").innerText = "Aucune équipe associée.";
+        return;
+    }
+
+    const teamResponse = await fetch(
+        `${SUPABASE_URL}/rest/v1/teams?id=eq.${me.team_id}`,
+        {
+            headers: {
+                apikey: SUPABASE_KEY,
+                Authorization: `Bearer ${SUPABASE_KEY}`
+            }
+        }
+    );
+
+    const teamData = await teamResponse.json();
+    const team = teamData[0];
+
+    document.getElementById("teamTitle").innerText =
+        team ? team.name : "Mon équipe";
+
+    const membersResponse = await fetch(
+        `${SUPABASE_URL}/rest/v1/profiles?team_id=eq.${me.team_id}&order=full_name.asc`,
+        {
+            headers: {
+                apikey: SUPABASE_KEY,
+                Authorization: `Bearer ${SUPABASE_KEY}`
+            }
+        }
+    );
+
+    const members = await membersResponse.json();
+    const container = document.getElementById("teamMembers");
+
+    container.innerHTML = "";
+
+    members.forEach(member => {
+        container.innerHTML += `
+            <div class="card compact-card">
+                <h2>${member.full_name || "Sans nom"}</h2>
+                <p><strong>Poste :</strong> ${member.position || member.job_title || ""}</p>
+                <p><strong>Rôle :</strong> ${member.role || ""}</p>
+                <p><strong>Niveau :</strong> ${member.level || 1}</p>
+                <p><strong>XP :</strong> ${member.xp || 0}</p>
+            </div>
+        `;
+    });
+}
