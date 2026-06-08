@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mon Profil</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+  <h1>👤 Mon Profil</h1>
+
+  <p><strong>Nom :</strong> <span id="fullName"></span></p>
+  <p><strong>Rôle :</strong> <span id="role"></span></p>
+  <p><strong>Poste :</strong> <span id="position"></span></p>
+  <p><strong>Niveau :</strong> <span id="level"></span></p>
+  <p><strong>XP :</strong> <span id="xp"></span></p>
+
+  <button onclick="window.location.href='home.html'">
+    Retour
+  </button>
+
+</div>
+
+<script src="app.js"></script>
+<script>
+  loadProfile();
+</script>
+
+</body>
+</html>
