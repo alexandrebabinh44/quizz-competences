@@ -391,8 +391,10 @@ async function loadMyTeam() {
 
   members.forEach(member => {
     container.innerHTML += `
-        <div class="team-member">
-            <strong>${member.full_name}</strong> | ${member.position || member.job_title || ""}
+        <div class="team-member" onclick="openTeamMember('${member.id}')">
+            <strong>${member.full_name}</strong>
+            | ${member.position || member.job_title || ""}
+            | Niveau ${member.level || 1}
         </div>
     `;
 });
