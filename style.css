@@ -94,9 +94,10 @@ button:hover {
 }
 .team-member {
     background: white;
-    padding: 12px 15px;
-    margin-bottom: 8px;
-    border-radius: 10px;
+    padding: 10px 15px;
+    margin-bottom: 6px;
+    border-radius: 8px;
     border-left: 4px solid #1d4ed8;
-    font-size: 15px;
+    font-size: 16px;
+}
 }  
