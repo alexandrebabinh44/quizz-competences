@@ -80,4 +80,16 @@ button:hover {
 .locked {
   opacity: 0.55;
 }
+.compact-card {
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.compact-card h2 {
+  margin-bottom: 5px;
+}
+
+.compact-card p {
+  margin: 4px 0;
+}
   
