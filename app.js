@@ -222,3 +222,41 @@ async function loadProfile() {
     document.getElementById("level").innerText = user.level || 1;
     document.getElementById("xp").innerText = user.xp || 0;
 }
+async function loadUsersAdmin() {
+    const role = localStorage.getItem("role");
+
+    if (role !== "admin") {
+        alert("Accès réservé à l'administrateur.");
+        window.location.href = "home.html";
+        return;
+    }
+
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/profiles?select=*&order=full_name.asc`,
+        {
+            headers: {
+                apikey: SUPABASE_KEY,
+                Authorization: `Bearer ${SUPABASE_KEY}`
+            }
+        }
+    );
+
+    const users = await response.json();
+    const container = document.getElementById("usersList");
+
+    container.innerHTML = "";
+
+    users.forEach(user => {
+        container.innerHTML += `
+            <div class="card">
+                <h2>${user.full_name || "Sans nom"}</h2>
+                <p><strong>Identifiant :</strong> ${user.username || ""}</p>
+                <p><strong>Rôle :</strong> ${user.role || ""}</p>
+                <p><strong>Poste :</strong> ${user.position || user.job_title || ""}</p>
+                <p><strong>Statut :</strong> ${user.status || ""}</p>
+                <p><strong>Niveau :</strong> ${user.level || 1}</p>
+                <p><strong>XP :</strong> ${user.xp || 0}</p>
+            </div>
+        `;
+    });
+}
