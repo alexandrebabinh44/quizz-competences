@@ -8,44 +8,41 @@
 </head>
 <body>
 
-<div class="container">
-
+<div class="container wide">
   <h1 id="welcome">Bienvenue</h1>
+  <p class="subtitle">Choisis ton espace de travail</p>
 
-  <button onclick="window.location.href='quiz.html'">
-    📝 Bilan de compétence
-  </button>
+  <div class="menu-grid">
+    <div class="card" onclick="window.location.href='quiz.html'">
+      <h2>📝 Bilan</h2>
+      <p>Quiz compétences avec réponses ouvertes.</p>
+    </div>
 
-  <br><br>
+    <div class="card locked">
+      <h2>🎯 Entraînement</h2>
+      <p>Quiz par catégorie.</p>
+    </div>
 
-  <button onclick="alert('Bientôt disponible')">
-    🎯 Entraînement
-  </button>
+    <div class="card locked">
+      <h2>📚 Formation</h2>
+      <p>Tips, fiches et rappels pratiques.</p>
+    </div>
 
-  <br><br>
+    <div class="card locked">
+      <h2>⚔️ Battle</h2>
+      <p>Défis 1v1 entre collègues.</p>
+    </div>
 
-  <button onclick="alert('Bientôt disponible')">
-    📚 Formation
-  </button>
+    <div class="card locked">
+      <h2>🏆 Classement</h2>
+      <p>Score personnel et global.</p>
+    </div>
 
-  <br><br>
-
-  <button onclick="alert('Bientôt disponible')">
-    ⚔️ Battle 1v1
-  </button>
-
-  <br><br>
-
-  <button onclick="alert('Bientôt disponible')">
-    🏆 Classement
-  </button>
-
-  <br><br>
-
-  <button onclick="alert('Bientôt disponible')">
-    🎖️ Badges & Niveaux
-  </button>
-
+    <div class="card locked">
+      <h2>🎖️ Badges</h2>
+      <p>Niveaux, XP et récompenses.</p>
+    </div>
+  </div>
 </div>
 
 <script>
