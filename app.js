@@ -225,11 +225,10 @@ async function loadProfile() {
 async function loadUsersAdmin() {
     const role = localStorage.getItem("role");
 
-    if (role !== "admin") {
-        alert("Accès réservé à l'administrateur.");
-        window.location.href = "home.html";
-        return;
-    }
+    if (!role) {
+    window.location.href = "index.html";
+    return;
+}
 
     const response = await fetch(
         `${SUPABASE_URL}/rest/v1/profiles?select=*&order=full_name.asc`,
