@@ -440,3 +440,82 @@ function startTraining(category) {
     localStorage.setItem("training_category", category);
     window.location.href = "training-quiz.html";
 }
+let trainingQuestions = [];
+let trainingIndex = 0;
+
+async function loadTrainingQuiz() {
+    const category = localStorage.getItem("training_category");
+
+    if (!category) {
+        window.location.href = "training.html";
+        return;
+    }
+
+    document.getElementById("trainingTitle").innerText =
+        "Entraînement - " + category;
+
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/questions?category=eq.${category}&order=order_number.asc`,
+        {
+            headers: {
+                apikey: SUPABASE_KEY,
+                Authorization: `Bearer ${SUPABASE_KEY}`
+            }
+        }
+    );
+
+    trainingQuestions = await response.json();
+
+    showTrainingQuestion();
+}
+
+function showTrainingQuestion() {
+    if (trainingIndex >= trainingQuestions.length) {
+        document.querySelector(".container").innerHTML = `
+            <h2>Entraînement terminé ✅</h2>
+            <p>Tu as terminé cette catégorie.</p>
+            <button onclick="window.location.href='training.html'">Choisir une autre catégorie</button>
+            <button onclick="window.location.href='home.html'">Retour accueil</button>
+        `;
+        return;
+    }
+
+    const q = trainingQuestions[trainingIndex];
+
+    document.getElementById("trainingProgress").innerText =
+        `Question ${trainingIndex + 1} / ${trainingQuestions.length}`;
+
+    document.getElementById("trainingQuestion").innerText = q.question;
+
+    document.getElementById("trainingAnswer").value = "";
+}
+
+async function submitTrainingAnswer() {
+    const answer = document.getElementById("trainingAnswer").value.trim();
+
+    if (!answer) {
+        alert("Merci de saisir une réponse.");
+        return;
+    }
+
+    const profileId = localStorage.getItem("profile_id");
+    const q = trainingQuestions[trainingIndex];
+
+    await fetch(`${SUPABASE_URL}/rest/v1/answers`, {
+        method: "POST",
+        headers: {
+            apikey: SUPABASE_KEY,
+            Authorization: `Bearer ${SUPABASE_KEY}`,
+            "Content-Type": "application/json",
+            Prefer: "return=minimal"
+        },
+        body: JSON.stringify({
+            profile_id: profileId,
+            question_id: q.id,
+            answer_text: answer
+        })
+    });
+
+    trainingIndex++;
+    showTrainingQuestion();
+}
