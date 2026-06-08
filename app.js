@@ -179,3 +179,37 @@ async function changePassword() {
         alert("Erreur lors de la mise à jour du mot de passe.");
     }
 }
+async function loadProfile() {
+
+    const profileId = localStorage.getItem("profile_id");
+
+    if (!profileId) {
+        window.location.href = "index.html";
+        return;
+    }
+
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/profiles?id=eq.${profileId}`,
+        {
+            headers: {
+                apikey: SUPABASE_KEY,
+                Authorization: `Bearer ${SUPABASE_KEY}`
+            }
+        }
+    );
+
+    const data = await response.json();
+
+    if (data.length === 0) {
+        alert("Profil introuvable");
+        return;
+    }
+
+    const user = data[0];
+
+    document.getElementById("fullName").innerText = user.full_name || "";
+    document.getElementById("role").innerText = user.role || "";
+    document.getElementById("position").innerText = user.position || "";
+    document.getElementById("level").innerText = user.level || 1;
+    document.getElementById("xp").innerText = user.xp || 0;
+}
