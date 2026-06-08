@@ -389,11 +389,10 @@ async function loadMyTeam() {
 
     container.innerHTML = "";
 
-   members.forEach(member => {
+  members.forEach(member => {
     container.innerHTML += `
         <div class="team-member">
-            👤 <strong>${member.full_name}</strong><br>
-            ${member.position || member.job_title || ""}
+            <strong>${member.full_name}</strong> | ${member.position || member.job_title || ""}
         </div>
     `;
 });
