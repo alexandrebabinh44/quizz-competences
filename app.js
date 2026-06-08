@@ -260,3 +260,42 @@ async function loadUsersAdmin() {
         `;
     });
 }
+async function loadUsersAdmin() {
+    const role = localStorage.getItem("role");
+
+    if (role !== "admin") {
+        alert("Accès réservé à l'administrateur.");
+        window.location.href = "home.html";
+        return;
+    }
+
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/profiles?select=*&order=full_name.asc`,
+        {
+            headers: {
+                apikey: SUPABASE_KEY,
+                Authorization: `Bearer ${SUPABASE_KEY}`
+            }
+        }
+    );
+
+    const users = await response.json();
+    const container = document.getElementById("usersList");
+
+    container.innerHTML = "";
+
+    users.forEach(user => {
+        container.innerHTML += `
+            <div class="card compact-card" onclick="openUserProfile('${user.id}')">
+                <h2>${user.full_name || "Sans nom"}</h2>
+                <p>${user.position || user.job_title || "Poste non renseigné"}</p>
+                <p><strong>Rôle :</strong> ${user.role || ""}</p>
+            </div>
+        `;
+    });
+}
+
+function openUserProfile(userId) {
+    localStorage.setItem("selected_user_id", userId);
+    window.location.href = "admin-user-detail.html";
+}
