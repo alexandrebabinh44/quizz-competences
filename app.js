@@ -37,6 +37,8 @@ async function login() {
             localStorage.setItem("profile_id", users[0].id);
             localStorage.setItem("full_name", users[0].full_name);
             localStorage.setItem("role", users[0].role || "user");
+            localStorage.setItem("xp", users[0].xp || 0);
+            localStorage.setItem("level", users[0].level || 1);
 
             if (users[0].must_change_password === true) {
                 window.location.href = "change-password.html";
@@ -521,7 +523,9 @@ async function submitTrainingAnswer() {
         alert("Erreur enregistrement : " + errorText);
         return;
     }
-
+    await addXp(10);
+    alert("+10 XP gagnés !");
+    
     trainingIndex++;
     showTrainingQuestion();
 }
