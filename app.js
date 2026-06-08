@@ -299,3 +299,36 @@ function openUserProfile(userId) {
     localStorage.setItem("selected_user_id", userId);
     window.location.href = "admin-user-detail.html";
 }
+async function loadUserDetailAdmin() {
+    const role = localStorage.getItem("role");
+    const userId = localStorage.getItem("selected_user_id");
+
+    if (role !== "admin") {
+        alert("Accès réservé à l'administrateur.");
+        window.location.href = "home.html";
+        return;
+    }
+
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/profiles?id=eq.${userId}`,
+        {
+            headers: {
+                apikey: SUPABASE_KEY,
+                Authorization: `Bearer ${SUPABASE_KEY}`
+            }
+        }
+    );
+
+    const data = await response.json();
+    const user = data[0];
+
+    document.getElementById("userDetail").innerHTML = `
+        <h2>${user.full_name}</h2>
+        <p><strong>Identifiant :</strong> ${user.username}</p>
+        <p><strong>Rôle :</strong> ${user.role}</p>
+        <p><strong>Poste :</strong> ${user.position || user.job_title || ""}</p>
+        <p><strong>Statut :</strong> ${user.status}</p>
+        <p><strong>Niveau :</strong> ${user.level}</p>
+        <p><strong>XP :</strong> ${user.xp}</p>
+    `;
+}
