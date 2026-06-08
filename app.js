@@ -437,9 +437,6 @@ async function loadTrainingCategories() {
 }
 
 function startTraining(category) {
-
     localStorage.setItem("training_category", category);
-
-    alert("Catégorie sélectionnée : " + category);
-
+    window.location.href = "training-quiz.html";
 }
