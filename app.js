@@ -389,15 +389,12 @@ async function loadMyTeam() {
 
     container.innerHTML = "";
 
-    members.forEach(member => {
-        container.innerHTML += `
-            <div class="card compact-card">
-                <h2>${member.full_name || "Sans nom"}</h2>
-                <p><strong>Poste :</strong> ${member.position || member.job_title || ""}</p>
-                <p><strong>Rôle :</strong> ${member.role || ""}</p>
-                <p><strong>Niveau :</strong> ${member.level || 1}</p>
-                <p><strong>XP :</strong> ${member.xp || 0}</p>
-            </div>
-        `;
-    });
+   members.forEach(member => {
+    container.innerHTML += `
+        <div class="team-member">
+            👤 <strong>${member.full_name}</strong><br>
+            ${member.position || member.job_title || ""}
+        </div>
+    `;
+});
 }
