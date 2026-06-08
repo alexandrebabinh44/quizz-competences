@@ -92,4 +92,11 @@ button:hover {
 .compact-card p {
   margin: 4px 0;
 }
-  
+.team-member {
+    background: white;
+    padding: 12px 15px;
+    margin-bottom: 8px;
+    border-radius: 10px;
+    border-left: 4px solid #1d4ed8;
+    font-size: 15px;
+}  
