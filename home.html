@@ -7,7 +7,62 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<script>
+const role = localStorage.getItem("role");
 
+if (role === "user") {
+
+} else if (role === "senior") {
+
+  document.querySelector(".menu-grid").innerHTML += `
+    <div class="card">
+      <h2>👥 Mon Équipe</h2>
+      <p>Consulter les membres de l'équipe.</p>
+    </div>
+  `;
+
+} else if (role === "team_leader") {
+
+  document.querySelector(".menu-grid").innerHTML += `
+    <div class="card">
+      <h2>👥 Mon Équipe</h2>
+      <p>Gérer l'équipe.</p>
+    </div>
+
+    <div class="card">
+      <h2>📊 Résultats Équipe</h2>
+      <p>Voir les statistiques.</p>
+    </div>
+  `;
+
+} else if (role === "manager") {
+
+  document.querySelector(".menu-grid").innerHTML += `
+    <div class="card">
+      <h2>📈 Statistiques Managers</h2>
+      <p>Vue multi-équipes.</p>
+    </div>
+  `;
+
+} else if (role === "direction") {
+
+  document.querySelector(".menu-grid").innerHTML += `
+    <div class="card">
+      <h2>🏢 Dashboard Direction</h2>
+      <p>Vue globale du service.</p>
+    </div>
+  `;
+
+} else if (role === "admin") {
+
+  document.querySelector(".menu-grid").innerHTML += `
+    <div class="card">
+      <h2>⚙️ Administration</h2>
+      <p>Gestion complète de la plateforme.</p>
+    </div>
+  `;
+}
+</script>
 <div class="container wide">
   <h1 id="welcome">Bienvenue</h1>
   <p class="subtitle">Choisis ton espace de travail</p>
