@@ -7,107 +7,68 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<script>
-const role = localStorage.getItem("role");
 
-if (role === "user") {
-
-} else if (role === "senior") {
-
-  document.querySelector(".menu-grid").innerHTML += `
-    <div class="card">
-      <h2>👥 Mon Équipe</h2>
-      <p>Consulter les membres de l'équipe.</p>
-    </div>
-  `;
-
-} else if (role === "team_leader") {
-
-  document.querySelector(".menu-grid").innerHTML += `
-    <div class="card">
-      <h2>👥 Mon Équipe</h2>
-      <p>Gérer l'équipe.</p>
-    </div>
-
-    <div class="card">
-      <h2>📊 Résultats Équipe</h2>
-      <p>Voir les statistiques.</p>
-    </div>
-  `;
-
-} else if (role === "manager") {
-
-  document.querySelector(".menu-grid").innerHTML += `
-    <div class="card">
-      <h2>📈 Statistiques Managers</h2>
-      <p>Vue multi-équipes.</p>
-    </div>
-  `;
-
-} else if (role === "direction") {
-
-  document.querySelector(".menu-grid").innerHTML += `
-    <div class="card">
-      <h2>🏢 Dashboard Direction</h2>
-      <p>Vue globale du service.</p>
-    </div>
-  `;
-
-} else if (role === "admin") {
-
-  document.querySelector(".menu-grid").innerHTML += `
-    <div class="card">
-      <h2>⚙️ Administration</h2>
-      <p>Gestion complète de la plateforme.</p>
-    </div>
-  `;
-}
-</script>
 <div class="container wide">
   <h1 id="welcome">Bienvenue</h1>
   <p class="subtitle">Choisis ton espace de travail</p>
 
-  <div class="menu-grid">
-    <div class="card" onclick="window.location.href='quiz.html'">
-      <h2>📝 Bilan</h2>
-      <p>Quiz compétences avec réponses ouvertes.</p>
-    </div>
-
-    <div class="card locked">
-      <h2>🎯 Entraînement</h2>
-      <p>Quiz par catégorie.</p>
-    </div>
-
-    <div class="card locked">
-      <h2>📚 Formation</h2>
-      <p>Tips, fiches et rappels pratiques.</p>
-    </div>
-
-    <div class="card locked">
-      <h2>⚔️ Battle</h2>
-      <p>Défis 1v1 entre collègues.</p>
-    </div>
-
-    <div class="card locked">
-      <h2>🏆 Classement</h2>
-      <p>Score personnel et global.</p>
-    </div>
-
-    <div class="card locked">
-      <h2>🎖️ Badges</h2>
-      <p>Niveaux, XP et récompenses.</p>
-     <div class="card" onclick="window.location.href='profile.html'">
-  <h2>👤 Mon Profil</h2>
-  <p>Voir mes informations et ma progression.</p>
-</div>
-    </div>
-  </div>
+  <div class="menu-grid" id="menuGrid"></div>
 </div>
 
 <script>
-document.getElementById("welcome").innerText =
-"Bienvenue " + localStorage.getItem("full_name");
+const fullName = localStorage.getItem("full_name");
+const role = localStorage.getItem("role");
+
+document.getElementById("welcome").innerText = "Bienvenue " + fullName;
+
+const menu = document.getElementById("menuGrid");
+
+function addCard(title, text, page) {
+  menu.innerHTML += `
+    <div class="card" onclick="window.location.href='${page}'">
+      <h2>${title}</h2>
+      <p>${text}</p>
+    </div>
+  `;
+}
+
+addCard("📝 Bilan", "Quiz compétences avec réponses ouvertes.", "quiz.html");
+addCard("🎯 Entraînement", "Quiz par catégorie.", "#");
+addCard("📚 Formation", "Tips, fiches et rappels pratiques.", "#");
+addCard("🏆 Classement", "Score personnel et global.", "#");
+addCard("🎖️ Badges", "Niveaux, XP et récompenses.", "#");
+addCard("👤 Mon Profil", "Voir mes informations et ma progression.", "profile.html");
+
+if (role === "senior") {
+  addCard("👥 Mon Équipe", "Consulter les membres de l'équipe.", "#");
+}
+
+if (role === "team_leader") {
+  addCard("👥 Mon Équipe", "Gérer les membres de ton équipe.", "#");
+  addCard("📊 Résultats Équipe", "Voir les résultats de ton équipe.", "#");
+}
+
+if (role === "manager") {
+  addCard("📈 Dashboard Manager", "Vue multi-équipes.", "#");
+}
+
+if (role === "responsable") {
+  addCard("📊 Dashboard Responsable", "Vue service et équipes.", "#");
+}
+
+if (role === "direction") {
+  addCard("🏢 Dashboard Direction", "Vue globale relation clients.", "#");
+}
+
+if (role === "admin") {
+  addCard("⚙️ Administration", "Gestion complète de Nickel Master.", "#");
+  addCard("👥 Gestion utilisateurs", "Créer et modifier les profils.", "#");
+  addCard("🧩 Gestion quiz", "Créer questions, catégories et modules.", "#");
+}
 </script>
+
+</body>
+</html>
 
 </body>
 </html>
