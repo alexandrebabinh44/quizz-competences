@@ -29,7 +29,7 @@ async function login() {
         if (users.length === 1) {
             localStorage.setItem("profile_id", users[0].id);
             localStorage.setItem("full_name", users[0].full_name);
-            localStorage.setItem("role", user[0].role);
+            localStorage.setItem("role", users[0].role);
 
             if (users[0].must_change_password === true) {
     window.location.href = "change-password.html";
