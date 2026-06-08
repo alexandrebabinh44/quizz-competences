@@ -15,7 +15,7 @@ async function login() {
 
     try {
         const response = await fetch(
-            `${SUPABASE_URL}/rest/v1/profiles?username=eq.${username}&password=eq.${password}`,
+            `${SUPABASE_URL}/rest/v1/profiles?select=*&username=eq.${username}&password=eq.${password}`,
             {
                 headers: {
                     apikey: SUPABASE_KEY,
@@ -24,12 +24,19 @@ async function login() {
             }
         );
 
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error("Erreur Supabase :", errorText);
+            alert("Erreur Supabase : " + errorText);
+            return;
+        }
+
         const users = await response.json();
 
         if (users.length === 1) {
             localStorage.setItem("profile_id", users[0].id);
             localStorage.setItem("full_name", users[0].full_name);
-            localStorage.setItem("role", users[0].role);
+            localStorage.setItem("role", users[0].role || "user");
 
             if (users[0].must_change_password === true) {
                 window.location.href = "change-password.html";
@@ -40,10 +47,11 @@ async function login() {
             alert("Identifiant ou mot de passe incorrect.");
         }
     } catch (error) {
-        console.error(error);
-        alert("Erreur de connexion à Supabase.");
+        console.error("Erreur JS :", error);
+        alert("Erreur de connexion à Supabase : " + error.message);
     }
 }
+
 
 async function loadQuestion() {
     const profileId = localStorage.getItem("profile_id");
