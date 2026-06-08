@@ -402,3 +402,7 @@ function openTeamMember(userId) {
     localStorage.setItem("selected_user_id", userId);
     window.location.href = "admin-user-detail.html";
 }
+function logout() {
+    localStorage.clear();
+    window.location.href = "index.html";
+}
