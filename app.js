@@ -32,10 +32,10 @@ async function login() {
             localStorage.setItem("role", users[0].role);
 
             if (users[0].must_change_password === true) {
-    window.location.href = "change-password.html";
-} else {
-    window.location.href = "home.html";
-}
+                window.location.href = "change-password.html";
+            } else {
+                window.location.href = "home.html";
+            }
         } else {
             alert("Identifiant ou mot de passe incorrect.");
         }
