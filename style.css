@@ -99,5 +99,12 @@ button:hover {
     border-radius: 8px;
     border-left: 4px solid #1d4ed8;
     font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.team-member:hover {
+    background: #f5f7ff;
+    transform: translateX(3px);
 }
 }  
