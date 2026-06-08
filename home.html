@@ -23,12 +23,21 @@ document.getElementById("welcome").innerText = "Bienvenue " + fullName;
 const menu = document.getElementById("menuGrid");
 
 function addCard(title, text, page) {
-  menu.innerHTML += `
-    <div class="card" onclick="window.location.href='${page}'">
-      <h2>${title}</h2>
-      <p>${text}</p>
-    </div>
-  `;
+  if (page === "logout") {
+    menu.innerHTML += `
+      <div class="card" onclick="logout()">
+        <h2>${title}</h2>
+        <p>${text}</p>
+      </div>
+    `;
+  } else {
+    menu.innerHTML += `
+      <div class="card" onclick="window.location.href='${page}'">
+        <h2>${title}</h2>
+        <p>${text}</p>
+      </div>
+    `;
+  }
 }
 
 addCard("📝 Bilan", "Quiz compétences avec réponses ouvertes.", "quiz.html");
