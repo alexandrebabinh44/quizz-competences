@@ -504,15 +504,63 @@ function showTrainingQuestion() {
 }
 
 async function submitTrainingAnswer() {
-    const answer = document.getElementById("trainingAnswer").value.trim();
+    const profileId = localStorage.getItem("profile_id");
+    const q = trainingQuestions[trainingIndex];
+
+    let answer = "";
+
+    if (q.question_type === "open") {
+        answer = document.getElementById("trainingAnswer").value.trim();
+    } else {
+        const selected = document.querySelector('input[name="answerChoice"]:checked');
+        if (selected) {
+            answer = selected.value;
+        }
+    }
 
     if (!answer) {
         alert("Merci de saisir une réponse.");
         return;
     }
 
-    const profileId = localStorage.getItem("profile_id");
-    const q = trainingQuestions[trainingIndex];
+    let autoScore = null;
+    let finalScore = null;
+    let corrected = false;
+
+    if (q.question_type === "true_false" || q.question_type === "single_choice") {
+        if (answer === q.correct_answer) {
+            autoScore = q.max_points;
+            finalScore = q.max_points;
+        } else {
+            autoScore = 0;
+            finalScore = 0;
+        }
+        corrected = true;
+    }
+
+    if (q.question_type === "multiple_choice") {
+        const selectedChoices = Array.from(
+            document.querySelectorAll('input[name="answerChoice"]:checked')
+        ).map(input => input.value).sort().join(",");
+
+        const correctChoices = q.correct_answer
+            .split(",")
+            .map(x => x.trim())
+            .sort()
+            .join(",");
+
+        answer = selectedChoices;
+
+        if (selectedChoices === correctChoices) {
+            autoScore = q.max_points;
+            finalScore = q.max_points;
+        } else {
+            autoScore = 0;
+            finalScore = 0;
+        }
+
+        corrected = true;
+    }
 
     const response = await fetch(`${SUPABASE_URL}/rest/v1/answers`, {
         method: "POST",
@@ -525,7 +573,10 @@ async function submitTrainingAnswer() {
         body: JSON.stringify({
             profile_id: profileId,
             question_id: q.id,
-            answer_text: answer
+            answer_text: answer,
+            auto_score: autoScore,
+            final_score: finalScore,
+            corrected: corrected
         })
     });
 
@@ -534,7 +585,7 @@ async function submitTrainingAnswer() {
         alert("Erreur enregistrement : " + errorText);
         return;
     }
-    
+
     trainingIndex++;
     showTrainingQuestion();
 }
