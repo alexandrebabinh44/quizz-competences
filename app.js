@@ -500,8 +500,39 @@ function showTrainingQuestion() {
 
     document.getElementById("trainingQuestion").innerText = q.question;
 
-    document.getElementById("trainingAnswer").value = "";
+const answerZone = document.getElementById("answerZone");
+
+if (q.question_type === "open") {
+    answerZone.innerHTML = `
+        <textarea id="trainingAnswer" rows="6" placeholder="Écris ta réponse ici..."></textarea>
+    `;
 }
+
+if (q.question_type === "true_false") {
+    answerZone.innerHTML = `
+        <label><input type="radio" name="answerChoice" value="A"> ${q.choice_a}</label><br>
+        <label><input type="radio" name="answerChoice" value="B"> ${q.choice_b}</label>
+    `;
+}
+
+if (q.question_type === "single_choice") {
+    answerZone.innerHTML = `
+        <label><input type="radio" name="answerChoice" value="A"> ${q.choice_a}</label><br>
+        <label><input type="radio" name="answerChoice" value="B"> ${q.choice_b}</label><br>
+        <label><input type="radio" name="answerChoice" value="C"> ${q.choice_c}</label><br>
+        <label><input type="radio" name="answerChoice" value="D"> ${q.choice_d}</label>
+    `;
+}
+
+if (q.question_type === "multiple_choice") {
+    answerZone.innerHTML = `
+        <label><input type="checkbox" name="answerChoice" value="A"> ${q.choice_a}</label><br>
+        <label><input type="checkbox" name="answerChoice" value="B"> ${q.choice_b}</label><br>
+        <label><input type="checkbox" name="answerChoice" value="C"> ${q.choice_c}</label><br>
+        <label><input type="checkbox" name="answerChoice" value="D"> ${q.choice_d}</label>
+    `;
+}
+
 
 async function submitTrainingAnswer() {
     const profileId = localStorage.getItem("profile_id");
