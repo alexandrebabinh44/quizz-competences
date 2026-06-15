@@ -654,48 +654,44 @@ async function loadCorrections() {
     const myRole = localStorage.getItem("role");
     const myId = localStorage.getItem("profile_id");
 
-    const meResponse = await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${myId}`, {
-        headers: {
-            apikey: SUPABASE_KEY,
-            Authorization: `Bearer ${SUPABASE_KEY}`
-        }
-    });
-
-    const meData = await meResponse.json();
-    const me = meData[0];
-
-    const answersResponse = await fetch(`${SUPABASE_URL}/rest/v1/answers?select=*&order=submitted_at.desc`, {
-        headers: {
-            apikey: SUPABASE_KEY,
-            Authorization: `Bearer ${SUPABASE_KEY}`
-        }
-    });
-
-    const answers = await answersResponse.json();
     const container = document.getElementById("correctionList");
     container.innerHTML = "";
 
-    for (const answer of answers) {
-        const userResponse = await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${answer.profile_id}`, {
+    const answersResponse = await fetch(
+        `${SUPABASE_URL}/rest/v1/answers?select=*&corrected=eq.false&order=submitted_at.desc`,
+        {
             headers: {
                 apikey: SUPABASE_KEY,
                 Authorization: `Bearer ${SUPABASE_KEY}`
             }
-        });
+        }
+    );
+
+    const answers = await answersResponse.json();
+
+    for (const answer of answers) {
+        const userResponse = await fetch(
+            `${SUPABASE_URL}/rest/v1/profiles?id=eq.${answer.profile_id}`,
+            {
+                headers: {
+                    apikey: SUPABASE_KEY,
+                    Authorization: `Bearer ${SUPABASE_KEY}`
+                }
+            }
+        );
 
         const userData = await userResponse.json();
         const user = userData[0];
 
-        if (myRole === "team_leader" && user?.team_id !== me?.team_id) {
-            continue;
-        }
-
-        const questionResponse = await fetch(`${SUPABASE_URL}/rest/v1/questions?id=eq.${answer.question_id}`, {
-            headers: {
-                apikey: SUPABASE_KEY,
-                Authorization: `Bearer ${SUPABASE_KEY}`
+        const questionResponse = await fetch(
+            `${SUPABASE_URL}/rest/v1/questions?id=eq.${answer.question_id}`,
+            {
+                headers: {
+                    apikey: SUPABASE_KEY,
+                    Authorization: `Bearer ${SUPABASE_KEY}`
+                }
             }
-        });
+        );
 
         const questionData = await questionResponse.json();
         const question = questionData[0];
@@ -703,23 +699,20 @@ async function loadCorrections() {
         container.innerHTML += `
             <div class="card">
                 <h2>${user?.full_name || "Utilisateur inconnu"}</h2>
-
                 <p><strong>Catégorie :</strong> ${question?.category || ""}</p>
-
                 <p><strong>Question :</strong><br>${question?.question || ""}</p>
-
                 <p><strong>Réponse attendue :</strong><br>${question?.expected_answer || "Non renseignée"}</p>
-
                 <p><strong>Réponse donnée :</strong><br>${answer.answer_text}</p>
-
                 <p><strong>Barème :</strong> ${question?.max_points || 0} points</p>
-
-                <button onclick="alert('Notation bientôt disponible')">
-                    Corriger
-                </button>
+                <button onclick="alert('Notation bientôt disponible')">Corriger</button>
             </div>
         `;
     }
+
+    if (container.innerHTML === "") {
+        container.innerHTML = "<p>Aucune réponse à corriger pour le moment.</p>";
+    }
+}
 
     if (container.innerHTML === "") {
         container.innerHTML = "<p>Aucune réponse à corriger pour le moment.</p>";
