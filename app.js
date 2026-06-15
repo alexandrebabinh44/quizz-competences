@@ -472,6 +472,7 @@ async function loadTrainingQuiz() {
 }
 
 function showTrainingQuestion() {
+    const container = document.querySelector(".container");
     if (trainingIndex >= trainingQuestions.length) {
 
     addXp(5);
