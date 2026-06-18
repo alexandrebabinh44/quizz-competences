@@ -719,3 +719,40 @@ async function loadCorrections() {
         container.innerHTML = "<p>Aucune réponse à corriger pour le moment.</p>";
     }
 }
+async function submitTrainingAnswer() {
+    const answerInput = document.getElementById("trainingAnswer");
+    const answer = answerInput ? answerInput.value.trim() : "";
+
+    if (!answer) {
+        alert("Merci de saisir une réponse.");
+        return;
+    }
+
+    const profileId = localStorage.getItem("profile_id");
+    const q = trainingQuestions[trainingIndex];
+
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/answers`, {
+        method: "POST",
+        headers: {
+            apikey: SUPABASE_KEY,
+            Authorization: `Bearer ${SUPABASE_KEY}`,
+            "Content-Type": "application/json",
+            Prefer: "return=minimal"
+        },
+        body: JSON.stringify({
+            profile_id: profileId,
+            question_id: q.id,
+            answer_text: answer,
+            corrected: false
+        })
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        alert("Erreur enregistrement : " + errorText);
+        return;
+    }
+
+    trainingIndex++;
+    showTrainingQuestion();
+}
