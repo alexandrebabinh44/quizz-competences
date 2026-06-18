@@ -659,7 +659,7 @@ async function loadCorrections() {
     container.innerHTML = "";
 
     const answersResponse = await fetch(
-        `${SUPABASE_URL}/rest/v1/answers?select=*&corrected=eq.false&order=submitted_at.desc`,
+        `${SUPABASE_URL}/rest/v1/answers?select=*&order=submitted_at.desc`,
         {
             headers: {
                 apikey: SUPABASE_KEY,
