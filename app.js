@@ -732,3 +732,33 @@ async function loadCorrections() {
     });
 }
 }
+async function loadRanking() {
+    const container = document.getElementById("rankingList");
+
+    if (!container) return;
+
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/profiles?select=*&order=xp.desc`,
+        {
+            headers: {
+                apikey: SUPABASE_KEY,
+                Authorization: `Bearer ${SUPABASE_KEY}`
+            }
+        }
+    );
+
+    const users = await response.json();
+
+    container.innerHTML = "";
+
+    users.forEach((user, index) => {
+        container.innerHTML += `
+            <div class="card">
+                <h2>#${index + 1} - ${user.full_name || "Sans nom"}</h2>
+                <p><strong>Poste :</strong> ${user.position || ""}</p>
+                <p><strong>Niveau :</strong> ${user.level || 1}</p>
+                <p><strong>XP :</strong> ${user.xp || 0}</p>
+            </div>
+        `;
+    });
+}
