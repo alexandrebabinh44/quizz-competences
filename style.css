@@ -376,3 +376,57 @@ body {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+/* Correctif largeur écran portable */
+.dashboard-layout {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+.sidebar {
+  width: 210px;
+  min-width: 210px;
+}
+
+.dashboard-main {
+  width: calc(100vw - 210px);
+  max-width: calc(100vw - 210px);
+  padding: 18px;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.dashboard-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.dash-card {
+  min-width: 0;
+}
+
+.categories-card {
+  grid-column: span 2;
+}
+
+.category-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.topbar {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 1200px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .categories-card {
+    grid-column: span 1;
+  }
+
+  .category-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
