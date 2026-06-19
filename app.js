@@ -442,6 +442,7 @@ function startTraining(category) {
     localStorage.setItem("training_category", category);
     window.location.href = "training-quiz.html";
 }
+
 let trainingQuestions = [];
 let trainingIndex = 0;
 
@@ -467,32 +468,28 @@ async function loadTrainingQuiz() {
     );
 
     trainingQuestions = await response.json();
-
     showTrainingQuestion();
 }
 
 function showTrainingQuestion() {
-    const container = document.querySelector(".container");
     if (trainingIndex >= trainingQuestions.length) {
+        addXp(5);
 
-    addXp(5);
+        document.querySelector(".container").innerHTML = `
+            <h2>Entraînement terminé ✅</h2>
+            <p>Tu as terminé cette catégorie.</p>
+            <p><strong>+5 XP de participation gagnés</strong></p>
 
-    document.querySelector(".container").innerHTML = `
-        <h2>Entraînement terminé ✅</h2>
-        <p>Tu as terminé cette catégorie.</p>
-        <p><strong>+5 XP de participation gagnés</strong></p>
+            <button onclick="window.location.href='training.html'">
+                Choisir une autre catégorie
+            </button>
 
-        <button onclick="window.location.href='training.html'">
-            Choisir une autre catégorie
-        </button>
-
-        <button onclick="window.location.href='home.html'">
-            Retour accueil
-        </button>
-    `;
-
-    return;
-}
+            <button onclick="window.location.href='home.html'">
+                Retour accueil
+            </button>
+        `;
+        return;
+    }
 
     const q = trainingQuestions[trainingIndex];
 
@@ -501,39 +498,40 @@ function showTrainingQuestion() {
 
     document.getElementById("trainingQuestion").innerText = q.question;
 
-const answerZone = document.getElementById("answerZone");
+    const answerZone = document.getElementById("answerZone");
+    answerZone.innerHTML = "";
 
-if (q.question_type === "open") {
-    answerZone.innerHTML = `
-        <textarea id="trainingAnswer" rows="6" placeholder="Écris ta réponse ici..."></textarea>
-    `;
+    if (q.question_type === "open") {
+        answerZone.innerHTML = `
+            <textarea id="trainingAnswer" rows="6" placeholder="Écris ta réponse ici..."></textarea>
+        `;
+    }
+
+    if (q.question_type === "true_false") {
+        answerZone.innerHTML = `
+            <label><input type="radio" name="answerChoice" value="A"> ${q.choice_a}</label><br>
+            <label><input type="radio" name="answerChoice" value="B"> ${q.choice_b}</label>
+        `;
+    }
+
+    if (q.question_type === "single_choice") {
+        answerZone.innerHTML = `
+            <label><input type="radio" name="answerChoice" value="A"> ${q.choice_a}</label><br>
+            <label><input type="radio" name="answerChoice" value="B"> ${q.choice_b}</label><br>
+            <label><input type="radio" name="answerChoice" value="C"> ${q.choice_c}</label><br>
+            <label><input type="radio" name="answerChoice" value="D"> ${q.choice_d}</label>
+        `;
+    }
+
+    if (q.question_type === "multiple_choice") {
+        answerZone.innerHTML = `
+            <label><input type="checkbox" name="answerChoice" value="A"> ${q.choice_a}</label><br>
+            <label><input type="checkbox" name="answerChoice" value="B"> ${q.choice_b}</label><br>
+            <label><input type="checkbox" name="answerChoice" value="C"> ${q.choice_c}</label><br>
+            <label><input type="checkbox" name="answerChoice" value="D"> ${q.choice_d}</label>
+        `;
+    }
 }
-
-if (q.question_type === "true_false") {
-    answerZone.innerHTML = `
-        <label><input type="radio" name="answerChoice" value="A"> ${q.choice_a}</label><br>
-        <label><input type="radio" name="answerChoice" value="B"> ${q.choice_b}</label>
-    `;
-}
-
-if (q.question_type === "single_choice") {
-    answerZone.innerHTML = `
-        <label><input type="radio" name="answerChoice" value="A"> ${q.choice_a}</label><br>
-        <label><input type="radio" name="answerChoice" value="B"> ${q.choice_b}</label><br>
-        <label><input type="radio" name="answerChoice" value="C"> ${q.choice_c}</label><br>
-        <label><input type="radio" name="answerChoice" value="D"> ${q.choice_d}</label>
-    `;
-}
-
-if (q.question_type === "multiple_choice") {
-    answerZone.innerHTML = `
-        <label><input type="checkbox" name="answerChoice" value="A"> ${q.choice_a}</label><br>
-        <label><input type="checkbox" name="answerChoice" value="B"> ${q.choice_b}</label><br>
-        <label><input type="checkbox" name="answerChoice" value="C"> ${q.choice_c}</label><br>
-        <label><input type="checkbox" name="answerChoice" value="D"> ${q.choice_d}</label>
-    `;
-}
-
 
 async function submitTrainingAnswer() {
     const profileId = localStorage.getItem("profile_id");
@@ -542,12 +540,20 @@ async function submitTrainingAnswer() {
     let answer = "";
 
     if (q.question_type === "open") {
-        answer = document.getElementById("trainingAnswer").value.trim();
-    } else {
+        const input = document.getElementById("trainingAnswer");
+        answer = input ? input.value.trim() : "";
+    }
+
+    if (q.question_type === "true_false" || q.question_type === "single_choice") {
         const selected = document.querySelector('input[name="answerChoice"]:checked');
-        if (selected) {
-            answer = selected.value;
-        }
+        answer = selected ? selected.value : "";
+    }
+
+    if (q.question_type === "multiple_choice") {
+        answer = Array.from(document.querySelectorAll('input[name="answerChoice"]:checked'))
+            .map(input => input.value)
+            .sort()
+            .join(",");
     }
 
     if (!answer) {
@@ -567,23 +573,18 @@ async function submitTrainingAnswer() {
             autoScore = 0;
             finalScore = 0;
         }
+
         corrected = true;
     }
 
     if (q.question_type === "multiple_choice") {
-        const selectedChoices = Array.from(
-            document.querySelectorAll('input[name="answerChoice"]:checked')
-        ).map(input => input.value).sort().join(",");
-
         const correctChoices = q.correct_answer
             .split(",")
             .map(x => x.trim())
             .sort()
             .join(",");
 
-        answer = selectedChoices;
-
-        if (selectedChoices === correctChoices) {
+        if (answer === correctChoices) {
             autoScore = q.max_points;
             finalScore = q.max_points;
         } else {
@@ -621,12 +622,11 @@ async function submitTrainingAnswer() {
     trainingIndex++;
     showTrainingQuestion();
 }
+
 async function addXp(amount) {
     const profileId = localStorage.getItem("profile_id");
 
-    if (!profileId) {
-        return;
-    }
+    if (!profileId) return;
 
     const currentXp = parseInt(localStorage.getItem("xp") || "0");
     const newXp = currentXp + amount;
@@ -651,11 +651,12 @@ async function addXp(amount) {
         localStorage.setItem("level", newLevel);
     }
 }
-async function loadCorrections() {
-    const myRole = localStorage.getItem("role");
-    const myId = localStorage.getItem("profile_id");
 
+async function loadCorrections() {
     const container = document.getElementById("correctionList");
+
+    if (!container) return;
+
     container.innerHTML = "";
 
     const answersResponse = await fetch(
@@ -703,117 +704,18 @@ async function loadCorrections() {
                 <p><strong>Catégorie :</strong> ${question?.category || ""}</p>
                 <p><strong>Question :</strong><br>${question?.question || ""}</p>
                 <p><strong>Réponse attendue :</strong><br>${question?.expected_answer || "Non renseignée"}</p>
-                <p><strong>Réponse donnée :</strong><br>${answer.answer_text}</p>
-                <p><strong>Barème :</strong> ${question?.max_points || 0} points</p>
-                <button onclick="alert('Notation bientôt disponible')">Corriger</button>
-            </div>
-        `;
-    }
-
-    if (container.innerHTML === "") {
-        container.innerHTML = "<p>Aucune réponse à corriger pour le moment.</p>";
-    }
-}
-
-    if (container.innerHTML === "") {
-        container.innerHTML = "<p>Aucune réponse à corriger pour le moment.</p>";
-    }
-}
-async function submitTrainingAnswer() {
-    const answerInput = document.getElementById("trainingAnswer");
-    const answer = answerInput ? answerInput.value.trim() : "";
-
-    if (!answer) {
-        alert("Merci de saisir une réponse.");
-        return;
-    }
-
-    const profileId = localStorage.getItem("profile_id");
-    const q = trainingQuestions[trainingIndex];
-
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/answers`, {
-        method: "POST",
-        headers: {
-            apikey: SUPABASE_KEY,
-            Authorization: `Bearer ${SUPABASE_KEY}`,
-            "Content-Type": "application/json",
-            Prefer: "return=minimal"
-        },
-        body: JSON.stringify({
-            profile_id: profileId,
-            question_id: q.id,
-            answer_text: answer,
-            corrected: false
-        })
-    });
-
-    if (!response.ok) {
-        const errorText = await response.text();
-        alert("Erreur enregistrement : " + errorText);
-        return;
-    }
-
-    trainingIndex++;
-    showTrainingQuestion();
-}
-async function loadCorrections() {
-    const container = document.getElementById("correctionList");
-
-    if (!container) {
-        return;
-    }
-
-    container.innerHTML = "";
-
-    const answersResponse = await fetch(
-        `${SUPABASE_URL}/rest/v1/answers?select=*&order=submitted_at.desc`,
-        {
-            headers: {
-                apikey: SUPABASE_KEY,
-                Authorization: `Bearer ${SUPABASE_KEY}`
-            }
-        }
-    );
-
-    const answers = await answersResponse.json();
-
-    for (const answer of answers) {
-        const userResponse = await fetch(
-            `${SUPABASE_URL}/rest/v1/profiles?id=eq.${answer.profile_id}`,
-            {
-                headers: {
-                    apikey: SUPABASE_KEY,
-                    Authorization: `Bearer ${SUPABASE_KEY}`
-                }
-            }
-        );
-
-        const userData = await userResponse.json();
-        const user = userData[0];
-
-        const questionResponse = await fetch(
-            `${SUPABASE_URL}/rest/v1/questions?id=eq.${answer.question_id}`,
-            {
-                headers: {
-                    apikey: SUPABASE_KEY,
-                    Authorization: `Bearer ${SUPABASE_KEY}`
-                }
-            }
-        );
-
-        const questionData = await questionResponse.json();
-        const question = questionData[0];
-
-        container.innerHTML += `
-            <div class="card">
-                <h2>${user?.full_name || "Utilisateur inconnu"}</h2>
-                <p><strong>Question :</strong><br>${question?.question || ""}</p>
-                <p><strong>Réponse attendue :</strong><br>${question?.expected_answer || "Non renseignée"}</p>
                 <p><strong>Réponse donnée :</strong><br>${answer.answer_text || ""}</p>
                 <p><strong>Barème :</strong> ${question?.max_points || 0} points</p>
+                <p><strong>Corrigé :</strong> ${answer.corrected ? "Oui" : "Non"}</p>
             </div>
         `;
     }
+
+    if (container.innerHTML === "") {
+        container.innerHTML = "<p>Aucune réponse à corriger pour le moment.</p>";
+    }
+}
+
 
     if (container.innerHTML === "") {
         container.innerHTML = "<p>Aucune réponse à corriger pour le moment.</p>";
