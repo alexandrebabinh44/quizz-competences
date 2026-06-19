@@ -4,6 +4,13 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 let currentQuestionIndex = 0;
 let questions = [];
 
+let trainingQuestions = [];
+let trainingIndex = 0;
+
+/* =========================
+   CONNEXION
+========================= */
+
 async function login() {
     const username = document.getElementById("username").value.trim();
     const password = document.getElementById("password").value.trim();
@@ -26,7 +33,6 @@ async function login() {
 
         if (!response.ok) {
             const errorText = await response.text();
-            console.error("Erreur Supabase :", errorText);
             alert("Erreur Supabase : " + errorText);
             return;
         }
@@ -49,101 +55,20 @@ async function login() {
             alert("Identifiant ou mot de passe incorrect.");
         }
     } catch (error) {
-        console.error("Erreur JS :", error);
-        alert("Erreur de connexion à Supabase : " + error.message);
-    }
-}
-
-
-async function loadQuestion() {
-    const profileId = localStorage.getItem("profile_id");
-    const fullName = localStorage.getItem("full_name");
-
-    if (!profileId) {
-        window.location.href = "index.html";
-        return;
-    }
-
-    document.getElementById("welcome").innerText =
-        "Bienvenue " + fullName;
-
-    try {
-        const response = await fetch(
-            `${SUPABASE_URL}/rest/v1/questions?select=*&order=order_number.asc`,
-            {
-                headers: {
-                    apikey: SUPABASE_KEY,
-                    Authorization: `Bearer ${SUPABASE_KEY}`
-                }
-            }
-        );
-
-        questions = await response.json();
-
-        showQuestion();
-    } catch (error) {
         console.error(error);
-        alert("Impossible de charger les questions.");
+        alert("Erreur de connexion à Supabase.");
     }
 }
 
-function showQuestion() {
-    if (currentQuestionIndex >= questions.length) {
-        document.querySelector(".container").innerHTML = `
-            <h2>Quiz terminé ✅</h2>
-            <p>Merci, tes réponses ont été enregistrées.</p>
-        `;
-        return;
-    }
-
-    const q = questions[currentQuestionIndex];
-
-    document.getElementById("progress").innerText =
-        `Question ${currentQuestionIndex + 1} / ${questions.length}`;
-
-    document.getElementById("category").innerText =
-        `Catégorie : ${q.category}`;
-
-    document.getElementById("questionText").innerText =
-        q.question;
-
-    document.getElementById("answerText").value = "";
+function logout() {
+    localStorage.clear();
+    window.location.href = "index.html";
 }
 
-async function submitAnswer() {
-    const answer = document.getElementById("answerText").value.trim();
+/* =========================
+   CHANGEMENT MOT DE PASSE
+========================= */
 
-    if (!answer) {
-        alert("Merci de saisir une réponse.");
-        return;
-    }
-
-    const profileId = localStorage.getItem("profile_id");
-    const q = questions[currentQuestionIndex];
-
-    try {
-        await fetch(`${SUPABASE_URL}/rest/v1/answers`, {
-            method: "POST",
-            headers: {
-                apikey: SUPABASE_KEY,
-                Authorization: `Bearer ${SUPABASE_KEY}`,
-                "Content-Type": "application/json",
-                Prefer: "return=minimal"
-            },
-            body: JSON.stringify({
-                profile_id: profileId,
-                question_id: q.id,
-                answer_text: answer
-            })
-        });
-
-        currentQuestionIndex++;
-        showQuestion();
-    } catch (error) {
-        console.error(error);
-        alert("Erreur lors de l'enregistrement.");
-    }
-}
 async function changePassword() {
     const profileId = localStorage.getItem("profile_id");
     const newPassword = document.getElementById("newPassword").value.trim();
@@ -190,8 +115,12 @@ async function changePassword() {
         alert("Erreur lors de la mise à jour du mot de passe.");
     }
 }
-async function loadProfile() {
 
+/* =========================
+   PROFIL
+========================= */
+
+async function loadProfile() {
     const profileId = localStorage.getItem("profile_id");
 
     if (!profileId) {
@@ -224,43 +153,11 @@ async function loadProfile() {
     document.getElementById("level").innerText = user.level || 1;
     document.getElementById("xp").innerText = user.xp || 0;
 }
-async function loadUsersAdmin() {
-    const role = localStorage.getItem("role");
 
-    if (!role) {
-    window.location.href = "index.html";
-    return;
-}
+/* =========================
+   ADMIN USERS
+========================= */
 
-    const response = await fetch(
-        `${SUPABASE_URL}/rest/v1/profiles?select=*&order=full_name.asc`,
-        {
-            headers: {
-                apikey: SUPABASE_KEY,
-                Authorization: `Bearer ${SUPABASE_KEY}`
-            }
-        }
-    );
-
-    const users = await response.json();
-    const container = document.getElementById("usersList");
-
-    container.innerHTML = "";
-
-    users.forEach(user => {
-        container.innerHTML += `
-            <div class="card">
-                <h2>${user.full_name || "Sans nom"}</h2>
-                <p><strong>Identifiant :</strong> ${user.username || ""}</p>
-                <p><strong>Rôle :</strong> ${user.role || ""}</p>
-                <p><strong>Poste :</strong> ${user.position || user.job_title || ""}</p>
-                <p><strong>Statut :</strong> ${user.status || ""}</p>
-                <p><strong>Niveau :</strong> ${user.level || 1}</p>
-                <p><strong>XP :</strong> ${user.xp || 0}</p>
-            </div>
-        `;
-    });
-}
 async function loadUsersAdmin() {
     const role = localStorage.getItem("role");
 
@@ -300,6 +197,7 @@ function openUserProfile(userId) {
     localStorage.setItem("selected_user_id", userId);
     window.location.href = "admin-user-detail.html";
 }
+
 async function loadUserDetailAdmin() {
     const role = localStorage.getItem("role");
     const userId = localStorage.getItem("selected_user_id");
@@ -328,11 +226,16 @@ async function loadUserDetailAdmin() {
         <p><strong>Identifiant :</strong> ${user.username}</p>
         <p><strong>Rôle :</strong> ${user.role}</p>
         <p><strong>Poste :</strong> ${user.position || user.job_title || ""}</p>
-        <p><strong>Statut :</strong> ${user.status}</p>
-        <p><strong>Niveau :</strong> ${user.level}</p>
-        <p><strong>XP :</strong> ${user.xp}</p>
+        <p><strong>Statut :</strong> ${user.status || ""}</p>
+        <p><strong>Niveau :</strong> ${user.level || 1}</p>
+        <p><strong>XP :</strong> ${user.xp || 0}</p>
     `;
 }
+
+/* =========================
+   MON ÉQUIPE
+========================= */
+
 async function loadMyTeam() {
     const profileId = localStorage.getItem("profile_id");
 
@@ -372,8 +275,7 @@ async function loadMyTeam() {
     const teamData = await teamResponse.json();
     const team = teamData[0];
 
-    document.getElementById("teamTitle").innerText =
-        team ? team.name : "Mon équipe";
+    document.getElementById("teamTitle").innerText = team ? team.name : "Mon équipe";
 
     const membersResponse = await fetch(
         `${SUPABASE_URL}/rest/v1/profiles?team_id=eq.${me.team_id}&order=full_name.asc`,
@@ -390,26 +292,114 @@ async function loadMyTeam() {
 
     container.innerHTML = "";
 
-  members.forEach(member => {
-    container.innerHTML += `
-        <div class="team-member" onclick="openTeamMember('${member.id}')">
-            <strong>${member.full_name}</strong>
-            | ${member.position || member.job_title || ""}
-            | Niveau ${member.level || 1}
-        </div>
-    `;
-});
+    members.forEach(member => {
+        container.innerHTML += `
+            <div class="team-member" onclick="openTeamMember('${member.id}')">
+                <strong>${member.full_name}</strong>
+                | ${member.position || member.job_title || ""}
+                | Niveau ${member.level || 1}
+            </div>
+        `;
+    });
 }
+
 function openTeamMember(userId) {
     localStorage.setItem("selected_user_id", userId);
     window.location.href = "admin-user-detail.html";
 }
-function logout() {
-    localStorage.clear();
-    window.location.href = "index.html";
-}
-async function loadTrainingCategories() {
 
+/* =========================
+   QUIZ BILAN CLASSIQUE
+========================= */
+
+async function loadQuestion() {
+    const profileId = localStorage.getItem("profile_id");
+    const fullName = localStorage.getItem("full_name");
+
+    if (!profileId) {
+        window.location.href = "index.html";
+        return;
+    }
+
+    document.getElementById("welcome").innerText = "Bienvenue " + fullName;
+
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/questions?select=*&question_type=eq.open&order=order_number.asc`,
+        {
+            headers: {
+                apikey: SUPABASE_KEY,
+                Authorization: `Bearer ${SUPABASE_KEY}`
+            }
+        }
+    );
+
+    questions = await response.json();
+    showQuestion();
+}
+
+function showQuestion() {
+    if (currentQuestionIndex >= questions.length) {
+        document.querySelector(".container").innerHTML = `
+            <h2>Quiz terminé ✅</h2>
+            <p>Merci, tes réponses ont été enregistrées.</p>
+        `;
+        return;
+    }
+
+    const q = questions[currentQuestionIndex];
+
+    document.getElementById("progress").innerText =
+        `Question ${currentQuestionIndex + 1} / ${questions.length}`;
+
+    document.getElementById("category").innerText =
+        `Catégorie : ${q.category}`;
+
+    document.getElementById("questionText").innerText = q.question;
+    document.getElementById("answerText").value = "";
+}
+
+async function submitAnswer() {
+    const answer = document.getElementById("answerText").value.trim();
+
+    if (!answer) {
+        alert("Merci de saisir une réponse.");
+        return;
+    }
+
+    const profileId = localStorage.getItem("profile_id");
+    const q = questions[currentQuestionIndex];
+
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/answers`, {
+        method: "POST",
+        headers: {
+            apikey: SUPABASE_KEY,
+            Authorization: `Bearer ${SUPABASE_KEY}`,
+            "Content-Type": "application/json",
+            Prefer: "return=minimal"
+        },
+        body: JSON.stringify({
+            profile_id: profileId,
+            question_id: q.id,
+            answer_text: answer,
+            corrected: false
+        })
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        alert("Erreur enregistrement : " + errorText);
+        return;
+    }
+
+    currentQuestionIndex++;
+    showQuestion();
+}
+
+/* =========================
+   ENTRAÎNEMENT
+========================= */
+
+async function loadTrainingCategories() {
     const response = await fetch(
         `${SUPABASE_URL}/rest/v1/questions?select=category`,
         {
@@ -421,16 +411,14 @@ async function loadTrainingCategories() {
     );
 
     const data = await response.json();
-
     const uniqueCategories = [...new Set(data.map(x => x.category))];
-
     const container = document.getElementById("categories");
 
-    uniqueCategories.forEach(category => {
+    container.innerHTML = "";
 
+    uniqueCategories.forEach(category => {
         container.innerHTML += `
-            <div class="card"
-                 onclick="startTraining('${category}')">
+            <div class="card" onclick="startTraining('${category}')">
                 <h2>${category}</h2>
                 <p>Lancer l'entraînement</p>
             </div>
@@ -442,9 +430,6 @@ function startTraining(category) {
     localStorage.setItem("training_category", category);
     window.location.href = "training-quiz.html";
 }
-
-let trainingQuestions = [];
-let trainingIndex = 0;
 
 async function loadTrainingQuiz() {
     const category = localStorage.getItem("training_category");
@@ -505,25 +490,19 @@ function showTrainingQuestion() {
         answerZone.innerHTML = `
             <textarea id="trainingAnswer" rows="6" placeholder="Écris ta réponse ici..."></textarea>
         `;
-    }
-
-    if (q.question_type === "true_false") {
+    } else if (q.question_type === "true_false") {
         answerZone.innerHTML = `
             <label><input type="radio" name="answerChoice" value="A"> ${q.choice_a}</label><br>
             <label><input type="radio" name="answerChoice" value="B"> ${q.choice_b}</label>
         `;
-    }
-
-    if (q.question_type === "single_choice") {
+    } else if (q.question_type === "single_choice") {
         answerZone.innerHTML = `
             <label><input type="radio" name="answerChoice" value="A"> ${q.choice_a}</label><br>
             <label><input type="radio" name="answerChoice" value="B"> ${q.choice_b}</label><br>
             <label><input type="radio" name="answerChoice" value="C"> ${q.choice_c}</label><br>
             <label><input type="radio" name="answerChoice" value="D"> ${q.choice_d}</label>
         `;
-    }
-
-    if (q.question_type === "multiple_choice") {
+    } else if (q.question_type === "multiple_choice") {
         answerZone.innerHTML = `
             <label><input type="checkbox" name="answerChoice" value="A"> ${q.choice_a}</label><br>
             <label><input type="checkbox" name="answerChoice" value="B"> ${q.choice_b}</label><br>
@@ -542,18 +521,14 @@ async function submitTrainingAnswer() {
     if (q.question_type === "open") {
         const input = document.getElementById("trainingAnswer");
         answer = input ? input.value.trim() : "";
-    }
-
-    if (q.question_type === "true_false" || q.question_type === "single_choice") {
-        const selected = document.querySelector('input[name="answerChoice"]:checked');
-        answer = selected ? selected.value : "";
-    }
-
-    if (q.question_type === "multiple_choice") {
+    } else if (q.question_type === "multiple_choice") {
         answer = Array.from(document.querySelectorAll('input[name="answerChoice"]:checked'))
             .map(input => input.value)
             .sort()
             .join(",");
+    } else {
+        const selected = document.querySelector('input[name="answerChoice"]:checked');
+        answer = selected ? selected.value : "";
     }
 
     if (!answer) {
@@ -566,14 +541,8 @@ async function submitTrainingAnswer() {
     let corrected = false;
 
     if (q.question_type === "true_false" || q.question_type === "single_choice") {
-        if (answer === q.correct_answer) {
-            autoScore = q.max_points;
-            finalScore = q.max_points;
-        } else {
-            autoScore = 0;
-            finalScore = 0;
-        }
-
+        autoScore = answer === q.correct_answer ? q.max_points : 0;
+        finalScore = autoScore;
         corrected = true;
     }
 
@@ -584,14 +553,8 @@ async function submitTrainingAnswer() {
             .sort()
             .join(",");
 
-        if (answer === correctChoices) {
-            autoScore = q.max_points;
-            finalScore = q.max_points;
-        } else {
-            autoScore = 0;
-            finalScore = 0;
-        }
-
+        autoScore = answer === correctChoices ? q.max_points : 0;
+        finalScore = autoScore;
         corrected = true;
     }
 
@@ -623,6 +586,10 @@ async function submitTrainingAnswer() {
     showTrainingQuestion();
 }
 
+/* =========================
+   XP
+========================= */
+
 async function addXp(amount) {
     const profileId = localStorage.getItem("profile_id");
 
@@ -651,6 +618,10 @@ async function addXp(amount) {
         localStorage.setItem("level", newLevel);
     }
 }
+
+/* =========================
+   CORRECTIONS
+========================= */
 
 async function loadCorrections() {
     const container = document.getElementById("correctionList");
@@ -710,12 +681,6 @@ async function loadCorrections() {
             </div>
         `;
     }
-
-    if (container.innerHTML === "") {
-        container.innerHTML = "<p>Aucune réponse à corriger pour le moment.</p>";
-    }
-}
-
 
     if (container.innerHTML === "") {
         container.innerHTML = "<p>Aucune réponse à corriger pour le moment.</p>";
