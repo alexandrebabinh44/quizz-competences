@@ -685,4 +685,50 @@ async function loadCorrections() {
     if (container.innerHTML === "") {
         container.innerHTML = "<p>Aucune réponse à corriger pour le moment.</p>";
     }
+   async function loadRanking() {
+
+    const container = document.getElementById("rankingList");
+
+    if (!container) {
+        return;
+    }
+
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/profiles?select=*&order=xp.desc`,
+        {
+            headers: {
+                apikey: SUPABASE_KEY,
+                Authorization: `Bearer ${SUPABASE_KEY}`
+            }
+        }
+    );
+
+    const users = await response.json();
+
+    container.innerHTML = "";
+
+    users.forEach((user, index) => {
+
+        container.innerHTML += `
+            <div class="card">
+                <h2>#${index + 1} - ${user.full_name}</h2>
+
+                <p>
+                    <strong>Niveau :</strong>
+                    ${user.level || 1}
+                </p>
+
+                <p>
+                    <strong>XP :</strong>
+                    ${user.xp || 0}
+                </p>
+
+                <p>
+                    <strong>Poste :</strong>
+                    ${user.position || ""}
+                </p>
+            </div>
+        `;
+    });
+}
 }
