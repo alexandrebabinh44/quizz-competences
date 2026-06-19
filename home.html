@@ -6,76 +6,150 @@
   <title>Nickel Master</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
-<div class="container wide">
-  <h1 id="welcome">Bienvenue</h1>
-  <p class="subtitle">Choisis ton espace de travail</p>
 
-  <div class="menu-grid" id="menuGrid"></div>
+<body class="dashboard-body">
+
+<div class="dashboard-layout">
+
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">≡</div>
+      <div>
+        <strong>NICKEL</strong><br>
+        <span>MASTER</span>
+      </div>
+    </div>
+
+    <nav class="side-menu">
+      <button class="active" onclick="window.location.href='home.html'">🏠 Accueil</button>
+      <button onclick="window.location.href='training.html'">🎯 Entraînement</button>
+      <button onclick="window.location.href='#'">🏆 Challenges</button>
+      <button onclick="window.location.href='ranking.html'">📊 Classements</button>
+      <button onclick="window.location.href='#'">⚔️ Battle</button>
+      <button onclick="window.location.href='#'">🎮 Kahoot</button>
+      <button onclick="window.location.href='profile.html'">📈 Mes stats</button>
+      <button onclick="window.location.href='#'">💡 Boîte à idées</button>
+      <button onclick="window.location.href='#'">🚩 Signalements</button>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <button onclick="window.location.href='#'">⚙️ Paramètres</button>
+      <button onclick="logout()">🚪 Déconnexion</button>
+    </div>
+  </aside>
+
+  <main class="dashboard-main">
+
+    <header class="topbar">
+      <input type="text" placeholder="Rechercher..." disabled>
+      <div class="topbar-right">
+        <span class="online-dot"></span>
+        <span>12 personnes connectées</span>
+        <span>🔔</span>
+        <strong id="topUserName">Utilisateur</strong>
+      </div>
+    </header>
+
+    <section class="welcome-section">
+      <h1 id="welcome">Bonjour 👋</h1>
+      <p>Prêt à devenir le meilleur ?</p>
+    </section>
+
+    <section class="dashboard-grid">
+
+      <div class="dash-card mission-card">
+        <h3>Mission du jour</h3>
+        <div class="mission-line">✅ Répondre à 3 questions <strong>0/3</strong></div>
+        <div class="mission-line">🎯 Faire un quiz Sécurité <strong>0/1</strong></div>
+        <div class="mission-line">📝 Corriger 2 réponses <strong>1/2</strong></div>
+        <div class="reward">🎁 Récompense : +15 XP</div>
+      </div>
+
+      <div class="dash-card level-card">
+        <div>
+          <span>Ton niveau</span>
+          <h2 id="userLevel">Niveau 1</h2>
+          <p>Expert</p>
+          <div class="progress-bar">
+            <div style="width:45%"></div>
+          </div>
+          <small id="userXp">0 / 100 XP</small>
+        </div>
+        <div class="avatar">🧑‍💼</div>
+      </div>
+
+      <div class="dash-card stats-card">
+        <h3>Tes statistiques</h3>
+        <p>📚 Quiz terminés <strong>0</strong></p>
+        <p>✅ Bonnes réponses <strong>0%</strong></p>
+        <p>🔥 XP total <strong id="statXp">0</strong></p>
+        <p>🏅 Badges obtenus <strong>0</strong></p>
+      </div>
+
+      <div class="dash-card resume-card">
+        <h3>Reprendre un entraînement</h3>
+        <strong>🔐 Sécurité</strong>
+        <p>10 questions</p>
+        <div class="progress-bar">
+          <div style="width:60%"></div>
+        </div>
+        <button onclick="window.location.href='training.html'">Continuer</button>
+      </div>
+
+      <div class="dash-card categories-card">
+        <div class="card-title-row">
+          <h3>Catégories</h3>
+          <span>Voir toutes</span>
+        </div>
+        <div class="category-list">
+          <div>🔒<strong>Authentification</strong><small>12 quiz</small></div>
+          <div>🛡️<strong>Sécurité</strong><small>15 quiz</small></div>
+          <div>📦<strong>Produits</strong><small>18 quiz</small></div>
+          <div>💬<strong>Réclamations</strong><small>10 quiz</small></div>
+          <div>✅<strong>Conformité</strong><small>8 quiz</small></div>
+        </div>
+      </div>
+
+      <div class="dash-card ranking-card">
+        <h3>Classement hebdomadaire</h3>
+        <p>🥇 Fanny <strong>1250 XP</strong></p>
+        <p>🥈 Yanis <strong>1120 XP</strong></p>
+        <p>🥉 Léo <strong>960 XP</strong></p>
+        <button onclick="window.location.href='ranking.html'">Voir le classement</button>
+      </div>
+
+      <div class="dash-card badges-card">
+        <h3>Derniers badges</h3>
+        <div class="badges">
+          <span>🏆</span><span>⭐</span><span>🔥</span>
+          <span>🛡️</span><span>🎯</span><span>💎</span>
+        </div>
+      </div>
+
+      <div class="dash-card activity-card">
+        <h3>Activité en direct</h3>
+        <p>Fanny a terminé un quiz Sécurité <small>Il y a 2 min</small></p>
+        <p>Léo a gagné un battle <small>Il y a 5 min</small></p>
+        <p>Maxime a obtenu un badge <small>Il y a 16 min</small></p>
+      </div>
+
+    </section>
+
+  </main>
 </div>
 
-<script>
-const fullName = localStorage.getItem("full_name");
-const role = localStorage.getItem("role");
-
-document.getElementById("welcome").innerText = "Bienvenue " + fullName;
-
-const menu = document.getElementById("menuGrid");
-
-function addCard(title, text, page) {
-  if (page === "logout") {
-    menu.innerHTML += `
-      <div class="card" onclick="logout()">
-        <h2>${title}</h2>
-        <p>${text}</p>
-      </div>
-    `;
-  } else {
-    menu.innerHTML += `
-      <div class="card" onclick="window.location.href='${page}'">
-        <h2>${title}</h2>
-        <p>${text}</p>
-      </div>
-    `;
-  }
-}
-addCard("🚪 Déconnexion", "Changer de profil.", "logout");
-addCard("📝 Bilan", "Quiz compétences avec réponses ouvertes.", "quiz.html");
-addCard("🎯 Entraînement", "Quiz par catégorie.", "training.html");
-addCard("📚 Formation", "Tips, fiches et rappels pratiques.", "#");
-addCard("🏆 Classement", "Score personnel et global.", "ranking.html");
-addCard("🎖️ Badges", "Niveaux, XP et récompenses.", "#");
-addCard("👤 Mon Profil", "Voir mes informations et ma progression.", "profile.html");
-
-if (role === "senior") {
-  addCard("👥 Mon Équipe", "Consulter les membres de l'équipe.", "team.html");
-}
-
-if (role === "team_leader") {
-  addCard("👥 Mon Équipe", "Gérer les membres de ton équipe.", "team.html");
-  addCard("📊 Résultats Équipe", "Voir les résultats de ton équipe.", "#");
-  addCard("✅ Correction", "Corriger les réponses des collaborateurs.", "correction.html");
-}
-
-if (role === "manager") {
-  addCard("📈 Dashboard Manager", "Vue multi-équipes.", "#");
-}
-
-if (role === "responsable") {
-  addCard("📊 Dashboard Responsable", "Vue service et équipes.", "#");
-}
-
-if (role === "direction") {
-  addCard("🏢 Dashboard Direction", "Vue globale relation clients.", "#");
-}
-
-if (role === "admin") {
-  addCard("⚙️ Administration", "Gestion complète de Nickel Master.", "#");
-  addCard("👥 Gestion utilisateurs", "Créer et modifier les profils.", "admin-users.html");
-  addCard("🧩 Gestion quiz", "Créer questions, catégories et modules.", "#");
-  addCard("✅ Correction", "Corriger les réponses des collaborateurs.", "correction.html");
-}
-</script>
 <script src="app.js"></script>
+<script>
+const fullName = localStorage.getItem("full_name") || "Utilisateur";
+const xp = localStorage.getItem("xp") || 0;
+const level = localStorage.getItem("level") || 1;
+
+document.getElementById("welcome").innerText = "Bonjour " + fullName + " ! 👋";
+document.getElementById("topUserName").innerText = fullName;
+document.getElementById("userLevel").innerText = "Niveau " + level;
+document.getElementById("userXp").innerText = xp + " / 100 XP";
+document.getElementById("statXp").innerText = xp;
+</script>
+
 </body>
 </html>
