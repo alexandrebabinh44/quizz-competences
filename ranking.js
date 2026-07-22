@@ -172,3 +172,32 @@ async function fetchGlobalAllTimeRanking() {
         score: Number(profile.xp || 0)
     }));
 }
+async function fetchGlobalPeriodRanking(period) {
+    const startDate = getPeriodStart(period);
+
+    const { data, error } = await supabase.rpc(
+        "get_global_xp_ranking",
+        {
+            p_start_date: startDate
+        }
+    );
+
+    if (error) {
+        throw error;
+    }
+
+    return (data || []).map((row, index) => ({
+        rank: index + 1,
+        id: row.profile_id,
+        name: row.full_name,
+        teamName: row.team_name || "Sans équipe",
+        score: Number(row.score || 0)
+    }));
+}
+async function fetchGlobalRanking() {
+    if (rankingState.period === "all") {
+        return fetchGlobalAllTimeRanking();
+    }
+
+    return fetchGlobalPeriodRanking(rankingState.period);
+}
