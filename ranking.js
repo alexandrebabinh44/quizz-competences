@@ -107,6 +107,7 @@ async function loadProfiles() {
     );
 
     rankingState.profiles = Array.isArray(data) ? data : [];
+    console.log("Profils chargés :", rankingState.profiles);
 }
 
 async function loadTeams() {
@@ -115,6 +116,7 @@ async function loadTeams() {
     );
 
     rankingState.teams = Array.isArray(data) ? data : [];
+    console.log("Teams chargées :", rankingState.teams);
 }
 
 function loadCurrentRankingUser() {
