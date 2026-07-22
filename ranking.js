@@ -3,6 +3,8 @@ const rankingState = {
     period: "month",
     limit: 20,
     currentUser: null,
+    profiles: [],
+    teams: [],
     challengeIds: {
         "challenge-x": null,
         "challenge-y": null
@@ -17,30 +19,39 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     try {
+        validateSupabaseConfiguration();
         await initializeRankingPage();
     } catch (error) {
         console.error("Erreur d'initialisation du classement :", error);
-
         showRankingError(
             error?.message || "Impossible de charger les classements."
         );
     }
 });
 
-async function initializeRankingPage() {
+function validateSupabaseConfiguration() {
     if (
-        typeof supabaseClient === "undefined" ||
-        !supabaseClient?.auth
+        typeof SUPABASE_URL === "undefined" ||
+        typeof SUPABASE_KEY === "undefined" ||
+        !SUPABASE_URL ||
+        !SUPABASE_KEY
     ) {
         throw new Error(
-            "Le client Supabase n'est pas initialisé. Vérifie que app.js est chargé avant ranking.js."
+            "SUPABASE_URL ou SUPABASE_KEY est manquant dans app.js."
         );
     }
+}
 
-    await loadCurrentRankingUser();
-
+async function initializeRankingPage() {
     initializeRankingTabs();
     initializePeriodSelector();
+
+    await Promise.all([
+        loadProfiles(),
+        loadTeams()
+    ]);
+
+    loadCurrentRankingUser();
 
     try {
         await loadActiveChallenges();
@@ -52,70 +63,97 @@ async function initializeRankingPage() {
     }
 
     updatePeriodAvailability();
-
     await refreshRanking();
 }
 
-async function loadCurrentRankingUser() {
-    const {
-        data: { user },
-        error: authError
-    } = await supabaseClient.auth.getUser();
+function getRequestHeaders(extraHeaders = {}) {
+    return {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+        ...extraHeaders
+    };
+}
 
-    if (authError) {
-        throw authError;
+async function fetchSupabase(path, options = {}) {
+    const response = await fetch(
+        `${SUPABASE_URL}${path}`,
+        {
+            ...options,
+            headers: getRequestHeaders(options.headers || {})
+        }
+    );
+
+    if (!response.ok) {
+        const errorText = await response.text();
+
+        throw new Error(
+            errorText ||
+            `Erreur Supabase HTTP ${response.status}`
+        );
     }
 
-    if (!user) {
-        window.location.href = "login.html";
+    if (response.status === 204) {
+        return null;
+    }
+
+    const text = await response.text();
+
+    return text ? JSON.parse(text) : null;
+}
+
+async function loadProfiles() {
+    const data = await fetchSupabase(
+        "/rest/v1/profiles?select=id,full_name,xp,team_id,hire_date&order=full_name.asc"
+    );
+
+    rankingState.profiles = Array.isArray(data) ? data : [];
+}
+
+async function loadTeams() {
+    const data = await fetchSupabase(
+        "/rest/v1/teams?select=id,name&order=name.asc"
+    );
+
+    rankingState.teams = Array.isArray(data) ? data : [];
+}
+
+function loadCurrentRankingUser() {
+    const profileId = localStorage.getItem("profile_id");
+
+    if (!profileId) {
+        window.location.href = "index.html";
         return;
     }
 
-    const { data: profile, error: profileError } =
-        await supabaseClient
-            .from("profiles")
-            .select(`
-                id,
-                full_name,
-                xp,
-                team_id,
-                hire_date,
-                teams (
-                    id,
-                    name
-                )
-            `)
-            .eq("id", user.id)
-            .single();
+    rankingState.currentUser =
+        rankingState.profiles.find(
+            profile => String(profile.id) === String(profileId)
+        ) || null;
 
-    if (profileError) {
-        throw profileError;
+    if (!rankingState.currentUser) {
+        throw new Error(
+            "Le profil connecté est introuvable dans la table profiles."
+        );
     }
-
-    rankingState.currentUser = profile;
 }
 
 function initializeRankingTabs() {
     const tabs = document.querySelectorAll(".ranking-tab");
 
-    tabs.forEach((tab) => {
+    tabs.forEach(tab => {
         tab.addEventListener("click", async () => {
             const rankingType = tab.dataset.ranking;
 
-            if (
-                !rankingType ||
-                rankingType === rankingState.type
-            ) {
+            if (!rankingType || rankingType === rankingState.type) {
                 return;
             }
 
             rankingState.type = rankingType;
 
-            tabs.forEach((item) => {
+            tabs.forEach(item => {
                 const isActive = item === tab;
 
                 item.classList.toggle("active", isActive);
-
                 item.setAttribute(
                     "aria-selected",
                     isActive ? "true" : "false"
@@ -123,7 +161,6 @@ function initializeRankingTabs() {
             });
 
             updatePeriodAvailability();
-
             await refreshRanking();
         });
     });
@@ -141,9 +178,8 @@ function initializePeriodSelector() {
 
     periodSelect.addEventListener(
         "change",
-        async (event) => {
+        async event => {
             rankingState.period = event.target.value;
-
             await refreshRanking();
         }
     );
@@ -183,38 +219,30 @@ function getPeriodStart(period) {
     switch (period) {
         case "day": {
             const start = new Date(now);
-
             start.setHours(0, 0, 0, 0);
-
             return start.toISOString();
         }
 
         case "week": {
             const start = new Date(now);
             const currentDay = start.getDay();
-
             const daysSinceMonday =
-                currentDay === 0
-                    ? 6
-                    : currentDay - 1;
+                currentDay === 0 ? 6 : currentDay - 1;
 
             start.setDate(
                 start.getDate() - daysSinceMonday
             );
-
             start.setHours(0, 0, 0, 0);
 
             return start.toISOString();
         }
 
         case "month": {
-            const start = new Date(
+            return new Date(
                 now.getFullYear(),
                 now.getMonth(),
                 1
-            );
-
-            return start.toISOString();
+            ).toISOString();
         }
 
         case "all":
@@ -223,131 +251,28 @@ function getPeriodStart(period) {
     }
 }
 
-async function fetchGlobalAllTimeRanking() {
-    const { data, error } = await supabaseClient
-        .from("profiles")
-        .select(`
-            id,
-            full_name,
-            xp,
-            team_id,
-            teams (
-                id,
-                name
-            )
-        `)
-        .order("xp", { ascending: false });
-
-    if (error) {
-        throw error;
+function getTeamName(teamId) {
+    if (teamId === null || teamId === undefined) {
+        return "Sans équipe";
     }
 
-    return (data || []).map(
-        (profile, index) => ({
-            rank: index + 1,
-            id: profile.id,
-            name: profile.full_name,
-            teamName:
-                profile.teams?.name ||
-                "Sans équipe",
-            score: Number(profile.xp || 0)
-        })
+    const team = rankingState.teams.find(
+        item => String(item.id) === String(teamId)
     );
-}
 
-async function fetchGlobalPeriodRanking(period) {
-    const startDate = getPeriodStart(period);
-
-    const { data, error } =
-        await supabaseClient.rpc(
-            "get_global_xp_ranking",
-            {
-                p_start_date: startDate
-            }
-        );
-
-    if (error) {
-        throw error;
-    }
-
-    return (data || []).map(
-        (row, index) => ({
-            rank: index + 1,
-            id: row.profile_id,
-            name: row.full_name,
-            teamName:
-                row.team_name ||
-                "Sans équipe",
-            score: Number(row.score || 0)
-        })
-    );
-}
-
-async function fetchGlobalRanking() {
-    if (rankingState.period === "all") {
-        return fetchGlobalAllTimeRanking();
-    }
-
-    return fetchGlobalPeriodRanking(
-        rankingState.period
-    );
-}
-
-async function fetchTeamRanking() {
-    const isAllTime =
-        rankingState.period === "all";
-
-    const startDate = isAllTime
-        ? null
-        : getPeriodStart(
-            rankingState.period
-        );
-
-    const { data, error } =
-        await supabaseClient.rpc(
-            "get_team_xp_ranking",
-            {
-                p_start_date: startDate,
-                p_use_total_xp: isAllTime
-            }
-        );
-
-    if (error) {
-        throw error;
-    }
-
-    return (data || []).map(
-        (row, index) => ({
-            rank: index + 1,
-            id: row.team_id,
-            name: row.team_name,
-            score: Number(row.score || 0)
-        })
-    );
+    return team?.name || "Sans équipe";
 }
 
 async function loadActiveChallenges() {
-    const { data, error } =
-        await supabaseClient
-            .from("challenges")
-            .select("id, name")
-            .eq("is_active", true)
-            .order(
-                "created_at",
-                { ascending: true }
-            )
-            .limit(2);
+    const data = await fetchSupabase(
+        "/rest/v1/challenges?select=id,name&is_active=eq.true&order=created_at.asc&limit=2"
+    );
 
-    if (error) {
-        throw error;
-    }
-
-    const challenges = data || [];
+    const challenges = Array.isArray(data) ? data : [];
 
     if (challenges[0]) {
-        rankingState.challengeIds[
-            "challenge-x"
-        ] = challenges[0].id;
+        rankingState.challengeIds["challenge-x"] =
+            challenges[0].id;
 
         updateChallengeTabLabel(
             "challenge-x",
@@ -356,9 +281,8 @@ async function loadActiveChallenges() {
     }
 
     if (challenges[1]) {
-        rankingState.challengeIds[
-            "challenge-y"
-        ] = challenges[1].id;
+        rankingState.challengeIds["challenge-y"] =
+            challenges[1].id;
 
         updateChallengeTabLabel(
             "challenge-y",
@@ -367,10 +291,7 @@ async function loadActiveChallenges() {
     }
 }
 
-function updateChallengeTabLabel(
-    type,
-    label
-) {
+function updateChallengeTabLabel(type, label) {
     const tab = document.querySelector(
         `.ranking-tab[data-ranking="${type}"]`
     );
@@ -378,6 +299,126 @@ function updateChallengeTabLabel(
     if (tab) {
         tab.textContent = label;
     }
+}
+
+async function fetchXpHistory(period) {
+    const startDate = getPeriodStart(period);
+
+    let path =
+        "/rest/v1/xp_history?select=profile_id,amount,created_at";
+
+    if (startDate) {
+        path += `&created_at=gte.${encodeURIComponent(startDate)}`;
+    }
+
+    const data = await fetchSupabase(path);
+
+    return Array.isArray(data) ? data : [];
+}
+
+async function fetchGlobalRanking() {
+    if (rankingState.period === "all") {
+        const rows = rankingState.profiles.map(profile => ({
+            id: profile.id,
+            name: profile.full_name || "Sans nom",
+            teamName: getTeamName(profile.team_id),
+            score: Number(profile.xp || 0)
+        }));
+
+        return sortAndRank(rows);
+    }
+
+    const history = await fetchXpHistory(
+        rankingState.period
+    );
+
+    const totals = new Map();
+
+    history.forEach(item => {
+        const profileId = String(item.profile_id);
+        const current = totals.get(profileId) || 0;
+
+        totals.set(
+            profileId,
+            current + Number(item.amount || 0)
+        );
+    });
+
+    const rows = rankingState.profiles.map(profile => ({
+        id: profile.id,
+        name: profile.full_name || "Sans nom",
+        teamName: getTeamName(profile.team_id),
+        score: totals.get(String(profile.id)) || 0
+    }));
+
+    return sortAndRank(rows);
+}
+
+async function fetchTeamRanking() {
+    const teamTotals = new Map();
+
+    rankingState.teams.forEach(team => {
+        teamTotals.set(String(team.id), 0);
+    });
+
+    if (rankingState.period === "all") {
+        rankingState.profiles.forEach(profile => {
+            if (
+                profile.team_id === null ||
+                profile.team_id === undefined
+            ) {
+                return;
+            }
+
+            const key = String(profile.team_id);
+            const current = teamTotals.get(key) || 0;
+
+            teamTotals.set(
+                key,
+                current + Number(profile.xp || 0)
+            );
+        });
+    } else {
+        const history = await fetchXpHistory(
+            rankingState.period
+        );
+
+        const profilesById = new Map(
+            rankingState.profiles.map(profile => [
+                String(profile.id),
+                profile
+            ])
+        );
+
+        history.forEach(item => {
+            const profile =
+                profilesById.get(String(item.profile_id));
+
+            if (
+                !profile ||
+                profile.team_id === null ||
+                profile.team_id === undefined
+            ) {
+                return;
+            }
+
+            const key = String(profile.team_id);
+            const current = teamTotals.get(key) || 0;
+
+            teamTotals.set(
+                key,
+                current + Number(item.amount || 0)
+            );
+        });
+    }
+
+    const rows = rankingState.teams.map(team => ({
+        id: team.id,
+        name: team.name || "Équipe sans nom",
+        score: teamTotals.get(String(team.id)) || 0
+    }));
+
+    return sortAndRank(rows);
 }
 
 async function fetchChallengeRanking(type) {
@@ -388,83 +429,103 @@ async function fetchChallengeRanking(type) {
         return [];
     }
 
-    const startDate =
-        rankingState.period === "all"
-            ? null
-            : getPeriodStart(
-                rankingState.period
-            );
+    const startDate = getPeriodStart(
+        rankingState.period
+    );
 
-    const { data, error } =
-        await supabaseClient.rpc(
-            "get_individual_challenge_ranking",
-            {
-                p_challenge_id: challengeId,
-                p_start_date: startDate
-            }
-        );
+    let path =
+        `/rest/v1/challenge_points?select=profile_id,team_id,points,created_at&challenge_id=eq.${encodeURIComponent(challengeId)}`;
 
-    if (error) {
-        throw error;
+    if (startDate) {
+        path += `&created_at=gte.${encodeURIComponent(startDate)}`;
     }
 
-    return (data || []).map(
-        (row, index) => ({
-            rank: index + 1,
-            id: row.profile_id,
-            name: row.full_name,
-            teamName:
-                row.team_name ||
-                "Sans équipe",
-            score: Number(row.score || 0)
-        })
-    );
+    const data = await fetchSupabase(path);
+    const points = Array.isArray(data) ? data : [];
+
+    const totals = new Map();
+
+    points.forEach(item => {
+        if (!item.profile_id) {
+            return;
+        }
+
+        const key = String(item.profile_id);
+        const current = totals.get(key) || 0;
+
+        totals.set(
+            key,
+            current + Number(item.points || 0)
+        );
+    });
+
+    const rows = rankingState.profiles.map(profile => ({
+        id: profile.id,
+        name: profile.full_name || "Sans nom",
+        teamName: getTeamName(profile.team_id),
+        score: totals.get(String(profile.id)) || 0
+    }));
+
+    return sortAndRank(rows);
 }
 
 async function fetchSeniorityRanking() {
-    const { data, error } =
-        await supabaseClient
-            .from("profiles")
-            .select(`
-                id,
-                full_name,
-                hire_date,
-                team_id,
-                teams (
-                    id,
-                    name
-                )
-            `)
-            .not(
-                "hire_date",
-                "is",
-                null
-            )
-            .order(
-                "hire_date",
-                { ascending: true }
-            );
-
-    if (error) {
-        throw error;
-    }
-
-    return (data || []).map(
-        (profile, index) => ({
+    const rows = rankingState.profiles
+        .filter(profile => profile.hire_date)
+        .sort(
+            (a, b) =>
+                new Date(a.hire_date) -
+                new Date(b.hire_date)
+        )
+        .map((profile, index) => ({
             rank: index + 1,
             id: profile.id,
-            name: profile.full_name,
-            teamName:
-                profile.teams?.name ||
-                "Sans équipe",
-            hireDate:
-                profile.hire_date,
-            seniority:
-                formatSeniority(
-                    profile.hire_date
-                )
-        })
-    );
+            name: profile.full_name || "Sans nom",
+            teamName: getTeamName(profile.team_id),
+            hireDate: profile.hire_date,
+            seniority: formatSeniority(
+                profile.hire_date
+            )
+        }));
+
+    return rows;
+}
+
+function sortAndRank(rows) {
+    const sorted = [...rows].sort((a, b) => {
+        const scoreDifference =
+            Number(b.score || 0) -
+            Number(a.score || 0);
+
+        if (scoreDifference !== 0) {
+            return scoreDifference;
+        }
+
+        return String(a.name || "").localeCompare(
+            String(b.name || ""),
+            "fr",
+            { sensitivity: "base" }
+        );
+    });
+
+    let previousScore = null;
+    let previousRank = 0;
+
+    return sorted.map((row, index) => {
+        const score = Number(row.score || 0);
+        const rank =
+            score === previousScore
+                ? previousRank
+                : index + 1;
+
+        previousScore = score;
+        previousRank = rank;
+
+        return {
+            ...row,
+            rank
+        };
+    });
 }
 
 function formatSeniority(hireDate) {
@@ -476,12 +537,10 @@ function formatSeniority(hireDate) {
     const now = new Date();
 
     let years =
-        now.getFullYear() -
-        start.getFullYear();
+        now.getFullYear() - start.getFullYear();
 
     let months =
-        now.getMonth() -
-        start.getMonth();
+        now.getMonth() - start.getMonth();
 
     if (months < 0) {
         years -= 1;
@@ -499,9 +558,7 @@ function formatSeniority(hireDate) {
 
     const yearsText =
         years > 0
-            ? `${years} an${
-                years > 1 ? "s" : ""
-            }`
+            ? `${years} an${years > 1 ? "s" : ""}`
             : "";
 
     const monthsText =
@@ -511,8 +568,7 @@ function formatSeniority(hireDate) {
 
     return [yearsText, monthsText]
         .filter(Boolean)
-        .join(" ") ||
-        "Moins d'un mois";
+        .join(" ") || "Moins d'un mois";
 }
 
 async function refreshRanking() {
@@ -524,26 +580,22 @@ async function refreshRanking() {
 
         switch (rankingState.type) {
             case "global":
-                rows =
-                    await fetchGlobalRanking();
+                rows = await fetchGlobalRanking();
                 break;
 
             case "teams":
-                rows =
-                    await fetchTeamRanking();
+                rows = await fetchTeamRanking();
                 break;
 
             case "challenge-x":
             case "challenge-y":
-                rows =
-                    await fetchChallengeRanking(
-                        rankingState.type
-                    );
+                rows = await fetchChallengeRanking(
+                    rankingState.type
+                );
                 break;
 
             case "seniority":
-                rows =
-                    await fetchSeniorityRanking();
+                rows = await fetchSeniorityRanking();
                 break;
 
             default:
@@ -552,10 +604,7 @@ async function refreshRanking() {
 
         renderRanking(rows);
     } catch (error) {
-        console.error(
-            "Erreur classement :",
-            error
-        );
+        console.error("Erreur classement :", error);
 
         showRankingError(
             error?.message ||
@@ -584,37 +633,39 @@ function getVisibleRankingRows(rows) {
 
     const targetId =
         rankingState.type === "teams"
-            ? rankingState.currentUser
-                .team_id
+            ? rankingState.currentUser.team_id
             : currentUserId;
 
+    if (
+        targetId === null ||
+        targetId === undefined
+    ) {
+        return {
+            topRows,
+            currentUserRow: null
+        };
+    }
+
     const currentUserRow = rows.find(
-        (row) =>
-            String(row.id) ===
-            String(targetId)
+        row =>
+            String(row.id) === String(targetId)
     );
 
-    const alreadyVisible =
-        topRows.some(
-            (row) =>
-                String(row.id) ===
-                String(targetId)
-        );
+    const alreadyVisible = topRows.some(
+        row =>
+            String(row.id) === String(targetId)
+    );
 
     return {
         topRows,
         currentUserRow:
-            alreadyVisible
-                ? null
-                : currentUserRow
+            alreadyVisible ? null : currentUserRow
     };
 }
 
 function renderRankingHeader() {
     const head =
-        document.getElementById(
-            "ranking-head"
-        );
+        document.getElementById("ranking-head");
 
     if (!head) {
         return;
@@ -628,14 +679,10 @@ function renderRankingHeader() {
                 <th>XP</th>
             </tr>
         `;
-
         return;
     }
 
-    if (
-        rankingState.type ===
-        "seniority"
-    ) {
+    if (rankingState.type === "seniority") {
         head.innerHTML = `
             <tr>
                 <th>#</th>
@@ -645,15 +692,12 @@ function renderRankingHeader() {
                 <th>Ancienneté</th>
             </tr>
         `;
-
         return;
     }
 
     if (
-        rankingState.type ===
-            "challenge-x" ||
-        rankingState.type ===
-            "challenge-y"
+        rankingState.type === "challenge-x" ||
+        rankingState.type === "challenge-y"
     ) {
         head.innerHTML = `
             <tr>
@@ -663,7 +707,6 @@ function renderRankingHeader() {
                 <th>PTS</th>
             </tr>
         `;
-
         return;
     }
 
@@ -681,9 +724,7 @@ function renderRanking(rows) {
     renderRankingHeader();
 
     const body =
-        document.getElementById(
-            "ranking-body"
-        );
+        document.getElementById("ranking-body");
 
     if (!body) {
         return;
@@ -699,7 +740,6 @@ function renderRanking(rows) {
                 </td>
             </tr>
         `;
-
         return;
     }
 
@@ -708,7 +748,7 @@ function renderRanking(rows) {
         currentUserRow
     } = getVisibleRankingRows(rows);
 
-    topRows.forEach((row) => {
+    topRows.forEach(row => {
         body.appendChild(
             createRankingRow(row)
         );
@@ -732,13 +772,10 @@ function createRankingRow(
     row,
     isCurrentUser = false
 ) {
-    const tr =
-        document.createElement("tr");
+    const tr = document.createElement("tr");
 
     if (isCurrentUser) {
-        tr.classList.add(
-            "current-user-row"
-        );
+        tr.classList.add("current-user-row");
     }
 
     if (rankingState.type === "teams") {
@@ -747,14 +784,10 @@ function createRankingRow(
             <td>${escapeHtml(row.name)}</td>
             <td>${formatNumber(row.score)} XP</td>
         `;
-
         return tr;
     }
 
-    if (
-        rankingState.type ===
-        "seniority"
-    ) {
+    if (rankingState.type === "seniority") {
         tr.innerHTML = `
             <td>${row.rank}</td>
             <td>${escapeHtml(row.name)}</td>
@@ -762,15 +795,12 @@ function createRankingRow(
             <td>${formatDate(row.hireDate)}</td>
             <td>${escapeHtml(row.seniority)}</td>
         `;
-
         return tr;
     }
 
     const unit =
-        rankingState.type ===
-            "challenge-x" ||
-        rankingState.type ===
-            "challenge-y"
+        rankingState.type === "challenge-x" ||
+        rankingState.type === "challenge-y"
             ? "PTS"
             : "XP";
 
@@ -785,16 +815,10 @@ function createRankingRow(
 }
 
 function createRankingSeparator() {
-    const tr =
-        document.createElement("tr");
+    const tr = document.createElement("tr");
+    tr.classList.add("ranking-separator");
 
-    tr.classList.add(
-        "ranking-separator"
-    );
-
-    const td =
-        document.createElement("td");
-
+    const td = document.createElement("td");
     td.colSpan = 5;
     td.textContent = "•••";
 
@@ -804,9 +828,7 @@ function createRankingSeparator() {
 }
 
 function formatNumber(value) {
-    return new Intl.NumberFormat(
-        "fr-FR"
-    ).format(
+    return new Intl.NumberFormat("fr-FR").format(
         Number(value || 0)
     );
 }
@@ -818,9 +840,7 @@ function formatDate(value) {
 
     return new Intl.DateTimeFormat(
         "fr-FR"
-    ).format(
-        new Date(value)
-    );
+    ).format(new Date(value));
 }
 
 function escapeHtml(value) {
@@ -834,9 +854,7 @@ function escapeHtml(value) {
 
 function showRankingLoading(show) {
     const loading =
-        document.getElementById(
-            "ranking-loading"
-        );
+        document.getElementById("ranking-loading");
 
     if (loading) {
         loading.hidden = !show;
@@ -845,9 +863,7 @@ function showRankingLoading(show) {
 
 function showRankingError(message) {
     const errorBox =
-        document.getElementById(
-            "ranking-error"
-        );
+        document.getElementById("ranking-error");
 
     if (!errorBox) {
         return;
@@ -859,9 +875,7 @@ function showRankingError(message) {
 
 function hideRankingError() {
     const errorBox =
-        document.getElementById(
-            "ranking-error"
-        );
+        document.getElementById("ranking-error");
 
     if (errorBox) {
         errorBox.hidden = true;
