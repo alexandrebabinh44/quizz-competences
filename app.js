@@ -752,3 +752,50 @@ async function loadRanking() {
         `;
     });
 }
+async function addXp(profileId, amount, source = "unknown", sourceId = null) {
+    if (!profileId || !Number.isFinite(Number(amount))) {
+        throw new Error("Informations XP invalides.");
+    }
+
+    const xpAmount = Number(amount);
+
+    // 1. Lecture du total actuel
+    const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("xp")
+        .eq("id", profileId)
+        .single();
+
+    if (profileError) {
+        throw profileError;
+    }
+
+    const currentXp = Number(profile.xp || 0);
+    const newXp = currentXp + xpAmount;
+
+    // 2. Mise à jour du total
+    const { error: updateError } = await supabase
+        .from("profiles")
+        .update({ xp: newXp })
+        .eq("id", profileId);
+
+    if (updateError) {
+        throw updateError;
+    }
+
+    // 3. Ajout dans l'historique
+    const { error: historyError } = await supabase
+        .from("xp_history")
+        .insert({
+            profile_id: profileId,
+            amount: xpAmount,
+            source,
+            source_id: sourceId
+        });
+
+    if (historyError) {
+        throw historyError;
+    }
+
+    return newXp;
+}
