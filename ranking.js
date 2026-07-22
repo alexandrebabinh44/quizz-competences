@@ -1,7 +1,7 @@
 const rankingState = {
     type: "global",
     period: "month",
-    limit: 20,
+    limit: 10,
     currentUser: null,
     profiles: [],
     teams: [],
