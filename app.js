@@ -446,9 +446,18 @@ async function loadTrainingQuiz() {
     showTrainingQuestion();
 }
 
-function showTrainingQuestion() {
+async function showTrainingQuestion() {
     if (trainingIndex >= trainingQuestions.length) {
-        addXp(5);
+        try {
+            await addXp(5, "training_participation");
+        } catch (error) {
+            console.error("Erreur ajout XP :", error);
+            alert(
+                "L'entraînement est terminé, mais les XP n'ont pas pu être ajoutés : " +
+                error.message
+            );
+            return;
+        }
 
         document.querySelector(".container").innerHTML = `
             <h2>Entraînement terminé ✅</h2>
@@ -580,33 +589,125 @@ async function submitTrainingAnswer() {
    XP
 ========================= */
 
-async function addXp(amount) {
+async function addXp(amount, source = "training", sourceId = null) {
     const profileId = localStorage.getItem("profile_id");
 
-    if (!profileId) return;
+    if (!profileId) {
+        throw new Error("Profil connecté introuvable.");
+    }
 
-    const currentXp = parseInt(localStorage.getItem("xp") || "0");
-    const newXp = currentXp + amount;
+    const xpAmount = Number(amount);
+
+    if (!Number.isFinite(xpAmount)) {
+        throw new Error("Montant d'XP invalide.");
+    }
+
+    // Récupérer le vrai total XP depuis Supabase
+    const profileResponse = await fetch(
+        `${SUPABASE_URL}/rest/v1/profiles?id=eq.${profileId}&select=xp`,
+        {
+            headers: {
+                apikey: SUPABASE_KEY,
+                Authorization: `Bearer ${SUPABASE_KEY}`
+            }
+        }
+    );
+
+    if (!profileResponse.ok) {
+        const errorText = await profileResponse.text();
+
+        throw new Error(
+            "Erreur lors de la récupération des XP : " + errorText
+        );
+    }
+
+    const profiles = await profileResponse.json();
+
+    if (!profiles.length) {
+        throw new Error("Profil introuvable.");
+    }
+
+    const currentXp = Number(profiles[0].xp || 0);
+    const newXp = currentXp + xpAmount;
     const newLevel = Math.floor(newXp / 100) + 1;
 
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${profileId}`, {
-        method: "PATCH",
-        headers: {
-            apikey: SUPABASE_KEY,
-            Authorization: `Bearer ${SUPABASE_KEY}`,
-            "Content-Type": "application/json",
-            Prefer: "return=minimal"
-        },
-        body: JSON.stringify({
-            xp: newXp,
-            level: newLevel
-        })
-    });
+    // Mettre à jour le total XP du profil
+    const updateResponse = await fetch(
+        `${SUPABASE_URL}/rest/v1/profiles?id=eq.${profileId}`,
+        {
+            method: "PATCH",
+            headers: {
+                apikey: SUPABASE_KEY,
+                Authorization: `Bearer ${SUPABASE_KEY}`,
+                "Content-Type": "application/json",
+                Prefer: "return=minimal"
+            },
+            body: JSON.stringify({
+                xp: newXp,
+                level: newLevel
+            })
+        }
+    );
 
-    if (response.ok) {
-        localStorage.setItem("xp", newXp);
-        localStorage.setItem("level", newLevel);
+    if (!updateResponse.ok) {
+        const errorText = await updateResponse.text();
+
+        throw new Error(
+            "Erreur lors de la mise à jour des XP : " + errorText
+        );
     }
+
+    // Enregistrer le gain dans l'historique pour Jour / Semaine / Mois
+    const historyResponse = await fetch(
+        `${SUPABASE_URL}/rest/v1/xp_history`,
+        {
+            method: "POST",
+            headers: {
+                apikey: SUPABASE_KEY,
+                Authorization: `Bearer ${SUPABASE_KEY}`,
+                "Content-Type": "application/json",
+                Prefer: "return=minimal"
+            },
+            body: JSON.stringify({
+                profile_id: profileId,
+                amount: xpAmount,
+                source,
+                source_id: sourceId
+            })
+        }
+    );
+
+    if (!historyResponse.ok) {
+        const errorText = await historyResponse.text();
+
+        // On annule le total XP pour éviter un écart entre profiles et xp_history.
+        await fetch(
+            `${SUPABASE_URL}/rest/v1/profiles?id=eq.${profileId}`,
+            {
+                method: "PATCH",
+                headers: {
+                    apikey: SUPABASE_KEY,
+                    Authorization: `Bearer ${SUPABASE_KEY}`,
+                    "Content-Type": "application/json",
+                    Prefer: "return=minimal"
+                },
+                body: JSON.stringify({
+                    xp: currentXp,
+                    level: Math.floor(currentXp / 100) + 1
+                })
+            }
+        );
+
+        throw new Error(
+            "Erreur lors de l'enregistrement de l'historique XP : " +
+            errorText
+        );
+    }
+
+    localStorage.setItem("xp", String(newXp));
+    localStorage.setItem("level", String(newLevel));
+
+    return newXp;
 }
 
 /* =========================
@@ -751,51 +852,4 @@ async function loadRanking() {
             </div>
         `;
     });
-}
-async function addXp(profileId, amount, source = "unknown", sourceId = null) {
-    if (!profileId || !Number.isFinite(Number(amount))) {
-        throw new Error("Informations XP invalides.");
-    }
-
-    const xpAmount = Number(amount);
-
-    // 1. Lecture du total actuel
-    const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("xp")
-        .eq("id", profileId)
-        .single();
-
-    if (profileError) {
-        throw profileError;
-    }
-
-    const currentXp = Number(profile.xp || 0);
-    const newXp = currentXp + xpAmount;
-
-    // 2. Mise à jour du total
-    const { error: updateError } = await supabase
-        .from("profiles")
-        .update({ xp: newXp })
-        .eq("id", profileId);
-
-    if (updateError) {
-        throw updateError;
-    }
-
-    // 3. Ajout dans l'historique
-    const { error: historyError } = await supabase
-        .from("xp_history")
-        .insert({
-            profile_id: profileId,
-            amount: xpAmount,
-            source,
-            source_id: sourceId
-        });
-
-    if (historyError) {
-        throw historyError;
-    }
-
-    return newXp;
 }
