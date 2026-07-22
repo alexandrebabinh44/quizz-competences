@@ -30,3 +30,40 @@ async function initializeRankingPage() {
 
     await refreshRanking();
 }
+async function loadCurrentRankingUser() {
+    const {
+        data: { user },
+        error: authError
+    } = await supabase.auth.getUser();
+
+    if (authError) {
+        throw authError;
+    }
+
+    if (!user) {
+        window.location.href = "login.html";
+        return;
+    }
+
+    const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select(`
+            id,
+            full_name,
+            xp,
+            team_id,
+            hire_date,
+            teams (
+                id,
+                name
+            )
+        `)
+        .eq("id", user.id)
+        .single();
+
+    if (profileError) {
+        throw profileError;
+    }
+
+    rankingState.currentUser = profile;
+}
