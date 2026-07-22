@@ -1,5 +1,6 @@
 <div id="choix-mode">
-  <h1>Choisir un entraînement</h1>
+  <h1>🎯 Entraînement</h1>
+  <h2>Choisissez votre mode</h2>
 
   <button onclick="afficherChoixThemes()">
     🎯 Entraînement ciblé
@@ -11,7 +12,7 @@
 </div>
 
 <div id="choix-themes" style="display: none;">
-  <h2>Choisir un thème</h2>
+  <h2>Choisissez un thème</h2>
 
   <button onclick="lancerEntrainementCible('TAUTH')">
     TAUTH
@@ -26,16 +27,4 @@
   </button>
 </div>
 
-<div id="zone-quiz" style="display: none;">
-  <p id="progression"></p>
-
-  <h2 id="question"></h2>
-
-  <div id="reponses"></div>
-
-  <button id="bouton-suivant" onclick="validerEtSuivre()">
-    Valider
-  </button>
-</div>
-
-<div id="resultat" style="display: none;"></div>
+<script src="app.js"></script>
