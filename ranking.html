@@ -1,81 +1,108 @@
-<main class="ranking-page">
-    <div class="ranking-header">
-        <div>
-            <h1>Classements</h1>
-            <p>Découvre les meilleurs résultats de Nickel Master.</p>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Classements — Nickel Master</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <main class="ranking-page">
+        <div class="ranking-header">
+            <div>
+                <h1>Classements</h1>
+                <p>Découvre les meilleurs résultats de Nickel Master.</p>
+            </div>
+
+            <div class="period-selector">
+                <label for="ranking-period">Période</label>
+
+                <select id="ranking-period">
+                    <option value="day">Jour</option>
+                    <option value="week">Semaine</option>
+                    <option value="month" selected>Mois</option>
+                    <option value="all">Toujours</option>
+                </select>
+            </div>
         </div>
 
-        <div class="period-selector">
-            <label for="ranking-period">Période</label>
-
-            <select id="ranking-period">
-                <option value="day">Jour</option>
-                <option value="week">Semaine</option>
-                <option value="month" selected>Mois</option>
-                <option value="all">Toujours</option>
-            </select>
-        </div>
-    </div>
-
-    <nav class="ranking-tabs" aria-label="Types de classements">
-        <button
-            type="button"
-            class="ranking-tab active"
-            data-ranking="global"
-            aria-selected="true"
+        <nav
+            class="ranking-tabs"
+            aria-label="Types de classements"
         >
-            Global
-        </button>
+            <button
+                type="button"
+                class="ranking-tab active"
+                data-ranking="global"
+                aria-selected="true"
+            >
+                Global
+            </button>
 
-        <button
-            type="button"
-            class="ranking-tab"
-            data-ranking="teams"
-            aria-selected="false"
-        >
-            Équipe
-        </button>
+            <button
+                type="button"
+                class="ranking-tab"
+                data-ranking="teams"
+                aria-selected="false"
+            >
+                Équipe
+            </button>
 
-        <button
-            type="button"
-            class="ranking-tab"
-            data-ranking="challenge-x"
-            aria-selected="false"
-        >
-            Challenge X
-        </button>
+            <button
+                type="button"
+                class="ranking-tab"
+                data-ranking="challenge-x"
+                aria-selected="false"
+            >
+                Challenge X
+            </button>
 
-        <button
-            type="button"
-            class="ranking-tab"
-            data-ranking="challenge-y"
-            aria-selected="false"
-        >
-            Challenge Y
-        </button>
+            <button
+                type="button"
+                class="ranking-tab"
+                data-ranking="challenge-y"
+                aria-selected="false"
+            >
+                Challenge Y
+            </button>
 
-        <button
-            type="button"
-            class="ranking-tab"
-            data-ranking="seniority"
-            aria-selected="false"
-        >
-            Ancienneté
-        </button>
-    </nav>
+            <button
+                type="button"
+                class="ranking-tab"
+                data-ranking="seniority"
+                aria-selected="false"
+            >
+                Ancienneté
+            </button>
+        </nav>
 
-    <section class="ranking-content">
-        <div id="ranking-loading" hidden>
-            Chargement du classement…
-        </div>
+        <section class="ranking-content">
+            <div id="ranking-loading" hidden>
+                Chargement du classement…
+            </div>
 
-        <div id="ranking-error" hidden></div>
+            <div id="ranking-error" hidden></div>
 
-        <div class="ranking-table-wrapper">
-            <table class="ranking-table">
-                <thead id="ranking-head"></thead>
-                <tbody id="ranking-body"></tbody>
-            </table>
-        </div>
-    </section>
-</main>
+            <div class="ranking-table-wrapper">
+                <table class="ranking-table">
+                    <thead id="ranking-head"></thead>
+                    <tbody id="ranking-body"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- L’ordre est important -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app.js"></script>
+    <script src="ranking.js"></script>
+</body>
+</html>
