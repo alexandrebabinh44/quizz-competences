@@ -398,39 +398,29 @@ async function submitAnswer() {
 /* =========================
    ENTRAÎNEMENT
 ========================= */
-
-async function loadTrainingCategories() {
-    const response = await fetch(
-        `${SUPABASE_URL}/rest/v1/questions?select=category`,
-        {
-            headers: {
-                apikey: SUPABASE_KEY,
-                Authorization: `Bearer ${SUPABASE_KEY}`
-            }
-        }
-    );
-
-    const data = await response.json();
-    const uniqueCategories = [...new Set(data.map(x => x.category))];
-    const container = document.getElementById("categories");
-
-    container.innerHTML = "";
-
-    uniqueCategories.forEach(category => {
-        container.innerHTML += `
-            <div class="card" onclick="startTraining('${category}')">
-                <h2>${category}</h2>
-                <p>Lancer l'entraînement</p>
-            </div>
-        `;
-    });
+function afficherChoixThemes() {
+  document.getElementById("choix-mode").style.display = "none";
+  document.getElementById("choix-themes").style.display = "block";
 }
 
-function startTraining(category) {
-    localStorage.setItem("training_category", category);
-    window.location.href = "training-quiz.html";
+function retourChoixMode() {
+  document.getElementById("choix-themes").style.display = "none";
+  document.getElementById("choix-mode").style.display = "block";
 }
 
+function lancerEntrainementCible(category) {
+  localStorage.setItem("training_mode", "cible");
+  localStorage.setItem("training_category", category);
+
+  window.location.href = "training-quiz.html";
+}
+
+function lancerFlashXtrem() {
+  localStorage.setItem("training_mode", "flash");
+  localStorage.removeItem("training_category");
+
+  window.location.href = "training-quiz.html";
+}
 async function loadTrainingQuiz() {
     const category = localStorage.getItem("training_category");
 
