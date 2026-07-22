@@ -34,7 +34,7 @@ async function loadCurrentRankingUser() {
     const {
         data: { user },
         error: authError
-    } = await supabase.auth.getUser();
+    } = await supabaseClient.auth.getUser();
 
     if (authError) {
         throw authError;
@@ -45,7 +45,7 @@ async function loadCurrentRankingUser() {
         return;
     }
 
-    const { data: profile, error: profileError } = await supabase
+    const { data: profile, error: profileError } = await supabaseClient
         .from("profiles")
         .select(`
             id,
