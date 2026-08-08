@@ -6,6 +6,106 @@ let questions = [];
 
 let trainingQuestions = [];
 let trainingIndex = 0;
+let trainingCorrectAnswers = 0;
+let trainingStartedAt = null;
+
+
+/* =========================
+   OUTILS
+========================= */
+
+function supabaseHeaders(extra = {}) {
+    return {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+        ...extra
+    };
+}
+
+function escapeHtml(value) {
+    return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+function shuffleArray(array) {
+    const result = [...array];
+
+    for (let i = result.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+
+        [result[i], result[j]] = [result[j], result[i]];
+    }
+
+    return result;
+}
+
+function getLocalDayStartIso() {
+    const now = new Date();
+
+    const start = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+        0,
+        0,
+        0,
+        0
+    );
+
+    return start.toISOString();
+}
+
+function getWeekStartIso() {
+    const now = new Date();
+
+    const start = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+        0,
+        0,
+        0,
+        0
+    );
+
+    const day = start.getDay();
+    const difference = day === 0 ? -6 : 1 - day;
+
+    start.setDate(start.getDate() + difference);
+
+    return start.toISOString();
+}
+
+function categoryIcon(category) {
+    const name = String(category || "").toLowerCase();
+
+    if (name.includes("auth")) return "🔒";
+    if (name.includes("sécur") || name.includes("secur")) return "🛡️";
+    if (name.includes("carte")) return "💳";
+    if (name.includes("produit")) return "📦";
+    if (name.includes("réclam") || name.includes("reclam")) return "💬";
+    if (name.includes("conform")) return "✅";
+    if (name.includes("wero")) return "💸";
+    if (name.includes("pro")) return "💼";
+
+    return "📚";
+}
+
+function getLevelLabel(level) {
+    const value = Number(level || 1);
+
+    if (value >= 50) return "Maître";
+    if (value >= 30) return "Expert";
+    if (value >= 15) return "Confirmé";
+    if (value >= 5) return "Intermédiaire";
+
+    return "Débutant";
+}
+
 
 /* =========================
    CONNEXION
@@ -22,48 +122,61 @@ async function login() {
 
     try {
         const response = await fetch(
-            `${SUPABASE_URL}/rest/v1/profiles?select=*&username=eq.${username}&password=eq.${password}`,
+            `${SUPABASE_URL}/rest/v1/profiles?select=*&username=eq.${encodeURIComponent(username)}&password=eq.${encodeURIComponent(password)}`,
             {
-                headers: {
-                    apikey: SUPABASE_KEY,
-                    Authorization: `Bearer ${SUPABASE_KEY}`
-                }
+                headers: supabaseHeaders()
             }
         );
 
         if (!response.ok) {
-            const errorText = await response.text();
-            alert("Erreur Supabase : " + errorText);
+            alert("Erreur Supabase : " + await response.text());
             return;
         }
 
         const users = await response.json();
 
-        if (users.length === 1) {
-            localStorage.setItem("profile_id", users[0].id);
-            localStorage.setItem("full_name", users[0].full_name);
-            localStorage.setItem("role", users[0].role || "user");
-            localStorage.setItem("xp", users[0].xp || 0);
-            localStorage.setItem("level", users[0].level || 1);
-
-            if (users[0].must_change_password === true) {
-                window.location.href = "change-password.html";
-            } else {
-                window.location.href = "home.html";
-            }
-        } else {
+        if (users.length !== 1) {
             alert("Identifiant ou mot de passe incorrect.");
+            return;
         }
+
+        const user = users[0];
+
+        localStorage.setItem("profile_id", user.id);
+        localStorage.setItem("full_name", user.full_name || "");
+        localStorage.setItem("role", user.role || "user");
+        localStorage.setItem("xp", String(user.xp || 0));
+        localStorage.setItem("level", String(user.level || 1));
+
+        if (user.must_change_password === true) {
+            window.location.href = "change-password.html";
+        } else {
+            window.location.href = "home.html";
+        }
+
     } catch (error) {
         console.error(error);
         alert("Erreur de connexion à Supabase.");
     }
 }
 
+
+/* =========================
+   DÉCONNEXION
+========================= */
+
 function logout() {
+    const savedTheme = localStorage.getItem("nickel_master_theme");
+
     localStorage.clear();
+
+    if (savedTheme) {
+        localStorage.setItem("nickel_master_theme", savedTheme);
+    }
+
     window.location.href = "index.html";
 }
+
 
 /* =========================
    CHANGEMENT MOT DE PASSE
@@ -94,28 +207,28 @@ async function changePassword() {
         return;
     }
 
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${profileId}`, {
-        method: "PATCH",
-        headers: {
-            apikey: SUPABASE_KEY,
-            Authorization: `Bearer ${SUPABASE_KEY}`,
-            "Content-Type": "application/json",
-            Prefer: "return=minimal"
-        },
-        body: JSON.stringify({
-            password: newPassword,
-            must_change_password: false
-        })
-    });
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/profiles?id=eq.${profileId}`,
+        {
+            method: "PATCH",
+            headers: supabaseHeaders({
+                "Content-Type": "application/json",
+                Prefer: "return=minimal"
+            }),
+            body: JSON.stringify({
+                password: newPassword,
+                must_change_password: false
+            })
+        }
+    );
 
     if (response.ok) {
         alert("Mot de passe mis à jour.");
         window.location.href = "home.html";
     } else {
-        alert("Erreur lors de la mise à jour du mot de passe.");
+        alert("Erreur : " + await response.text());
     }
 }
-
 /* =========================
    PROFIL
 ========================= */
@@ -131,517 +244,1327 @@ async function loadProfile() {
     const response = await fetch(
         `${SUPABASE_URL}/rest/v1/profiles?id=eq.${profileId}`,
         {
-            headers: {
-                apikey: SUPABASE_KEY,
-                Authorization: `Bearer ${SUPABASE_KEY}`
-            }
+            headers: supabaseHeaders()
         }
     );
-
-    const data = await response.json();
-
-    if (data.length === 0) {
-        alert("Profil introuvable");
-        return;
-    }
-
-    const user = data[0];
-
-    document.getElementById("fullName").innerText = user.full_name || "";
-    document.getElementById("role").innerText = user.role || "";
-    document.getElementById("position").innerText = user.position || "";
-    document.getElementById("level").innerText = user.level || 1;
-    document.getElementById("xp").innerText = user.xp || 0;
-}
-
-/* =========================
-   ADMIN USERS
-========================= */
-
-async function loadUsersAdmin() {
-    const role = localStorage.getItem("role");
-
-    if (role !== "admin") {
-        alert("Accès réservé à l'administrateur.");
-        window.location.href = "home.html";
-        return;
-    }
-
-    const response = await fetch(
-        `${SUPABASE_URL}/rest/v1/profiles?select=*&order=full_name.asc`,
-        {
-            headers: {
-                apikey: SUPABASE_KEY,
-                Authorization: `Bearer ${SUPABASE_KEY}`
-            }
-        }
-    );
-
-    const users = await response.json();
-    const container = document.getElementById("usersList");
-
-    container.innerHTML = "";
-
-    users.forEach(user => {
-        container.innerHTML += `
-            <div class="card compact-card" onclick="openUserProfile('${user.id}')">
-                <h2>${user.full_name || "Sans nom"}</h2>
-                <p>${user.position || user.job_title || "Poste non renseigné"}</p>
-                <p><strong>Rôle :</strong> ${user.role || ""}</p>
-            </div>
-        `;
-    });
-}
-
-function openUserProfile(userId) {
-    localStorage.setItem("selected_user_id", userId);
-    window.location.href = "admin-user-detail.html";
-}
-
-async function loadUserDetailAdmin() {
-    const role = localStorage.getItem("role");
-    const userId = localStorage.getItem("selected_user_id");
-
-    if (role !== "admin") {
-        alert("Accès réservé à l'administrateur.");
-        window.location.href = "home.html";
-        return;
-    }
-
-    const response = await fetch(
-        `${SUPABASE_URL}/rest/v1/profiles?id=eq.${userId}`,
-        {
-            headers: {
-                apikey: SUPABASE_KEY,
-                Authorization: `Bearer ${SUPABASE_KEY}`
-            }
-        }
-    );
-
-    const data = await response.json();
-    const user = data[0];
-
-    document.getElementById("userDetail").innerHTML = `
-        <h2>${user.full_name}</h2>
-        <p><strong>Identifiant :</strong> ${user.username}</p>
-        <p><strong>Rôle :</strong> ${user.role}</p>
-        <p><strong>Poste :</strong> ${user.position || user.job_title || ""}</p>
-        <p><strong>Statut :</strong> ${user.status || ""}</p>
-        <p><strong>Niveau :</strong> ${user.level || 1}</p>
-        <p><strong>XP :</strong> ${user.xp || 0}</p>
-    `;
-}
-
-/* =========================
-   MON ÉQUIPE
-========================= */
-
-async function loadMyTeam() {
-    const profileId = localStorage.getItem("profile_id");
-
-    if (!profileId) {
-        window.location.href = "index.html";
-        return;
-    }
-
-    const meResponse = await fetch(
-        `${SUPABASE_URL}/rest/v1/profiles?id=eq.${profileId}`,
-        {
-            headers: {
-                apikey: SUPABASE_KEY,
-                Authorization: `Bearer ${SUPABASE_KEY}`
-            }
-        }
-    );
-
-    const meData = await meResponse.json();
-    const me = meData[0];
-
-    if (!me || !me.team_id) {
-        document.getElementById("teamTitle").innerText = "Aucune équipe associée.";
-        return;
-    }
-
-    const teamResponse = await fetch(
-        `${SUPABASE_URL}/rest/v1/teams?id=eq.${me.team_id}`,
-        {
-            headers: {
-                apikey: SUPABASE_KEY,
-                Authorization: `Bearer ${SUPABASE_KEY}`
-            }
-        }
-    );
-
-    const teamData = await teamResponse.json();
-    const team = teamData[0];
-
-    document.getElementById("teamTitle").innerText = team ? team.name : "Mon équipe";
-
-    const membersResponse = await fetch(
-        `${SUPABASE_URL}/rest/v1/profiles?team_id=eq.${me.team_id}&order=full_name.asc`,
-        {
-            headers: {
-                apikey: SUPABASE_KEY,
-                Authorization: `Bearer ${SUPABASE_KEY}`
-            }
-        }
-    );
-
-    const members = await membersResponse.json();
-    const container = document.getElementById("teamMembers");
-
-    container.innerHTML = "";
-
-    members.forEach(member => {
-        container.innerHTML += `
-            <div class="team-member" onclick="openTeamMember('${member.id}')">
-                <strong>${member.full_name}</strong>
-                | ${member.position || member.job_title || ""}
-                | Niveau ${member.level || 1}
-            </div>
-        `;
-    });
-}
-
-function openTeamMember(userId) {
-    localStorage.setItem("selected_user_id", userId);
-    window.location.href = "admin-user-detail.html";
-}
-
-/* =========================
-   QUIZ BILAN CLASSIQUE
-========================= */
-
-async function loadQuestion() {
-    const profileId = localStorage.getItem("profile_id");
-    const fullName = localStorage.getItem("full_name");
-
-    if (!profileId) {
-        window.location.href = "index.html";
-        return;
-    }
-
-    document.getElementById("welcome").innerText = "Bienvenue " + fullName;
-
-    const response = await fetch(
-        `${SUPABASE_URL}/rest/v1/questions?select=*&question_type=eq.open&order=order_number.asc`,
-        {
-            headers: {
-                apikey: SUPABASE_KEY,
-                Authorization: `Bearer ${SUPABASE_KEY}`
-            }
-        }
-    );
-
-    questions = await response.json();
-    showQuestion();
-}
-
-function showQuestion() {
-    if (currentQuestionIndex >= questions.length) {
-        document.querySelector(".container").innerHTML = `
-            <h2>Quiz terminé ✅</h2>
-            <p>Merci, tes réponses ont été enregistrées.</p>
-        `;
-        return;
-    }
-
-    const q = questions[currentQuestionIndex];
-
-    document.getElementById("progress").innerText =
-        `Question ${currentQuestionIndex + 1} / ${questions.length}`;
-
-    document.getElementById("category").innerText =
-        `Catégorie : ${q.category}`;
-
-    document.getElementById("questionText").innerText = q.question;
-    document.getElementById("answerText").value = "";
-}
-
-async function submitAnswer() {
-    const answer = document.getElementById("answerText").value.trim();
-
-    if (!answer) {
-        alert("Merci de saisir une réponse.");
-        return;
-    }
-
-    const profileId = localStorage.getItem("profile_id");
-    const q = questions[currentQuestionIndex];
-
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/answers`, {
-        method: "POST",
-        headers: {
-            apikey: SUPABASE_KEY,
-            Authorization: `Bearer ${SUPABASE_KEY}`,
-            "Content-Type": "application/json",
-            Prefer: "return=minimal"
-        },
-        body: JSON.stringify({
-            profile_id: profileId,
-            question_id: q.id,
-            answer_text: answer,
-            corrected: false
-        })
-    });
 
     if (!response.ok) {
-        const errorText = await response.text();
-        alert("Erreur enregistrement : " + errorText);
+        alert("Erreur lors du chargement du profil.");
         return;
     }
 
-    currentQuestionIndex++;
-    showQuestion();
+    const data = await response.json();
+
+    if (!data.length) {
+        alert("Profil introuvable.");
+        return;
+    }
+
+    const user = data[0];
+
+    if (document.getElementById("fullName")) {
+        document.getElementById("fullName").innerText = user.full_name || "";
+    }
+
+    if (document.getElementById("role")) {
+        document.getElementById("role").innerText = user.role || "";
+    }
+
+    if (document.getElementById("position")) {
+        document.getElementById("position").innerText =
+            user.position || user.job_title || "";
+    }
+
+    if (document.getElementById("level")) {
+        document.getElementById("level").innerText = user.level || 1;
+    }
+
+    if (document.getElementById("xp")) {
+        document.getElementById("xp").innerText = user.xp || 0;
+    }
 }
 
+
+/* =========================
+   DASHBOARD
+========================= */
+
+async function loadHomeDashboard() {
+    const profileId = localStorage.getItem("profile_id");
+
+    if (!profileId) {
+        window.location.href = "index.html";
+        return;
+    }
+
+    try {
+        await updatePresence(profileId);
+
+        await Promise.all([
+            loadHomeProfile(profileId),
+            loadHomeStats(profileId),
+            loadHomeCategories(),
+            loadHomeWeeklyRanking(),
+            loadDailyMissions(profileId),
+            loadHomeRecentActivity()
+        ]);
+
+        await loadHomeOnlineCount();
+
+        startPresenceHeartbeat();
+
+    } catch (error) {
+        console.error("Erreur dashboard :", error);
+    }
+}
+
+
+async function loadHomeProfile(profileId) {
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/profiles?id=eq.${profileId}&select=id,full_name,role,xp,level`,
+        {
+            headers: supabaseHeaders()
+        }
+    );
+
+    if (!response.ok) {
+        throw new Error(await response.text());
+    }
+
+    const data = await response.json();
+
+    if (!data.length) {
+        throw new Error("Profil introuvable.");
+    }
+
+    const user = data[0];
+
+    const xp = Number(user.xp || 0);
+    const level = Number(user.level || 1);
+
+    const xpInLevel = xp % 100;
+
+    localStorage.setItem("full_name", user.full_name || "Utilisateur");
+    localStorage.setItem("role", user.role || "user");
+    localStorage.setItem("xp", String(xp));
+    localStorage.setItem("level", String(level));
+
+    if (document.getElementById("welcome")) {
+        document.getElementById("welcome").innerText =
+            `Bonjour ${user.full_name || "Utilisateur"} ! 👋`;
+    }
+
+    if (document.getElementById("topUserName")) {
+        document.getElementById("topUserName").innerText =
+            user.full_name || "Utilisateur";
+    }
+
+    if (document.getElementById("userLevel")) {
+        document.getElementById("userLevel").innerText =
+            `Niveau ${level}`;
+    }
+
+    if (document.getElementById("userXp")) {
+        document.getElementById("userXp").innerText =
+            `${xpInLevel} / 100 XP`;
+    }
+
+    if (document.getElementById("statXp")) {
+        document.getElementById("statXp").innerText = xp;
+    }
+
+    if (document.getElementById("levelProgress")) {
+        document.getElementById("levelProgress").style.width =
+            `${Math.min(100, xpInLevel)}%`;
+    }
+
+    if (document.getElementById("levelLabel")) {
+        document.getElementById("levelLabel").innerText =
+            getLevelLabel(level);
+    }
+}
+
+
+async function loadHomeStats(profileId) {
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/training_sessions?profile_id=eq.${profileId}&select=id,total_questions,correct_answers`,
+        {
+            headers: supabaseHeaders()
+        }
+    );
+
+    if (!response.ok) {
+        console.warn("Statistiques indisponibles :", await response.text());
+        return;
+    }
+
+    const sessions = await response.json();
+
+    const totalQuiz = sessions.length;
+
+    const totalQuestions = sessions.reduce(
+        (total, session) =>
+            total + Number(session.total_questions || 0),
+        0
+    );
+
+    const totalCorrect = sessions.reduce(
+        (total, session) =>
+            total + Number(session.correct_answers || 0),
+        0
+    );
+
+    const rate =
+        totalQuestions > 0
+            ? Math.round((totalCorrect / totalQuestions) * 100)
+            : 0;
+
+    if (document.getElementById("statQuizCompleted")) {
+        document.getElementById("statQuizCompleted").innerText =
+            totalQuiz;
+    }
+
+    if (document.getElementById("statCorrectRate")) {
+        document.getElementById("statCorrectRate").innerText =
+            `${rate}%`;
+    }
+}
+
+
+async function loadHomeCategories() {
+    const container = document.getElementById("categoryList");
+
+    if (!container) return;
+
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/questions?select=category`,
+        {
+            headers: supabaseHeaders()
+        }
+    );
+
+    if (!response.ok) {
+        container.innerHTML = "<div>Impossible de charger les catégories.</div>";
+        return;
+    }
+
+    const rows = await response.json();
+
+    const counts = {};
+
+    rows.forEach(row => {
+        const category = String(row.category || "").trim();
+
+        if (!category) return;
+
+        counts[category] = (counts[category] || 0) + 1;
+    });
+
+    const categories = Object.entries(counts)
+        .sort((a, b) => a[0].localeCompare(b[0], "fr"));
+
+    if (!categories.length) {
+        container.innerHTML = "<div>Aucune catégorie disponible.</div>";
+        return;
+    }
+
+    container.innerHTML = categories
+        .slice(0, 5)
+        .map(([category, count]) => `
+            <div>
+                ${categoryIcon(category)}
+                <strong>${escapeHtml(category)}</strong>
+                <small>${count} question${count > 1 ? "s" : ""}</small>
+            </div>
+        `)
+        .join("");
+}
+
+
+async function loadHomeWeeklyRanking() {
+    const container = document.getElementById("weeklyRanking");
+
+    if (!container) return;
+
+    const start = encodeURIComponent(getWeekStartIso());
+
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/xp_history?select=profile_id,amount&created_at=gte.${start}`,
+        {
+            headers: supabaseHeaders()
+        }
+    );
+
+    if (!response.ok) {
+        container.innerHTML = "<p>Classement indisponible.</p>";
+        return;
+    }
+
+    const history = await response.json();
+
+    const totals = {};
+
+    history.forEach(entry => {
+        if (!entry.profile_id) return;
+
+        totals[entry.profile_id] =
+            (totals[entry.profile_id] || 0) +
+            Number(entry.amount || 0);
+    });
+
+    const topThree = Object.entries(totals)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 3);
+
+    if (!topThree.length) {
+        container.innerHTML =
+            "<p>Aucun XP gagné cette semaine.</p>";
+        return;
+    }
+
+    const profilesResponse = await fetch(
+        `${SUPABASE_URL}/rest/v1/profiles?select=id,full_name`,
+        {
+            headers: supabaseHeaders()
+        }
+    );
+
+    const profiles = profilesResponse.ok
+        ? await profilesResponse.json()
+        : [];
+
+    const names = {};
+
+    profiles.forEach(profile => {
+        names[profile.id] =
+            profile.full_name || "Utilisateur";
+    });
+
+    const medals = ["🥇", "🥈", "🥉"];
+
+    container.innerHTML = topThree
+        .map(([profileId, xp], index) => `
+            <p>
+                ${medals[index]}
+                ${escapeHtml(names[profileId] || "Utilisateur")}
+                <strong>${xp} XP</strong>
+            </p>
+        `)
+        .join("");
+}
+/* =========================
+   MISSIONS DU JOUR
+========================= */
+
+async function loadDailyMissions(profileId) {
+    const today = encodeURIComponent(
+        getLocalDayStartIso()
+    );
+
+
+    const answersResponse = await fetch(
+        `${SUPABASE_URL}/rest/v1/answers?profile_id=eq.${profileId}&submitted_at=gte.${today}&select=id`,
+        {
+            headers: supabaseHeaders()
+        }
+    );
+
+    if (answersResponse.ok) {
+        const answers =
+            await answersResponse.json();
+
+        if (document.getElementById("missionQuestions")) {
+            document.getElementById("missionQuestions").innerText =
+                `${Math.min(answers.length, 3)}/3`;
+        }
+    }
+
+
+    const sessionsResponse = await fetch(
+        `${SUPABASE_URL}/rest/v1/training_sessions?profile_id=eq.${profileId}&completed_at=gte.${today}&select=id`,
+        {
+            headers: supabaseHeaders()
+        }
+    );
+
+    if (sessionsResponse.ok) {
+        const sessions =
+            await sessionsResponse.json();
+
+        if (document.getElementById("missionQuiz")) {
+            document.getElementById("missionQuiz").innerText =
+                `${Math.min(sessions.length, 1)}/1`;
+        }
+    }
+
+
+    const role = String(
+        localStorage.getItem("role") || ""
+    ).toLowerCase();
+
+    const allowedRoles = [
+        "admin",
+        "direction",
+        "responsable",
+        "manager",
+        "chef d'équipe",
+        "chef_equipe",
+        "conseiller senior",
+        "senior"
+    ];
+
+    const correctionLine =
+        document.getElementById("missionCorrectionLine");
+
+    if (
+        correctionLine &&
+        allowedRoles.includes(role)
+    ) {
+        correctionLine.style.display = "";
+    }
+}
+
+
+/* =========================
+   PRÉSENCE
+========================= */
+
+async function updatePresence(profileId) {
+    if (!profileId) return;
+
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/profiles?id=eq.${profileId}`,
+        {
+            method: "PATCH",
+            headers: supabaseHeaders({
+                "Content-Type": "application/json",
+                Prefer: "return=minimal"
+            }),
+            body: JSON.stringify({
+                last_seen_at:
+                    new Date().toISOString()
+            })
+        }
+    );
+
+    if (!response.ok) {
+        console.warn(
+            "Présence non mise à jour :",
+            await response.text()
+        );
+    }
+}
+
+
+async function loadHomeOnlineCount() {
+    const element =
+        document.getElementById("onlineCount");
+
+    if (!element) return;
+
+    const threshold =
+        new Date(
+            Date.now() -
+            2 * 60 * 1000
+        ).toISOString();
+
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/profiles?select=id&last_seen_at=gte.${encodeURIComponent(threshold)}`,
+        {
+            headers: supabaseHeaders()
+        }
+    );
+
+    if (!response.ok) {
+        element.innerText =
+            "Présence indisponible";
+        return;
+    }
+
+    const users =
+        await response.json();
+
+    const count =
+        users.length;
+
+    element.innerText =
+        count === 1
+            ? "1 personne connectée"
+            : `${count} personnes connectées`;
+}
+
+
+function startPresenceHeartbeat() {
+    const profileId =
+        localStorage.getItem("profile_id");
+
+    if (!profileId) return;
+
+    if (window.__nickelPresenceInterval) {
+        clearInterval(
+            window.__nickelPresenceInterval
+        );
+    }
+
+    window.__nickelPresenceInterval =
+        setInterval(async () => {
+
+            await updatePresence(profileId);
+
+            if (
+                document.getElementById(
+                    "onlineCount"
+                )
+            ) {
+                await loadHomeOnlineCount();
+            }
+
+        }, 60000);
+}
+
+
+/* =========================
+   ACTIVITÉ RÉCENTE
+========================= */
+
+async function loadHomeRecentActivity() {
+    const container =
+        document.getElementById("recentActivity");
+
+    if (!container) return;
+
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/training_sessions?select=profile_id,category,mode,completed_at&order=completed_at.desc&limit=3`,
+        {
+            headers: supabaseHeaders()
+        }
+    );
+
+    if (!response.ok) {
+        container.innerHTML =
+            "<p>Aucune activité disponible.</p>";
+        return;
+    }
+
+    const sessions =
+        await response.json();
+
+    if (!sessions.length) {
+        container.innerHTML =
+            "<p>Aucune activité récente.</p>";
+        return;
+    }
+
+    const profilesResponse = await fetch(
+        `${SUPABASE_URL}/rest/v1/profiles?select=id,full_name`,
+        {
+            headers: supabaseHeaders()
+        }
+    );
+
+    const profiles = profilesResponse.ok
+        ? await profilesResponse.json()
+        : [];
+
+    const names = {};
+
+    profiles.forEach(profile => {
+        names[profile.id] =
+            profile.full_name || "Utilisateur";
+    });
+
+    container.innerHTML = sessions
+        .map(session => {
+
+            let trainingName =
+                session.category;
+
+            if (
+                !trainingName &&
+                session.mode === "xtrem"
+            ) {
+                trainingName =
+                    "Flash Xtrem";
+            }
+
+            if (!trainingName) {
+                trainingName =
+                    "un entraînement";
+            }
+
+            const time =
+                new Date(
+                    session.completed_at
+                ).toLocaleTimeString(
+                    "fr-FR",
+                    {
+                        hour: "2-digit",
+                        minute: "2-digit"
+                    }
+                );
+
+            return `
+                <p>
+                    ${escapeHtml(
+                        names[session.profile_id] ||
+                        "Utilisateur"
+                    )}
+                    a terminé
+                    ${escapeHtml(trainingName)}
+                    <small>${time}</small>
+                </p>
+            `;
+        })
+        .join("");
+}
 /* =========================
    ENTRAÎNEMENT
 ========================= */
+
 function afficherChoixThemes() {
-  document.getElementById("choix-mode").style.display = "none";
-  document.getElementById("choix-themes").style.display = "block";
+    const mode =
+        document.getElementById("choix-mode");
+
+    const themes =
+        document.getElementById("choix-themes");
+
+    if (mode) mode.style.display = "none";
+    if (themes) themes.style.display = "block";
 }
+
 
 function retourChoixMode() {
-  document.getElementById("choix-themes").style.display = "none";
-  document.getElementById("choix-mode").style.display = "block";
+    const mode =
+        document.getElementById("choix-mode");
+
+    const themes =
+        document.getElementById("choix-themes");
+
+    if (themes) themes.style.display = "none";
+    if (mode) mode.style.display = "block";
 }
+
 
 function lancerEntrainementCible(category) {
-  localStorage.setItem("training_mode", "cible");
-  localStorage.setItem("training_category", category);
-
-  window.location.href = "training-quiz.html";
-}
-
-function lancerFlashXtrem() {
-  localStorage.setItem("training_mode", "flash");
-  localStorage.removeItem("training_category");
-
-  window.location.href = "training-quiz.html";
-}
-async function loadTrainingQuiz() {
-    const category = localStorage.getItem("training_category");
-
-    if (!category) {
-        window.location.href = "training.html";
-        return;
-    }
-
-    document.getElementById("trainingTitle").innerText =
-        "Entraînement - " + category;
-
-    const response = await fetch(
-        `${SUPABASE_URL}/rest/v1/questions?category=eq.${category}&order=order_number.asc`,
-        {
-            headers: {
-                apikey: SUPABASE_KEY,
-                Authorization: `Bearer ${SUPABASE_KEY}`
-            }
-        }
+    localStorage.setItem(
+        "training_mode",
+        "cible"
     );
 
-    trainingQuestions = await response.json();
-    showTrainingQuestion();
+    localStorage.setItem(
+        "training_category",
+        category
+    );
+
+    window.location.href =
+        "training-quiz.html";
 }
 
-async function showTrainingQuestion() {
-    if (trainingIndex >= trainingQuestions.length) {
-        try {
-            await addXp(5, "training_participation");
-        } catch (error) {
-            console.error("Erreur ajout XP :", error);
+
+function lancerFlash() {
+    localStorage.setItem(
+        "training_mode",
+        "flash"
+    );
+
+    localStorage.removeItem(
+        "training_category"
+    );
+
+    window.location.href =
+        "training-quiz.html";
+}
+
+
+function lancerFlashXtrem() {
+    localStorage.setItem(
+        "training_mode",
+        "xtrem"
+    );
+
+    localStorage.removeItem(
+        "training_category"
+    );
+
+    window.location.href =
+        "training-quiz.html";
+}
+
+
+async function loadTrainingQuiz() {
+    trainingIndex = 0;
+    trainingCorrectAnswers = 0;
+
+    trainingStartedAt =
+        new Date().toISOString();
+
+    const mode =
+        localStorage.getItem(
+            "training_mode"
+        ) || "cible";
+
+    let category =
+        localStorage.getItem(
+            "training_category"
+        );
+
+    let title =
+        "Entraînement";
+
+
+    if (mode === "cible") {
+
+        if (!category) {
+            window.location.href =
+                "training.html";
+            return;
+        }
+
+        const response = await fetch(
+            `${SUPABASE_URL}/rest/v1/questions?select=*&category=eq.${encodeURIComponent(category)}`,
+            {
+                headers: supabaseHeaders()
+            }
+        );
+
+        if (!response.ok) {
             alert(
-                "L'entraînement est terminé, mais les XP n'ont pas pu être ajoutés : " +
-                error.message
+                "Impossible de charger les questions."
             );
             return;
         }
 
-        document.querySelector(".container").innerHTML = `
-            <h2>Entraînement terminé ✅</h2>
-            <p>Tu as terminé cette catégorie.</p>
-            <p><strong>+5 XP de participation gagnés</strong></p>
+        trainingQuestions =
+            shuffleArray(
+                await response.json()
+            ).slice(0, 10);
 
-            <button onclick="window.location.href='training.html'">
-                Choisir une autre catégorie
-            </button>
+        title =
+            `Entraînement - ${category}`;
+    }
 
-            <button onclick="window.location.href='home.html'">
-                Retour accueil
-            </button>
-        `;
+
+    else if (mode === "flash") {
+
+        const categoriesResponse =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/questions?select=category`,
+                {
+                    headers: supabaseHeaders()
+                }
+            );
+
+        if (!categoriesResponse.ok) {
+            alert(
+                "Impossible de charger les catégories."
+            );
+            return;
+        }
+
+        const rows =
+            await categoriesResponse.json();
+
+        const categories = [
+            ...new Set(
+                rows
+                    .map(row => row.category)
+                    .filter(Boolean)
+            )
+        ];
+
+        if (!categories.length) {
+            alert(
+                "Aucune catégorie disponible."
+            );
+            return;
+        }
+
+        category =
+            categories[
+                Math.floor(
+                    Math.random() *
+                    categories.length
+                )
+            ];
+
+        localStorage.setItem(
+            "training_category",
+            category
+        );
+
+        const response = await fetch(
+            `${SUPABASE_URL}/rest/v1/questions?select=*&category=eq.${encodeURIComponent(category)}`,
+            {
+                headers: supabaseHeaders()
+            }
+        );
+
+        if (!response.ok) {
+            alert(
+                "Impossible de charger les questions."
+            );
+            return;
+        }
+
+        trainingQuestions =
+            shuffleArray(
+                await response.json()
+            ).slice(0, 10);
+
+        title =
+            `Flash - ${category}`;
+    }
+
+
+    else if (mode === "xtrem") {
+
+        localStorage.removeItem(
+            "training_category"
+        );
+
+        const response = await fetch(
+            `${SUPABASE_URL}/rest/v1/questions?select=*`,
+            {
+                headers: supabaseHeaders()
+            }
+        );
+
+        if (!response.ok) {
+            alert(
+                "Impossible de charger les questions."
+            );
+            return;
+        }
+
+        trainingQuestions =
+            shuffleArray(
+                await response.json()
+            ).slice(0, 10);
+
+        title =
+            "Flash Xtrem";
+    }
+
+
+    if (!trainingQuestions.length) {
+        alert(
+            "Aucune question disponible."
+        );
+
+        window.location.href =
+            "training.html";
+
         return;
     }
 
-    const q = trainingQuestions[trainingIndex];
 
-    document.getElementById("trainingProgress").innerText =
-        `Question ${trainingIndex + 1} / ${trainingQuestions.length}`;
+    if (
+        document.getElementById(
+            "trainingTitle"
+        )
+    ) {
+        document.getElementById(
+            "trainingTitle"
+        ).innerText = title;
+    }
 
-    document.getElementById("trainingQuestion").innerText = q.question;
+    await showTrainingQuestion();
+}
 
-    const answerZone = document.getElementById("answerZone");
+
+async function showTrainingQuestion() {
+    if (
+        trainingIndex >=
+        trainingQuestions.length
+    ) {
+        await finishTraining();
+        return;
+    }
+
+    const q =
+        trainingQuestions[
+            trainingIndex
+        ];
+
+    if (
+        document.getElementById(
+            "trainingProgress"
+        )
+    ) {
+        document.getElementById(
+            "trainingProgress"
+        ).innerText =
+            `Question ${trainingIndex + 1} / ${trainingQuestions.length}`;
+    }
+
+    if (
+        document.getElementById(
+            "trainingQuestion"
+        )
+    ) {
+        document.getElementById(
+            "trainingQuestion"
+        ).innerText = q.question;
+    }
+
+    const answerZone =
+        document.getElementById(
+            "answerZone"
+        );
+
+    if (!answerZone) return;
+
     answerZone.innerHTML = "";
 
+
     if (q.question_type === "open") {
+
         answerZone.innerHTML = `
-            <textarea id="trainingAnswer" rows="6" placeholder="Écris ta réponse ici..."></textarea>
+            <textarea
+                id="trainingAnswer"
+                rows="6"
+                placeholder="Écris ta réponse ici..."
+            ></textarea>
         `;
-    } else if (q.question_type === "true_false") {
+    }
+
+
+    else if (
+        q.question_type ===
+        "true_false"
+    ) {
+
         answerZone.innerHTML = `
-            <label><input type="radio" name="answerChoice" value="A"> ${q.choice_a}</label><br>
-            <label><input type="radio" name="answerChoice" value="B"> ${q.choice_b}</label>
+            <label>
+                <input type="radio" name="answerChoice" value="A">
+                ${escapeHtml(q.choice_a)}
+            </label>
+            <br>
+            <label>
+                <input type="radio" name="answerChoice" value="B">
+                ${escapeHtml(q.choice_b)}
+            </label>
         `;
-    } else if (q.question_type === "single_choice") {
+    }
+
+
+    else if (
+        q.question_type ===
+        "single_choice"
+    ) {
+
         answerZone.innerHTML = `
-            <label><input type="radio" name="answerChoice" value="A"> ${q.choice_a}</label><br>
-            <label><input type="radio" name="answerChoice" value="B"> ${q.choice_b}</label><br>
-            <label><input type="radio" name="answerChoice" value="C"> ${q.choice_c}</label><br>
-            <label><input type="radio" name="answerChoice" value="D"> ${q.choice_d}</label>
+            <label><input type="radio" name="answerChoice" value="A"> ${escapeHtml(q.choice_a)}</label><br>
+            <label><input type="radio" name="answerChoice" value="B"> ${escapeHtml(q.choice_b)}</label><br>
+            <label><input type="radio" name="answerChoice" value="C"> ${escapeHtml(q.choice_c)}</label><br>
+            <label><input type="radio" name="answerChoice" value="D"> ${escapeHtml(q.choice_d)}</label>
         `;
-    } else if (q.question_type === "multiple_choice") {
+    }
+
+
+    else if (
+        q.question_type ===
+        "multiple_choice"
+    ) {
+
         answerZone.innerHTML = `
-            <label><input type="checkbox" name="answerChoice" value="A"> ${q.choice_a}</label><br>
-            <label><input type="checkbox" name="answerChoice" value="B"> ${q.choice_b}</label><br>
-            <label><input type="checkbox" name="answerChoice" value="C"> ${q.choice_c}</label><br>
-            <label><input type="checkbox" name="answerChoice" value="D"> ${q.choice_d}</label>
+            <label><input type="checkbox" name="answerChoice" value="A"> ${escapeHtml(q.choice_a)}</label><br>
+            <label><input type="checkbox" name="answerChoice" value="B"> ${escapeHtml(q.choice_b)}</label><br>
+            <label><input type="checkbox" name="answerChoice" value="C"> ${escapeHtml(q.choice_c)}</label><br>
+            <label><input type="checkbox" name="answerChoice" value="D"> ${escapeHtml(q.choice_d)}</label>
         `;
     }
 }
 
+
 async function submitTrainingAnswer() {
-    const profileId = localStorage.getItem("profile_id");
-    const q = trainingQuestions[trainingIndex];
+    const profileId =
+        localStorage.getItem(
+            "profile_id"
+        );
+
+    const q =
+        trainingQuestions[
+            trainingIndex
+        ];
+
+    if (!profileId || !q) return;
 
     let answer = "";
 
+
     if (q.question_type === "open") {
-        const input = document.getElementById("trainingAnswer");
-        answer = input ? input.value.trim() : "";
-    } else if (q.question_type === "multiple_choice") {
-        answer = Array.from(document.querySelectorAll('input[name="answerChoice"]:checked'))
+
+        const input =
+            document.getElementById(
+                "trainingAnswer"
+            );
+
+        answer =
+            input
+                ? input.value.trim()
+                : "";
+    }
+
+
+    else if (
+        q.question_type ===
+        "multiple_choice"
+    ) {
+
+        answer = Array.from(
+            document.querySelectorAll(
+                'input[name="answerChoice"]:checked'
+            )
+        )
             .map(input => input.value)
             .sort()
             .join(",");
-    } else {
-        const selected = document.querySelector('input[name="answerChoice"]:checked');
-        answer = selected ? selected.value : "";
     }
 
+
+    else {
+
+        const selected =
+            document.querySelector(
+                'input[name="answerChoice"]:checked'
+            );
+
+        answer =
+            selected
+                ? selected.value
+                : "";
+    }
+
+
     if (!answer) {
-        alert("Merci de saisir une réponse.");
+        alert(
+            "Merci de saisir une réponse."
+        );
         return;
     }
+
 
     let autoScore = null;
     let finalScore = null;
     let corrected = false;
+    let isCorrect = false;
 
-    if (q.question_type === "true_false" || q.question_type === "single_choice") {
-        autoScore = answer === q.correct_answer ? q.max_points : 0;
+
+    if (
+        q.question_type === "true_false" ||
+        q.question_type === "single_choice"
+    ) {
+
+        isCorrect =
+            answer === q.correct_answer;
+
+        autoScore =
+            isCorrect
+                ? Number(q.max_points || 1)
+                : 0;
+
         finalScore = autoScore;
         corrected = true;
     }
 
-    if (q.question_type === "multiple_choice") {
-        const correctChoices = q.correct_answer
-            .split(",")
-            .map(x => x.trim())
-            .sort()
-            .join(",");
 
-        autoScore = answer === correctChoices ? q.max_points : 0;
+    if (
+        q.question_type ===
+        "multiple_choice"
+    ) {
+
+        const correctChoices =
+            String(
+                q.correct_answer || ""
+            )
+                .split(",")
+                .map(value => value.trim())
+                .filter(Boolean)
+                .sort()
+                .join(",");
+
+        isCorrect =
+            answer === correctChoices;
+
+        autoScore =
+            isCorrect
+                ? Number(q.max_points || 1)
+                : 0;
+
         finalScore = autoScore;
         corrected = true;
     }
 
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/answers`, {
-        method: "POST",
-        headers: {
-            apikey: SUPABASE_KEY,
-            Authorization: `Bearer ${SUPABASE_KEY}`,
-            "Content-Type": "application/json",
-            Prefer: "return=minimal"
-        },
-        body: JSON.stringify({
-            profile_id: profileId,
-            question_id: q.id,
-            answer_text: answer,
-            auto_score: autoScore,
-            final_score: finalScore,
-            corrected: corrected
-        })
-    });
+
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/answers`,
+        {
+            method: "POST",
+            headers: supabaseHeaders({
+                "Content-Type": "application/json",
+                Prefer: "return=minimal"
+            }),
+            body: JSON.stringify({
+                profile_id: profileId,
+                question_id: q.id,
+                answer_text: answer,
+                auto_score: autoScore,
+                final_score: finalScore,
+                corrected
+            })
+        }
+    );
+
 
     if (!response.ok) {
-        const errorText = await response.text();
-        alert("Erreur enregistrement : " + errorText);
+        alert(
+            "Erreur enregistrement : " +
+            await response.text()
+        );
         return;
     }
 
+
+    if (isCorrect) {
+        trainingCorrectAnswers++;
+    }
+
     trainingIndex++;
-    showTrainingQuestion();
+
+    await showTrainingQuestion();
 }
 
+
+async function saveTrainingSession() {
+    const profileId =
+        localStorage.getItem(
+            "profile_id"
+        );
+
+    if (!profileId) {
+        throw new Error(
+            "Profil connecté introuvable."
+        );
+    }
+
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/training_sessions`,
+        {
+            method: "POST",
+            headers: supabaseHeaders({
+                "Content-Type": "application/json",
+                Prefer: "return=representation"
+            }),
+            body: JSON.stringify({
+                profile_id: profileId,
+                mode:
+                    localStorage.getItem(
+                        "training_mode"
+                    ) || "cible",
+                category:
+                    localStorage.getItem(
+                        "training_category"
+                    ),
+                total_questions:
+                    trainingQuestions.length,
+                correct_answers:
+                    trainingCorrectAnswers,
+                score:
+                    trainingCorrectAnswers,
+                xp_earned: 5,
+                started_at:
+                    trainingStartedAt,
+                completed_at:
+                    new Date().toISOString()
+            })
+        }
+    );
+
+    if (!response.ok) {
+        throw new Error(
+            await response.text()
+        );
+    }
+
+    const data =
+        await response.json();
+
+    return data[0]?.id || null;
+}
+
+
+async function finishTraining() {
+    try {
+
+        const sessionId =
+            await saveTrainingSession();
+
+        await addXp(
+            5,
+            "training_participation",
+            sessionId
+        );
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(
+            "L'entraînement est terminé, mais son enregistrement n'a pas pu être finalisé : " +
+            error.message
+        );
+
+        return;
+    }
+
+
+    const total =
+        trainingQuestions.length;
+
+    const correct =
+        trainingCorrectAnswers;
+
+    const incorrect =
+        total - correct;
+
+    const percentage =
+        total > 0
+            ? Math.round(
+                (correct / total) * 100
+            )
+            : 0;
+
+
+    const container =
+        document.querySelector(
+            ".container"
+        );
+
+    if (!container) return;
+
+
+    container.innerHTML = `
+        <h2>Entraînement terminé ✅</h2>
+
+        <p>
+            Score :
+            <strong>${correct}/${total}</strong>
+        </p>
+
+        <p>
+            Pourcentage :
+            <strong>${percentage}%</strong>
+        </p>
+
+        <p>
+            Bonnes réponses :
+            <strong>${correct}</strong>
+        </p>
+
+        <p>
+            Mauvaises réponses :
+            <strong>${incorrect}</strong>
+        </p>
+
+        <p>
+            <strong>+5 XP gagnés</strong>
+        </p>
+
+        <button onclick="restartCurrentTraining()">
+            Recommencer
+        </button>
+
+        <button onclick="window.location.href='training.html'">
+            Retour aux entraînements
+        </button>
+
+        <button onclick="window.location.href='home.html'">
+            Retour au menu
+        </button>
+    `;
+}
+
+
+function restartCurrentTraining() {
+    window.location.reload();
+}
 /* =========================
    XP
 ========================= */
 
-async function addXp(amount, source = "training", sourceId = null) {
-    const profileId = localStorage.getItem("profile_id");
+async function addXp(
+    amount,
+    source = "training",
+    sourceId = null
+) {
+
+    const profileId =
+        localStorage.getItem(
+            "profile_id"
+        );
 
     if (!profileId) {
-        throw new Error("Profil connecté introuvable.");
+        throw new Error(
+            "Profil connecté introuvable."
+        );
     }
 
-    const xpAmount = Number(amount);
+    const xpAmount =
+        Number(amount);
 
     if (!Number.isFinite(xpAmount)) {
-        throw new Error("Montant d'XP invalide.");
+        throw new Error(
+            "Montant d'XP invalide."
+        );
     }
 
-    // Récupérer le vrai total XP depuis Supabase
+
     const profileResponse = await fetch(
         `${SUPABASE_URL}/rest/v1/profiles?id=eq.${profileId}&select=xp`,
         {
-            headers: {
-                apikey: SUPABASE_KEY,
-                Authorization: `Bearer ${SUPABASE_KEY}`
-            }
+            headers: supabaseHeaders()
         }
     );
 
     if (!profileResponse.ok) {
-        const errorText = await profileResponse.text();
-
         throw new Error(
-            "Erreur lors de la récupération des XP : " + errorText
+            "Erreur récupération XP : " +
+            await profileResponse.text()
         );
     }
 
-    const profiles = await profileResponse.json();
+
+    const profiles =
+        await profileResponse.json();
 
     if (!profiles.length) {
-        throw new Error("Profil introuvable.");
+        throw new Error(
+            "Profil introuvable."
+        );
     }
 
-    const currentXp = Number(profiles[0].xp || 0);
-    const newXp = currentXp + xpAmount;
-    const newLevel = Math.floor(newXp / 100) + 1;
 
-    // Mettre à jour le total XP du profil
+    const currentXp =
+        Number(
+            profiles[0].xp || 0
+        );
+
+    const newXp =
+        currentXp + xpAmount;
+
+    const newLevel =
+        Math.floor(newXp / 100) + 1;
+
+
     const updateResponse = await fetch(
         `${SUPABASE_URL}/rest/v1/profiles?id=eq.${profileId}`,
         {
             method: "PATCH",
-            headers: {
-                apikey: SUPABASE_KEY,
-                Authorization: `Bearer ${SUPABASE_KEY}`,
+            headers: supabaseHeaders({
                 "Content-Type": "application/json",
                 Prefer: "return=minimal"
-            },
+            }),
             body: JSON.stringify({
                 xp: newXp,
                 level: newLevel
@@ -649,25 +1572,23 @@ async function addXp(amount, source = "training", sourceId = null) {
         }
     );
 
-    if (!updateResponse.ok) {
-        const errorText = await updateResponse.text();
 
+    if (!updateResponse.ok) {
         throw new Error(
-            "Erreur lors de la mise à jour des XP : " + errorText
+            "Erreur mise à jour XP : " +
+            await updateResponse.text()
         );
     }
 
-    // Enregistrer le gain dans l'historique pour Jour / Semaine / Mois
+
     const historyResponse = await fetch(
         `${SUPABASE_URL}/rest/v1/xp_history`,
         {
             method: "POST",
-            headers: {
-                apikey: SUPABASE_KEY,
-                Authorization: `Bearer ${SUPABASE_KEY}`,
+            headers: supabaseHeaders({
                 "Content-Type": "application/json",
                 Prefer: "return=minimal"
-            },
+            }),
             body: JSON.stringify({
                 profile_id: profileId,
                 amount: xpAmount,
@@ -677,202 +1598,371 @@ async function addXp(amount, source = "training", sourceId = null) {
         }
     );
 
-    if (!historyResponse.ok) {
-        const errorText = await historyResponse.text();
 
-        // On annule le total XP pour éviter un écart entre profiles et xp_history.
+    if (!historyResponse.ok) {
+
+        const errorText =
+            await historyResponse.text();
+
         await fetch(
             `${SUPABASE_URL}/rest/v1/profiles?id=eq.${profileId}`,
             {
                 method: "PATCH",
-                headers: {
-                    apikey: SUPABASE_KEY,
-                    Authorization: `Bearer ${SUPABASE_KEY}`,
+                headers: supabaseHeaders({
                     "Content-Type": "application/json",
                     Prefer: "return=minimal"
-                },
+                }),
                 body: JSON.stringify({
                     xp: currentXp,
-                    level: Math.floor(currentXp / 100) + 1
+                    level:
+                        Math.floor(
+                            currentXp / 100
+                        ) + 1
                 })
             }
         );
 
         throw new Error(
-            "Erreur lors de l'enregistrement de l'historique XP : " +
+            "Erreur historique XP : " +
             errorText
         );
     }
 
-    localStorage.setItem("xp", String(newXp));
-    localStorage.setItem("level", String(newLevel));
+
+    localStorage.setItem(
+        "xp",
+        String(newXp)
+    );
+
+    localStorage.setItem(
+        "level",
+        String(newLevel)
+    );
 
     return newXp;
 }
 
+
 /* =========================
-   CORRECTIONS
+   ADMIN USERS
 ========================= */
 
-async function loadCorrections() {
-    const container = document.getElementById("correctionList");
+async function loadUsersAdmin() {
+    const role =
+        localStorage.getItem("role");
 
-    if (!container) return;
-
-    container.innerHTML = "";
-
-    const answersResponse = await fetch(
-        `${SUPABASE_URL}/rest/v1/answers?select=*&order=submitted_at.desc`,
-        {
-            headers: {
-                apikey: SUPABASE_KEY,
-                Authorization: `Bearer ${SUPABASE_KEY}`
-            }
-        }
-    );
-
-    const answers = await answersResponse.json();
-
-    for (const answer of answers) {
-        const userResponse = await fetch(
-            `${SUPABASE_URL}/rest/v1/profiles?id=eq.${answer.profile_id}`,
-            {
-                headers: {
-                    apikey: SUPABASE_KEY,
-                    Authorization: `Bearer ${SUPABASE_KEY}`
-                }
-            }
+    if (role !== "admin") {
+        alert(
+            "Accès réservé à l'administrateur."
         );
 
-        const userData = await userResponse.json();
-        const user = userData[0];
+        window.location.href =
+            "home.html";
 
-        const questionResponse = await fetch(
-            `${SUPABASE_URL}/rest/v1/questions?id=eq.${answer.question_id}`,
-            {
-                headers: {
-                    apikey: SUPABASE_KEY,
-                    Authorization: `Bearer ${SUPABASE_KEY}`
-                }
-            }
-        );
-
-        const questionData = await questionResponse.json();
-        const question = questionData[0];
-
-        container.innerHTML += `
-            <div class="card">
-                <h2>${user?.full_name || "Utilisateur inconnu"}</h2>
-                <p><strong>Catégorie :</strong> ${question?.category || ""}</p>
-                <p><strong>Question :</strong><br>${question?.question || ""}</p>
-                <p><strong>Réponse attendue :</strong><br>${question?.expected_answer || "Non renseignée"}</p>
-                <p><strong>Réponse donnée :</strong><br>${answer.answer_text || ""}</p>
-                <p><strong>Barème :</strong> ${question?.max_points || 0} points</p>
-                <p><strong>Corrigé :</strong> ${answer.corrected ? "Oui" : "Non"}</p>
-            </div>
-        `;
-    }
-
-    if (container.innerHTML === "") {
-        container.innerHTML = "<p>Aucune réponse à corriger pour le moment.</p>";
-    }
-   async function loadRanking() {
-
-    const container = document.getElementById("rankingList");
-
-    if (!container) {
         return;
     }
 
     const response = await fetch(
-        `${SUPABASE_URL}/rest/v1/profiles?select=*&order=xp.desc`,
+        `${SUPABASE_URL}/rest/v1/profiles?select=*&order=full_name.asc`,
         {
-            headers: {
-                apikey: SUPABASE_KEY,
-                Authorization: `Bearer ${SUPABASE_KEY}`
-            }
+            headers: supabaseHeaders()
         }
     );
 
-    const users = await response.json();
+    if (!response.ok) return;
+
+    const users =
+        await response.json();
+
+    const container =
+        document.getElementById(
+            "usersList"
+        );
+
+    if (!container) return;
 
     container.innerHTML = "";
 
-    users.forEach((user, index) => {
-
+    users.forEach(user => {
         container.innerHTML += `
-            <div class="card">
-                <h2>#${index + 1} - ${user.full_name}</h2>
+            <div
+                class="card compact-card"
+                onclick="openUserProfile('${user.id}')"
+            >
+                <h2>
+                    ${escapeHtml(
+                        user.full_name ||
+                        "Sans nom"
+                    )}
+                </h2>
 
                 <p>
-                    <strong>Niveau :</strong>
-                    ${user.level || 1}
+                    ${escapeHtml(
+                        user.position ||
+                        user.job_title ||
+                        "Poste non renseigné"
+                    )}
                 </p>
 
                 <p>
-                    <strong>XP :</strong>
-                    ${user.xp || 0}
-                </p>
-
-                <p>
-                    <strong>Poste :</strong>
-                    ${user.position || ""}
+                    <strong>Rôle :</strong>
+                    ${escapeHtml(
+                        user.role || ""
+                    )}
                 </p>
             </div>
         `;
     });
 }
+
+
+function openUserProfile(userId) {
+    localStorage.setItem(
+        "selected_user_id",
+        userId
+    );
+
+    window.location.href =
+        "admin-user-detail.html";
 }
+
+
+/* =========================
+   MON ÉQUIPE
+========================= */
+
+async function loadMyTeam() {
+    const profileId =
+        localStorage.getItem(
+            "profile_id"
+        );
+
+    if (!profileId) {
+        window.location.href =
+            "index.html";
+        return;
+    }
+
+    const meResponse = await fetch(
+        `${SUPABASE_URL}/rest/v1/profiles?id=eq.${profileId}`,
+        {
+            headers: supabaseHeaders()
+        }
+    );
+
+    if (!meResponse.ok) return;
+
+    const meData =
+        await meResponse.json();
+
+    const me =
+        meData[0];
+
+    if (!me || !me.team_id) {
+
+        if (
+            document.getElementById(
+                "teamTitle"
+            )
+        ) {
+            document.getElementById(
+                "teamTitle"
+            ).innerText =
+                "Aucune équipe associée.";
+        }
+
+        return;
+    }
+
+
+    const teamResponse = await fetch(
+        `${SUPABASE_URL}/rest/v1/teams?id=eq.${me.team_id}`,
+        {
+            headers: supabaseHeaders()
+        }
+    );
+
+    const teamData =
+        teamResponse.ok
+            ? await teamResponse.json()
+            : [];
+
+    const team =
+        teamData[0];
+
+    if (
+        document.getElementById(
+            "teamTitle"
+        )
+    ) {
+        document.getElementById(
+            "teamTitle"
+        ).innerText =
+            team
+                ? team.name
+                : "Mon équipe";
+    }
+
+
+    const membersResponse = await fetch(
+        `${SUPABASE_URL}/rest/v1/profiles?team_id=eq.${me.team_id}&order=full_name.asc`,
+        {
+            headers: supabaseHeaders()
+        }
+    );
+
+    if (!membersResponse.ok) return;
+
+    const members =
+        await membersResponse.json();
+
+    const container =
+        document.getElementById(
+            "teamMembers"
+        );
+
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    members.forEach(member => {
+        container.innerHTML += `
+            <div
+                class="team-member"
+                onclick="openTeamMember('${member.id}')"
+            >
+                <strong>
+                    ${escapeHtml(member.full_name)}
+                </strong>
+                |
+                ${escapeHtml(
+                    member.position ||
+                    member.job_title ||
+                    ""
+                )}
+                |
+                Niveau ${member.level || 1}
+            </div>
+        `;
+    });
+}
+
+
+function openTeamMember(userId) {
+    localStorage.setItem(
+        "selected_user_id",
+        userId
+    );
+
+    window.location.href =
+        "admin-user-detail.html";
+}
+
+
+/* =========================
+   CLASSEMENT SIMPLE
+========================= */
+
 async function loadRanking() {
-    const container = document.getElementById("rankingList");
+    const container =
+        document.getElementById(
+            "rankingList"
+        );
 
     if (!container) return;
 
     const response = await fetch(
         `${SUPABASE_URL}/rest/v1/profiles?select=*&order=xp.desc`,
         {
-            headers: {
-                apikey: SUPABASE_KEY,
-                Authorization: `Bearer ${SUPABASE_KEY}`
-            }
+            headers: supabaseHeaders()
         }
     );
 
-    const users = await response.json();
+    if (!response.ok) {
+        container.innerHTML =
+            "<p>Impossible de charger le classement.</p>";
+        return;
+    }
+
+    const users =
+        await response.json();
 
     container.innerHTML = "";
 
-    users.forEach((user, index) => {
-        container.innerHTML += `
-            <div class="card">
-                <h2>#${index + 1} - ${user.full_name || "Sans nom"}</h2>
-                <p><strong>Poste :</strong> ${user.position || ""}</p>
-                <p><strong>Niveau :</strong> ${user.level || 1}</p>
-                <p><strong>XP :</strong> ${user.xp || 0}</p>
-            </div>
-        `;
-    });
+    users.forEach(
+        (user, index) => {
+
+            container.innerHTML += `
+                <div class="card">
+
+                    <h2>
+                        #${index + 1}
+                        -
+                        ${escapeHtml(
+                            user.full_name ||
+                            "Sans nom"
+                        )}
+                    </h2>
+
+                    <p>
+                        <strong>Poste :</strong>
+                        ${escapeHtml(
+                            user.position ||
+                            user.job_title ||
+                            ""
+                        )}
+                    </p>
+
+                    <p>
+                        <strong>Niveau :</strong>
+                        ${user.level || 1}
+                    </p>
+
+                    <p>
+                        <strong>XP :</strong>
+                        ${user.xp || 0}
+                    </p>
+
+                </div>
+            `;
+        }
+    );
 }
-function logout() {
-
-    const savedTheme =
-        localStorage.getItem(
-            "nickel_master_theme"
-        );
 
 
-    localStorage.clear();
+/* =========================
+   PRÉSENCE AUTOMATIQUE
+========================= */
 
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
 
-    if (savedTheme) {
+        const profileId =
+            localStorage.getItem(
+                "profile_id"
+            );
 
-        localStorage.setItem(
-            "nickel_master_theme",
-            savedTheme
-        );
+        if (!profileId) return;
+
+        /*
+         * Sur home.html, loadHomeDashboard()
+         * gère déjà la présence.
+         *
+         * Sur les autres pages on la maintient ici.
+         */
+
+        if (
+            !document.getElementById(
+                "onlineCount"
+            )
+        ) {
+
+            updatePresence(
+                profileId
+            );
+
+            startPresenceHeartbeat();
+        }
     }
-
-
-    window.location.href =
-        "index.html";
-}
+);
