@@ -1368,3 +1368,452 @@ button {
             20px;
     }
 }
+/* =========================================================
+   PAGE BADGES
+========================================================= */
+
+.badges-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 20px;
+
+    margin-bottom: 22px;
+}
+
+
+.badges-page-header h1 {
+    margin: 0 0 6px;
+}
+
+
+.badges-page-header p {
+    margin: 0;
+
+    color: var(--text-secondary);
+}
+
+
+.badges-total-card {
+    display: flex;
+    align-items: baseline;
+
+    gap: 5px;
+
+    background: var(--bg-card);
+
+    border: 1px solid var(--border);
+
+    border-radius: 16px;
+
+    padding: 14px 20px;
+
+    box-shadow: var(--shadow-card);
+}
+
+
+.badges-total-card strong {
+    font-size: 24px;
+}
+
+
+.badges-total-card small {
+    margin-left: 4px;
+
+    color: var(--text-secondary);
+}
+
+
+/* =========================
+   FILTRES
+========================= */
+
+.badge-filter-bar {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 10px;
+
+    margin-bottom: 22px;
+}
+
+
+.badge-filter {
+    width: auto;
+
+    padding: 10px 16px;
+
+    background: var(--bg-card);
+
+    color: var(--text-main);
+
+    border: 1px solid var(--border);
+
+    border-radius: 12px;
+
+    cursor: pointer;
+
+    font-weight: 600;
+}
+
+
+.badge-filter:hover {
+    border-color: var(--orange);
+
+    background: var(--bg-card-hover);
+}
+
+
+.badge-filter.active {
+    background: var(--orange);
+
+    border-color: var(--orange);
+
+    color: white;
+}
+
+
+/* =========================
+   GRILLE BADGES
+========================= */
+
+.badges-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            auto-fill,
+            minmax(230px, 1fr)
+        );
+
+    gap: 16px;
+}
+
+
+/* =========================
+   CARTE BADGE
+========================= */
+
+.badge-gallery-card {
+    position: relative;
+
+    min-height: 250px;
+
+    padding: 22px;
+
+    background: var(--bg-card);
+
+    color: var(--text-main);
+
+    border: 1px solid var(--border);
+
+    border-radius: 18px;
+
+    box-shadow: var(--shadow-card);
+
+    transition:
+        transform .2s ease,
+        opacity .2s ease,
+        border-color .2s ease;
+}
+
+
+.badge-gallery-card:hover {
+    transform: translateY(-3px);
+}
+
+
+.badge-gallery-card.badge-locked {
+    opacity: .55;
+
+    filter: grayscale(.55);
+}
+
+
+.badge-gallery-card.badge-locked:hover {
+    opacity: .72;
+}
+
+
+.badge-gallery-icon {
+    width: 58px;
+
+    height: 58px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    margin-bottom: 16px;
+
+    font-size: 36px;
+
+    background: var(--bg-card-hover);
+
+    border: 1px solid var(--border);
+
+    border-radius: 16px;
+}
+
+
+.badge-gallery-rarity {
+    display: inline-flex;
+
+    margin-bottom: 8px;
+
+    padding: 4px 8px;
+
+    border-radius: 20px;
+
+    font-size: 11px;
+
+    font-weight: 800;
+
+    text-transform: uppercase;
+
+    letter-spacing: .5px;
+}
+
+
+.badge-gallery-card h3 {
+    margin: 4px 0 8px;
+
+    font-size: 18px;
+}
+
+
+.badge-gallery-card p {
+    margin: 0 0 18px;
+
+    color: var(--text-secondary);
+
+    font-size: 14px;
+
+    line-height: 1.5;
+}
+
+
+/* =========================
+   RARETÉS
+========================= */
+
+.badge-rarity-common {
+    color: #7b8794;
+}
+
+
+.badge-gallery-card.badge-rarity-common {
+    border-top: 4px solid #7b8794;
+}
+
+
+.badge-rarity-rare {
+    color: #3b82f6;
+}
+
+
+.badge-gallery-card.badge-rarity-rare {
+    border-top: 4px solid #3b82f6;
+}
+
+
+.badge-rarity-epic {
+    color: #8b5cf6;
+}
+
+
+.badge-gallery-card.badge-rarity-epic {
+    border-top: 4px solid #8b5cf6;
+}
+
+
+.badge-rarity-legendary {
+    color: #ff7a00;
+}
+
+
+.badge-gallery-card.badge-rarity-legendary {
+    border-top: 4px solid #ff7a00;
+}
+
+
+/* =========================
+   STATUT BADGE
+========================= */
+
+.badge-gallery-status {
+    margin-top: auto;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    color: var(--text-secondary);
+}
+
+
+.badge-obtained {
+    color: var(--green);
+}
+
+
+.badge-repeat-count {
+    position: absolute;
+
+    top: 16px;
+
+    right: 16px;
+
+    padding: 5px 8px;
+
+    border-radius: 20px;
+
+    background: var(--orange);
+
+    color: white;
+
+    font-size: 12px;
+
+    font-weight: 800;
+}
+
+
+/* =========================
+   PROGRESSION
+========================= */
+
+.badge-progress-text {
+    margin-bottom: 7px;
+
+    color: var(--text-secondary);
+
+    font-size: 13px;
+
+    font-weight: 700;
+}
+
+
+.badge-progress-bar {
+    width: 100%;
+
+    height: 7px;
+
+    overflow: hidden;
+
+    background: var(--border);
+
+    border-radius: 20px;
+}
+
+
+.badge-progress-bar div {
+    height: 100%;
+
+    background: var(--orange);
+
+    border-radius: 20px;
+}
+
+
+/* =========================
+   SECRET
+========================= */
+
+.badge-secret-card {
+    border-top:
+        4px solid
+        var(--text-secondary);
+}
+
+
+/* =========================
+   BADGES ACCUEIL
+========================= */
+
+.home-badge-line {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 9px 0;
+
+    border-bottom:
+        1px solid
+        var(--border);
+}
+
+
+.home-badge-line:last-child {
+    border-bottom: none;
+}
+
+
+.home-badge-icon {
+    width: 38px;
+
+    height: 38px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    background: var(--bg-card-hover);
+
+    border: 1px solid var(--border);
+
+    border-radius: 11px;
+
+    font-size: 22px;
+}
+
+
+.home-badge-line strong {
+    display: block;
+
+    font-size: 14px;
+}
+
+
+.home-badge-line small {
+    display: block;
+
+    margin-top: 2px;
+
+    color: var(--text-secondary);
+
+    font-size: 11px;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 700px) {
+
+    .badges-page-header {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+
+    .badges-grid {
+        grid-template-columns: 1fr;
+    }
+
+
+    .badge-filter {
+        flex: 1;
+    }
+}
