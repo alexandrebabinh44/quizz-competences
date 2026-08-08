@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <script>
+    const savedTheme =
+      localStorage.getItem("nickel_master_theme") || "light";
+
+    document.documentElement.setAttribute(
+      "data-theme",
+      savedTheme
+    );
+  </script>
+
+  <title>
+    Badges - Nickel Master
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
+
+</head>
+
+
+<body class="dashboard-body">
+
+
+<div class="dashboard-layout">
+
+
+  <!-- =========================
+       SIDEBAR
+  ========================= -->
+
+  <aside class="sidebar">
+
+    <div class="logo">
+
+      <div class="logo-icon">
+        ≡
+      </div>
+
+      <div>
+
+        <strong>
+          NICKEL
+        </strong>
+
+        <br>
+
+        <span>
+          MASTER
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <nav class="side-menu">
+
+      <button
+        onclick="window.location.href='home.html'"
+      >
+        🏠 Accueil
+      </button>
+
+
+      <button
+        onclick="window.location.href='training.html'"
+      >
+        🎯 Entraînement
+      </button>
+
+
+      <button
+        onclick="window.location.href='#'"
+      >
+        🏆 Challenges
+      </button>
+
+
+      <button
+        onclick="window.location.href='ranking.html'"
+      >
+        📊 Classements
+      </button>
+
+
+      <button
+        onclick="window.location.href='#'"
+      >
+        ⚔️ Battle
+      </button>
+
+
+      <button
+        onclick="window.location.href='#'"
+      >
+        🎮 Kahoot
+      </button>
+
+
+      <button
+        onclick="window.location.href='profile.html'"
+      >
+        📈 Mes stats
+      </button>
+
+
+      <button
+        class="active"
+        onclick="window.location.href='badges.html'"
+      >
+        🏅 Badges
+      </button>
+
+
+      <button
+        onclick="window.location.href='#'"
+      >
+        💡 Boîte à idées
+      </button>
+
+
+      <button
+        onclick="window.location.href='#'"
+      >
+        🚩 Signalements
+      </button>
+
+    </nav>
+
+
+    <div class="sidebar-bottom">
+
+      <button
+        onclick="window.location.href='#'"
+      >
+        ⚙️ Paramètres
+      </button>
+
+
+      <button
+        id="themeToggle"
+        class="sidebar-link theme-button"
+        onclick="toggleTheme()"
+      >
+        🌙 Mode sombre
+      </button>
+
+
+      <button
+        class="sidebar-link"
+        onclick="logout()"
+      >
+        🚪 Déconnexion
+      </button>
+
+    </div>
+
+  </aside>
+
+
+  <!-- =========================
+       PAGE BADGES
+  ========================= -->
+
+  <main class="dashboard-main">
+
+
+    <header class="topbar">
+
+      <input
+        type="text"
+        placeholder="Rechercher..."
+        disabled
+      >
+
+
+      <div class="topbar-right">
+
+        <span class="online-dot"></span>
+
+        <span id="onlineCount">
+          Chargement...
+        </span>
+
+        <span>
+          🔔
+        </span>
+
+        <strong id="topUserName">
+          Utilisateur
+        </strong>
+
+      </div>
+
+    </header>
+
+
+    <section class="badges-page-header">
+
+      <div>
+
+        <h1>
+          🏅 Badges
+        </h1>
+
+        <p>
+          Collectionne les badges en progressant sur Nickel Master.
+        </p>
+
+      </div>
+
+
+      <div class="badges-total-card">
+
+        <strong id="badgesObtainedCount">
+          0
+        </strong>
+
+        <span>
+          /
+        </span>
+
+        <strong id="badgesTotalCount">
+          0
+        </strong>
+
+        <small>
+          obtenus
+        </small>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         FILTRES RARETÉ
+    ========================= -->
+
+    <section class="badge-filter-bar">
+
+      <button
+        class="badge-filter active"
+        data-badge-filter="all"
+        onclick="setBadgeFilter('all', this)"
+      >
+        Tous
+      </button>
+
+
+      <button
+        class="badge-filter badge-filter-common"
+        data-badge-filter="common"
+        onclick="setBadgeFilter('common', this)"
+      >
+        ⚪ Commun
+      </button>
+
+
+      <button
+        class="badge-filter badge-filter-rare"
+        data-badge-filter="rare"
+        onclick="setBadgeFilter('rare', this)"
+      >
+        🔵 Rare
+      </button>
+
+
+      <button
+        class="badge-filter badge-filter-epic"
+        data-badge-filter="epic"
+        onclick="setBadgeFilter('epic', this)"
+      >
+        🟣 Épique
+      </button>
+
+
+      <button
+        class="badge-filter badge-filter-legendary"
+        data-badge-filter="legendary"
+        onclick="setBadgeFilter('legendary', this)"
+      >
+        🟠 Légendaire
+      </button>
+
+
+      <button
+        class="badge-filter"
+        data-badge-filter="secret"
+        onclick="setBadgeFilter('secret', this)"
+      >
+        ❓ Secrets
+      </button>
+
+    </section>
+
+
+    <!-- =========================
+         GRILLE
+    ========================= -->
+
+    <section
+      class="badges-grid"
+      id="badgesGrid"
+    >
+
+      <div class="dash-card">
+        Chargement des badges...
+      </div>
+
+    </section>
+
+
+  </main>
+
+</div>
+
+
+<script src="app.js"></script>
+
+<script src="theme.js"></script>
+
+
+<script>
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+      loadBadgesPage();
+
+    }
+  );
+
+</script>
+
+
+</body>
+
+</html>
