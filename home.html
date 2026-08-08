@@ -10,17 +10,9 @@
     content="width=device-width, initial-scale=1.0"
   >
 
-
-  <!-- =========================
-       THÈME AVANT AFFICHAGE
-       Évite le flash blanc
-  ========================= -->
-
   <script>
     const savedTheme =
-      localStorage.getItem(
-        "nickel_master_theme"
-      ) || "light";
+      localStorage.getItem("nickel_master_theme") || "light";
 
     document.documentElement.setAttribute(
       "data-theme",
@@ -28,11 +20,7 @@
     );
   </script>
 
-
-  <title>
-    Nickel Master
-  </title>
-
+  <title>Nickel Master</title>
 
   <link
     rel="stylesheet"
@@ -48,21 +36,17 @@
 <div class="dashboard-layout">
 
 
-  <!-- =====================================================
+  <!-- =========================
        SIDEBAR
-  ====================================================== -->
+  ========================= -->
 
   <aside class="sidebar">
-
-
-    <!-- LOGO -->
 
     <div class="logo">
 
       <div class="logo-icon">
         ≡
       </div>
-
 
       <div>
 
@@ -81,11 +65,7 @@
     </div>
 
 
-
-    <!-- MENU -->
-
     <nav class="side-menu">
-
 
       <button
         class="active"
@@ -144,6 +124,16 @@
       </button>
 
 
+      <!-- NOUVEAU -->
+
+      <button
+        type="button"
+        onclick="window.location.href='badges.html'"
+      >
+        🏅 Badges
+      </button>
+
+
       <button
         type="button"
         onclick="window.location.href='#'"
@@ -162,11 +152,7 @@
     </nav>
 
 
-
-    <!-- BAS SIDEBAR -->
-
     <div class="sidebar-bottom">
-
 
       <button
         type="button"
@@ -196,105 +182,69 @@
 
     </div>
 
-
   </aside>
 
 
-
-  <!-- =====================================================
-       CONTENU PRINCIPAL
-  ====================================================== -->
+  <!-- =========================
+       CONTENU
+  ========================= -->
 
   <main class="dashboard-main">
 
 
-    <!-- ===================================================
-         TOPBAR
-    ==================================================== -->
-
     <header class="topbar">
-
 
       <input
         type="text"
         placeholder="Rechercher..."
-        aria-label="Rechercher"
         disabled
       >
 
 
       <div class="topbar-right">
 
-
-        <span
-          class="online-dot"
-          aria-hidden="true"
-        ></span>
-
+        <span class="online-dot"></span>
 
         <span id="onlineCount">
           Chargement...
         </span>
 
-
-        <span
-          title="Notifications"
-          aria-label="Notifications"
-        >
+        <span>
           🔔
         </span>
-
 
         <strong id="topUserName">
           Utilisateur
         </strong>
-
 
       </div>
 
     </header>
 
 
-
-    <!-- ===================================================
-         BIENVENUE
-    ==================================================== -->
-
     <section class="welcome-section">
-
 
       <h1 id="welcome">
         Bonjour 👋
       </h1>
 
-
       <p>
         Prêt à devenir le meilleur ?
       </p>
 
-
     </section>
 
-
-
-    <!-- ===================================================
-         DASHBOARD
-    ==================================================== -->
 
     <section class="dashboard-grid">
 
 
-      <!-- =================================================
-           MISSIONS DU JOUR
-      ================================================== -->
+      <!-- MISSIONS -->
 
       <article class="dash-card mission-card">
-
 
         <h3>
           Mission du jour
         </h3>
-
 
 
         <div class="mission-line">
@@ -310,7 +260,6 @@
         </div>
 
 
-
         <div class="mission-line">
 
           <span>
@@ -323,12 +272,6 @@
 
         </div>
 
-
-
-        <!--
-          Cette mission n'est affichée que
-          pour les rôles autorisés dans app.js
-        -->
 
         <div
           class="mission-line"
@@ -347,7 +290,6 @@
         </div>
 
 
-
         <div
           class="reward"
           id="missionReward"
@@ -355,35 +297,26 @@
           🎁 Missions du jour
         </div>
 
-
       </article>
 
 
-
-      <!-- =================================================
-           NIVEAU
-      ================================================== -->
+      <!-- NIVEAU -->
 
       <article class="dash-card level-card">
 
-
         <div>
-
 
           <span>
             Ton niveau
           </span>
 
-
           <h2 id="userLevel">
             Niveau 1
           </h2>
 
-
           <p id="levelLabel">
             Débutant
           </p>
-
 
 
           <div class="progress-bar">
@@ -396,39 +329,27 @@
           </div>
 
 
-
           <small id="userXp">
             0 / 100 XP
           </small>
 
-
         </div>
 
 
-
-        <div
-          class="avatar"
-          aria-hidden="true"
-        >
+        <div class="avatar">
           🧑‍💼
         </div>
-
 
       </article>
 
 
-
-      <!-- =================================================
-           STATISTIQUES
-      ================================================== -->
+      <!-- STATISTIQUES -->
 
       <article class="dash-card stats-card">
-
 
         <h3>
           Tes statistiques
         </h3>
-
 
 
         <p>
@@ -444,7 +365,6 @@
         </p>
 
 
-
         <p>
 
           <span>
@@ -456,7 +376,6 @@
           </strong>
 
         </p>
-
 
 
         <p>
@@ -472,7 +391,6 @@
         </p>
 
 
-
         <p>
 
           <span>
@@ -485,42 +403,28 @@
 
         </p>
 
-
       </article>
 
 
-
-      <!-- =================================================
-           ENTRAÎNEMENT
-      ================================================== -->
+      <!-- ENTRAINEMENT -->
 
       <article class="dash-card resume-card">
-
 
         <h3>
           Entraînement
         </h3>
 
-
         <strong>
           🎯 Continuer à progresser
         </strong>
 
-
-        <p id="trainingSummary">
+        <p>
           Choisis ton prochain entraînement.
         </p>
 
-
-
         <div class="progress-bar">
-
-          <div style="width:0%;">
-          </div>
-
+          <div style="width:0%;"></div>
         </div>
-
-
 
         <button
           type="button"
@@ -529,83 +433,49 @@
           Voir les entraînements
         </button>
 
-
       </article>
 
 
-
-      <!-- =================================================
-           CATÉGORIES
-      ================================================== -->
+      <!-- CATEGORIES -->
 
       <article class="dash-card categories-card">
 
-
         <div class="card-title-row">
-
 
           <h3>
             Catégories
           </h3>
 
-
           <span
-            role="button"
-            tabindex="0"
             onclick="window.location.href='training.html'"
-            onkeydown="
-              if(event.key === 'Enter') {
-                window.location.href='training.html';
-              }
-            "
             style="cursor:pointer;"
           >
             Voir toutes
           </span>
 
-
         </div>
 
-
-
-        <!--
-          Rempli automatiquement depuis
-          la table questions
-        -->
 
         <div
           class="category-list"
           id="categoryList"
         >
-
           <div>
             Chargement...
           </div>
-
         </div>
-
 
       </article>
 
 
-
-      <!-- =================================================
-           CLASSEMENT HEBDOMADAIRE
-      ================================================== -->
+      <!-- CLASSEMENT -->
 
       <article class="dash-card ranking-card">
-
 
         <h3>
           Classement hebdomadaire
         </h3>
 
-
-
-        <!--
-          Rempli automatiquement
-          depuis xp_history
-        -->
 
         <div id="weeklyRanking">
 
@@ -616,7 +486,6 @@
         </div>
 
 
-
         <button
           type="button"
           onclick="window.location.href='ranking.html'"
@@ -624,80 +493,49 @@
           Voir le classement
         </button>
 
-
       </article>
 
 
+      <!-- BADGES -->
 
-      <!-- =================================================
-           BADGES
-      ================================================== -->
-
-      <article class="dash-card badges-card">
-
+      <article
+        class="dash-card badges-card"
+        onclick="window.location.href='badges.html'"
+        style="cursor:pointer;"
+      >
 
         <div class="card-title-row">
 
-
           <h3>
-            Badges
+            Derniers badges
           </h3>
 
-
           <span>
-            🏅
+            Voir tous ›
           </span>
-
 
         </div>
 
 
+        <div id="recentBadges">
 
-        <p
-          style="
-            color:var(--text-secondary);
-            margin-bottom:8px;
-          "
-        >
-          Tes badges se débloquent automatiquement
-          en progressant sur Nickel Master.
-        </p>
+          <p style="color:var(--text-secondary);">
+            Chargement...
+          </p>
 
-
-
-        <p
-          style="
-            color:var(--text-secondary);
-            margin:0;
-            font-size:13px;
-          "
-        >
-          Questions, entraînements, performances,
-          activité et classements.
-        </p>
-
+        </div>
 
       </article>
 
 
-
-      <!-- =================================================
-           ACTIVITÉ RÉCENTE
-      ================================================== -->
+      <!-- ACTIVITE -->
 
       <article class="dash-card activity-card">
-
 
         <h3>
           Activité récente
         </h3>
 
-
-
-        <!--
-          Rempli automatiquement
-          depuis training_sessions
-        -->
 
         <div id="recentActivity">
 
@@ -707,23 +545,15 @@
 
         </div>
 
-
       </article>
 
 
     </section>
 
-
   </main>
-
 
 </div>
 
-
-
-<!-- =====================================================
-     JAVASCRIPT
-====================================================== -->
 
 <script src="app.js"></script>
 
