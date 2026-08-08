@@ -752,3 +752,18 @@ body {
         width: 100%;
     }
 }
+/* =========================
+   BOUTON THÈME SIDEBAR
+========================= */
+
+.theme-button {
+    width: 100%;
+    border: none;
+    background: transparent;
+    text-align: left;
+}
+
+.theme-button:hover {
+    background: var(--bg-card-hover);
+    color: var(--text-main);
+}
