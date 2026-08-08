@@ -1489,6 +1489,556 @@ async function finishTraining() {
 function restartCurrentTraining() {
     window.location.reload();
 }
+/* =========================================================
+   BADGES
+========================================================= */
+
+async function getBadgeByCode(code) {
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/badges?code=eq.${encodeURIComponent(code)}&active=eq.true&select=*`,
+        {
+            headers: supabaseHeaders()
+        }
+    );
+
+    if (!response.ok) {
+        throw new Error(
+            "Impossible de récupérer le badge " +
+            code +
+            " : " +
+            await response.text()
+        );
+    }
+
+    const data = await response.json();
+
+    return data[0] || null;
+}
+
+
+async function hasUserBadge(profileId, badgeId) {
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/profile_badges?profile_id=eq.${profileId}&badge_id=eq.${badgeId}&occurrence_key=is.null&select=id`,
+        {
+            headers: supabaseHeaders()
+        }
+    );
+
+    if (!response.ok) {
+        throw new Error(
+            "Impossible de vérifier les badges obtenus : " +
+            await response.text()
+        );
+    }
+
+    const data = await response.json();
+
+    return data.length > 0;
+}
+
+
+async function awardBadge(profileId, badge, context = null) {
+    if (!profileId || !badge) {
+        return false;
+    }
+
+    if (!badge.repeatable) {
+        const alreadyOwned =
+            await hasUserBadge(
+                profileId,
+                badge.id
+            );
+
+        if (alreadyOwned) {
+            return false;
+        }
+    }
+
+    const insertResponse = await fetch(
+        `${SUPABASE_URL}/rest/v1/profile_badges`,
+        {
+            method: "POST",
+            headers: supabaseHeaders({
+                "Content-Type": "application/json",
+                Prefer: "return=representation"
+            }),
+            body: JSON.stringify({
+                profile_id: profileId,
+                badge_id: badge.id,
+                xp_awarded: badge.xp_reward || 0,
+                context: context,
+                occurrence_key: null
+            })
+        }
+    );
+
+    if (!insertResponse.ok) {
+        const errorText =
+            await insertResponse.text();
+
+        if (
+            errorText.includes(
+                "duplicate key"
+            )
+        ) {
+            return false;
+        }
+
+        throw new Error(
+            "Impossible d'attribuer le badge : " +
+            errorText
+        );
+    }
+
+    if (
+        Number(
+            badge.xp_reward || 0
+        ) > 0
+    ) {
+        await addXp(
+            Number(
+                badge.xp_reward
+            ),
+            "badge_reward",
+            badge.id
+        );
+    }
+
+    showBadgeUnlocked(
+        badge
+    );
+
+    return true;
+}
+
+
+function showBadgeUnlocked(badge) {
+    const oldPopup =
+        document.getElementById(
+            "badgeUnlockedPopup"
+        );
+
+    if (oldPopup) {
+        oldPopup.remove();
+    }
+
+    const popup =
+        document.createElement(
+            "div"
+        );
+
+    popup.id =
+        "badgeUnlockedPopup";
+
+    popup.style.position =
+        "fixed";
+
+    popup.style.right =
+        "24px";
+
+    popup.style.bottom =
+        "24px";
+
+    popup.style.zIndex =
+        "99999";
+
+    popup.style.width =
+        "320px";
+
+    popup.style.maxWidth =
+        "calc(100vw - 40px)";
+
+    popup.style.padding =
+        "18px";
+
+    popup.style.borderRadius =
+        "16px";
+
+    popup.style.background =
+        "var(--bg-card, #ffffff)";
+
+    popup.style.color =
+        "var(--text-main, #151515)";
+
+    popup.style.border =
+        "1px solid var(--border, #e8e8e8)";
+
+    popup.style.boxShadow =
+        "0 12px 35px rgba(0,0,0,.18)";
+
+    popup.style.borderLeft =
+        "5px solid var(--orange, #ff5a00)";
+
+    popup.innerHTML = `
+        <div style="
+            display:flex;
+            gap:14px;
+            align-items:center;
+        ">
+
+            <div style="
+                font-size:42px;
+                line-height:1;
+            ">
+                ${escapeHtml(
+                    badge.icon || "🏅"
+                )}
+            </div>
+
+            <div style="
+                min-width:0;
+            ">
+
+                <div style="
+                    color:var(--orange, #ff5a00);
+                    font-size:12px;
+                    font-weight:800;
+                    text-transform:uppercase;
+                    letter-spacing:.6px;
+                    margin-bottom:4px;
+                ">
+                    ✨ Badge débloqué
+                </div>
+
+                <div style="
+                    font-size:18px;
+                    font-weight:800;
+                    margin-bottom:4px;
+                ">
+                    ${escapeHtml(
+                        badge.name
+                    )}
+                </div>
+
+                <div style="
+                    color:var(--text-secondary, #777);
+                    font-size:13px;
+                    margin-bottom:8px;
+                ">
+                    ${escapeHtml(
+                        badge.description
+                    )}
+                </div>
+
+                <strong style="
+                    color:var(--orange, #ff5a00);
+                ">
+                    +${Number(
+                        badge.xp_reward || 0
+                    )} XP
+                </strong>
+
+            </div>
+
+        </div>
+    `;
+
+    document.body.appendChild(
+        popup
+    );
+
+    setTimeout(
+        () => {
+            popup.remove();
+        },
+        6000
+    );
+}
+
+
+async function checkAndAwardBadge(
+    profileId,
+    code,
+    condition,
+    context = null
+) {
+    if (!condition) {
+        return;
+    }
+
+    const badge =
+        await getBadgeByCode(
+            code
+        );
+
+    if (!badge) {
+        return;
+    }
+
+    await awardBadge(
+        profileId,
+        badge,
+        context
+    );
+}
+
+
+async function checkQuestionBadges(
+    profileId
+) {
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/answers?profile_id=eq.${profileId}&select=id`,
+        {
+            headers: supabaseHeaders()
+        }
+    );
+
+    if (!response.ok) {
+        console.warn(
+            "Impossible de vérifier les badges questions :",
+            await response.text()
+        );
+
+        return;
+    }
+
+    const answers =
+        await response.json();
+
+    const count =
+        answers.length;
+
+    await checkAndAwardBadge(
+        profileId,
+        "FIRST_ANSWER",
+        count >= 1,
+        `${count} réponse(s)`
+    );
+
+    await checkAndAwardBadge(
+        profileId,
+        "CURIOUS_25",
+        count >= 25,
+        `${count} réponse(s)`
+    );
+
+    await checkAndAwardBadge(
+        profileId,
+        "ASSIDU_100",
+        count >= 100,
+        `${count} réponse(s)`
+    );
+
+    await checkAndAwardBadge(
+        profileId,
+        "QUIZ_MACHINE_500",
+        count >= 500,
+        `${count} réponse(s)`
+    );
+
+    await checkAndAwardBadge(
+        profileId,
+        "ENCYCLOPEDIA_1000",
+        count >= 1000,
+        `${count} réponse(s)`
+    );
+}
+
+
+async function checkTrainingBadges(
+    profileId
+) {
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/training_sessions?profile_id=eq.${profileId}&select=*&order=completed_at.asc`,
+        {
+            headers: supabaseHeaders()
+        }
+    );
+
+    if (!response.ok) {
+        console.warn(
+            "Impossible de vérifier les badges entraînement :",
+            await response.text()
+        );
+
+        return;
+    }
+
+    const sessions =
+        await response.json();
+
+    const totalTrainings =
+        sessions.length;
+
+    await checkAndAwardBadge(
+        profileId,
+        "FIRST_TRAINING",
+        totalTrainings >= 1,
+        `${totalTrainings} entraînement(s)`
+    );
+
+    await checkAndAwardBadge(
+        profileId,
+        "TRAININGS_10",
+        totalTrainings >= 10,
+        `${totalTrainings} entraînement(s)`
+    );
+
+    await checkAndAwardBadge(
+        profileId,
+        "TRAININGS_25",
+        totalTrainings >= 25,
+        `${totalTrainings} entraînement(s)`
+    );
+
+    await checkAndAwardBadge(
+        profileId,
+        "TRAININGS_100",
+        totalTrainings >= 100,
+        `${totalTrainings} entraînement(s)`
+    );
+
+
+    const perfectSessions =
+        sessions.filter(
+            session =>
+                Number(
+                    session.total_questions || 0
+                ) > 0 &&
+                Number(
+                    session.correct_answers || 0
+                ) ===
+                Number(
+                    session.total_questions || 0
+                )
+        );
+
+    await checkAndAwardBadge(
+        profileId,
+        "PERFECT_QUIZ",
+        perfectSessions.length >= 1,
+        "Quiz parfait"
+    );
+
+
+    let currentPerfectStreak =
+        0;
+
+    let bestPerfectStreak =
+        0;
+
+    sessions.forEach(
+        session => {
+
+            const total =
+                Number(
+                    session.total_questions || 0
+                );
+
+            const correct =
+                Number(
+                    session.correct_answers || 0
+                );
+
+            if (
+                total > 0 &&
+                correct === total
+            ) {
+                currentPerfectStreak++;
+
+                bestPerfectStreak =
+                    Math.max(
+                        bestPerfectStreak,
+                        currentPerfectStreak
+                    );
+
+            } else {
+
+                currentPerfectStreak =
+                    0;
+            }
+        }
+    );
+
+    await checkAndAwardBadge(
+        profileId,
+        "PERFECT_STREAK_2",
+        bestPerfectStreak >= 2,
+        `${bestPerfectStreak} perfect(s) consécutif(s)`
+    );
+
+    await checkAndAwardBadge(
+        profileId,
+        "PERFECT_STREAK_3",
+        bestPerfectStreak >= 3,
+        `${bestPerfectStreak} perfect(s) consécutif(s)`
+    );
+
+
+    const flashSessions =
+        sessions.filter(
+            session =>
+                session.mode ===
+                "flash"
+        );
+
+    await checkAndAwardBadge(
+        profileId,
+        "FLASH_FIRST",
+        flashSessions.length >= 1,
+        "Premier Flash"
+    );
+
+
+    const xtremSessions =
+        sessions.filter(
+            session =>
+                session.mode ===
+                "xtrem"
+        );
+
+    await checkAndAwardBadge(
+        profileId,
+        "XTREM_FIRST",
+        xtremSessions.length >= 1,
+        "Premier Flash Xtrem"
+    );
+
+
+    const perfectXtrem =
+        xtremSessions.some(
+            session =>
+                Number(
+                    session.total_questions || 0
+                ) > 0 &&
+                Number(
+                    session.correct_answers || 0
+                ) ===
+                Number(
+                    session.total_questions || 0
+                )
+        );
+
+    await checkAndAwardBadge(
+        profileId,
+        "XTREM_PERFECT",
+        perfectXtrem,
+        "Flash Xtrem parfait"
+    );
+}
+
+
+async function checkAllBadges(
+    profileId
+) {
+    try {
+
+        await checkQuestionBadges(
+            profileId
+        );
+
+        await checkTrainingBadges(
+            profileId
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Erreur moteur badges :",
+            error
+        );
+    }
+}
 /* =========================
    XP
 ========================= */
