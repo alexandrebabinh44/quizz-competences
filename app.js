@@ -853,3 +853,26 @@ async function loadRanking() {
         `;
     });
 }
+function logout() {
+
+    const savedTheme =
+        localStorage.getItem(
+            "nickel_master_theme"
+        );
+
+
+    localStorage.clear();
+
+
+    if (savedTheme) {
+
+        localStorage.setItem(
+            "nickel_master_theme",
+            savedTheme
+        );
+    }
+
+
+    window.location.href =
+        "index.html";
+}
