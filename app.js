@@ -18,6 +18,9 @@ let trainingStartedAt = null;
 let badgePopupQueue = [];
 let badgePopupRunning = false;
 
+let badgesPageData = [];
+let currentBadgeFilter = "all";
+
 
 /* =========================================================
    OUTILS
@@ -46,16 +49,11 @@ function shuffleArray(array) {
     const result = [...array];
 
     for (let i = result.length - 1; i > 0; i--) {
-        const j =
-            Math.floor(
-                Math.random() *
-                (i + 1)
-            );
+        const j = Math.floor(
+            Math.random() * (i + 1)
+        );
 
-        [
-            result[i],
-            result[j]
-        ] = [
+        [result[i], result[j]] = [
             result[j],
             result[i]
         ];
@@ -66,50 +64,42 @@ function shuffleArray(array) {
 
 
 function getLocalDayStartIso() {
-    const now =
-        new Date();
+    const now = new Date();
 
-    const start =
-        new Date(
-            now.getFullYear(),
-            now.getMonth(),
-            now.getDate(),
-            0,
-            0,
-            0,
-            0
-        );
+    const start = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+        0,
+        0,
+        0,
+        0
+    );
 
     return start.toISOString();
 }
 
 
 function getWeekStartIso() {
-    const now =
-        new Date();
+    const now = new Date();
 
-    const start =
-        new Date(
-            now.getFullYear(),
-            now.getMonth(),
-            now.getDate(),
-            0,
-            0,
-            0,
-            0
-        );
+    const start = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+        0,
+        0,
+        0,
+        0
+    );
 
-    const day =
-        start.getDay();
+    const day = start.getDay();
 
     const difference =
-        day === 0
-            ? -6
-            : 1 - day;
+        day === 0 ? -6 : 1 - day;
 
     start.setDate(
-        start.getDate() +
-        difference
+        start.getDate() + difference
     );
 
     return start.toISOString();
@@ -118,73 +108,41 @@ function getWeekStartIso() {
 
 function categoryIcon(category) {
     const name =
-        String(
-            category || ""
-        ).toLowerCase();
+        String(category || "").toLowerCase();
 
-    if (name.includes("auth")) {
-        return "🔒";
-    }
+    if (name.includes("auth")) return "🔒";
 
     if (
         name.includes("sécur") ||
         name.includes("secur")
-    ) {
-        return "🛡️";
-    }
+    ) return "🛡️";
 
-    if (name.includes("carte")) {
-        return "💳";
-    }
+    if (name.includes("carte")) return "💳";
 
-    if (name.includes("produit")) {
-        return "📦";
-    }
+    if (name.includes("produit")) return "📦";
 
     if (
         name.includes("réclam") ||
         name.includes("reclam")
-    ) {
-        return "💬";
-    }
+    ) return "💬";
 
-    if (name.includes("conform")) {
-        return "✅";
-    }
+    if (name.includes("conform")) return "✅";
 
-    if (name.includes("wero")) {
-        return "💸";
-    }
+    if (name.includes("wero")) return "💸";
 
-    if (name.includes("pro")) {
-        return "💼";
-    }
+    if (name.includes("pro")) return "💼";
 
     return "📚";
 }
 
 
 function getLevelLabel(level) {
-    const value =
-        Number(
-            level || 1
-        );
+    const value = Number(level || 1);
 
-    if (value >= 50) {
-        return "Maître";
-    }
-
-    if (value >= 30) {
-        return "Expert";
-    }
-
-    if (value >= 15) {
-        return "Confirmé";
-    }
-
-    if (value >= 5) {
-        return "Intermédiaire";
-    }
+    if (value >= 50) return "Maître";
+    if (value >= 30) return "Expert";
+    if (value >= 15) return "Confirmé";
+    if (value >= 5) return "Intermédiaire";
 
     return "Débutant";
 }
@@ -207,11 +165,7 @@ async function login() {
             .value
             .trim();
 
-
-    if (
-        !username ||
-        !password
-    ) {
+    if (!username || !password) {
         alert(
             "Merci de remplir l'identifiant et le mot de passe."
         );
@@ -219,17 +173,13 @@ async function login() {
         return;
     }
 
-
     try {
-        const response =
-            await fetch(
-                `${SUPABASE_URL}/rest/v1/profiles?select=*&username=eq.${encodeURIComponent(username)}&password=eq.${encodeURIComponent(password)}`,
-                {
-                    headers:
-                        supabaseHeaders()
-                }
-            );
-
+        const response = await fetch(
+            `${SUPABASE_URL}/rest/v1/profiles?select=*&username=eq.${encodeURIComponent(username)}&password=eq.${encodeURIComponent(password)}`,
+            {
+                headers: supabaseHeaders()
+            }
+        );
 
         if (!response.ok) {
             alert(
@@ -240,10 +190,7 @@ async function login() {
             return;
         }
 
-
-        const users =
-            await response.json();
-
+        const users = await response.json();
 
         if (users.length !== 1) {
             alert(
@@ -253,10 +200,7 @@ async function login() {
             return;
         }
 
-
-        const user =
-            users[0];
-
+        const user = users[0];
 
         localStorage.setItem(
             "profile_id",
@@ -275,22 +219,16 @@ async function login() {
 
         localStorage.setItem(
             "xp",
-            String(
-                user.xp || 0
-            )
+            String(user.xp || 0)
         );
 
         localStorage.setItem(
             "level",
-            String(
-                user.level || 1
-            )
+            String(user.level || 1)
         );
 
-
         if (
-            user.must_change_password ===
-            true
+            user.must_change_password === true
         ) {
             window.location.href =
                 "change-password.html";
@@ -359,14 +297,12 @@ async function changePassword() {
             .value
             .trim();
 
-
     if (!profileId) {
         window.location.href =
             "index.html";
 
         return;
     }
-
 
     if (
         !newPassword ||
@@ -379,7 +315,6 @@ async function changePassword() {
         return;
     }
 
-
     if (
         newPassword !==
         confirmPassword
@@ -391,10 +326,7 @@ async function changePassword() {
         return;
     }
 
-
-    if (
-        newPassword.length < 6
-    ) {
+    if (newPassword.length < 6) {
         alert(
             "Le mot de passe doit contenir au moins 6 caractères."
         );
@@ -402,34 +334,28 @@ async function changePassword() {
         return;
     }
 
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/profiles?id=eq.${profileId}`,
+        {
+            method: "PATCH",
 
-    const response =
-        await fetch(
-            `${SUPABASE_URL}/rest/v1/profiles?id=eq.${profileId}`,
-            {
-                method:
-                    "PATCH",
+            headers: supabaseHeaders({
+                "Content-Type":
+                    "application/json",
 
-                headers:
-                    supabaseHeaders({
-                        "Content-Type":
-                            "application/json",
+                Prefer:
+                    "return=minimal"
+            }),
 
-                        Prefer:
-                            "return=minimal"
-                    }),
+            body: JSON.stringify({
+                password:
+                    newPassword,
 
-                body:
-                    JSON.stringify({
-                        password:
-                            newPassword,
-
-                        must_change_password:
-                            false
-                    })
-            }
-        );
-
+                must_change_password:
+                    false
+            })
+        }
+    );
 
     if (response.ok) {
         alert(
@@ -458,7 +384,6 @@ async function loadProfile() {
             "profile_id"
         );
 
-
     if (!profileId) {
         window.location.href =
             "index.html";
@@ -466,16 +391,12 @@ async function loadProfile() {
         return;
     }
 
-
-    const response =
-        await fetch(
-            `${SUPABASE_URL}/rest/v1/profiles?id=eq.${profileId}`,
-            {
-                headers:
-                    supabaseHeaders()
-            }
-        );
-
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/profiles?id=eq.${profileId}`,
+        {
+            headers: supabaseHeaders()
+        }
+    );
 
     if (!response.ok) {
         alert(
@@ -485,10 +406,8 @@ async function loadProfile() {
         return;
     }
 
-
     const data =
         await response.json();
-
 
     if (!data.length) {
         alert(
@@ -498,10 +417,7 @@ async function loadProfile() {
         return;
     }
 
-
-    const user =
-        data[0];
-
+    const user = data[0];
 
     if (
         document.getElementById(
@@ -514,7 +430,6 @@ async function loadProfile() {
             user.full_name || "";
     }
 
-
     if (
         document.getElementById(
             "role"
@@ -525,7 +440,6 @@ async function loadProfile() {
         ).innerText =
             user.role || "";
     }
-
 
     if (
         document.getElementById(
@@ -540,7 +454,6 @@ async function loadProfile() {
             "";
     }
 
-
     if (
         document.getElementById(
             "level"
@@ -551,7 +464,6 @@ async function loadProfile() {
         ).innerText =
             user.level || 1;
     }
-
 
     if (
         document.getElementById(
@@ -574,7 +486,6 @@ async function loadHomeDashboard() {
             "profile_id"
         );
 
-
     if (!profileId) {
         window.location.href =
             "index.html";
@@ -582,12 +493,10 @@ async function loadHomeDashboard() {
         return;
     }
 
-
     try {
         await updatePresence(
             profileId
         );
-
 
         await Promise.all([
             loadHomeProfile(
@@ -602,6 +511,10 @@ async function loadHomeDashboard() {
                 profileId
             ),
 
+            loadHomeRecentBadges(
+                profileId
+            ),
+
             loadHomeCategories(),
 
             loadHomeWeeklyRanking(),
@@ -612,7 +525,6 @@ async function loadHomeDashboard() {
 
             loadHomeRecentActivity()
         ]);
-
 
         await loadHomeOnlineCount();
 
@@ -634,15 +546,12 @@ async function loadHomeDashboard() {
 async function loadHomeProfile(
     profileId
 ) {
-    const response =
-        await fetch(
-            `${SUPABASE_URL}/rest/v1/profiles?id=eq.${profileId}&select=id,full_name,role,xp,level`,
-            {
-                headers:
-                    supabaseHeaders()
-            }
-        );
-
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/profiles?id=eq.${profileId}&select=id,full_name,role,xp,level`,
+        {
+            headers: supabaseHeaders()
+        }
+    );
 
     if (!response.ok) {
         throw new Error(
@@ -650,10 +559,8 @@ async function loadHomeProfile(
         );
     }
 
-
     const data =
         await response.json();
-
 
     if (!data.length) {
         throw new Error(
@@ -661,23 +568,16 @@ async function loadHomeProfile(
         );
     }
 
-
-    const user =
-        data[0];
+    const user = data[0];
 
     const xp =
-        Number(
-            user.xp || 0
-        );
+        Number(user.xp || 0);
 
     const level =
-        Number(
-            user.level || 1
-        );
+        Number(user.level || 1);
 
     const xpInLevel =
         xp % 100;
-
 
     localStorage.setItem(
         "full_name",
@@ -701,7 +601,6 @@ async function loadHomeProfile(
         String(level)
     );
 
-
     if (
         document.getElementById(
             "welcome"
@@ -712,7 +611,6 @@ async function loadHomeProfile(
         ).innerText =
             `Bonjour ${user.full_name || "Utilisateur"} ! 👋`;
     }
-
 
     if (
         document.getElementById(
@@ -726,7 +624,6 @@ async function loadHomeProfile(
             "Utilisateur";
     }
 
-
     if (
         document.getElementById(
             "userLevel"
@@ -737,7 +634,6 @@ async function loadHomeProfile(
         ).innerText =
             `Niveau ${level}`;
     }
-
 
     if (
         document.getElementById(
@@ -750,7 +646,6 @@ async function loadHomeProfile(
             `${xpInLevel} / 100 XP`;
     }
 
-
     if (
         document.getElementById(
             "statXp"
@@ -761,7 +656,6 @@ async function loadHomeProfile(
         ).innerText =
             xp;
     }
-
 
     if (
         document.getElementById(
@@ -777,7 +671,6 @@ async function loadHomeProfile(
             )}%`;
     }
 
-
     if (
         document.getElementById(
             "levelLabel"
@@ -786,9 +679,7 @@ async function loadHomeProfile(
         document.getElementById(
             "levelLabel"
         ).innerText =
-            getLevelLabel(
-                level
-            );
+            getLevelLabel(level);
     }
 }
 
@@ -800,15 +691,12 @@ async function loadHomeProfile(
 async function loadHomeStats(
     profileId
 ) {
-    const response =
-        await fetch(
-            `${SUPABASE_URL}/rest/v1/training_sessions?profile_id=eq.${profileId}&select=id,total_questions,correct_answers`,
-            {
-                headers:
-                    supabaseHeaders()
-            }
-        );
-
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/training_sessions?profile_id=eq.${profileId}&select=id,total_questions,correct_answers`,
+        {
+            headers: supabaseHeaders()
+        }
+    );
 
     if (!response.ok) {
         console.warn(
@@ -819,21 +707,15 @@ async function loadHomeStats(
         return;
     }
 
-
     const sessions =
         await response.json();
-
 
     const totalQuiz =
         sessions.length;
 
-
     const totalQuestions =
         sessions.reduce(
-            (
-                total,
-                session
-            ) =>
+            (total, session) =>
                 total +
                 Number(
                     session.total_questions ||
@@ -842,13 +724,9 @@ async function loadHomeStats(
             0
         );
 
-
     const totalCorrect =
         sessions.reduce(
-            (
-                total,
-                session
-            ) =>
+            (total, session) =>
                 total +
                 Number(
                     session.correct_answers ||
@@ -856,7 +734,6 @@ async function loadHomeStats(
                 ),
             0
         );
-
 
     const rate =
         totalQuestions > 0
@@ -869,72 +746,256 @@ async function loadHomeStats(
             )
             : 0;
 
+    const quizElement =
+        document.getElementById(
+            "statQuizCompleted"
+        );
 
-    if (
+    const rateElement =
         document.getElementById(
-            "statQuizCompleted"
-        )
-    ) {
-        document.getElementById(
-            "statQuizCompleted"
-        ).innerText =
+            "statCorrectRate"
+        );
+
+    if (quizElement) {
+        quizElement.innerText =
             totalQuiz;
     }
 
-
-    if (
-        document.getElementById(
-            "statCorrectRate"
-        )
-    ) {
-        document.getElementById(
-            "statCorrectRate"
-        ).innerText =
+    if (rateElement) {
+        rateElement.innerText =
             `${rate}%`;
     }
 }
 
 
 /* =========================================================
-   COMPTEUR BADGES DASHBOARD
+   COMPTEUR BADGES
 ========================================================= */
 
 async function loadHomeBadgeCount(
     profileId
 ) {
-    const response =
-        await fetch(
-            `${SUPABASE_URL}/rest/v1/profile_badges?profile_id=eq.${profileId}&select=id`,
-            {
-                headers:
-                    supabaseHeaders()
-            }
-        );
-
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/profile_badges?profile_id=eq.${profileId}&select=id`,
+        {
+            headers: supabaseHeaders()
+        }
+    );
 
     if (!response.ok) {
         console.warn(
-            "Impossible de charger les badges :",
+            "Impossible de charger le nombre de badges :",
             await response.text()
         );
 
         return;
     }
 
-
     const badges =
         await response.json();
-
 
     const element =
         document.getElementById(
             "statBadges"
         );
 
-
     if (element) {
         element.innerText =
             badges.length;
+    }
+}
+
+
+/* =========================================================
+   DERNIERS BADGES ACCUEIL
+========================================================= */
+
+async function loadHomeRecentBadges(
+    profileId
+) {
+    const container =
+        document.getElementById(
+            "recentBadges"
+        );
+
+    if (!container) {
+        return;
+    }
+
+    try {
+        /*
+         * On récupère d'abord les 3 dernières
+         * attributions de badges.
+         */
+        const earnedResponse =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/profile_badges?profile_id=eq.${profileId}&select=badge_id,earned_at&order=earned_at.desc&limit=3`,
+                {
+                    headers:
+                        supabaseHeaders()
+                }
+            );
+
+        if (!earnedResponse.ok) {
+            throw new Error(
+                await earnedResponse.text()
+            );
+        }
+
+        const earned =
+            await earnedResponse.json();
+
+        if (!earned.length) {
+            container.innerHTML = `
+                <p style="color:var(--text-secondary);">
+                    Aucun badge obtenu pour le moment.
+                </p>
+            `;
+
+            return;
+        }
+
+        /*
+         * Puis on récupère les informations
+         * du catalogue badges.
+         */
+        const badgeIds =
+            earned
+                .map(
+                    item =>
+                        item.badge_id
+                )
+                .filter(Boolean);
+
+        const badgeFilter =
+            badgeIds
+                .map(
+                    id =>
+                        `"${id}"`
+                )
+                .join(",");
+
+        const badgesResponse =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/badges?select=id,name,icon,rarity&id=in.(${badgeFilter})`,
+                {
+                    headers:
+                        supabaseHeaders()
+                }
+            );
+
+        if (!badgesResponse.ok) {
+            throw new Error(
+                await badgesResponse.text()
+            );
+        }
+
+        const badges =
+            await badgesResponse.json();
+
+        const byId = {};
+
+        badges.forEach(
+            badge => {
+                byId[
+                    badge.id
+                ] =
+                    badge;
+            }
+        );
+
+        const rarityLabels = {
+            common: "Commun",
+            rare: "Rare",
+            epic: "Épique",
+            legendary: "Légendaire"
+        };
+
+        const rarityColors = {
+            common: "#7b8794",
+            rare: "#3b82f6",
+            epic: "#8b5cf6",
+            legendary: "#ff7a00"
+        };
+
+        container.innerHTML =
+            earned
+                .map(
+                    item => {
+                        const badge =
+                            byId[
+                                item.badge_id
+                            ];
+
+                        if (!badge) {
+                            return "";
+                        }
+
+                        const rarity =
+                            badge.rarity ||
+                            "common";
+
+                        const color =
+                            rarityColors[
+                                rarity
+                            ] ||
+                            "#7b8794";
+
+                        return `
+                            <div class="home-badge-line">
+
+                                <span
+                                    class="home-badge-icon"
+                                    style="
+                                        border-color:${color}55;
+                                        background:${color}12;
+                                    "
+                                >
+                                    ${escapeHtml(
+                                        badge.icon ||
+                                        "🏅"
+                                    )}
+                                </span>
+
+                                <div>
+                                    <strong>
+                                        ${escapeHtml(
+                                            badge.name
+                                        )}
+                                    </strong>
+
+                                    <small
+                                        style="
+                                            color:${color};
+                                            font-weight:700;
+                                        "
+                                    >
+                                        ${
+                                            rarityLabels[
+                                                rarity
+                                            ] ||
+                                            "Commun"
+                                        }
+                                    </small>
+                                </div>
+
+                            </div>
+                        `;
+                    }
+                )
+                .join("");
+
+    } catch (error) {
+        console.error(
+            "Erreur derniers badges :",
+            error
+        );
+
+        container.innerHTML = `
+            <p style="color:var(--text-secondary);">
+                Impossible de charger les badges.
+            </p>
+        `;
     }
 }
 
@@ -949,21 +1010,16 @@ async function loadHomeCategories() {
             "categoryList"
         );
 
-
     if (!container) {
         return;
     }
 
-
-    const response =
-        await fetch(
-            `${SUPABASE_URL}/rest/v1/questions?select=category`,
-            {
-                headers:
-                    supabaseHeaders()
-            }
-        );
-
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/questions?select=category`,
+        {
+            headers: supabaseHeaders()
+        }
+    );
 
     if (!response.ok) {
         container.innerHTML =
@@ -972,25 +1028,22 @@ async function loadHomeCategories() {
         return;
     }
 
-
     const rows =
         await response.json();
 
     const counts = {};
 
-
     rows.forEach(
         row => {
             const category =
                 String(
-                    row.category || ""
+                    row.category ||
+                    ""
                 ).trim();
-
 
             if (!category) {
                 return;
             }
-
 
             counts[category] =
                 (
@@ -1001,22 +1054,17 @@ async function loadHomeCategories() {
         }
     );
 
-
     const categories =
         Object.entries(
             counts
         )
             .sort(
-                (
-                    a,
-                    b
-                ) =>
+                (a, b) =>
                     a[0].localeCompare(
                         b[0],
                         "fr"
                     )
             );
-
 
     if (!categories.length) {
         container.innerHTML =
@@ -1025,20 +1073,11 @@ async function loadHomeCategories() {
         return;
     }
 
-
     container.innerHTML =
         categories
-            .slice(
-                0,
-                5
-            )
+            .slice(0, 5)
             .map(
-                (
-                    [
-                        category,
-                        count
-                    ]
-                ) => `
+                ([category, count]) => `
                     <div>
                         ${categoryIcon(category)}
 
@@ -1067,27 +1106,21 @@ async function loadHomeWeeklyRanking() {
             "weeklyRanking"
         );
 
-
     if (!container) {
         return;
     }
-
 
     const start =
         encodeURIComponent(
             getWeekStartIso()
         );
 
-
-    const response =
-        await fetch(
-            `${SUPABASE_URL}/rest/v1/xp_history?select=profile_id,amount&created_at=gte.${start}`,
-            {
-                headers:
-                    supabaseHeaders()
-            }
-        );
-
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/xp_history?select=profile_id,amount&created_at=gte.${start}`,
+        {
+            headers: supabaseHeaders()
+        }
+    );
 
     if (!response.ok) {
         container.innerHTML =
@@ -1096,12 +1129,10 @@ async function loadHomeWeeklyRanking() {
         return;
     }
 
-
     const history =
         await response.json();
 
     const totals = {};
-
 
     history.forEach(
         entry => {
@@ -1125,16 +1156,12 @@ async function loadHomeWeeklyRanking() {
         }
     );
 
-
     const topThree =
         Object.entries(
             totals
         )
             .sort(
-                (
-                    a,
-                    b
-                ) =>
+                (a, b) =>
                     b[1] -
                     a[1]
             )
@@ -1143,14 +1170,12 @@ async function loadHomeWeeklyRanking() {
                 3
             );
 
-
     if (!topThree.length) {
         container.innerHTML =
             "<p>Aucun XP gagné cette semaine.</p>";
 
         return;
     }
-
 
     const profilesResponse =
         await fetch(
@@ -1161,15 +1186,12 @@ async function loadHomeWeeklyRanking() {
             }
         );
 
-
     const profiles =
         profilesResponse.ok
             ? await profilesResponse.json()
             : [];
 
-
     const names = {};
-
 
     profiles.forEach(
         profile => {
@@ -1181,30 +1203,23 @@ async function loadHomeWeeklyRanking() {
         }
     );
 
-
     const medals =
-        [
-            "🥇",
-            "🥈",
-            "🥉"
-        ];
-
+        ["🥇", "🥈", "🥉"];
 
     container.innerHTML =
         topThree
             .map(
                 (
-                    [
-                        profileId,
-                        xp
-                    ],
+                    [profileId, xp],
                     index
                 ) => `
                     <p>
                         ${medals[index]}
 
                         ${escapeHtml(
-                            names[profileId] ||
+                            names[
+                                profileId
+                            ] ||
                             "Utilisateur"
                         )}
 
@@ -1216,8 +1231,6 @@ async function loadHomeWeeklyRanking() {
             )
             .join("");
 }
-
-
 /* =========================================================
    MISSIONS DU JOUR
 ========================================================= */
@@ -1230,7 +1243,6 @@ async function loadDailyMissions(
             getLocalDayStartIso()
         );
 
-
     const answersResponse =
         await fetch(
             `${SUPABASE_URL}/rest/v1/answers?profile_id=eq.${profileId}&submitted_at=gte.${today}&select=id`,
@@ -1240,27 +1252,23 @@ async function loadDailyMissions(
             }
         );
 
-
     if (answersResponse.ok) {
         const answers =
             await answersResponse.json();
 
+        const element =
+            document.getElementById(
+                "missionQuestions"
+            );
 
-        if (
-            document.getElementById(
-                "missionQuestions"
-            )
-        ) {
-            document.getElementById(
-                "missionQuestions"
-            ).innerText =
+        if (element) {
+            element.innerText =
                 `${Math.min(
                     answers.length,
                     3
                 )}/3`;
         }
     }
-
 
     const sessionsResponse =
         await fetch(
@@ -1271,27 +1279,23 @@ async function loadDailyMissions(
             }
         );
 
-
     if (sessionsResponse.ok) {
         const sessions =
             await sessionsResponse.json();
 
+        const element =
+            document.getElementById(
+                "missionQuiz"
+            );
 
-        if (
-            document.getElementById(
-                "missionQuiz"
-            )
-        ) {
-            document.getElementById(
-                "missionQuiz"
-            ).innerText =
+        if (element) {
+            element.innerText =
                 `${Math.min(
                     sessions.length,
                     1
                 )}/1`;
         }
     }
-
 
     const role =
         String(
@@ -1301,25 +1305,21 @@ async function loadDailyMissions(
             ""
         ).toLowerCase();
 
-
-    const allowedRoles =
-        [
-            "admin",
-            "direction",
-            "responsable",
-            "manager",
-            "chef d'équipe",
-            "chef_equipe",
-            "conseiller senior",
-            "senior"
-        ];
-
+    const allowedRoles = [
+        "admin",
+        "direction",
+        "responsable",
+        "manager",
+        "chef d'équipe",
+        "chef_equipe",
+        "conseiller senior",
+        "senior"
+    ];
 
     const correctionLine =
         document.getElementById(
             "missionCorrectionLine"
         );
-
 
     if (
         correctionLine &&
@@ -1331,6 +1331,8 @@ async function loadDailyMissions(
             "";
     }
 }
+
+
 /* =========================================================
    PRÉSENCE
 ========================================================= */
@@ -1342,32 +1344,26 @@ async function updatePresence(
         return;
     }
 
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/profiles?id=eq.${profileId}`,
+        {
+            method: "PATCH",
 
-    const response =
-        await fetch(
-            `${SUPABASE_URL}/rest/v1/profiles?id=eq.${profileId}`,
-            {
-                method:
-                    "PATCH",
+            headers: supabaseHeaders({
+                "Content-Type":
+                    "application/json",
 
-                headers:
-                    supabaseHeaders({
-                        "Content-Type":
-                            "application/json",
+                Prefer:
+                    "return=minimal"
+            }),
 
-                        Prefer:
-                            "return=minimal"
-                    }),
-
-                body:
-                    JSON.stringify({
-                        last_seen_at:
-                            new Date()
-                                .toISOString()
-                    })
-            }
-        );
-
+            body: JSON.stringify({
+                last_seen_at:
+                    new Date()
+                        .toISOString()
+            })
+        }
+    );
 
     if (!response.ok) {
         console.warn(
@@ -1384,11 +1380,9 @@ async function loadHomeOnlineCount() {
             "onlineCount"
         );
 
-
     if (!element) {
         return;
     }
-
 
     const threshold =
         new Date(
@@ -1398,16 +1392,13 @@ async function loadHomeOnlineCount() {
             1000
         ).toISOString();
 
-
-    const response =
-        await fetch(
-            `${SUPABASE_URL}/rest/v1/profiles?select=id&last_seen_at=gte.${encodeURIComponent(threshold)}`,
-            {
-                headers:
-                    supabaseHeaders()
-            }
-        );
-
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/profiles?select=id&last_seen_at=gte.${encodeURIComponent(threshold)}`,
+        {
+            headers:
+                supabaseHeaders()
+        }
+    );
 
     if (!response.ok) {
         element.innerText =
@@ -1416,13 +1407,11 @@ async function loadHomeOnlineCount() {
         return;
     }
 
-
     const users =
         await response.json();
 
     const count =
         users.length;
-
 
     element.innerText =
         count === 1
@@ -1437,11 +1426,9 @@ function startPresenceHeartbeat() {
             "profile_id"
         );
 
-
     if (!profileId) {
         return;
     }
-
 
     if (
         window.__nickelPresenceInterval
@@ -1451,14 +1438,12 @@ function startPresenceHeartbeat() {
         );
     }
 
-
     window.__nickelPresenceInterval =
         setInterval(
             async () => {
                 await updatePresence(
                     profileId
                 );
-
 
                 if (
                     document.getElementById(
@@ -1484,21 +1469,17 @@ async function loadHomeRecentActivity() {
             "recentActivity"
         );
 
-
     if (!container) {
         return;
     }
 
-
-    const response =
-        await fetch(
-            `${SUPABASE_URL}/rest/v1/training_sessions?select=profile_id,category,mode,completed_at&order=completed_at.desc&limit=3`,
-            {
-                headers:
-                    supabaseHeaders()
-            }
-        );
-
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/training_sessions?select=profile_id,category,mode,completed_at&order=completed_at.desc&limit=3`,
+        {
+            headers:
+                supabaseHeaders()
+        }
+    );
 
     if (!response.ok) {
         container.innerHTML =
@@ -1507,10 +1488,8 @@ async function loadHomeRecentActivity() {
         return;
     }
 
-
     const sessions =
         await response.json();
-
 
     if (!sessions.length) {
         container.innerHTML =
@@ -1518,7 +1497,6 @@ async function loadHomeRecentActivity() {
 
         return;
     }
-
 
     const profilesResponse =
         await fetch(
@@ -1529,15 +1507,12 @@ async function loadHomeRecentActivity() {
             }
         );
 
-
     const profiles =
         profilesResponse.ok
             ? await profilesResponse.json()
             : [];
 
-
     const names = {};
-
 
     profiles.forEach(
         profile => {
@@ -1549,14 +1524,12 @@ async function loadHomeRecentActivity() {
         }
     );
 
-
     container.innerHTML =
         sessions
             .map(
                 session => {
                     let trainingName =
                         session.category;
-
 
                     if (
                         !trainingName &&
@@ -1567,12 +1540,10 @@ async function loadHomeRecentActivity() {
                             "Flash Xtrem";
                     }
 
-
                     if (!trainingName) {
                         trainingName =
                             "un entraînement";
                     }
-
 
                     const time =
                         new Date(
@@ -1588,7 +1559,6 @@ async function loadHomeRecentActivity() {
                                         "2-digit"
                                 }
                             );
-
 
                     return `
                         <p>
@@ -1631,12 +1601,10 @@ function afficherChoixThemes() {
             "choix-themes"
         );
 
-
     if (mode) {
         mode.style.display =
             "none";
     }
-
 
     if (themes) {
         themes.style.display =
@@ -1656,12 +1624,10 @@ function retourChoixMode() {
             "choix-themes"
         );
 
-
     if (themes) {
         themes.style.display =
             "none";
     }
-
 
     if (mode) {
         mode.style.display =
@@ -1723,16 +1689,13 @@ function lancerFlashXtrem() {
 ========================================================= */
 
 async function loadTrainingQuiz() {
-    trainingIndex =
-        0;
+    trainingIndex = 0;
 
-    trainingCorrectAnswers =
-        0;
+    trainingCorrectAnswers = 0;
 
     trainingStartedAt =
         new Date()
             .toISOString();
-
 
     const mode =
         localStorage.getItem(
@@ -1740,12 +1703,10 @@ async function loadTrainingQuiz() {
         ) ||
         "cible";
 
-
     let category =
         localStorage.getItem(
             "training_category"
         );
-
 
     let title =
         "Entraînement";
@@ -1759,16 +1720,13 @@ async function loadTrainingQuiz() {
             return;
         }
 
-
-        const response =
-            await fetch(
-                `${SUPABASE_URL}/rest/v1/questions?select=*&category=eq.${encodeURIComponent(category)}`,
-                {
-                    headers:
-                        supabaseHeaders()
-                }
-            );
-
+        const response = await fetch(
+            `${SUPABASE_URL}/rest/v1/questions?select=*&category=eq.${encodeURIComponent(category)}`,
+            {
+                headers:
+                    supabaseHeaders()
+            }
+        );
 
         if (!response.ok) {
             alert(
@@ -1778,7 +1736,6 @@ async function loadTrainingQuiz() {
             return;
         }
 
-
         trainingQuestions =
             shuffleArray(
                 await response.json()
@@ -1787,15 +1744,12 @@ async function loadTrainingQuiz() {
                 10
             );
 
-
         title =
             `Entraînement - ${category}`;
     }
 
 
-    else if (
-        mode === "flash"
-    ) {
+    else if (mode === "flash") {
         const categoriesResponse =
             await fetch(
                 `${SUPABASE_URL}/rest/v1/questions?select=category`,
@@ -1805,10 +1759,7 @@ async function loadTrainingQuiz() {
                 }
             );
 
-
-        if (
-            !categoriesResponse.ok
-        ) {
+        if (!categoriesResponse.ok) {
             alert(
                 "Impossible de charger les catégories."
             );
@@ -1816,23 +1767,19 @@ async function loadTrainingQuiz() {
             return;
         }
 
-
         const rows =
             await categoriesResponse.json();
 
-
-        const categories =
-            [
-                ...new Set(
-                    rows
-                        .map(
-                            row =>
-                                row.category
-                        )
-                        .filter(Boolean)
-                )
-            ];
-
+        const categories = [
+            ...new Set(
+                rows
+                    .map(
+                        row =>
+                            row.category
+                    )
+                    .filter(Boolean)
+            )
+        ];
 
         if (!categories.length) {
             alert(
@@ -1842,7 +1789,6 @@ async function loadTrainingQuiz() {
             return;
         }
 
-
         category =
             categories[
                 Math.floor(
@@ -1851,12 +1797,10 @@ async function loadTrainingQuiz() {
                 )
             ];
 
-
         localStorage.setItem(
             "training_category",
             category
         );
-
 
         const response =
             await fetch(
@@ -1867,7 +1811,6 @@ async function loadTrainingQuiz() {
                 }
             );
 
-
         if (!response.ok) {
             alert(
                 "Impossible de charger les questions."
@@ -1875,7 +1818,6 @@ async function loadTrainingQuiz() {
 
             return;
         }
-
 
         trainingQuestions =
             shuffleArray(
@@ -1885,19 +1827,15 @@ async function loadTrainingQuiz() {
                 10
             );
 
-
         title =
             `Flash - ${category}`;
     }
 
 
-    else if (
-        mode === "xtrem"
-    ) {
+    else if (mode === "xtrem") {
         localStorage.removeItem(
             "training_category"
         );
-
 
         const response =
             await fetch(
@@ -1908,7 +1846,6 @@ async function loadTrainingQuiz() {
                 }
             );
 
-
         if (!response.ok) {
             alert(
                 "Impossible de charger les questions."
@@ -1917,7 +1854,6 @@ async function loadTrainingQuiz() {
             return;
         }
 
-
         trainingQuestions =
             shuffleArray(
                 await response.json()
@@ -1925,7 +1861,6 @@ async function loadTrainingQuiz() {
                 0,
                 10
             );
-
 
         title =
             "Flash Xtrem";
@@ -1943,18 +1878,15 @@ async function loadTrainingQuiz() {
         return;
     }
 
-
     const titleElement =
         document.getElementById(
             "trainingTitle"
         );
 
-
     if (titleElement) {
         titleElement.innerText =
             title;
     }
-
 
     await showTrainingQuestion();
 }
@@ -1974,51 +1906,41 @@ async function showTrainingQuestion() {
         return;
     }
 
-
     const q =
         trainingQuestions[
             trainingIndex
         ];
-
 
     const progress =
         document.getElementById(
             "trainingProgress"
         );
 
-
     if (progress) {
         progress.innerText =
             `Question ${trainingIndex + 1} / ${trainingQuestions.length}`;
     }
-
 
     const question =
         document.getElementById(
             "trainingQuestion"
         );
 
-
     if (question) {
         question.innerText =
             q.question;
     }
-
 
     const answerZone =
         document.getElementById(
             "answerZone"
         );
 
-
     if (!answerZone) {
         return;
     }
 
-
-    answerZone.innerHTML =
-        "";
-
+    answerZone.innerHTML = "";
 
     if (
         q.question_type ===
@@ -2032,7 +1954,6 @@ async function showTrainingQuestion() {
             ></textarea>
         `;
     }
-
 
     else if (
         q.question_type ===
@@ -2061,7 +1982,6 @@ async function showTrainingQuestion() {
         `;
     }
 
-
     else if (
         q.question_type ===
         "single_choice"
@@ -2073,7 +1993,6 @@ async function showTrainingQuestion() {
             <label><input type="radio" name="answerChoice" value="D"> ${escapeHtml(q.choice_d)}</label>
         `;
     }
-
 
     else if (
         q.question_type ===
@@ -2097,24 +2016,16 @@ async function submitTrainingAnswer() {
             "profile_id"
         );
 
-
     const q =
         trainingQuestions[
             trainingIndex
         ];
 
-
-    if (
-        !profileId ||
-        !q
-    ) {
+    if (!profileId || !q) {
         return;
     }
 
-
-    let answer =
-        "";
-
+    let answer = "";
 
     if (
         q.question_type ===
@@ -2125,13 +2036,11 @@ async function submitTrainingAnswer() {
                 "trainingAnswer"
             );
 
-
         answer =
             input
                 ? input.value.trim()
                 : "";
     }
-
 
     else if (
         q.question_type ===
@@ -2151,20 +2060,17 @@ async function submitTrainingAnswer() {
                 .join(",");
     }
 
-
     else {
         const selected =
             document.querySelector(
                 'input[name="answerChoice"]:checked'
             );
 
-
         answer =
             selected
                 ? selected.value
                 : "";
     }
-
 
     if (!answer) {
         alert(
@@ -2174,18 +2080,10 @@ async function submitTrainingAnswer() {
         return;
     }
 
-
-    let autoScore =
-        null;
-
-    let finalScore =
-        null;
-
-    let corrected =
-        false;
-
-    let isCorrect =
-        false;
+    let autoScore = null;
+    let finalScore = null;
+    let corrected = false;
+    let isCorrect = false;
 
 
     if (
@@ -2198,7 +2096,6 @@ async function submitTrainingAnswer() {
             answer ===
             q.correct_answer;
 
-
         autoScore =
             isCorrect
                 ? Number(
@@ -2206,7 +2103,6 @@ async function submitTrainingAnswer() {
                     1
                 )
                 : 0;
-
 
         finalScore =
             autoScore;
@@ -2234,11 +2130,9 @@ async function submitTrainingAnswer() {
                 .sort()
                 .join(",");
 
-
         isCorrect =
             answer ===
             correctChoices;
-
 
         autoScore =
             isCorrect
@@ -2247,7 +2141,6 @@ async function submitTrainingAnswer() {
                     1
                 )
                 : 0;
-
 
         finalScore =
             autoScore;
@@ -2312,10 +2205,6 @@ async function submitTrainingAnswer() {
     }
 
 
-    /*
-     * Vérification des badges liés
-     * au nombre de questions.
-     */
     await checkQuestionBadges(
         profileId
     );
@@ -2329,7 +2218,7 @@ async function submitTrainingAnswer() {
 
 
 /* =========================================================
-   ENREGISTRER SESSION
+   SESSION D'ENTRAÎNEMENT
 ========================================================= */
 
 async function saveTrainingSession() {
@@ -2338,13 +2227,11 @@ async function saveTrainingSession() {
             "profile_id"
         );
 
-
     if (!profileId) {
         throw new Error(
             "Profil connecté introuvable."
         );
     }
-
 
     const response =
         await fetch(
@@ -2400,17 +2287,14 @@ async function saveTrainingSession() {
             }
         );
 
-
     if (!response.ok) {
         throw new Error(
             await response.text()
         );
     }
 
-
     const data =
         await response.json();
-
 
     return (
         data[0]?.id ||
@@ -2429,11 +2313,9 @@ async function finishTraining() {
             "profile_id"
         );
 
-
     try {
         const sessionId =
             await saveTrainingSession();
-
 
         await addXp(
             5,
@@ -2441,11 +2323,6 @@ async function finishTraining() {
             sessionId
         );
 
-
-        /*
-         * Maintenant que la session existe,
-         * on vérifie tous les badges.
-         */
         await checkAllBadges(
             profileId
         );
@@ -2453,16 +2330,13 @@ async function finishTraining() {
     } catch (error) {
         console.error(error);
 
-
         alert(
             "L'entraînement est terminé, mais son enregistrement n'a pas pu être finalisé : " +
             error.message
         );
 
-
         return;
     }
-
 
     const total =
         trainingQuestions.length;
@@ -2473,7 +2347,6 @@ async function finishTraining() {
     const incorrect =
         total -
         correct;
-
 
     const percentage =
         total > 0
@@ -2486,17 +2359,14 @@ async function finishTraining() {
             )
             : 0;
 
-
     const container =
         document.querySelector(
             ".container"
         );
 
-
     if (!container) {
         return;
     }
-
 
     container.innerHTML = `
         <h2>
@@ -2564,7 +2434,7 @@ function restartCurrentTraining() {
 
 
 /* =========================================================
-   BADGES
+   BADGES - CATALOGUE
 ========================================================= */
 
 async function getBadgeByCode(
@@ -2579,7 +2449,6 @@ async function getBadgeByCode(
             }
         );
 
-
     if (!response.ok) {
         throw new Error(
             "Impossible de récupérer le badge " +
@@ -2589,10 +2458,8 @@ async function getBadgeByCode(
         );
     }
 
-
     const data =
         await response.json();
-
 
     return (
         data[0] ||
@@ -2614,7 +2481,6 @@ async function hasUserBadge(
             }
         );
 
-
     if (!response.ok) {
         throw new Error(
             "Impossible de vérifier les badges obtenus : " +
@@ -2622,10 +2488,8 @@ async function hasUserBadge(
         );
     }
 
-
     const data =
         await response.json();
-
 
     return (
         data.length >
@@ -2643,13 +2507,9 @@ async function awardBadge(
     badge,
     context = null
 ) {
-    if (
-        !profileId ||
-        !badge
-    ) {
+    if (!profileId || !badge) {
         return false;
     }
-
 
     if (!badge.repeatable) {
         const alreadyOwned =
@@ -2658,16 +2518,10 @@ async function awardBadge(
                 badge.id
             );
 
-
         if (alreadyOwned) {
             return false;
         }
     }
-
-
-    /*
-     * On ajoute d'abord le badge.
-     */
 
     const insertResponse =
         await fetch(
@@ -2708,11 +2562,9 @@ async function awardBadge(
             }
         );
 
-
     if (!insertResponse.ok) {
         const errorText =
             await insertResponse.text();
-
 
         if (
             errorText.includes(
@@ -2722,26 +2574,18 @@ async function awardBadge(
             return false;
         }
 
-
         throw new Error(
             "Impossible d'attribuer le badge : " +
             errorText
         );
     }
 
-
     const inserted =
         await insertResponse.json();
-
 
     const profileBadgeId =
         inserted[0]?.id ||
         null;
-
-
-    /*
-     * Attribution XP.
-     */
 
     try {
         const reward =
@@ -2749,7 +2593,6 @@ async function awardBadge(
                 badge.xp_reward ||
                 0
             );
-
 
         if (reward > 0) {
             await addXp(
@@ -2760,13 +2603,6 @@ async function awardBadge(
         }
 
     } catch (error) {
-        /*
-         * Si les XP échouent,
-         * on retire le badge qu'on vient
-         * d'attribuer pour conserver
-         * une base cohérente.
-         */
-
         if (profileBadgeId) {
             await fetch(
                 `${SUPABASE_URL}/rest/v1/profile_badges?id=eq.${profileBadgeId}`,
@@ -2783,22 +2619,19 @@ async function awardBadge(
             );
         }
 
-
         throw error;
     }
-
 
     queueBadgeUnlocked(
         badge
     );
-
 
     return true;
 }
 
 
 /* =========================================================
-   FILE D'ATTENTE POPUPS BADGES
+   POPUPS BADGES
 ========================================================= */
 
 function queueBadgeUnlocked(
@@ -2807,7 +2640,6 @@ function queueBadgeUnlocked(
     badgePopupQueue.push(
         badge
     );
-
 
     if (!badgePopupRunning) {
         showNextBadgePopup();
@@ -2826,35 +2658,28 @@ function showNextBadgePopup() {
         return;
     }
 
-
     badgePopupRunning =
         true;
 
-
     const badge =
         badgePopupQueue.shift();
-
 
     const oldPopup =
         document.getElementById(
             "badgeUnlockedPopup"
         );
 
-
     if (oldPopup) {
         oldPopup.remove();
     }
-
 
     const popup =
         document.createElement(
             "div"
         );
 
-
     popup.id =
         "badgeUnlockedPopup";
-
 
     popup.style.position =
         "fixed";
@@ -2895,7 +2720,6 @@ function showNextBadgePopup() {
     popup.style.borderLeft =
         "5px solid var(--orange, #ff5a00)";
 
-
     popup.innerHTML = `
         <div
             style="
@@ -2917,12 +2741,7 @@ function showNextBadgePopup() {
                 )}
             </div>
 
-
-            <div
-                style="
-                    min-width:0;
-                "
-            >
+            <div style="min-width:0;">
 
                 <div
                     style="
@@ -2937,7 +2756,6 @@ function showNextBadgePopup() {
                     ✨ Badge débloqué
                 </div>
 
-
                 <div
                     style="
                         font-size:18px;
@@ -2950,7 +2768,6 @@ function showNextBadgePopup() {
                     )}
                 </div>
 
-
                 <div
                     style="
                         color:var(--text-secondary, #777);
@@ -2962,7 +2779,6 @@ function showNextBadgePopup() {
                         badge.description
                     )}
                 </div>
-
 
                 <strong
                     style="
@@ -2980,11 +2796,9 @@ function showNextBadgePopup() {
         </div>
     `;
 
-
     document.body.appendChild(
         popup
     );
-
 
     setTimeout(
         () => {
@@ -3001,7 +2815,7 @@ function showNextBadgePopup() {
 
 
 /* =========================================================
-   VÉRIFICATION BADGE
+   VÉRIFICATIONS BADGES
 ========================================================= */
 
 async function checkAndAwardBadge(
@@ -3014,17 +2828,14 @@ async function checkAndAwardBadge(
         return false;
     }
 
-
     const badge =
         await getBadgeByCode(
             code
         );
 
-
     if (!badge) {
         return false;
     }
-
 
     return await awardBadge(
         profileId,
@@ -3033,10 +2844,6 @@ async function checkAndAwardBadge(
     );
 }
 
-
-/* =========================================================
-   BADGES QUESTIONS
-========================================================= */
 
 async function checkQuestionBadges(
     profileId
@@ -3050,7 +2857,6 @@ async function checkQuestionBadges(
             }
         );
 
-
     if (!response.ok) {
         console.warn(
             "Impossible de vérifier les badges questions :",
@@ -3060,14 +2866,11 @@ async function checkQuestionBadges(
         return;
     }
 
-
     const answers =
         await response.json();
 
-
     const count =
         answers.length;
-
 
     await checkAndAwardBadge(
         profileId,
@@ -3076,14 +2879,12 @@ async function checkQuestionBadges(
         `${count} réponse(s)`
     );
 
-
     await checkAndAwardBadge(
         profileId,
         "CURIOUS_25",
         count >= 25,
         `${count} réponse(s)`
     );
-
 
     await checkAndAwardBadge(
         profileId,
@@ -3092,14 +2893,12 @@ async function checkQuestionBadges(
         `${count} réponse(s)`
     );
 
-
     await checkAndAwardBadge(
         profileId,
         "QUIZ_MACHINE_500",
         count >= 500,
         `${count} réponse(s)`
     );
-
 
     await checkAndAwardBadge(
         profileId,
@@ -3109,10 +2908,6 @@ async function checkQuestionBadges(
     );
 }
 
-
-/* =========================================================
-   BADGES ENTRAÎNEMENT
-========================================================= */
 
 async function checkTrainingBadges(
     profileId
@@ -3126,7 +2921,6 @@ async function checkTrainingBadges(
             }
         );
 
-
     if (!response.ok) {
         console.warn(
             "Impossible de vérifier les badges entraînement :",
@@ -3136,14 +2930,11 @@ async function checkTrainingBadges(
         return;
     }
 
-
     const sessions =
         await response.json();
 
-
     const totalTrainings =
         sessions.length;
-
 
     await checkAndAwardBadge(
         profileId,
@@ -3152,7 +2943,6 @@ async function checkTrainingBadges(
         `${totalTrainings} entraînement(s)`
     );
 
-
     await checkAndAwardBadge(
         profileId,
         "TRAININGS_10",
@@ -3160,14 +2950,12 @@ async function checkTrainingBadges(
         `${totalTrainings} entraînement(s)`
     );
 
-
     await checkAndAwardBadge(
         profileId,
         "TRAININGS_25",
         totalTrainings >= 25,
         `${totalTrainings} entraînement(s)`
     );
-
 
     await checkAndAwardBadge(
         profileId,
@@ -3192,11 +2980,9 @@ async function checkTrainingBadges(
                         0
                     );
 
-
                 return (
                     total > 0 &&
-                    correct ===
-                    total
+                    correct === total
                 );
             }
         );
@@ -3210,12 +2996,8 @@ async function checkTrainingBadges(
     );
 
 
-    let currentPerfectStreak =
-        0;
-
-    let bestPerfectStreak =
-        0;
-
+    let currentPerfectStreak = 0;
+    let bestPerfectStreak = 0;
 
     sessions.forEach(
         session => {
@@ -3231,13 +3013,11 @@ async function checkTrainingBadges(
                     0
                 );
 
-
             if (
                 total > 0 &&
                 correct === total
             ) {
                 currentPerfectStreak++;
-
 
                 bestPerfectStreak =
                     Math.max(
@@ -3246,8 +3026,7 @@ async function checkTrainingBadges(
                     );
 
             } else {
-                currentPerfectStreak =
-                    0;
+                currentPerfectStreak = 0;
             }
         }
     );
@@ -3259,7 +3038,6 @@ async function checkTrainingBadges(
         bestPerfectStreak >= 2,
         `${bestPerfectStreak} perfect(s) consécutif(s)`
     );
-
 
     await checkAndAwardBadge(
         profileId,
@@ -3276,7 +3054,6 @@ async function checkTrainingBadges(
                 "flash"
         );
 
-
     await checkAndAwardBadge(
         profileId,
         "FLASH_FIRST",
@@ -3291,7 +3068,6 @@ async function checkTrainingBadges(
                 session.mode ===
                 "xtrem"
         );
-
 
     await checkAndAwardBadge(
         profileId,
@@ -3316,11 +3092,9 @@ async function checkTrainingBadges(
                         0
                     );
 
-
                 return (
                     total > 0 &&
-                    correct ===
-                    total
+                    correct === total
                 );
             }
         );
@@ -3335,10 +3109,6 @@ async function checkTrainingBadges(
 }
 
 
-/* =========================================================
-   TOUS LES BADGES
-========================================================= */
-
 async function checkAllBadges(
     profileId
 ) {
@@ -3346,12 +3116,10 @@ async function checkAllBadges(
         return;
     }
 
-
     try {
         await checkQuestionBadges(
             profileId
         );
-
 
         await checkTrainingBadges(
             profileId
@@ -3368,26 +3136,18 @@ async function checkAllBadges(
    PAGE BADGES
 ========================================================= */
 
-let badgesPageData = [];
-let currentBadgeFilter = "all";
-
-
 async function loadBadgesPage() {
-
     const profileId =
         localStorage.getItem(
             "profile_id"
         );
 
-
     if (!profileId) {
-
         window.location.href =
             "index.html";
 
         return;
     }
-
 
     const fullName =
         localStorage.getItem(
@@ -3395,32 +3155,26 @@ async function loadBadgesPage() {
         ) ||
         "Utilisateur";
 
-
     const topUserName =
         document.getElementById(
             "topUserName"
         );
 
-
     if (topUserName) {
-
         topUserName.innerText =
             fullName;
     }
 
 
-    await updatePresence(
-        profileId
-    );
-
-
-    await loadHomeOnlineCount();
-
-
-    startPresenceHeartbeat();
-
-
     try {
+        await updatePresence(
+            profileId
+        );
+
+        await loadHomeOnlineCount();
+
+        startPresenceHeartbeat();
+
 
         const [
             badgesResponse,
@@ -3429,7 +3183,6 @@ async function loadBadgesPage() {
             sessionsResponse
         ] =
             await Promise.all([
-
                 fetch(
                     `${SUPABASE_URL}/rest/v1/badges?active=eq.true&select=*`,
                     {
@@ -3465,18 +3218,13 @@ async function loadBadgesPage() {
 
 
         if (!badgesResponse.ok) {
-
             throw new Error(
-                "Impossible de charger le catalogue des badges : " +
                 await badgesResponse.text()
             );
         }
 
-
         if (!earnedResponse.ok) {
-
             throw new Error(
-                "Impossible de charger les badges obtenus : " +
                 await earnedResponse.text()
             );
         }
@@ -3485,16 +3233,13 @@ async function loadBadgesPage() {
         const badges =
             await badgesResponse.json();
 
-
         const earnedBadges =
             await earnedResponse.json();
-
 
         const answers =
             answersResponse.ok
                 ? await answersResponse.json()
                 : [];
-
 
         const sessions =
             sessionsResponse.ok
@@ -3505,22 +3250,17 @@ async function loadBadgesPage() {
         const earnedByBadgeId =
             {};
 
-
         earnedBadges.forEach(
             earned => {
-
                 if (
                     !earnedByBadgeId[
                         earned.badge_id
                     ]
                 ) {
-
                     earnedByBadgeId[
                         earned.badge_id
-                    ] =
-                        [];
+                    ] = [];
                 }
-
 
                 earnedByBadgeId[
                     earned.badge_id
@@ -3534,13 +3274,11 @@ async function loadBadgesPage() {
         badgesPageData =
             badges.map(
                 badge => {
-
                     const earned =
                         earnedByBadgeId[
                             badge.id
                         ] ||
                         [];
-
 
                     const progress =
                         calculateBadgeProgress(
@@ -3549,9 +3287,7 @@ async function loadBadgesPage() {
                             sessions
                         );
 
-
                     return {
-
                         ...badge,
 
                         obtained:
@@ -3582,7 +3318,6 @@ async function loadBadgesPage() {
                 "badgesObtainedCount"
             );
 
-
         const totalElement =
             document.getElementById(
                 "badgesTotalCount"
@@ -3590,14 +3325,11 @@ async function loadBadgesPage() {
 
 
         if (obtainedElement) {
-
             obtainedElement.innerText =
                 obtainedCount;
         }
 
-
         if (totalElement) {
-
             totalElement.innerText =
                 badgesPageData.length;
         }
@@ -3607,21 +3339,17 @@ async function loadBadgesPage() {
 
 
     } catch (error) {
-
         console.error(
             "Erreur page badges :",
             error
         );
-
 
         const grid =
             document.getElementById(
                 "badgesGrid"
             );
 
-
         if (grid) {
-
             grid.innerHTML = `
                 <div class="dash-card">
                     Impossible de charger les badges.
@@ -3641,43 +3369,33 @@ function calculateBadgeProgress(
     answers,
     sessions
 ) {
-
     const target =
         Number(
             badge.target_value ||
             1
         );
 
-
-    let current =
-        0;
+    let current = 0;
 
 
     switch (
         badge.condition_type
     ) {
-
-
         case "questions_answered":
-
             current =
                 answers.length;
 
             break;
 
 
-
         case "trainings_completed":
-
             current =
                 sessions.length;
 
             break;
 
 
-
         case "flash_completed":
-
             current =
                 sessions.filter(
                     session =>
@@ -3688,9 +3406,7 @@ function calculateBadgeProgress(
             break;
 
 
-
         case "xtrem_completed":
-
             current =
                 sessions.filter(
                     session =>
@@ -3701,26 +3417,21 @@ function calculateBadgeProgress(
             break;
 
 
-
         case "perfect_quiz":
-
             current =
                 sessions.filter(
                     session => {
-
                         const total =
                             Number(
                                 session.total_questions ||
                                 0
                             );
 
-
                         const correct =
                             Number(
                                 session.correct_answers ||
                                 0
                             );
-
 
                         return (
                             total > 0 &&
@@ -3732,23 +3443,14 @@ function calculateBadgeProgress(
             break;
 
 
-
-        case "perfect_quiz_streak":
-
-            let currentStreak =
-                0;
-
-            let bestStreak =
-                0;
-
+        case "perfect_quiz_streak": {
+            let streak = 0;
+            let best = 0;
 
             sessions
                 .slice()
                 .sort(
-                    (
-                        a,
-                        b
-                    ) =>
+                    (a, b) =>
                         new Date(
                             a.completed_at
                         ) -
@@ -3758,70 +3460,58 @@ function calculateBadgeProgress(
                 )
                 .forEach(
                     session => {
-
                         const total =
                             Number(
                                 session.total_questions ||
                                 0
                             );
 
-
                         const correct =
                             Number(
                                 session.correct_answers ||
                                 0
                             );
-
 
                         if (
                             total > 0 &&
                             correct === total
                         ) {
+                            streak++;
 
-                            currentStreak++;
-
-
-                            bestStreak =
+                            best =
                                 Math.max(
-                                    bestStreak,
-                                    currentStreak
+                                    best,
+                                    streak
                                 );
 
                         } else {
-
-                            currentStreak =
-                                0;
+                            streak = 0;
                         }
                     }
                 );
 
-
             current =
-                bestStreak;
+                best;
 
             break;
-
+        }
 
 
         case "xtrem_perfect":
-
             current =
                 sessions.some(
                     session => {
-
                         const total =
                             Number(
                                 session.total_questions ||
                                 0
                             );
 
-
                         const correct =
                             Number(
                                 session.correct_answers ||
                                 0
                             );
-
 
                         return (
                             session.mode ===
@@ -3837,18 +3527,14 @@ function calculateBadgeProgress(
             break;
 
 
-
         default:
-
-            current =
-                0;
+            current = 0;
 
             break;
     }
 
 
     return {
-
         current:
             Math.max(
                 0,
@@ -3869,10 +3555,8 @@ function setBadgeFilter(
     filter,
     button
 ) {
-
     currentBadgeFilter =
         filter;
-
 
     document
         .querySelectorAll(
@@ -3880,58 +3564,42 @@ function setBadgeFilter(
         )
         .forEach(
             item => {
-
                 item.classList.remove(
                     "active"
                 );
             }
         );
 
-
     if (button) {
-
         button.classList.add(
             "active"
         );
     }
-
 
     renderBadgesPage();
 }
 
 
 /* =========================================================
-   AFFICHAGE BADGES
+   AFFICHAGE PAGE BADGES
 ========================================================= */
 
 function renderBadgesPage() {
-
     const grid =
         document.getElementById(
             "badgesGrid"
         );
 
-
     if (!grid) {
         return;
     }
 
-
     const rarityOrder = {
-
-        common:
-            1,
-
-        rare:
-            2,
-
-        epic:
-            3,
-
-        legendary:
-            4
+        common: 1,
+        rare: 2,
+        epic: 3,
+        legendary: 4
     };
-
 
     let filtered =
         [...badgesPageData];
@@ -3941,7 +3609,6 @@ function renderBadgesPage() {
         currentBadgeFilter ===
         "secret"
     ) {
-
         filtered =
             filtered.filter(
                 badge =>
@@ -3953,7 +3620,6 @@ function renderBadgesPage() {
         currentBadgeFilter !==
         "all"
     ) {
-
         filtered =
             filtered.filter(
                 badge =>
@@ -3964,7 +3630,6 @@ function renderBadgesPage() {
             );
 
     } else {
-
         filtered =
             filtered.filter(
                 badge =>
@@ -3975,22 +3640,15 @@ function renderBadgesPage() {
 
 
     filtered.sort(
-        (
-            a,
-            b
-        ) => {
-
+        (a, b) => {
             const rarityDifference =
-
                 (
                     rarityOrder[
                         a.rarity
                     ] ||
                     99
                 )
-
                 -
-
                 (
                     rarityOrder[
                         b.rarity
@@ -3998,15 +3656,12 @@ function renderBadgesPage() {
                     99
                 );
 
-
             if (
                 rarityDifference !==
                 0
             ) {
-
                 return rarityDifference;
             }
-
 
             return (
                 Number(
@@ -4024,7 +3679,6 @@ function renderBadgesPage() {
 
 
     if (!filtered.length) {
-
         grid.innerHTML = `
             <div class="dash-card">
                 Aucun badge dans cette catégorie.
@@ -4054,37 +3708,21 @@ function renderBadgesPage() {
 function createBadgeCard(
     badge
 ) {
-
     const rarityLabels = {
-
-        common:
-            "Commun",
-
-        rare:
-            "Rare",
-
-        epic:
-            "Épique",
-
-        legendary:
-            "Légendaire"
+        common: "Commun",
+        rare: "Rare",
+        epic: "Épique",
+        legendary: "Légendaire"
     };
-
 
     const rarityClass =
         `badge-rarity-${badge.rarity}`;
 
 
-    /*
-     * Secret non obtenu :
-     * ni nom, ni description.
-     */
-
     if (
         badge.secret === true &&
         !badge.obtained
     ) {
-
         return `
             <article
                 class="
@@ -4098,22 +3736,18 @@ function createBadgeCard(
                     ❓
                 </div>
 
-
                 <div class="badge-gallery-rarity">
                     Secret
                 </div>
-
 
                 <h3>
                     ???
                 </h3>
 
-
                 <p>
                     Continue d'explorer Nickel Master
                     pour découvrir ce badge.
                 </p>
-
 
                 <div class="badge-gallery-status">
                     🔒 Secret
@@ -4130,7 +3764,6 @@ function createBadgeCard(
             0
         );
 
-
     const target =
         Number(
             badge.progressTarget ||
@@ -4138,10 +3771,8 @@ function createBadgeCard(
             1
         );
 
-
     const percentage =
         target > 0
-
             ? Math.min(
                 100,
                 Math.round(
@@ -4152,18 +3783,13 @@ function createBadgeCard(
                     100
                 )
             )
-
             : 0;
 
 
-    let statusHtml =
-        "";
+    let statusHtml = "";
 
 
-    if (
-        badge.obtained
-    ) {
-
+    if (badge.obtained) {
         statusHtml = `
             <div
                 class="
@@ -4175,13 +3801,11 @@ function createBadgeCard(
             </div>
         `;
 
-
         if (
             badge.repeatable &&
             badge.occurrenceCount >
             1
         ) {
-
             statusHtml += `
                 <div class="badge-repeat-count">
                     x${badge.occurrenceCount}
@@ -4190,29 +3814,22 @@ function createBadgeCard(
         }
 
     } else {
-
-        const progressSupported =
-            [
-                "questions_answered",
-                "trainings_completed",
-                "flash_completed",
-                "xtrem_completed",
-                "perfect_quiz",
-                "perfect_quiz_streak",
-                "xtrem_perfect"
-            ]
-                .includes(
-                    badge.condition_type
-                );
+        const progressSupported = [
+            "questions_answered",
+            "trainings_completed",
+            "flash_completed",
+            "xtrem_completed",
+            "perfect_quiz",
+            "perfect_quiz_streak",
+            "xtrem_perfect"
+        ].includes(
+            badge.condition_type
+        );
 
 
-        if (
-            progressSupported
-        ) {
-
+        if (progressSupported) {
             statusHtml = `
                 <div class="badge-progress-text">
-
                     🔒
                     ${Math.min(
                         progress,
@@ -4220,9 +3837,7 @@ function createBadgeCard(
                     )}
                     /
                     ${target}
-
                 </div>
-
 
                 <div class="badge-progress-bar">
 
@@ -4236,7 +3851,6 @@ function createBadgeCard(
             `;
 
         } else {
-
             statusHtml = `
                 <div class="badge-gallery-status">
                     🔒 Non obtenu
@@ -4256,14 +3870,11 @@ function createBadgeCard(
         >
 
             <div class="badge-gallery-icon">
-
                 ${escapeHtml(
                     badge.icon ||
                     "🏅"
                 )}
-
             </div>
-
 
             <div
                 class="
@@ -4271,31 +3882,25 @@ function createBadgeCard(
                     ${rarityClass}
                 "
             >
-
-                ${rarityLabels[
-                    badge.rarity
-                ] || "Commun"}
-
+                ${
+                    rarityLabels[
+                        badge.rarity
+                    ] ||
+                    "Commun"
+                }
             </div>
 
-
             <h3>
-
                 ${escapeHtml(
                     badge.name
                 )}
-
             </h3>
 
-
             <p>
-
                 ${escapeHtml(
                     badge.description
                 )}
-
             </p>
-
 
             ${statusHtml}
 
@@ -4318,25 +3923,16 @@ async function addXp(
             "profile_id"
         );
 
-
     if (!profileId) {
         throw new Error(
             "Profil connecté introuvable."
         );
     }
 
-
     const xpAmount =
-        Number(
-            amount
-        );
+        Number(amount);
 
-
-    if (
-        !Number.isFinite(
-            xpAmount
-        )
-    ) {
+    if (!Number.isFinite(xpAmount)) {
         throw new Error(
             "Montant d'XP invalide."
         );
@@ -4352,7 +3948,6 @@ async function addXp(
             }
         );
 
-
     if (!profileResponse.ok) {
         throw new Error(
             "Erreur récupération XP : " +
@@ -4363,7 +3958,6 @@ async function addXp(
 
     const profiles =
         await profileResponse.json();
-
 
     if (!profiles.length) {
         throw new Error(
@@ -4378,11 +3972,9 @@ async function addXp(
             0
         );
 
-
     const newXp =
         currentXp +
         xpAmount;
-
 
     const newLevel =
         Math.floor(
@@ -4418,7 +4010,6 @@ async function addXp(
                     })
             }
         );
-
 
     if (!updateResponse.ok) {
         throw new Error(
@@ -4461,15 +4052,9 @@ async function addXp(
             }
         );
 
-
     if (!historyResponse.ok) {
         const errorText =
             await historyResponse.text();
-
-
-        /*
-         * Rollback XP si xp_history échoue.
-         */
 
         await fetch(
             `${SUPABASE_URL}/rest/v1/profiles?id=eq.${profileId}`,
@@ -4501,7 +4086,6 @@ async function addXp(
             }
         );
 
-
         throw new Error(
             "Erreur historique XP : " +
             errorText
@@ -4514,12 +4098,10 @@ async function addXp(
         String(newXp)
     );
 
-
     localStorage.setItem(
         "level",
         String(newLevel)
     );
-
 
     return newXp;
 }
@@ -4535,7 +4117,6 @@ async function loadUsersAdmin() {
             "role"
         );
 
-
     if (role !== "admin") {
         alert(
             "Accès réservé à l'administrateur."
@@ -4547,7 +4128,6 @@ async function loadUsersAdmin() {
         return;
     }
 
-
     const response =
         await fetch(
             `${SUPABASE_URL}/rest/v1/profiles?select=*&order=full_name.asc`,
@@ -4557,30 +4137,19 @@ async function loadUsersAdmin() {
             }
         );
 
-
-    if (!response.ok) {
-        return;
-    }
-
+    if (!response.ok) return;
 
     const users =
         await response.json();
-
 
     const container =
         document.getElementById(
             "usersList"
         );
 
+    if (!container) return;
 
-    if (!container) {
-        return;
-    }
-
-
-    container.innerHTML =
-        "";
-
+    container.innerHTML = "";
 
     users.forEach(
         user => {
@@ -4589,6 +4158,7 @@ async function loadUsersAdmin() {
                     class="card compact-card"
                     onclick="openUserProfile('${user.id}')"
                 >
+
                     <h2>
                         ${escapeHtml(
                             user.full_name ||
@@ -4605,15 +4175,14 @@ async function loadUsersAdmin() {
                     </p>
 
                     <p>
-                        <strong>
-                            Rôle :
-                        </strong>
+                        <strong>Rôle :</strong>
 
                         ${escapeHtml(
                             user.role ||
                             ""
                         )}
                     </p>
+
                 </div>
             `;
         }
@@ -4634,135 +4203,6 @@ function openUserProfile(
 }
 
 
-async function loadUserDetailAdmin() {
-    const role =
-        localStorage.getItem(
-            "role"
-        );
-
-
-    const userId =
-        localStorage.getItem(
-            "selected_user_id"
-        );
-
-
-    if (role !== "admin") {
-        alert(
-            "Accès réservé à l'administrateur."
-        );
-
-        window.location.href =
-            "home.html";
-
-        return;
-    }
-
-
-    if (!userId) {
-        return;
-    }
-
-
-    const response =
-        await fetch(
-            `${SUPABASE_URL}/rest/v1/profiles?id=eq.${userId}`,
-            {
-                headers:
-                    supabaseHeaders()
-            }
-        );
-
-
-    if (!response.ok) {
-        return;
-    }
-
-
-    const data =
-        await response.json();
-
-    const user =
-        data[0];
-
-
-    if (!user) {
-        return;
-    }
-
-
-    const container =
-        document.getElementById(
-            "userDetail"
-        );
-
-
-    if (!container) {
-        return;
-    }
-
-
-    container.innerHTML = `
-        <h2>
-            ${escapeHtml(
-                user.full_name ||
-                ""
-            )}
-        </h2>
-
-        <p>
-            <strong>
-                Identifiant :
-            </strong>
-
-            ${escapeHtml(
-                user.username ||
-                ""
-            )}
-        </p>
-
-        <p>
-            <strong>
-                Rôle :
-            </strong>
-
-            ${escapeHtml(
-                user.role ||
-                ""
-            )}
-        </p>
-
-        <p>
-            <strong>
-                Poste :
-            </strong>
-
-            ${escapeHtml(
-                user.position ||
-                user.job_title ||
-                ""
-            )}
-        </p>
-
-        <p>
-            <strong>
-                Niveau :
-            </strong>
-
-            ${user.level || 1}
-        </p>
-
-        <p>
-            <strong>
-                XP :
-            </strong>
-
-            ${user.xp || 0}
-        </p>
-    `;
-}
-
-
 /* =========================================================
    MON ÉQUIPE
 ========================================================= */
@@ -4773,14 +4213,12 @@ async function loadMyTeam() {
             "profile_id"
         );
 
-
     if (!profileId) {
         window.location.href =
             "index.html";
 
         return;
     }
-
 
     const meResponse =
         await fetch(
@@ -4791,18 +4229,13 @@ async function loadMyTeam() {
             }
         );
 
-
-    if (!meResponse.ok) {
-        return;
-    }
-
+    if (!meResponse.ok) return;
 
     const meData =
         await meResponse.json();
 
     const me =
         meData[0];
-
 
     if (
         !me ||
@@ -4813,12 +4246,10 @@ async function loadMyTeam() {
                 "teamTitle"
             );
 
-
         if (title) {
             title.innerText =
                 "Aucune équipe associée.";
         }
-
 
         return;
     }
@@ -4833,12 +4264,10 @@ async function loadMyTeam() {
             }
         );
 
-
     const teamData =
         teamResponse.ok
             ? await teamResponse.json()
             : [];
-
 
     const team =
         teamData[0];
@@ -4867,30 +4296,19 @@ async function loadMyTeam() {
             }
         );
 
-
-    if (!membersResponse.ok) {
-        return;
-    }
-
+    if (!membersResponse.ok) return;
 
     const members =
         await membersResponse.json();
-
 
     const container =
         document.getElementById(
             "teamMembers"
         );
 
+    if (!container) return;
 
-    if (!container) {
-        return;
-    }
-
-
-    container.innerHTML =
-        "";
-
+    container.innerHTML = "";
 
     members.forEach(
         member => {
@@ -4899,6 +4317,7 @@ async function loadMyTeam() {
                     class="team-member"
                     onclick="openTeamMember('${member.id}')"
                 >
+
                     <strong>
                         ${escapeHtml(
                             member.full_name
@@ -4917,6 +4336,7 @@ async function loadMyTeam() {
 
                     Niveau
                     ${member.level || 1}
+
                 </div>
             `;
         }
@@ -4938,249 +4358,6 @@ function openTeamMember(
 
 
 /* =========================================================
-   QUIZ BILAN CLASSIQUE
-========================================================= */
-
-async function loadQuestion() {
-    const profileId =
-        localStorage.getItem(
-            "profile_id"
-        );
-
-
-    const fullName =
-        localStorage.getItem(
-            "full_name"
-        );
-
-
-    if (!profileId) {
-        window.location.href =
-            "index.html";
-
-        return;
-    }
-
-
-    if (
-        document.getElementById(
-            "welcome"
-        )
-    ) {
-        document.getElementById(
-            "welcome"
-        ).innerText =
-            "Bienvenue " +
-            fullName;
-    }
-
-
-    const response =
-        await fetch(
-            `${SUPABASE_URL}/rest/v1/questions?select=*&question_type=eq.open&order=order_number.asc`,
-            {
-                headers:
-                    supabaseHeaders()
-            }
-        );
-
-
-    if (!response.ok) {
-        return;
-    }
-
-
-    questions =
-        await response.json();
-
-
-    showQuestion();
-}
-
-
-function showQuestion() {
-    if (
-        currentQuestionIndex >=
-        questions.length
-    ) {
-        const container =
-            document.querySelector(
-                ".container"
-            );
-
-
-        if (container) {
-            container.innerHTML = `
-                <h2>
-                    Quiz terminé ✅
-                </h2>
-
-                <p>
-                    Merci, tes réponses ont été enregistrées.
-                </p>
-            `;
-        }
-
-
-        return;
-    }
-
-
-    const q =
-        questions[
-            currentQuestionIndex
-        ];
-
-
-    if (
-        document.getElementById(
-            "progress"
-        )
-    ) {
-        document.getElementById(
-            "progress"
-        ).innerText =
-            `Question ${currentQuestionIndex + 1} / ${questions.length}`;
-    }
-
-
-    if (
-        document.getElementById(
-            "category"
-        )
-    ) {
-        document.getElementById(
-            "category"
-        ).innerText =
-            `Catégorie : ${q.category}`;
-    }
-
-
-    if (
-        document.getElementById(
-            "questionText"
-        )
-    ) {
-        document.getElementById(
-            "questionText"
-        ).innerText =
-            q.question;
-    }
-
-
-    if (
-        document.getElementById(
-            "answerText"
-        )
-    ) {
-        document.getElementById(
-            "answerText"
-        ).value =
-            "";
-    }
-}
-
-
-async function submitAnswer() {
-    const answerElement =
-        document.getElementById(
-            "answerText"
-        );
-
-
-    if (!answerElement) {
-        return;
-    }
-
-
-    const answer =
-        answerElement
-            .value
-            .trim();
-
-
-    if (!answer) {
-        alert(
-            "Merci de saisir une réponse."
-        );
-
-        return;
-    }
-
-
-    const profileId =
-        localStorage.getItem(
-            "profile_id"
-        );
-
-
-    const q =
-        questions[
-            currentQuestionIndex
-        ];
-
-
-    const response =
-        await fetch(
-            `${SUPABASE_URL}/rest/v1/answers`,
-            {
-                method:
-                    "POST",
-
-                headers:
-                    supabaseHeaders({
-                        "Content-Type":
-                            "application/json",
-
-                        Prefer:
-                            "return=minimal"
-                    }),
-
-                body:
-                    JSON.stringify({
-                        profile_id:
-                            profileId,
-
-                        question_id:
-                            q.id,
-
-                        answer_text:
-                            answer,
-
-                        corrected:
-                            false
-                    })
-            }
-        );
-
-
-    if (!response.ok) {
-        alert(
-            "Erreur enregistrement : " +
-            await response.text()
-        );
-
-        return;
-    }
-
-
-    /*
-     * Les réponses bilan comptent aussi
-     * pour les badges questions.
-     */
-    await checkQuestionBadges(
-        profileId
-    );
-
-
-    currentQuestionIndex++;
-
-
-    showQuestion();
-}
-
-
-/* =========================================================
    CLASSEMENT SIMPLE
 ========================================================= */
 
@@ -5190,11 +4367,7 @@ async function loadRanking() {
             "rankingList"
         );
 
-
-    if (!container) {
-        return;
-    }
-
+    if (!container) return;
 
     const response =
         await fetch(
@@ -5205,7 +4378,6 @@ async function loadRanking() {
             }
         );
 
-
     if (!response.ok) {
         container.innerHTML =
             "<p>Impossible de charger le classement.</p>";
@@ -5213,22 +4385,16 @@ async function loadRanking() {
         return;
     }
 
-
     const users =
         await response.json();
 
-
-    container.innerHTML =
-        "";
-
+    container.innerHTML = "";
 
     users.forEach(
-        (
-            user,
-            index
-        ) => {
+        (user, index) => {
             container.innerHTML += `
                 <div class="card">
+
                     <h2>
                         #${index + 1}
                         -
@@ -5239,9 +4405,7 @@ async function loadRanking() {
                     </h2>
 
                     <p>
-                        <strong>
-                            Poste :
-                        </strong>
+                        <strong>Poste :</strong>
 
                         ${escapeHtml(
                             user.position ||
@@ -5251,20 +4415,15 @@ async function loadRanking() {
                     </p>
 
                     <p>
-                        <strong>
-                            Niveau :
-                        </strong>
-
+                        <strong>Niveau :</strong>
                         ${user.level || 1}
                     </p>
 
                     <p>
-                        <strong>
-                            XP :
-                        </strong>
-
+                        <strong>XP :</strong>
                         ${user.xp || 0}
                     </p>
+
                 </div>
             `;
         }
@@ -5284,15 +4443,13 @@ document.addEventListener(
                 "profile_id"
             );
 
-
         if (!profileId) {
             return;
         }
 
-
         /*
-         * home.html lance lui-même
-         * loadHomeDashboard().
+         * Sur home.html et badges.html,
+         * la page lance ses propres fonctions.
          *
          * Sur les autres pages,
          * on maintient simplement la présence.
