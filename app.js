@@ -3365,6 +3365,946 @@ async function checkAllBadges(
     }
 }
 /* =========================================================
+   PAGE BADGES
+========================================================= */
+
+let badgesPageData = [];
+let currentBadgeFilter = "all";
+
+
+async function loadBadgesPage() {
+
+    const profileId =
+        localStorage.getItem(
+            "profile_id"
+        );
+
+
+    if (!profileId) {
+
+        window.location.href =
+            "index.html";
+
+        return;
+    }
+
+
+    const fullName =
+        localStorage.getItem(
+            "full_name"
+        ) ||
+        "Utilisateur";
+
+
+    const topUserName =
+        document.getElementById(
+            "topUserName"
+        );
+
+
+    if (topUserName) {
+
+        topUserName.innerText =
+            fullName;
+    }
+
+
+    await updatePresence(
+        profileId
+    );
+
+
+    await loadHomeOnlineCount();
+
+
+    startPresenceHeartbeat();
+
+
+    try {
+
+        const [
+            badgesResponse,
+            earnedResponse,
+            answersResponse,
+            sessionsResponse
+        ] =
+            await Promise.all([
+
+                fetch(
+                    `${SUPABASE_URL}/rest/v1/badges?active=eq.true&select=*`,
+                    {
+                        headers:
+                            supabaseHeaders()
+                    }
+                ),
+
+                fetch(
+                    `${SUPABASE_URL}/rest/v1/profile_badges?profile_id=eq.${profileId}&select=*`,
+                    {
+                        headers:
+                            supabaseHeaders()
+                    }
+                ),
+
+                fetch(
+                    `${SUPABASE_URL}/rest/v1/answers?profile_id=eq.${profileId}&select=id`,
+                    {
+                        headers:
+                            supabaseHeaders()
+                    }
+                ),
+
+                fetch(
+                    `${SUPABASE_URL}/rest/v1/training_sessions?profile_id=eq.${profileId}&select=*`,
+                    {
+                        headers:
+                            supabaseHeaders()
+                    }
+                )
+            ]);
+
+
+        if (!badgesResponse.ok) {
+
+            throw new Error(
+                "Impossible de charger le catalogue des badges : " +
+                await badgesResponse.text()
+            );
+        }
+
+
+        if (!earnedResponse.ok) {
+
+            throw new Error(
+                "Impossible de charger les badges obtenus : " +
+                await earnedResponse.text()
+            );
+        }
+
+
+        const badges =
+            await badgesResponse.json();
+
+
+        const earnedBadges =
+            await earnedResponse.json();
+
+
+        const answers =
+            answersResponse.ok
+                ? await answersResponse.json()
+                : [];
+
+
+        const sessions =
+            sessionsResponse.ok
+                ? await sessionsResponse.json()
+                : [];
+
+
+        const earnedByBadgeId =
+            {};
+
+
+        earnedBadges.forEach(
+            earned => {
+
+                if (
+                    !earnedByBadgeId[
+                        earned.badge_id
+                    ]
+                ) {
+
+                    earnedByBadgeId[
+                        earned.badge_id
+                    ] =
+                        [];
+                }
+
+
+                earnedByBadgeId[
+                    earned.badge_id
+                ].push(
+                    earned
+                );
+            }
+        );
+
+
+        badgesPageData =
+            badges.map(
+                badge => {
+
+                    const earned =
+                        earnedByBadgeId[
+                            badge.id
+                        ] ||
+                        [];
+
+
+                    const progress =
+                        calculateBadgeProgress(
+                            badge,
+                            answers,
+                            sessions
+                        );
+
+
+                    return {
+
+                        ...badge,
+
+                        obtained:
+                            earned.length > 0,
+
+                        occurrenceCount:
+                            earned.length,
+
+                        progress:
+                            progress.current,
+
+                        progressTarget:
+                            progress.target
+                    };
+                }
+            );
+
+
+        const obtainedCount =
+            badgesPageData.filter(
+                badge =>
+                    badge.obtained
+            ).length;
+
+
+        const obtainedElement =
+            document.getElementById(
+                "badgesObtainedCount"
+            );
+
+
+        const totalElement =
+            document.getElementById(
+                "badgesTotalCount"
+            );
+
+
+        if (obtainedElement) {
+
+            obtainedElement.innerText =
+                obtainedCount;
+        }
+
+
+        if (totalElement) {
+
+            totalElement.innerText =
+                badgesPageData.length;
+        }
+
+
+        renderBadgesPage();
+
+
+    } catch (error) {
+
+        console.error(
+            "Erreur page badges :",
+            error
+        );
+
+
+        const grid =
+            document.getElementById(
+                "badgesGrid"
+            );
+
+
+        if (grid) {
+
+            grid.innerHTML = `
+                <div class="dash-card">
+                    Impossible de charger les badges.
+                </div>
+            `;
+        }
+    }
+}
+
+
+/* =========================================================
+   PROGRESSION BADGES
+========================================================= */
+
+function calculateBadgeProgress(
+    badge,
+    answers,
+    sessions
+) {
+
+    const target =
+        Number(
+            badge.target_value ||
+            1
+        );
+
+
+    let current =
+        0;
+
+
+    switch (
+        badge.condition_type
+    ) {
+
+
+        case "questions_answered":
+
+            current =
+                answers.length;
+
+            break;
+
+
+
+        case "trainings_completed":
+
+            current =
+                sessions.length;
+
+            break;
+
+
+
+        case "flash_completed":
+
+            current =
+                sessions.filter(
+                    session =>
+                        session.mode ===
+                        "flash"
+                ).length;
+
+            break;
+
+
+
+        case "xtrem_completed":
+
+            current =
+                sessions.filter(
+                    session =>
+                        session.mode ===
+                        "xtrem"
+                ).length;
+
+            break;
+
+
+
+        case "perfect_quiz":
+
+            current =
+                sessions.filter(
+                    session => {
+
+                        const total =
+                            Number(
+                                session.total_questions ||
+                                0
+                            );
+
+
+                        const correct =
+                            Number(
+                                session.correct_answers ||
+                                0
+                            );
+
+
+                        return (
+                            total > 0 &&
+                            correct === total
+                        );
+                    }
+                ).length;
+
+            break;
+
+
+
+        case "perfect_quiz_streak":
+
+            let currentStreak =
+                0;
+
+            let bestStreak =
+                0;
+
+
+            sessions
+                .slice()
+                .sort(
+                    (
+                        a,
+                        b
+                    ) =>
+                        new Date(
+                            a.completed_at
+                        ) -
+                        new Date(
+                            b.completed_at
+                        )
+                )
+                .forEach(
+                    session => {
+
+                        const total =
+                            Number(
+                                session.total_questions ||
+                                0
+                            );
+
+
+                        const correct =
+                            Number(
+                                session.correct_answers ||
+                                0
+                            );
+
+
+                        if (
+                            total > 0 &&
+                            correct === total
+                        ) {
+
+                            currentStreak++;
+
+
+                            bestStreak =
+                                Math.max(
+                                    bestStreak,
+                                    currentStreak
+                                );
+
+                        } else {
+
+                            currentStreak =
+                                0;
+                        }
+                    }
+                );
+
+
+            current =
+                bestStreak;
+
+            break;
+
+
+
+        case "xtrem_perfect":
+
+            current =
+                sessions.some(
+                    session => {
+
+                        const total =
+                            Number(
+                                session.total_questions ||
+                                0
+                            );
+
+
+                        const correct =
+                            Number(
+                                session.correct_answers ||
+                                0
+                            );
+
+
+                        return (
+                            session.mode ===
+                            "xtrem" &&
+                            total > 0 &&
+                            correct === total
+                        );
+                    }
+                )
+                    ? 1
+                    : 0;
+
+            break;
+
+
+
+        default:
+
+            current =
+                0;
+
+            break;
+    }
+
+
+    return {
+
+        current:
+            Math.max(
+                0,
+                current
+            ),
+
+        target:
+            target
+    };
+}
+
+
+/* =========================================================
+   FILTRE BADGES
+========================================================= */
+
+function setBadgeFilter(
+    filter,
+    button
+) {
+
+    currentBadgeFilter =
+        filter;
+
+
+    document
+        .querySelectorAll(
+            ".badge-filter"
+        )
+        .forEach(
+            item => {
+
+                item.classList.remove(
+                    "active"
+                );
+            }
+        );
+
+
+    if (button) {
+
+        button.classList.add(
+            "active"
+        );
+    }
+
+
+    renderBadgesPage();
+}
+
+
+/* =========================================================
+   AFFICHAGE BADGES
+========================================================= */
+
+function renderBadgesPage() {
+
+    const grid =
+        document.getElementById(
+            "badgesGrid"
+        );
+
+
+    if (!grid) {
+        return;
+    }
+
+
+    const rarityOrder = {
+
+        common:
+            1,
+
+        rare:
+            2,
+
+        epic:
+            3,
+
+        legendary:
+            4
+    };
+
+
+    let filtered =
+        [...badgesPageData];
+
+
+    if (
+        currentBadgeFilter ===
+        "secret"
+    ) {
+
+        filtered =
+            filtered.filter(
+                badge =>
+                    badge.secret ===
+                    true
+            );
+
+    } else if (
+        currentBadgeFilter !==
+        "all"
+    ) {
+
+        filtered =
+            filtered.filter(
+                badge =>
+                    badge.rarity ===
+                    currentBadgeFilter &&
+                    badge.secret !==
+                    true
+            );
+
+    } else {
+
+        filtered =
+            filtered.filter(
+                badge =>
+                    badge.secret !==
+                    true
+            );
+    }
+
+
+    filtered.sort(
+        (
+            a,
+            b
+        ) => {
+
+            const rarityDifference =
+
+                (
+                    rarityOrder[
+                        a.rarity
+                    ] ||
+                    99
+                )
+
+                -
+
+                (
+                    rarityOrder[
+                        b.rarity
+                    ] ||
+                    99
+                );
+
+
+            if (
+                rarityDifference !==
+                0
+            ) {
+
+                return rarityDifference;
+            }
+
+
+            return (
+                Number(
+                    a.target_value ||
+                    1
+                )
+                -
+                Number(
+                    b.target_value ||
+                    1
+                )
+            );
+        }
+    );
+
+
+    if (!filtered.length) {
+
+        grid.innerHTML = `
+            <div class="dash-card">
+                Aucun badge dans cette catégorie.
+            </div>
+        `;
+
+        return;
+    }
+
+
+    grid.innerHTML =
+        filtered
+            .map(
+                badge =>
+                    createBadgeCard(
+                        badge
+                    )
+            )
+            .join("");
+}
+
+
+/* =========================================================
+   CARTE BADGE
+========================================================= */
+
+function createBadgeCard(
+    badge
+) {
+
+    const rarityLabels = {
+
+        common:
+            "Commun",
+
+        rare:
+            "Rare",
+
+        epic:
+            "Épique",
+
+        legendary:
+            "Légendaire"
+    };
+
+
+    const rarityClass =
+        `badge-rarity-${badge.rarity}`;
+
+
+    /*
+     * Secret non obtenu :
+     * ni nom, ni description.
+     */
+
+    if (
+        badge.secret === true &&
+        !badge.obtained
+    ) {
+
+        return `
+            <article
+                class="
+                    badge-gallery-card
+                    badge-locked
+                    badge-secret-card
+                "
+            >
+
+                <div class="badge-gallery-icon">
+                    ❓
+                </div>
+
+
+                <div class="badge-gallery-rarity">
+                    Secret
+                </div>
+
+
+                <h3>
+                    ???
+                </h3>
+
+
+                <p>
+                    Continue d'explorer Nickel Master
+                    pour découvrir ce badge.
+                </p>
+
+
+                <div class="badge-gallery-status">
+                    🔒 Secret
+                </div>
+
+            </article>
+        `;
+    }
+
+
+    const progress =
+        Number(
+            badge.progress ||
+            0
+        );
+
+
+    const target =
+        Number(
+            badge.progressTarget ||
+            badge.target_value ||
+            1
+        );
+
+
+    const percentage =
+        target > 0
+
+            ? Math.min(
+                100,
+                Math.round(
+                    (
+                        progress /
+                        target
+                    ) *
+                    100
+                )
+            )
+
+            : 0;
+
+
+    let statusHtml =
+        "";
+
+
+    if (
+        badge.obtained
+    ) {
+
+        statusHtml = `
+            <div
+                class="
+                    badge-gallery-status
+                    badge-obtained
+                "
+            >
+                ✅ Obtenu
+            </div>
+        `;
+
+
+        if (
+            badge.repeatable &&
+            badge.occurrenceCount >
+            1
+        ) {
+
+            statusHtml += `
+                <div class="badge-repeat-count">
+                    x${badge.occurrenceCount}
+                </div>
+            `;
+        }
+
+    } else {
+
+        const progressSupported =
+            [
+                "questions_answered",
+                "trainings_completed",
+                "flash_completed",
+                "xtrem_completed",
+                "perfect_quiz",
+                "perfect_quiz_streak",
+                "xtrem_perfect"
+            ]
+                .includes(
+                    badge.condition_type
+                );
+
+
+        if (
+            progressSupported
+        ) {
+
+            statusHtml = `
+                <div class="badge-progress-text">
+
+                    🔒
+                    ${Math.min(
+                        progress,
+                        target
+                    )}
+                    /
+                    ${target}
+
+                </div>
+
+
+                <div class="badge-progress-bar">
+
+                    <div
+                        style="
+                            width:${percentage}%;
+                        "
+                    ></div>
+
+                </div>
+            `;
+
+        } else {
+
+            statusHtml = `
+                <div class="badge-gallery-status">
+                    🔒 Non obtenu
+                </div>
+            `;
+        }
+    }
+
+
+    return `
+        <article
+            class="
+                badge-gallery-card
+                ${badge.obtained ? "" : "badge-locked"}
+                ${rarityClass}
+            "
+        >
+
+            <div class="badge-gallery-icon">
+
+                ${escapeHtml(
+                    badge.icon ||
+                    "🏅"
+                )}
+
+            </div>
+
+
+            <div
+                class="
+                    badge-gallery-rarity
+                    ${rarityClass}
+                "
+            >
+
+                ${rarityLabels[
+                    badge.rarity
+                ] || "Commun"}
+
+            </div>
+
+
+            <h3>
+
+                ${escapeHtml(
+                    badge.name
+                )}
+
+            </h3>
+
+
+            <p>
+
+                ${escapeHtml(
+                    badge.description
+                )}
+
+            </p>
+
+
+            ${statusHtml}
+
+        </article>
+    `;
+}
+
+
+/* =========================================================
    XP
 ========================================================= */
 
