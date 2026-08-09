@@ -2025,4 +2025,381 @@ button {
     }
 
 }
+/* =========================================================
+   INSCRIPTION
+========================================================= */
+
+.register-page {
+    min-height: 100vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 40px 20px;
+
+    background:
+        var(--bg-main);
+}
+
+
+.register-card {
+    width: 100%;
+    max-width: 680px;
+
+    padding: 36px;
+
+    background:
+        var(--bg-card);
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius:
+        24px;
+
+    box-shadow:
+        var(--shadow-card);
+
+    color:
+        var(--text-main);
+}
+
+
+.register-card h1 {
+    margin:
+        12px
+        0
+        8px;
+
+    text-align:
+        center;
+
+    font-size:
+        32px;
+}
+
+
+.register-subtitle {
+    text-align:
+        center;
+
+    color:
+        var(--text-secondary);
+
+    margin-bottom:
+        32px;
+}
+
+
+.register-logo {
+    width:
+        58px;
+
+    height:
+        58px;
+
+    margin:
+        0
+        auto;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border-radius:
+        18px;
+
+    background:
+        var(--orange);
+
+    color:
+        white;
+
+    font-size:
+        28px;
+}
+
+
+.register-back {
+    width:
+        auto;
+
+    padding:
+        8px
+        12px;
+
+    background:
+        transparent;
+
+    color:
+        var(--text-secondary);
+
+    border:
+        none;
+
+    cursor:
+        pointer;
+}
+
+
+.register-step h2 {
+    margin-bottom:
+        20px;
+}
+
+
+.register-step label {
+    display:
+        block;
+
+    margin-bottom:
+        7px;
+
+    font-weight:
+        600;
+}
+
+
+.register-step input {
+    width:
+        100%;
+
+    padding:
+        13px
+        14px;
+
+    margin-bottom:
+        18px;
+
+    background:
+        var(--bg-main);
+
+    color:
+        var(--text-main);
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius:
+        12px;
+}
+
+
+.register-choice-grid {
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(
+            2,
+            minmax(0, 1fr)
+        );
+
+    gap:
+        12px;
+
+    margin:
+        20px
+        0;
+}
+
+
+.register-role-list {
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(
+            2,
+            minmax(0, 1fr)
+        );
+
+    gap:
+        12px;
+
+    margin:
+        20px
+        0;
+}
+
+
+.register-choice {
+    width:
+        100%;
+
+    min-height:
+        76px;
+
+    padding:
+        14px;
+
+    background:
+        var(--bg-card);
+
+    color:
+        var(--text-main);
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius:
+        14px;
+
+    cursor:
+        pointer;
+
+    transition:
+        .2s ease;
+}
+
+
+.register-choice:hover {
+    border-color:
+        var(--orange);
+
+    transform:
+        translateY(-2px);
+}
+
+
+.register-choice.selected {
+    color:
+        var(--orange);
+
+    border:
+        2px solid
+        var(--orange);
+
+    background:
+        var(--orange-soft);
+}
+
+
+.register-result {
+    text-align:
+        center;
+}
+
+
+.register-result-icon,
+.register-existing-icon {
+    font-size:
+        52px;
+
+    margin-bottom:
+        14px;
+
+    text-align:
+        center;
+}
+
+
+.register-credential {
+    margin:
+        10px
+        0
+        22px;
+
+    padding:
+        16px;
+
+    border:
+        1px dashed
+        var(--orange);
+
+    border-radius:
+        12px;
+
+    background:
+        var(--orange-soft);
+
+    color:
+        var(--orange);
+
+    font-size:
+        22px;
+
+    font-weight:
+        800;
+
+    letter-spacing:
+        .5px;
+
+    text-align:
+        center;
+}
+
+
+.register-warning {
+    margin:
+        24px
+        0;
+
+    padding:
+        14px;
+
+    border-radius:
+        12px;
+
+    background:
+        var(--bg-main);
+
+    color:
+        var(--text-secondary);
+}
+
+
+.login-register-zone {
+    margin-top:
+        24px;
+
+    padding-top:
+        20px;
+
+    border-top:
+        1px solid
+        var(--border);
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    align-items:
+        center;
+
+    gap:
+        12px;
+
+    color:
+        var(--text-secondary);
+}
+
+
+@media (
+    max-width: 650px
+) {
+
+    .register-choice-grid,
+    .register-role-list {
+        grid-template-columns:
+            1fr;
+    }
+
+    .register-card {
+        padding:
+            24px
+            18px;
+    }
+}
 
