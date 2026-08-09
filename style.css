@@ -295,80 +295,140 @@ textarea:focus {
     overflow-y: auto;
 }
 
+/* =========================
+   LOGO SIDEBAR
+========================= */
+
 .logo {
     display: flex;
     align-items: center;
+
     gap: 6px;
+
     margin-bottom: 24px;
+
     color: var(--orange);
+
     font-size: 19px;
     font-weight: 700;
 }
 
+
+/* VRAI LOGO NICKEL */
+
 .sidebar-logo-img {
     width: 28px;
     height: 38px;
+
     object-fit: contain;
+
     flex-shrink: 0;
 }
 
+
 .logo span {
     color: var(--orange);
+
+    line-height: 1.05;
 }
 
-.side-menu,
-.sidebar-bottom {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+
+/* Ancienne icône conservée
+   pour ne rien casser ailleurs */
+
+.logo-icon {
+    font-size: 30px;
+    font-weight: bold;
 }
+
+
+/* =========================
+   MENU SIDEBAR
+========================= */
 
 .side-menu {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 6px;
+
     flex: 1;
 }
 
+
 .sidebar-bottom {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 6px;
+
     margin-top: auto;
 }
+
 
 .side-menu button,
 .sidebar-bottom button,
 .sidebar-link {
     width: 100%;
     min-height: 42px;
+
     display: flex;
+
     align-items: center;
+
     gap: 10px;
+
     padding: 10px 12px;
+
     background: transparent;
+
     color: var(--text-secondary);
+
     border: none;
+
     border-radius: var(--radius-small);
+
     text-align: left;
+
     font-weight: 600;
+
     text-decoration: none;
+
     cursor: pointer;
-    transition: background .2s ease, color .2s ease;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
 }
+
 
 .side-menu button:hover,
 .sidebar-bottom button:hover,
 .sidebar-link:hover {
     background: var(--bg-card-hover);
+
     color: var(--text-main);
 }
+
 
 .side-menu button.active,
 .sidebar-link.active {
     background: var(--orange);
-    color: #fff;
+
+    color: #ffffff;
 }
+
 
 .theme-button {
     width: 100%;
+
     background: transparent;
+
     text-align: left;
 }
+
 
 .dashboard-main {
     min-width: 0;
