@@ -37,11 +37,21 @@
        SIDEBAR
   ====================================================== -->
 
- <button
-  onclick="window.location.href='administration.html'"
->
-  🛡️ Administration
-</button>
+  <aside class="sidebar">
+
+    <div class="logo">
+
+      <img
+        src="images/logo-nickel.png"
+        alt="Nickel"
+        class="sidebar-logo-img"
+      >
+
+      <span>
+        NICKEL<br>MASTER
+      </span>
+
+    </div>
 
 
     <!-- ===================================================
@@ -56,15 +66,18 @@
         🏠 Accueil
       </button>
 
+
       <button
         onclick="window.location.href='training.html'"
       >
         🎯 Entraînement
       </button>
 
+
       <button>
         🏆 Challenges
       </button>
+
 
       <button
         onclick="window.location.href='ranking.html'"
@@ -72,13 +85,16 @@
         📊 Classements
       </button>
 
+
       <button>
         ⚔️ Battle
       </button>
 
+
       <button>
         🎮 Kahoot
       </button>
+
 
       <button
         onclick="window.location.href='profile.html'"
@@ -86,18 +102,29 @@
         📈 Mes stats
       </button>
 
+
       <button
         onclick="window.location.href='badges.html'"
       >
         🏅 Badges
       </button>
 
+
       <button>
         💡 Boîte à idées
       </button>
 
+
       <button>
         🚩 Signalements
+      </button>
+
+
+      <button
+        class="active"
+        onclick="window.location.href='administration.html'"
+      >
+        🛡️ Administration
       </button>
 
     </nav>
@@ -109,57 +136,12 @@
 
     <div class="sidebar-bottom">
 
-
-      <!-- ===============================================
-           PANEL ADMINISTRATION
-      ================================================ -->
-
-      <div class="admin-panel">
-
-        <div class="admin-panel-title">
-          🛡️ Administration
-        </div>
-
-
-        <button
-          type="button"
-          class="admin-panel-link active"
-          onclick="window.location.href='admin-questions.html'"
-        >
-          ➕ Ajouter des questions
-        </button>
-
-
-        <button
-          type="button"
-          class="admin-panel-link"
-          onclick="window.location.href='admin-question-management.html'"
-        >
-          🧰 Gérer les questions
-        </button>
-
-
-        <button
-          type="button"
-          class="admin-panel-link"
-          onclick="window.location.href='approvals.html'"
-        >
-          ✅ Approbations
-        </button>
-
-      </div>
-
-
-      <!-- PARAMÈTRES -->
-
       <button
         onclick="window.location.href='settings.html'"
       >
         ⚙️ Paramètres
       </button>
 
-
-      <!-- THÈME -->
 
       <button
         id="themeToggle"
@@ -169,8 +151,6 @@
         🌙 Mode sombre
       </button>
 
-
-      <!-- DÉCONNEXION -->
 
       <button
         class="sidebar-link"
