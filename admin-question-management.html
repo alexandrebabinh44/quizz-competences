@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <script>
+    const savedTheme =
+      localStorage.getItem("nickel_master_theme") || "light";
+
+    document.documentElement.setAttribute(
+      "data-theme",
+      savedTheme
+    );
+  </script>
+
+  <title>Gestion des questions - Nickel Master</title>
+
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
+</head>
+
+
+<body class="dashboard-body">
+
+<div class="dashboard-layout">
+
+  <aside class="sidebar">
+
+    <div class="logo">
+
+      <img
+        src="images/logo-nickel.png"
+        alt="Nickel"
+        class="sidebar-logo-img"
+      >
+
+      <span>
+        NICKEL<br>MASTER
+      </span>
+
+    </div>
+
+
+    <nav class="side-menu">
+
+      <button
+        onclick="window.location.href='home.html'"
+      >
+        🏠 Accueil
+      </button>
+
+      <button
+        onclick="window.location.href='admin-questions.html'"
+      >
+        ➕ Ajouter des questions
+      </button>
+
+      <button
+        class="active"
+        onclick="window.location.href='admin-question-management.html'"
+      >
+        🧰 Gérer les questions
+      </button>
+
+      <button
+        onclick="window.location.href='approvals.html'"
+      >
+        ✅ Approbations
+      </button>
+
+    </nav>
+
+
+    <div class="sidebar-bottom">
+
+      <button
+        onclick="window.location.href='settings.html'"
+      >
+        ⚙️ Paramètres
+      </button>
+
+      <button
+        id="themeToggle"
+        class="sidebar-link theme-button"
+        onclick="toggleTheme()"
+      >
+        🌙 Mode sombre
+      </button>
+
+      <button
+        class="sidebar-link"
+        onclick="logout()"
+      >
+        🚪 Déconnexion
+      </button>
+
+    </div>
+
+  </aside>
+
+
+  <main class="dashboard-main">
+
+    <header class="question-management-header">
+
+      <div>
+
+        <h1>
+          Gestion des questions
+        </h1>
+
+        <p>
+          Recherche, modifie, désactive ou supprime les questions.
+        </p>
+
+      </div>
+
+      <strong id="questionManagementUser">
+        Administrateur
+      </strong>
+
+    </header>
+
+
+    <!-- FILTRES -->
+
+    <section class="question-management-filters">
+
+      <div class="question-filter-field">
+
+        <label for="questionManagementSearch">
+          Rechercher
+        </label>
+
+        <input
+          id="questionManagementSearch"
+          type="text"
+          placeholder="Question, catégorie..."
+        >
+
+      </div>
+
+
+      <div class="question-filter-field">
+
+        <label for="questionManagementCategory">
+          Catégorie
+        </label>
+
+        <select id="questionManagementCategory">
+
+          <option value="">
+            Toutes les catégories
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div class="question-filter-field">
+
+        <label for="questionManagementType">
+          Type
+        </label>
+
+        <select id="questionManagementType">
+
+          <option value="">
+            Tous les types
+          </option>
+
+          <option value="true_false">
+            Vrai / Faux
+          </option>
+
+          <option value="simple_choice">
+            Choix simple
+          </option>
+
+          <option value="multiple_choice">
+            Choix multiple
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div class="question-filter-field">
+
+        <label for="questionManagementStatus">
+          Statut
+        </label>
+
+        <select id="questionManagementStatus">
+
+          <option value="">
+            Tous
+          </option>
+
+          <option value="active">
+            Actives
+          </option>
+
+          <option value="inactive">
+            Désactivées
+          </option>
+
+        </select>
+
+      </div>
+
+    </section>
+
+
+    <!-- STATS -->
+
+    <section class="question-management-stats">
+
+      <div>
+        <small>Total</small>
+        <strong id="questionManagementTotal">0</strong>
+      </div>
+
+      <div>
+        <small>Actives</small>
+        <strong id="questionManagementActive">0</strong>
+      </div>
+
+      <div>
+        <small>Désactivées</small>
+        <strong id="questionManagementInactive">0</strong>
+      </div>
+
+    </section>
+
+
+    <!-- LISTE -->
+
+    <section
+      id="questionManagementList"
+      class="question-management-list"
+    >
+      Chargement...
+    </section>
+
+  </main>
+
+</div>
+
+
+<!-- =====================================================
+     MODALE MODIFICATION
+====================================================== -->
+
+<div
+  id="questionEditModal"
+  class="question-edit-modal"
+  style="display:none;"
+>
+
+  <div class="question-edit-modal-card">
+
+    <div class="question-edit-modal-header">
+
+      <h2>
+        Modifier la question
+      </h2>
+
+      <button
+        type="button"
+        id="closeQuestionEditModal"
+      >
+        ✕
+      </button>
+
+    </div>
+
+
+    <div class="question-field">
+
+      <label for="editQuestionCategory">
+        Catégorie
+      </label>
+
+      <input
+        id="editQuestionCategory"
+        type="text"
+      >
+
+    </div>
+
+
+    <div class="question-field">
+
+      <label for="editQuestionType">
+        Type
+      </label>
+
+      <select id="editQuestionType">
+
+        <option value="true_false">
+          Vrai / Faux
+        </option>
+
+        <option value="simple_choice">
+          Choix simple
+        </option>
+
+        <option value="multiple_choice">
+          Choix multiple
+        </option>
+
+      </select>
+
+    </div>
+
+
+    <div class="question-field">
+
+      <label for="editQuestionText">
+        Question
+      </label>
+
+      <textarea id="editQuestionText"></textarea>
+
+    </div>
+
+
+    <div id="editQuestionAnswers">
+    </div>
+
+
+    <div class="question-edit-actions">
+
+      <button
+        type="button"
+        class="btn-secondary"
+        id="cancelQuestionEdit"
+      >
+        Annuler
+      </button>
+
+      <button
+        type="button"
+        class="btn-primary"
+        id="saveQuestionEdit"
+      >
+        Enregistrer
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<script src="app.js"></script>
+<script src="theme.js"></script>
+
+<script>
+  document.addEventListener(
+    "DOMContentLoaded",
+    async function () {
+
+      const role =
+        String(
+          localStorage.getItem("role") || ""
+        ).toLowerCase();
+
+      if (role !== "admin") {
+
+        alert(
+          "Cette page est réservée à l'administrateur."
+        );
+
+        window.location.href =
+          "home.html";
+
+        return;
+      }
+
+      const name =
+        localStorage.getItem("full_name") ||
+        "Administrateur";
+
+      const user =
+        document.getElementById(
+          "questionManagementUser"
+        );
+
+      if (user) {
+        user.innerText = name;
+      }
+
+      if (
+        typeof initializeQuestionManagement ===
+        "function"
+      ) {
+
+        await initializeQuestionManagement();
+      }
+
+    }
+  );
+</script>
+
+</body>
+
+</html>
