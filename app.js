@@ -6669,3 +6669,2087 @@ async function saveTeamTrainingAssignments() {
         }
     }
 }
+/* =========================================================
+   ADMIN - GESTION CRÉATION QUESTIONS
+========================================================= */
+
+let questionAdminState = {
+
+    categories: [],
+
+    bulkQuestions: [],
+
+    currentBulkIndex: 0
+};
+
+
+/* =========================================================
+   INITIALISATION
+========================================================= */
+
+async function initializeQuestionAdmin() {
+
+    await loadQuestionAdminCategories();
+
+    setupQuestionAdminEvents();
+
+    renderQuestionAnswerFields();
+
+    await updateQuestionAutomaticData();
+
+    updateQuestionPreview();
+}
+
+
+/* =========================================================
+   ÉVÉNEMENTS
+========================================================= */
+
+function setupQuestionAdminEvents() {
+
+    const singleButton =
+        document.getElementById(
+            "singleQuestionModeButton"
+        );
+
+    const bulkButton =
+        document.getElementById(
+            "bulkQuestionModeButton"
+        );
+
+
+    if (singleButton) {
+
+        singleButton.addEventListener(
+            "click",
+            function () {
+
+                showQuestionAdminMode(
+                    "single"
+                );
+            }
+        );
+    }
+
+
+    if (bulkButton) {
+
+        bulkButton.addEventListener(
+            "click",
+            function () {
+
+                showQuestionAdminMode(
+                    "bulk"
+                );
+            }
+        );
+    }
+
+
+    const type =
+        document.getElementById(
+            "questionType"
+        );
+
+
+    if (type) {
+
+        type.addEventListener(
+            "change",
+            async function () {
+
+                renderQuestionAnswerFields();
+
+                await updateQuestionAutomaticData();
+
+                updateQuestionPreview();
+            }
+        );
+    }
+
+
+    const category =
+        document.getElementById(
+            "questionCategory"
+        );
+
+
+    if (category) {
+
+        category.addEventListener(
+            "change",
+            async function () {
+
+                await updateQuestionAutomaticData();
+
+                updateQuestionPreview();
+            }
+        );
+    }
+
+
+    const question =
+        document.getElementById(
+            "questionText"
+        );
+
+
+    if (question) {
+
+        question.addEventListener(
+            "input",
+            function () {
+
+                updateQuestionPreview();
+            }
+        );
+    }
+
+
+    const saveButton =
+        document.getElementById(
+            "saveQuestionButton"
+        );
+
+
+    if (saveButton) {
+
+        saveButton.addEventListener(
+            "click",
+            saveAdminQuestion
+        );
+    }
+
+
+    const resetButton =
+        document.getElementById(
+            "resetQuestionButton"
+        );
+
+
+    if (resetButton) {
+
+        resetButton.addEventListener(
+            "click",
+            resetAdminQuestionForm
+        );
+    }
+
+
+    const createCategory =
+        document.getElementById(
+            "createCategoryButton"
+        );
+
+
+    if (createCategory) {
+
+        createCategory.addEventListener(
+            "click",
+            createQuestionAdminCategory
+        );
+    }
+
+
+    const analyseBulk =
+        document.getElementById(
+            "analyseBulkQuestionsButton"
+        );
+
+
+    if (analyseBulk) {
+
+        analyseBulk.addEventListener(
+            "click",
+            analyseBulkQuestions
+        );
+    }
+
+
+    const previous =
+        document.getElementById(
+            "previousBulkQuestionButton"
+        );
+
+
+    if (previous) {
+
+        previous.addEventListener(
+            "click",
+            function () {
+
+                changeBulkQuestion(
+                    -1
+                );
+            }
+        );
+    }
+
+
+    const next =
+        document.getElementById(
+            "nextBulkQuestionButton"
+        );
+
+
+    if (next) {
+
+        next.addEventListener(
+            "click",
+            function () {
+
+                changeBulkQuestion(
+                    1
+                );
+            }
+        );
+    }
+
+
+    const importButton =
+        document.getElementById(
+            "importBulkQuestionsButton"
+        );
+
+
+    if (importButton) {
+
+        importButton.addEventListener(
+            "click",
+            importBulkQuestions
+        );
+    }
+}
+
+
+/* =========================================================
+   MODE SIMPLE / BLOC
+========================================================= */
+
+function showQuestionAdminMode(
+    mode
+) {
+
+    const single =
+        document.getElementById(
+            "singleQuestionPanel"
+        );
+
+    const bulk =
+        document.getElementById(
+            "bulkQuestionPanel"
+        );
+
+    const singleButton =
+        document.getElementById(
+            "singleQuestionModeButton"
+        );
+
+    const bulkButton =
+        document.getElementById(
+            "bulkQuestionModeButton"
+        );
+
+
+    const isSingle =
+        mode === "single";
+
+
+    if (single) {
+        single.style.display =
+            isSingle
+                ? ""
+                : "none";
+    }
+
+
+    if (bulk) {
+        bulk.style.display =
+            isSingle
+                ? "none"
+                : "";
+    }
+
+
+    if (singleButton) {
+        singleButton.classList.toggle(
+            "active",
+            isSingle
+        );
+    }
+
+
+    if (bulkButton) {
+        bulkButton.classList.toggle(
+            "active",
+            !isSingle
+        );
+    }
+}
+
+
+/* =========================================================
+   CHARGER LES CATÉGORIES
+========================================================= */
+
+async function loadQuestionAdminCategories() {
+
+    try {
+
+        const response =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/questions?select=category&order=category.asc`,
+                {
+                    headers:
+                        supabaseHeaders()
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                await response.text()
+            );
+        }
+
+
+        const rows =
+            await response.json();
+
+
+        const categories =
+            [
+                ...new Set(
+                    rows
+                        .map(
+                            item =>
+                                String(
+                                    item.category || ""
+                                ).trim()
+                        )
+                        .filter(Boolean)
+                )
+            ];
+
+
+        questionAdminState.categories =
+            categories;
+
+
+        fillQuestionCategorySelects();
+
+    } catch (error) {
+
+        console.error(
+            "Erreur catégories questions :",
+            error
+        );
+    }
+}
+
+
+/* =========================================================
+   REMPLIR LES SELECT
+========================================================= */
+
+function fillQuestionCategorySelects() {
+
+    const html =
+        questionAdminState
+            .categories
+            .map(
+                category => `
+                    <option
+                        value="${escapeHtml(
+                            category
+                        )}"
+                    >
+                        ${escapeHtml(
+                            category
+                        )}
+                    </option>
+                `
+            )
+            .join("");
+
+
+    const single =
+        document.getElementById(
+            "questionCategory"
+        );
+
+
+    const bulk =
+        document.getElementById(
+            "bulkCategory"
+        );
+
+
+    if (single) {
+        single.innerHTML =
+            html;
+    }
+
+
+    if (bulk) {
+        bulk.innerHTML =
+            html;
+    }
+}
+
+
+/* =========================================================
+   CRÉER UNE CATÉGORIE
+========================================================= */
+
+async function createQuestionAdminCategory() {
+
+    const value =
+        prompt(
+            "Nom de la nouvelle catégorie :"
+        );
+
+
+    const category =
+        String(
+            value || ""
+        ).trim();
+
+
+    if (!category) {
+        return;
+    }
+
+
+    const exists =
+        questionAdminState
+            .categories
+            .some(
+                item =>
+                    item.toLowerCase() ===
+                    category.toLowerCase()
+            );
+
+
+    if (exists) {
+
+        alert(
+            "Cette catégorie existe déjà."
+        );
+
+        return;
+    }
+
+
+    questionAdminState
+        .categories
+        .push(
+            category
+        );
+
+
+    questionAdminState
+        .categories
+        .sort(
+            (a, b) =>
+                a.localeCompare(
+                    b,
+                    "fr",
+                    {
+                        sensitivity:
+                            "base"
+                    }
+                )
+        );
+
+
+    fillQuestionCategorySelects();
+
+
+    const select =
+        document.getElementById(
+            "questionCategory"
+        );
+
+
+    if (select) {
+        select.value =
+            category;
+    }
+
+
+    await updateQuestionAutomaticData();
+
+
+    /*
+     * Important :
+     * la catégorie sera réellement créée
+     * dans Supabase dès que la première
+     * question de cette catégorie sera enregistrée.
+     */
+
+    alert(
+        `Catégorie "${category}" prête ✅`
+    );
+}
+
+
+/* =========================================================
+   CHAMPS RÉPONSES
+========================================================= */
+
+function renderQuestionAnswerFields() {
+
+    const container =
+        document.getElementById(
+            "questionAnswersContainer"
+        );
+
+
+    const type =
+        document.getElementById(
+            "questionType"
+        )?.value;
+
+
+    if (
+        !container ||
+        !type
+    ) {
+        return;
+    }
+
+
+    if (
+        type ===
+        "true_false"
+    ) {
+
+        container.innerHTML = `
+
+            <div class="question-tf-grid">
+
+                <label class="question-answer-option">
+
+                    <input
+                        type="radio"
+                        name="singleCorrectAnswer"
+                        value="A"
+                        checked
+                    >
+
+                    <strong>
+                        A
+                    </strong>
+
+                    <span>
+                        Vrai
+                    </span>
+
+                </label>
+
+
+                <label class="question-answer-option">
+
+                    <input
+                        type="radio"
+                        name="singleCorrectAnswer"
+                        value="B"
+                    >
+
+                    <strong>
+                        B
+                    </strong>
+
+                    <span>
+                        Faux
+                    </span>
+
+                </label>
+
+            </div>
+        `;
+
+    } else {
+
+        const inputType =
+            type ===
+                "multiple_choice"
+                ? "checkbox"
+                : "radio";
+
+
+        container.innerHTML =
+            ["A", "B", "C", "D"]
+                .map(
+                    letter => `
+
+                        <div class="question-choice-row">
+
+                            <input
+                                type="${inputType}"
+                                name="${
+                                    type ===
+                                    "multiple_choice"
+                                        ? "multipleCorrectAnswer"
+                                        : "singleCorrectAnswer"
+                                }"
+                                value="${letter}"
+                                class="question-correct-control"
+                            >
+
+                            <strong>
+                                ${letter}
+                            </strong>
+
+                            <input
+                                type="text"
+                                id="questionChoice${letter}"
+                                placeholder="Proposition ${letter}"
+                            >
+
+                        </div>
+
+                    `
+                )
+                .join("");
+    }
+
+
+    container
+        .querySelectorAll(
+            "input"
+        )
+        .forEach(
+            input => {
+
+                input.addEventListener(
+                    "input",
+                    function () {
+
+                        updateQuestionAutomaticData();
+
+                        updateQuestionPreview();
+                    }
+                );
+
+
+                input.addEventListener(
+                    "change",
+                    function () {
+
+                        updateQuestionAutomaticData();
+
+                        updateQuestionPreview();
+                    }
+                );
+            }
+        );
+}
+
+
+/* =========================================================
+   BONNES RÉPONSES
+========================================================= */
+
+function getQuestionCorrectAnswers() {
+
+    const type =
+        document.getElementById(
+            "questionType"
+        )?.value;
+
+
+    if (
+        type ===
+        "multiple_choice"
+    ) {
+
+        return [
+            ...document
+                .querySelectorAll(
+                    'input[name="multipleCorrectAnswer"]:checked'
+                )
+        ]
+        .map(
+            input =>
+                input.value
+        );
+    }
+
+
+    const selected =
+        document.querySelector(
+            'input[name="singleCorrectAnswer"]:checked'
+        );
+
+
+    return selected
+        ? [selected.value]
+        : [];
+}
+
+
+/* =========================================================
+   CHOIX
+========================================================= */
+
+function getQuestionChoices() {
+
+    const type =
+        document.getElementById(
+            "questionType"
+        )?.value;
+
+
+    if (
+        type ===
+        "true_false"
+    ) {
+
+        return {
+            A: "Vrai",
+            B: "Faux",
+            C: null,
+            D: null
+        };
+    }
+
+
+    return {
+
+        A:
+            document
+                .getElementById(
+                    "questionChoiceA"
+                )?.value
+                .trim() || null,
+
+        B:
+            document
+                .getElementById(
+                    "questionChoiceB"
+                )?.value
+                .trim() || null,
+
+        C:
+            document
+                .getElementById(
+                    "questionChoiceC"
+                )?.value
+                .trim() || null,
+
+        D:
+            document
+                .getElementById(
+                    "questionChoiceD"
+                )?.value
+                .trim() || null
+    };
+}
+
+
+/* =========================================================
+   ORDRE AUTOMATIQUE
+========================================================= */
+
+async function getNextQuestionOrderNumber(
+    category
+) {
+
+    const response =
+        await fetch(
+            `${SUPABASE_URL}/rest/v1/questions?category=eq.${encodeURIComponent(category)}&select=order_number&order=order_number.desc&limit=1`,
+            {
+                headers:
+                    supabaseHeaders()
+            }
+        );
+
+
+    if (!response.ok) {
+
+        throw new Error(
+            await response.text()
+        );
+    }
+
+
+    const rows =
+        await response.json();
+
+
+    if (
+        !rows.length ||
+        rows[0].order_number ===
+            null
+    ) {
+
+        return 1;
+    }
+
+
+    return (
+        Number(
+            rows[0].order_number
+        ) + 1
+    );
+}
+
+
+/* =========================================================
+   DONNÉES AUTOMATIQUES
+========================================================= */
+
+async function updateQuestionAutomaticData() {
+
+    const category =
+        document.getElementById(
+            "questionCategory"
+        )?.value;
+
+
+    const answers =
+        getQuestionCorrectAnswers();
+
+
+    const points =
+        Math.max(
+            answers.length,
+            1
+        );
+
+
+    const pointsElement =
+        document.getElementById(
+            "questionPointsPreview"
+        );
+
+
+    const keywordsElement =
+        document.getElementById(
+            "questionKeywordsPreview"
+        );
+
+
+    if (pointsElement) {
+        pointsElement.innerText =
+            points;
+    }
+
+
+    if (keywordsElement) {
+
+        keywordsElement.innerText =
+            answers.length
+                ? answers.join(", ")
+                : "—";
+    }
+
+
+    if (!category) {
+        return;
+    }
+
+
+    try {
+
+        const next =
+            await getNextQuestionOrderNumber(
+                category
+            );
+
+
+        const orderElement =
+            document.getElementById(
+                "questionOrderPreview"
+            );
+
+
+        if (orderElement) {
+
+            orderElement.innerText =
+                `#${next}`;
+        }
+
+    } catch (error) {
+
+        console.error(
+            error
+        );
+    }
+}
+
+
+/* =========================================================
+   APERÇU
+========================================================= */
+
+function updateQuestionPreview() {
+
+    const preview =
+        document.getElementById(
+            "questionPreview"
+        );
+
+
+    if (!preview) {
+        return;
+    }
+
+
+    const question =
+        document.getElementById(
+            "questionText"
+        )?.value
+        .trim();
+
+
+    const type =
+        document.getElementById(
+            "questionType"
+        )?.value;
+
+
+    const choices =
+        getQuestionChoices();
+
+
+    const correct =
+        getQuestionCorrectAnswers();
+
+
+    if (!question) {
+
+        preview.innerHTML = `
+            <div class="question-preview-empty">
+                Commence à rédiger ta question.
+            </div>
+        `;
+
+        return;
+    }
+
+
+    preview.innerHTML = `
+
+        <div class="question-preview-type">
+
+            ${
+                type === "true_false"
+                    ? "Vrai / Faux"
+                    : type === "simple_choice"
+                        ? "Choix simple"
+                        : "Choix multiple"
+            }
+
+        </div>
+
+
+        <h3>
+            ${escapeHtml(
+                question
+            )}
+        </h3>
+
+
+        <div class="question-preview-answers">
+
+            ${
+                ["A", "B", "C", "D"]
+                    .filter(
+                        letter =>
+                            choices[
+                                letter
+                            ]
+                    )
+                    .map(
+                        letter => `
+
+                            <div
+                                class="
+                                    question-preview-answer
+                                    ${
+                                        correct.includes(
+                                            letter
+                                        )
+                                            ? "correct"
+                                            : ""
+                                    }
+                                "
+                            >
+
+                                <strong>
+                                    ${letter}
+                                </strong>
+
+                                ${escapeHtml(
+                                    choices[
+                                        letter
+                                    ]
+                                )}
+
+                            </div>
+
+                        `
+                    )
+                    .join("")
+            }
+
+        </div>
+    `;
+}
+
+
+/* =========================================================
+   VALIDATION
+========================================================= */
+
+function validateAdminQuestion() {
+
+    const category =
+        document.getElementById(
+            "questionCategory"
+        )?.value;
+
+
+    const question =
+        document.getElementById(
+            "questionText"
+        )?.value
+        .trim();
+
+
+    const type =
+        document.getElementById(
+            "questionType"
+        )?.value;
+
+
+    const correct =
+        getQuestionCorrectAnswers();
+
+
+    const choices =
+        getQuestionChoices();
+
+
+    if (!category) {
+
+        alert(
+            "Merci de choisir une catégorie."
+        );
+
+        return false;
+    }
+
+
+    if (!question) {
+
+        alert(
+            "Merci de renseigner la question."
+        );
+
+        return false;
+    }
+
+
+    if (!correct.length) {
+
+        alert(
+            "Merci de sélectionner la bonne réponse."
+        );
+
+        return false;
+    }
+
+
+    if (
+        type !== "true_false"
+    ) {
+
+        const allFilled =
+            ["A", "B", "C", "D"]
+                .every(
+                    letter =>
+                        Boolean(
+                            choices[
+                                letter
+                            ]
+                        )
+                );
+
+
+        if (!allFilled) {
+
+            alert(
+                "Merci de renseigner les 4 propositions."
+            );
+
+            return false;
+        }
+    }
+
+
+    return true;
+}
+
+
+/* =========================================================
+   ENREGISTRER UNE QUESTION
+========================================================= */
+
+async function saveAdminQuestion() {
+
+    if (
+        !validateAdminQuestion()
+    ) {
+        return;
+    }
+
+
+    const category =
+        document.getElementById(
+            "questionCategory"
+        ).value;
+
+
+    const question =
+        document.getElementById(
+            "questionText"
+        ).value
+        .trim();
+
+
+    const type =
+        document.getElementById(
+            "questionType"
+        ).value;
+
+
+    const correct =
+        getQuestionCorrectAnswers();
+
+
+    const choices =
+        getQuestionChoices();
+
+
+    const button =
+        document.getElementById(
+            "saveQuestionButton"
+        );
+
+
+    try {
+
+        if (button) {
+
+            button.disabled =
+                true;
+
+            button.innerText =
+                "Ajout en cours...";
+        }
+
+
+        const orderNumber =
+            await getNextQuestionOrderNumber(
+                category
+            );
+
+
+        const payload = {
+
+            order_number:
+                orderNumber,
+
+            category:
+                category,
+
+            question:
+                question,
+
+            expected_answer:
+                null,
+
+            keywords:
+                correct.join(
+                    ", "
+                ),
+
+            max_points:
+                type ===
+                    "multiple_choice"
+                    ? correct.length
+                    : 1,
+
+            question_type:
+                type,
+
+            correct_answer:
+                correct.join(
+                    ", "
+                ),
+
+            choice_a:
+                choices.A,
+
+            choice_b:
+                choices.B,
+
+            choice_c:
+                choices.C,
+
+            choice_d:
+                choices.D,
+
+            is_active:
+                true
+        };
+
+
+        const response =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/questions`,
+                {
+                    method:
+                        "POST",
+
+                    headers:
+                        supabaseHeaders({
+
+                            "Content-Type":
+                                "application/json",
+
+                            "Prefer":
+                                "return=minimal"
+                        }),
+
+                    body:
+                        JSON.stringify(
+                            payload
+                        )
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                await response.text()
+            );
+        }
+
+
+        alert(
+            `Question ajoutée ✅\n\n${category} #${orderNumber}`
+        );
+
+
+        await resetAdminQuestionForm(
+            true
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Erreur ajout question :",
+            error
+        );
+
+
+        alert(
+            "Impossible d'ajouter la question.\n\n" +
+            error.message
+        );
+
+
+    } finally {
+
+        if (button) {
+
+            button.disabled =
+                false;
+
+            button.innerText =
+                "➕ Ajouter la question";
+        }
+    }
+}
+
+
+/* =========================================================
+   RESET
+========================================================= */
+
+async function resetAdminQuestionForm(
+    keepCategory = false
+) {
+
+    const currentCategory =
+        document.getElementById(
+            "questionCategory"
+        )?.value;
+
+
+    const question =
+        document.getElementById(
+            "questionText"
+        );
+
+
+    if (question) {
+        question.value =
+            "";
+    }
+
+
+    renderQuestionAnswerFields();
+
+
+    if (
+        keepCategory &&
+        currentCategory
+    ) {
+
+        const category =
+            document.getElementById(
+                "questionCategory"
+            );
+
+
+        if (category) {
+
+            category.value =
+                currentCategory;
+        }
+    }
+
+
+    await updateQuestionAutomaticData();
+
+    updateQuestionPreview();
+}
+
+
+/* =========================================================
+   ANALYSER BLOC
+========================================================= */
+
+function analyseBulkQuestions() {
+
+    const input =
+        document.getElementById(
+            "bulkQuestionInput"
+        );
+
+
+    if (!input) {
+        return;
+    }
+
+
+    const raw =
+        input.value;
+
+
+    const questions =
+        raw
+            .split(
+                /[;\n]+/
+            )
+            .map(
+                item =>
+                    item.trim()
+            )
+            .filter(Boolean);
+
+
+    if (!questions.length) {
+
+        alert(
+            "Aucune question détectée."
+        );
+
+        return;
+    }
+
+
+    const category =
+        document.getElementById(
+            "bulkCategory"
+        )?.value ||
+        questionAdminState
+            .categories[0] ||
+        "";
+
+
+    const type =
+        document.getElementById(
+            "bulkQuestionType"
+        )?.value ||
+        "true_false";
+
+
+    questionAdminState.bulkQuestions =
+        questions.map(
+            question => ({
+
+                question:
+                    question,
+
+                category:
+                    category,
+
+                type:
+                    type,
+
+                choices: {
+                    A:
+                        type ===
+                            "true_false"
+                            ? "Vrai"
+                            : "",
+
+                    B:
+                        type ===
+                            "true_false"
+                            ? "Faux"
+                            : "",
+
+                    C: "",
+                    D: ""
+                },
+
+                correct: []
+            })
+        );
+
+
+    questionAdminState.currentBulkIndex =
+        0;
+
+
+    const configuration =
+        document.getElementById(
+            "bulkQuestionConfiguration"
+        );
+
+
+    if (configuration) {
+
+        configuration.style.display =
+            "";
+    }
+
+
+    renderCurrentBulkQuestion();
+
+    updateBulkSummary();
+}
+
+
+/* =========================================================
+   AFFICHAGE QUESTION BLOC
+========================================================= */
+
+function renderCurrentBulkQuestion() {
+
+    const item =
+        questionAdminState
+            .bulkQuestions[
+                questionAdminState
+                    .currentBulkIndex
+            ];
+
+
+    const container =
+        document.getElementById(
+            "bulkQuestionEditor"
+        );
+
+
+    if (
+        !item ||
+        !container
+    ) {
+        return;
+    }
+
+
+    const index =
+        questionAdminState
+            .currentBulkIndex;
+
+
+    const total =
+        questionAdminState
+            .bulkQuestions
+            .length;
+
+
+    const position =
+        document.getElementById(
+            "bulkQuestionPosition"
+        );
+
+
+    if (position) {
+
+        position.innerText =
+            `Question ${index + 1} / ${total}`;
+    }
+
+
+    const multiple =
+        item.type ===
+        "multiple_choice";
+
+
+    container.innerHTML = `
+
+        <div class="bulk-current-question">
+
+            <strong>
+                ${escapeHtml(
+                    item.question
+                )}
+            </strong>
+
+
+            <div class="bulk-answer-editor">
+
+                ${
+                    ["A", "B", "C", "D"]
+                        .filter(
+                            letter =>
+                                item.type !==
+                                    "true_false" ||
+                                ["A", "B"]
+                                    .includes(
+                                        letter
+                                    )
+                        )
+                        .map(
+                            letter => `
+
+                                <label class="bulk-answer-row">
+
+                                    <input
+                                        type="${
+                                            multiple
+                                                ? "checkbox"
+                                                : "radio"
+                                        }"
+                                        name="bulkCorrectAnswer"
+                                        value="${letter}"
+                                        ${
+                                            item.correct
+                                                .includes(
+                                                    letter
+                                                )
+                                                    ? "checked"
+                                                    : ""
+                                        }
+                                    >
+
+                                    <strong>
+                                        ${letter}
+                                    </strong>
+
+                                    <input
+                                        type="text"
+                                        data-bulk-choice="${letter}"
+                                        value="${escapeHtml(
+                                            item.choices[
+                                                letter
+                                            ] || ""
+                                        )}"
+                                        ${
+                                            item.type ===
+                                            "true_false"
+                                                ? "readonly"
+                                                : ""
+                                        }
+                                    >
+
+                                </label>
+
+                            `
+                        )
+                        .join("")
+                }
+
+            </div>
+
+        </div>
+    `;
+
+
+    container
+        .querySelectorAll(
+            'input[name="bulkCorrectAnswer"]'
+        )
+        .forEach(
+            input => {
+
+                input.addEventListener(
+                    "change",
+                    saveCurrentBulkEditorState
+                );
+            }
+        );
+
+
+    container
+        .querySelectorAll(
+            "[data-bulk-choice]"
+        )
+        .forEach(
+            input => {
+
+                input.addEventListener(
+                    "input",
+                    saveCurrentBulkEditorState
+                );
+            }
+        );
+}
+
+
+/* =========================================================
+   SAUVER ÉTAT BLOC
+========================================================= */
+
+function saveCurrentBulkEditorState() {
+
+    const item =
+        questionAdminState
+            .bulkQuestions[
+                questionAdminState
+                    .currentBulkIndex
+            ];
+
+
+    if (!item) {
+        return;
+    }
+
+
+    const container =
+        document.getElementById(
+            "bulkQuestionEditor"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    item.correct =
+        [
+            ...container
+                .querySelectorAll(
+                    'input[name="bulkCorrectAnswer"]:checked'
+                )
+        ]
+        .map(
+            input =>
+                input.value
+        );
+
+
+    container
+        .querySelectorAll(
+            "[data-bulk-choice]"
+        )
+        .forEach(
+            input => {
+
+                item.choices[
+                    input.dataset
+                        .bulkChoice
+                ] =
+                    input.value
+                        .trim();
+            }
+        );
+
+
+    updateBulkSummary();
+}
+
+
+/* =========================================================
+   NAVIGATION BLOC
+========================================================= */
+
+function changeBulkQuestion(
+    direction
+) {
+
+    saveCurrentBulkEditorState();
+
+
+    const newIndex =
+        questionAdminState
+            .currentBulkIndex +
+        direction;
+
+
+    if (
+        newIndex < 0 ||
+        newIndex >=
+            questionAdminState
+                .bulkQuestions
+                .length
+    ) {
+        return;
+    }
+
+
+    questionAdminState.currentBulkIndex =
+        newIndex;
+
+
+    renderCurrentBulkQuestion();
+}
+
+
+/* =========================================================
+   RÉCAP BLOC
+========================================================= */
+
+function updateBulkSummary() {
+
+    const total =
+        questionAdminState
+            .bulkQuestions
+            .length;
+
+
+    const ready =
+        questionAdminState
+            .bulkQuestions
+            .filter(
+                item => {
+
+                    if (
+                        !item.question ||
+                        !item.category ||
+                        !item.type ||
+                        !item.correct.length
+                    ) {
+                        return false;
+                    }
+
+
+                    if (
+                        item.type !==
+                        "true_false"
+                    ) {
+
+                        return [
+                            "A",
+                            "B",
+                            "C",
+                            "D"
+                        ]
+                        .every(
+                            letter =>
+                                Boolean(
+                                    item.choices[
+                                        letter
+                                    ]
+                                )
+                        );
+                    }
+
+
+                    return true;
+                }
+            )
+            .length;
+
+
+    const element =
+        document.getElementById(
+            "bulkSummaryText"
+        );
+
+
+    if (element) {
+
+        element.innerText =
+            `${ready} question(s) prête(s) sur ${total}.`;
+    }
+}
+
+
+/* =========================================================
+   IMPORT BLOC
+========================================================= */
+
+async function importBulkQuestions() {
+
+    saveCurrentBulkEditorState();
+
+
+    const items =
+        questionAdminState
+            .bulkQuestions;
+
+
+    if (!items.length) {
+        return;
+    }
+
+
+    const defaultCategory =
+        document.getElementById(
+            "bulkCategory"
+        )?.value;
+
+
+    const defaultType =
+        document.getElementById(
+            "bulkQuestionType"
+        )?.value;
+
+
+    const applyDefaults =
+        document.getElementById(
+            "bulkApplyDefaults"
+        )?.checked;
+
+
+    if (applyDefaults) {
+
+        items.forEach(
+            item => {
+
+                item.category =
+                    defaultCategory;
+
+                item.type =
+                    defaultType;
+            }
+        );
+    }
+
+
+    for (
+        const item
+        of items
+    ) {
+
+        if (
+            !item.correct.length
+        ) {
+
+            alert(
+                "Certaines questions n'ont pas encore de bonne réponse."
+            );
+
+            return;
+        }
+    }
+
+
+    const button =
+        document.getElementById(
+            "importBulkQuestionsButton"
+        );
+
+
+    try {
+
+        if (button) {
+
+            button.disabled =
+                true;
+
+            button.innerText =
+                "Import en cours...";
+        }
+
+
+        /*
+         * Regroupement par catégorie
+         * pour gérer les order_number.
+         */
+
+        const nextOrders = {};
+
+
+        for (
+            const item
+            of items
+        ) {
+
+            if (
+                nextOrders[
+                    item.category
+                ] === undefined
+            ) {
+
+                nextOrders[
+                    item.category
+                ] =
+                    await getNextQuestionOrderNumber(
+                        item.category
+                    );
+            }
+        }
+
+
+        const payload =
+            items.map(
+                item => {
+
+                    const order =
+                        nextOrders[
+                            item.category
+                        ]++;
+
+
+                    return {
+
+                        order_number:
+                            order,
+
+                        category:
+                            item.category,
+
+                        question:
+                            item.question,
+
+                        expected_answer:
+                            null,
+
+                        keywords:
+                            item.correct.join(
+                                ", "
+                            ),
+
+                        max_points:
+                            item.type ===
+                                "multiple_choice"
+                                ? item.correct.length
+                                : 1,
+
+                        question_type:
+                            item.type,
+
+                        correct_answer:
+                            item.correct.join(
+                                ", "
+                            ),
+
+                        choice_a:
+                            item.choices.A ||
+                            null,
+
+                        choice_b:
+                            item.choices.B ||
+                            null,
+
+                        choice_c:
+                            item.choices.C ||
+                            null,
+
+                        choice_d:
+                            item.choices.D ||
+                            null,
+
+                        is_active:
+                            true
+                    };
+                }
+            );
+
+
+        const response =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/questions`,
+                {
+                    method:
+                        "POST",
+
+                    headers:
+                        supabaseHeaders({
+
+                            "Content-Type":
+                                "application/json",
+
+                            "Prefer":
+                                "return=minimal"
+                        }),
+
+                    body:
+                        JSON.stringify(
+                            payload
+                        )
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                await response.text()
+            );
+        }
+
+
+        alert(
+            `${payload.length} questions importées ✅`
+        );
+
+
+        questionAdminState.bulkQuestions =
+            [];
+
+
+        document.getElementById(
+            "bulkQuestionInput"
+        ).value =
+            "";
+
+
+        document.getElementById(
+            "bulkQuestionConfiguration"
+        ).style.display =
+            "none";
+
+
+    } catch (error) {
+
+        console.error(
+            "Erreur import questions :",
+            error
+        );
+
+
+        alert(
+            "Impossible d'importer les questions.\n\n" +
+            error.message
+        );
+
+
+    } finally {
+
+        if (button) {
+
+            button.disabled =
+                false;
+
+            button.innerText =
+                "Importer les questions";
+        }
+    }
+}
