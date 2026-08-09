@@ -1332,7 +1332,7 @@ textarea:focus {
 
 .login-card {
     width: min(100%, 1050px);
-    min-height: 610px;
+    min-height: 560px;
     display: grid;
     grid-template-columns: .95fr 1.05fr;
     overflow: hidden;
@@ -1349,7 +1349,7 @@ html[data-theme="dark"] .login-card {
 .login-visual-panel {
     position: relative;
     overflow: hidden;
-    min-height: 610px;
+    min-height: 560px;
     padding: 45px;
     display: flex;
     flex-direction: column;
@@ -1458,7 +1458,7 @@ html[data-theme="dark"] .login-card {
 .decoration-four { top: 310px; left: 65px; }
 
 .login-form-panel {
-    padding: 54px 55px 46px;
+    padding: 38px 55px 32px;
     display: flex;
     flex-direction: column;
     justify-content: center;
