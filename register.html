@@ -34,6 +34,10 @@
 
     <div class="register-card">
 
+        <!-- =====================================================
+             RETOUR
+        ====================================================== -->
+
         <button
             type="button"
             class="register-back"
@@ -42,6 +46,10 @@
             ← Retour
         </button>
 
+
+        <!-- =====================================================
+             LOGO
+        ====================================================== -->
 
         <div class="register-logo">
             <span>◆</span>
@@ -58,9 +66,9 @@
         </p>
 
 
-        <!-- ========================
-             ÉTAPE 1
-        ======================== -->
+        <!-- =====================================================
+             ÉTAPE 1 : IDENTITÉ
+        ====================================================== -->
 
         <div
             id="registerStep1"
@@ -72,7 +80,7 @@
             </h2>
 
 
-            <label>
+            <label for="registerFirstName">
                 Prénom
             </label>
 
@@ -84,7 +92,7 @@
             >
 
 
-            <label>
+            <label for="registerLastName">
                 Nom
             </label>
 
@@ -107,13 +115,13 @@
         </div>
 
 
-        <!-- ========================
+        <!-- =====================================================
              COMPTE DÉJÀ EXISTANT
-        ======================== -->
+        ====================================================== -->
 
         <div
             id="existingAccountMessage"
-            class="register-step"
+            class="register-step register-result"
             style="display:none;"
         >
 
@@ -131,6 +139,7 @@
                 si tu ne le connais pas.
             </p>
 
+
             <button
                 type="button"
                 class="btn-primary"
@@ -138,6 +147,7 @@
             >
                 Mot de passe oublié
             </button>
+
 
             <button
                 type="button"
@@ -150,9 +160,155 @@
         </div>
 
 
-        <!-- ========================
+        <!-- =====================================================
+             DEMANDE EXISTANTE : EN ATTENTE
+        ====================================================== -->
+
+        <div
+            id="registerRequestStillPending"
+            class="register-step register-result"
+            style="display:none;"
+        >
+
+            <div class="register-result-icon">
+                ⏳
+            </div>
+
+            <h2>
+                Demande en attente
+            </h2>
+
+            <p>
+                Ta demande de création de compte
+                est toujours en attente d'approbation.
+            </p>
+
+            <p class="register-warning">
+                Reviens ici plus tard avec ton prénom
+                et ton nom pour consulter son statut.
+            </p>
+
+
+            <button
+                type="button"
+                class="btn-secondary"
+                onclick="resetRegisterForm()"
+            >
+                Vérifier un autre compte
+            </button>
+
+
+            <button
+                type="button"
+                class="btn-primary"
+                onclick="window.location.href='index.html'"
+            >
+                Retour à la connexion
+            </button>
+
+        </div>
+
+
+        <!-- =====================================================
+             DEMANDE EXISTANTE : REFUSÉE
+        ====================================================== -->
+
+        <div
+            id="registerRequestRejected"
+            class="register-step register-result"
+            style="display:none;"
+        >
+
+            <div class="register-result-icon">
+                ❌
+            </div>
+
+            <h2>
+                Demande refusée
+            </h2>
+
+            <p>
+                Ta demande de création de compte
+                n'a pas été approuvée.
+            </p>
+
+            <p class="register-warning">
+                Si tu penses qu'il s'agit d'une erreur,
+                rapproche-toi d'un administrateur.
+            </p>
+
+
+            <button
+                type="button"
+                class="btn-primary"
+                onclick="window.location.href='index.html'"
+            >
+                Retour à la connexion
+            </button>
+
+        </div>
+
+
+        <!-- =====================================================
+             DEMANDE EXISTANTE : APPROUVÉE
+        ====================================================== -->
+
+        <div
+            id="registerRequestApproved"
+            class="register-step register-result"
+            style="display:none;"
+        >
+
+            <div class="register-result-icon">
+                🎉
+            </div>
+
+            <h2>
+                Ton compte a été approuvé !
+            </h2>
+
+            <p>
+                Ton identifiant est :
+            </p>
+
+            <div
+                id="approvedUsername"
+                class="register-credential"
+            >
+            </div>
+
+
+            <p>
+                Ton mot de passe provisoire est :
+            </p>
+
+            <div
+                id="approvedTemporaryPassword"
+                class="register-credential"
+            >
+            </div>
+
+
+            <p class="register-warning">
+                🔐 Tu devras choisir ton propre mot de passe
+                lors de ta première connexion.
+            </p>
+
+
+            <button
+                type="button"
+                class="btn-primary"
+                onclick="window.location.href='index.html'"
+            >
+                Se connecter
+            </button>
+
+        </div>
+
+
+        <!-- =====================================================
              ÉTAPE 2 : SERVICE
-        ======================== -->
+        ====================================================== -->
 
         <div
             id="registerStep2"
@@ -177,7 +333,9 @@
                     onclick="selectRegisterService('Front', this)"
                 >
                     🎧
-                    <strong>Front</strong>
+                    <strong>
+                        Front
+                    </strong>
                 </button>
 
 
@@ -187,7 +345,9 @@
                     onclick="selectRegisterService('Fidélisation', this)"
                 >
                     🤝
-                    <strong>Fidélisation</strong>
+                    <strong>
+                        Fidélisation
+                    </strong>
                 </button>
 
 
@@ -197,7 +357,9 @@
                     onclick="selectRegisterService('Réseaux Sociaux', this)"
                 >
                     💬
-                    <strong>Réseaux Sociaux</strong>
+                    <strong>
+                        Réseaux Sociaux
+                    </strong>
                 </button>
 
             </div>
@@ -214,9 +376,9 @@
         </div>
 
 
-        <!-- ========================
+        <!-- =====================================================
              ÉTAPE 3 : ÉQUIPE
-        ======================== -->
+        ====================================================== -->
 
         <div
             id="registerStep3"
@@ -252,9 +414,9 @@
         </div>
 
 
-        <!-- ========================
+        <!-- =====================================================
              ÉTAPE 4 : RÔLE
-        ======================== -->
+        ====================================================== -->
 
         <div
             id="registerStep4"
@@ -267,7 +429,7 @@
             </h2>
 
             <p>
-                Quel rôle as-tu ?
+                Quel rôle as-tu dans cette équipe ?
             </p>
 
 
@@ -294,7 +456,7 @@
                 <button
                     type="button"
                     class="register-choice"
-                    onclick="selectRegisterRole('Chef d\\'équipe', this)"
+                    onclick="selectRegisterRole(&quot;Chef d'équipe&quot;, this)"
                 >
                     Chef d'équipe
                 </button>
@@ -331,9 +493,10 @@
         </div>
 
 
-        <!-- ========================
-             COMPTE CRÉÉ
-        ======================== -->
+        <!-- =====================================================
+             COMPTE CRÉÉ IMMÉDIATEMENT
+             CONSEILLER / CONSEILLER SENIOR
+        ====================================================== -->
 
         <div
             id="registerSuccess"
@@ -388,9 +551,9 @@
         </div>
 
 
-        <!-- ========================
-             DEMANDE ENVOYÉE
-        ======================== -->
+        <!-- =====================================================
+             DEMANDE D'APPROBATION ENVOYÉE
+        ====================================================== -->
 
         <div
             id="registerPending"
@@ -412,7 +575,15 @@
             </p>
 
             <p>
-                Ta demande a bien été transmise.
+                Ta demande a bien été transmise
+                à l'administrateur.
+            </p>
+
+            <p class="register-warning">
+                Pour consulter son statut,
+                reviens sur « Créer mon compte »
+                et renseigne à nouveau ton prénom
+                et ton nom.
             </p>
 
 
@@ -425,6 +596,7 @@
             </button>
 
         </div>
+
 
     </div>
 
