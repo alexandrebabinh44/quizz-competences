@@ -124,6 +124,19 @@
         🚩 Signalements
       </button>
 
+
+      <!-- =========================
+           ADMINISTRATION
+      ========================= -->
+
+      <button
+        id="administrationMenuButton"
+        onclick="window.location.href='administration.html'"
+        style="display:none;"
+      >
+        🛡️ Administration
+      </button>
+
     </nav>
 
 
@@ -516,6 +529,26 @@
 
 
       /* =========================
+         ADMINISTRATION
+      ========================= */
+
+      const administrationButton =
+        document.getElementById(
+          "administrationMenuButton"
+        );
+
+
+      if (
+        administrationButton &&
+        role === "admin"
+      ) {
+
+        administrationButton.style.display =
+          "flex";
+      }
+
+
+      /* =========================
          MES FORMATIONS
       ========================= */
 
@@ -529,6 +562,8 @@
 
         const allowedTrainingRoles = [
           "user",
+          "senior",
+          "team_leader",
           "chef_equipe",
           "manager",
           "direction",
@@ -562,6 +597,7 @@
 
         const allowedTeamRoles = [
           "team_leader",
+          "chef_equipe",
           "manager",
           "admin"
         ];
