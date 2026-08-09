@@ -1817,3 +1817,212 @@ button {
         flex: 1;
     }
 }
+/* =========================================================
+   PAGE PARAMÈTRES
+========================================================= */
+
+.settings-page {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+
+.settings-header {
+    margin-bottom: 28px;
+}
+
+
+.settings-header h1 {
+    margin: 0 0 8px;
+    font-size: 32px;
+    color: var(--text-main);
+}
+
+
+.settings-header p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 16px;
+}
+
+
+.settings-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            2,
+            minmax(0, 1fr)
+        );
+
+    gap: 16px;
+}
+
+
+.settings-card {
+    width: 100%;
+    min-height: 130px;
+
+    padding: 22px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 18px;
+
+    text-align: left;
+
+    background:
+        var(--bg-card);
+
+    color:
+        var(--text-main);
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius:
+        18px;
+
+    box-shadow:
+        var(--shadow-card);
+
+    cursor: pointer;
+
+    transition:
+        transform .2s ease,
+        border-color .2s ease,
+        background .2s ease,
+        box-shadow .2s ease;
+}
+
+
+.settings-card:hover {
+    transform:
+        translateY(-3px);
+
+    border-color:
+        rgba(
+            255,
+            90,
+            0,
+            .45
+        );
+
+    box-shadow:
+        0 10px 30px
+        rgba(
+            0,
+            0,
+            0,
+            .08
+        );
+}
+
+
+.settings-card-icon {
+    width: 60px;
+    height: 60px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 16px;
+
+    background:
+        var(--orange-soft);
+
+    font-size: 28px;
+}
+
+
+.settings-card-content {
+    flex: 1;
+    min-width: 0;
+}
+
+
+.settings-card-content h2 {
+    margin:
+        0
+        0
+        7px;
+
+    font-size: 18px;
+}
+
+
+.settings-card-content p {
+    margin: 0;
+
+    color:
+        var(--text-secondary);
+
+    font-size: 14px;
+
+    line-height: 1.5;
+}
+
+
+.settings-card-content small {
+    display: inline-block;
+
+    margin-top: 10px;
+
+    color:
+        var(--orange);
+
+    font-size: 12px;
+
+    font-weight: 700;
+}
+
+
+.settings-card-arrow {
+    flex-shrink: 0;
+
+    color:
+        var(--text-secondary);
+
+    font-size: 30px;
+
+    font-weight: 300;
+}
+
+
+.settings-card-disabled {
+    cursor:
+        not-allowed;
+
+    opacity:
+        .55;
+}
+
+
+.settings-card-disabled:hover {
+    transform: none;
+
+    border-color:
+        var(--border);
+
+    box-shadow:
+        var(--shadow-card);
+}
+
+
+@media (
+    max-width: 850px
+) {
+
+    .settings-grid {
+        grid-template-columns:
+            1fr;
+    }
+
+}
+
