@@ -5261,4 +5261,199 @@ function updateAdminNavigation() {
 
     button.style.display = role === "admin" ? "" : "none";
 }
+/* =========================================================
+   MES FORMATIONS
+========================================================= */
 
+async function loadMyTrainings() {
+
+    const container =
+        document.getElementById(
+            "myTrainingsList"
+        );
+
+    if (!container) {
+        return;
+    }
+
+    container.innerHTML =
+        "Chargement...";
+
+
+    try {
+
+        const userId =
+            localStorage.getItem(
+                "user_id"
+            );
+
+        if (!userId) {
+
+            container.innerHTML = `
+                <div class="training-empty">
+                    Impossible d'identifier ton compte.
+                </div>
+            `;
+
+            return;
+        }
+
+
+        /* =========================
+           1. TOUTES LES FORMATIONS
+        ========================= */
+
+        const trainingsResponse =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/trainings?select=id,name&order=name.asc`,
+                {
+                    headers:
+                        supabaseHeaders()
+                }
+            );
+
+
+        if (!trainingsResponse.ok) {
+
+            throw new Error(
+                await trainingsResponse.text()
+            );
+        }
+
+
+        const trainings =
+            await trainingsResponse.json();
+
+
+        /* =========================
+           2. FORMATIONS UTILISATEUR
+        ========================= */
+
+        const userTrainingsResponse =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/user_trainings?select=training_id&user_id=eq.${encodeURIComponent(userId)}`,
+                {
+                    headers:
+                        supabaseHeaders()
+                }
+            );
+
+
+        if (!userTrainingsResponse.ok) {
+
+            throw new Error(
+                await userTrainingsResponse.text()
+            );
+        }
+
+
+        const userTrainings =
+            await userTrainingsResponse.json();
+
+
+        const trainedIds =
+            new Set(
+                userTrainings.map(
+                    item =>
+                        String(
+                            item.training_id
+                        )
+                )
+            );
+
+
+        /* =========================
+           3. AUCUNE FORMATION
+        ========================= */
+
+        if (!trainings.length) {
+
+            container.innerHTML = `
+                <div class="training-empty">
+                    Aucune formation disponible.
+                </div>
+            `;
+
+            return;
+        }
+
+
+        /* =========================
+           4. AFFICHAGE
+        ========================= */
+
+        container.innerHTML =
+            trainings
+                .map(
+                    training => {
+
+                        const isTrained =
+                            trainedIds.has(
+                                String(
+                                    training.id
+                                )
+                            );
+
+
+                        return `
+                            <div
+                                class="
+                                    training-card
+                                    ${isTrained
+                                        ? "training-card-active"
+                                        : "training-card-inactive"
+                                    }
+                                "
+                            >
+
+                                <div class="training-card-icon">
+
+                                    ${
+                                        isTrained
+                                            ? "✅"
+                                            : "🔒"
+                                    }
+
+                                </div>
+
+
+                                <div class="training-card-content">
+
+                                    <h3>
+                                        ${escapeHtml(
+                                            training.name
+                                        )}
+                                    </h3>
+
+                                    <p>
+                                        ${
+                                            isTrained
+                                                ? "Formation acquise"
+                                                : "Non formé"
+                                        }
+                                    </p>
+
+                                </div>
+
+                            </div>
+                        `;
+                    }
+                )
+                .join("");
+
+
+    } catch (error) {
+
+        console.error(
+            "Erreur chargement formations :",
+            error
+        );
+
+
+        container.innerHTML = `
+            <div class="training-empty">
+                Impossible de charger les formations.
+            </div>
+        `;
+    }
+}
