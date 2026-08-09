@@ -40,15 +40,15 @@
 
     <div class="logo">
 
-      <div class="logo-icon">
-        ≡
-      </div>
+      <img
+        src="images/logo-nickel.png"
+        alt="Nickel"
+        class="sidebar-logo-img"
+      >
 
-      <div>
-        <strong>NICKEL</strong>
-        <br>
-        <span>MASTER</span>
-      </div>
+      <span>
+        NICKEL<br>MASTER
+      </span>
 
     </div>
 
@@ -61,15 +61,20 @@
         🏠 Accueil
       </button>
 
+
       <button
         onclick="window.location.href='training.html'"
       >
         🎯 Entraînement
       </button>
 
-      <button>
+
+      <button
+        onclick="window.location.href='#'"
+      >
         🏆 Challenges
       </button>
+
 
       <button
         onclick="window.location.href='ranking.html'"
@@ -77,13 +82,20 @@
         📊 Classements
       </button>
 
-      <button>
+
+      <button
+        onclick="window.location.href='#'"
+      >
         ⚔️ Battle
       </button>
 
-      <button>
+
+      <button
+        onclick="window.location.href='#'"
+      >
         🎮 Kahoot
       </button>
+
 
       <button
         onclick="window.location.href='profile.html'"
@@ -91,17 +103,24 @@
         📈 Mes stats
       </button>
 
+
       <button
         onclick="window.location.href='badges.html'"
       >
         🏅 Badges
       </button>
 
-      <button>
+
+      <button
+        onclick="window.location.href='#'"
+      >
         💡 Boîte à idées
       </button>
 
-      <button>
+
+      <button
+        onclick="window.location.href='#'"
+      >
         🚩 Signalements
       </button>
 
@@ -117,6 +136,7 @@
         ⚙️ Paramètres
       </button>
 
+
       <button
         id="themeToggle"
         class="sidebar-link theme-button"
@@ -124,6 +144,7 @@
       >
         🌙 Mode sombre
       </button>
+
 
       <button
         class="sidebar-link"
@@ -150,6 +171,7 @@
         placeholder="Rechercher..."
         disabled
       >
+
 
       <div class="topbar-right">
 
@@ -180,7 +202,9 @@
       <div class="settings-grid">
 
 
-        <!-- AVATAR -->
+        <!-- =========================
+             AVATAR
+        ========================= -->
 
         <button
           class="settings-card"
@@ -210,7 +234,9 @@
         </button>
 
 
-        <!-- APPARENCE -->
+        <!-- =========================
+             APPARENCE
+        ========================= -->
 
         <button
           class="settings-card"
@@ -240,7 +266,9 @@
         </button>
 
 
-        <!-- MOT DE PASSE -->
+        <!-- =========================
+             MOT DE PASSE
+        ========================= -->
 
         <button
           class="settings-card"
@@ -270,7 +298,9 @@
         </button>
 
 
-        <!-- MON COMPTE -->
+        <!-- =========================
+             MON COMPTE
+        ========================= -->
 
         <button
           class="settings-card"
@@ -300,7 +330,77 @@
         </button>
 
 
-        <!-- NOTIFICATIONS -->
+        <!-- =========================
+             MES FORMATIONS
+        ========================= -->
+
+        <button
+          id="myTrainingsCard"
+          class="settings-card"
+          onclick="window.location.href='my-trainings.html'"
+          style="display:none;"
+        >
+
+          <div class="settings-card-icon">
+            🎓
+          </div>
+
+          <div class="settings-card-content">
+
+            <h2>
+              Mes formations
+            </h2>
+
+            <p>
+              Consulte les formations auxquelles tu es formé.
+            </p>
+
+          </div>
+
+          <div class="settings-card-arrow">
+            ›
+          </div>
+
+        </button>
+
+
+        <!-- =========================
+             MON ÉQUIPE
+        ========================= -->
+
+        <button
+          id="teamManagementCard"
+          class="settings-card"
+          onclick="window.location.href='team-settings.html'"
+          style="display:none;"
+        >
+
+          <div class="settings-card-icon">
+            👥
+          </div>
+
+          <div class="settings-card-content">
+
+            <h2>
+              Mon équipe
+            </h2>
+
+            <p>
+              Gère les formations attribuées aux membres de ton équipe.
+            </p>
+
+          </div>
+
+          <div class="settings-card-arrow">
+            ›
+          </div>
+
+        </button>
+
+
+        <!-- =========================
+             NOTIFICATIONS
+        ========================= -->
 
         <button
           class="settings-card settings-card-disabled"
@@ -330,7 +430,9 @@
         </button>
 
 
-        <!-- ACCESSIBILITÉ -->
+        <!-- =========================
+             ACCESSIBILITÉ
+        ========================= -->
 
         <button
           class="settings-card settings-card-disabled"
@@ -372,6 +474,7 @@
 <script src="app.js"></script>
 <script src="theme.js"></script>
 
+
 <script>
 
   document.addEventListener(
@@ -382,14 +485,97 @@
         localStorage.getItem("full_name") ||
         "Utilisateur";
 
-      const element =
+
+      const role =
+        String(
+          localStorage.getItem("role") || ""
+        ).toLowerCase();
+
+
+      const position =
+        String(
+          localStorage.getItem("position") || ""
+        ).toLowerCase();
+
+
+      /* =========================
+         NOM UTILISATEUR
+      ========================= */
+
+      const nameElement =
         document.getElementById(
           "topUserName"
         );
 
-      if (element) {
-        element.innerText =
+
+      if (nameElement) {
+
+        nameElement.innerText =
           name;
+      }
+
+
+      /* =========================
+         MES FORMATIONS
+      ========================= */
+
+      const trainingsCard =
+        document.getElementById(
+          "myTrainingsCard"
+        );
+
+
+      if (trainingsCard) {
+
+        const allowedTrainingRoles = [
+          "user",
+          "chef_equipe",
+          "manager",
+          "direction",
+          "admin"
+        ];
+
+
+        if (
+          allowedTrainingRoles.includes(
+            role
+          )
+        ) {
+
+          trainingsCard.style.display =
+            "";
+        }
+      }
+
+
+      /* =========================
+         MON ÉQUIPE
+      ========================= */
+
+      const teamCard =
+        document.getElementById(
+          "teamManagementCard"
+        );
+
+
+      if (teamCard) {
+
+        const allowedTeamRoles = [
+          "chef_equipe",
+          "manager",
+          "admin"
+        ];
+
+
+        if (
+          allowedTeamRoles.includes(
+            role
+          )
+        ) {
+
+          teamCard.style.display =
+            "";
+        }
       }
 
     }
