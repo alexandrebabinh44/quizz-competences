@@ -3818,4 +3818,85 @@ html[data-theme="dark"] .login-card {
         grid-template-columns: 1fr;
     }
 }
+/* =========================================================
+   PANEL ADMINISTRATION
+========================================================= */
+
+.admin-panel {
+    margin: 8px 0 14px;
+
+    padding: 10px;
+
+    background: var(--bg-card);
+
+    border: 1px solid
+        rgba(255, 90, 0, .25);
+
+    border-radius: 14px;
+}
+
+
+.admin-panel-title {
+    padding: 8px 10px 12px;
+
+    color: var(--orange);
+
+    font-size: 13px;
+    font-weight: 800;
+
+    text-transform: uppercase;
+
+    letter-spacing: .4px;
+}
+
+
+.admin-panel-link {
+    width: 100%;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 9px 10px;
+
+    margin-bottom: 4px;
+
+    background: transparent;
+
+    color: var(--text-secondary);
+
+    border: none;
+
+    border-radius: 9px;
+
+    text-align: left;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+
+.admin-panel-link:last-child {
+    margin-bottom: 0;
+}
+
+
+.admin-panel-link:hover {
+    background: var(--bg-card-hover);
+
+    color: var(--text-main);
+}
+
+
+.admin-panel-link.active {
+    background: var(--orange-soft);
+
+    color: var(--orange);
+}
+
 
