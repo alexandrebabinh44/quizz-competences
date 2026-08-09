@@ -54,6 +54,10 @@
     </div>
 
 
+    <!-- ===================================================
+         MENU PRINCIPAL
+    ==================================================== -->
+
     <nav class="side-menu">
 
       <button
@@ -109,20 +113,63 @@
     </nav>
 
 
+    <!-- ===================================================
+         BAS SIDEBAR
+    ==================================================== -->
+
     <div class="sidebar-bottom">
 
-      <div class="admin-question-badge">
-        🛡️ ADMIN
-        <small>
-          Gestion des questions
-        </small>
+
+      <!-- ===============================================
+           PANEL ADMINISTRATION
+      ================================================ -->
+
+      <div class="admin-panel">
+
+        <div class="admin-panel-title">
+          🛡️ Administration
+        </div>
+
+
+        <button
+          type="button"
+          class="admin-panel-link active"
+          onclick="window.location.href='admin-questions.html'"
+        >
+          ➕ Ajouter des questions
+        </button>
+
+
+        <button
+          type="button"
+          class="admin-panel-link"
+          onclick="window.location.href='admin-question-management.html'"
+        >
+          🧰 Gérer les questions
+        </button>
+
+
+        <button
+          type="button"
+          class="admin-panel-link"
+          onclick="window.location.href='approvals.html'"
+        >
+          ✅ Approbations
+        </button>
+
       </div>
+
+
+      <!-- PARAMÈTRES -->
 
       <button
         onclick="window.location.href='settings.html'"
       >
         ⚙️ Paramètres
       </button>
+
+
+      <!-- THÈME -->
 
       <button
         id="themeToggle"
@@ -131,6 +178,9 @@
       >
         🌙 Mode sombre
       </button>
+
+
+      <!-- DÉCONNEXION -->
 
       <button
         class="sidebar-link"
@@ -144,14 +194,17 @@
   </aside>
 
 
+
   <!-- =====================================================
-       CONTENU
+       CONTENU PRINCIPAL
   ====================================================== -->
 
   <main class="dashboard-main">
 
 
-    <!-- HEADER -->
+    <!-- ===================================================
+         HEADER
+    ==================================================== -->
 
     <header class="question-admin-header">
 
@@ -167,6 +220,7 @@
 
       </div>
 
+
       <strong id="questionAdminUser">
         Administrateur
       </strong>
@@ -174,8 +228,9 @@
     </header>
 
 
+
     <!-- ===================================================
-         CHOIX MODE
+         CHOIX DU MODE
     ==================================================== -->
 
     <div class="question-mode-selector">
@@ -185,11 +240,13 @@
         id="singleQuestionModeButton"
         class="question-mode-button active"
       >
+
         <span>
           📝
         </span>
 
         <div>
+
           <strong>
             Ajout question par question
           </strong>
@@ -197,7 +254,9 @@
           <small>
             Créer une question à la fois
           </small>
+
         </div>
+
       </button>
 
 
@@ -206,11 +265,13 @@
         id="bulkQuestionModeButton"
         class="question-mode-button"
       >
+
         <span>
           📚
         </span>
 
         <div>
+
           <strong>
             Ajout en bloc
           </strong>
@@ -218,7 +279,9 @@
           <small>
             Coller plusieurs questions
           </small>
+
         </div>
+
       </button>
 
     </div>
@@ -226,7 +289,8 @@
 
 
     <!-- ===================================================
-         MODE 1 : QUESTION SIMPLE
+         MODE 1
+         QUESTION PAR QUESTION
     ==================================================== -->
 
     <section
@@ -244,6 +308,10 @@
         <div class="question-editor-card">
 
 
+          <!-- =============================================
+               INFORMATIONS GÉNÉRALES
+          ============================================== -->
+
           <div class="question-section">
 
             <h2>
@@ -253,6 +321,9 @@
 
             <div class="question-form-row">
 
+
+              <!-- CATÉGORIE -->
+
               <div class="question-field">
 
                 <label for="questionCategory">
@@ -260,13 +331,17 @@
                 </label>
 
                 <select id="questionCategory">
+
                   <option value="">
                     Chargement...
                   </option>
+
                 </select>
 
               </div>
 
+
+              <!-- CRÉER CATÉGORIE -->
 
               <button
                 type="button"
@@ -278,6 +353,9 @@
 
             </div>
 
+
+
+            <!-- TYPE -->
 
             <div class="question-field">
 
@@ -304,6 +382,9 @@
             </div>
 
 
+
+            <!-- QUESTION -->
+
             <div class="question-field">
 
               <label for="questionText">
@@ -319,6 +400,7 @@
             </div>
 
           </div>
+
 
 
           <!-- =============================================
@@ -337,8 +419,9 @@
           </div>
 
 
+
           <!-- =============================================
-               PARAMÈTRES AUTO
+               PARAMÈTRES AUTOMATIQUES
           ============================================== -->
 
           <div class="question-section">
@@ -349,6 +432,9 @@
 
 
             <div class="question-auto-info">
+
+
+              <!-- ORDRE -->
 
               <div>
 
@@ -363,6 +449,8 @@
               </div>
 
 
+              <!-- POINTS -->
+
               <div>
 
                 <small>
@@ -375,6 +463,8 @@
 
               </div>
 
+
+              <!-- KEYWORDS -->
 
               <div>
 
@@ -392,6 +482,11 @@
 
           </div>
 
+
+
+          <!-- =============================================
+               ACTIONS
+          ============================================== -->
 
           <div class="question-actions">
 
@@ -445,7 +540,8 @@
 
 
     <!-- ===================================================
-         MODE 2 : AJOUT EN BLOC
+         MODE 2
+         AJOUT EN BLOC
     ==================================================== -->
 
     <section
@@ -457,13 +553,16 @@
       <div class="bulk-question-card">
 
 
-        <!-- COLLAGE -->
+        <!-- ===============================================
+             COLLAGE
+        ================================================ -->
 
         <div class="question-section">
 
           <h2>
             1. Colle tes questions
           </h2>
+
 
           <p class="question-help">
             Sépare les questions avec un point-virgule « ; » ou une nouvelle ligne.
@@ -500,12 +599,19 @@ Quel produit est réservé aux professionnels ?;"
 
 
 
-        <!-- CONFIGURATION -->
+        <!-- ===============================================
+             CONFIGURATION APRÈS ANALYSE
+        ================================================ -->
 
         <div
           id="bulkQuestionConfiguration"
           style="display:none;"
         >
+
+
+          <!-- =============================================
+               CONFIGURATION PAR DÉFAUT
+          ============================================== -->
 
           <div class="question-section">
 
@@ -515,6 +621,9 @@ Quel produit est réservé aux professionnels ?;"
 
 
             <div class="bulk-default-grid">
+
+
+              <!-- CATÉGORIE -->
 
               <div class="question-field">
 
@@ -527,6 +636,8 @@ Quel produit est réservé aux professionnels ?;"
 
               </div>
 
+
+              <!-- TYPE -->
 
               <div class="question-field">
 
@@ -555,6 +666,9 @@ Quel produit est réservé aux professionnels ?;"
             </div>
 
 
+
+            <!-- APPLICATION À TOUTES -->
+
             <label class="bulk-apply-defaults">
 
               <input
@@ -571,7 +685,9 @@ Quel produit est réservé aux professionnels ?;"
 
 
 
-          <!-- QUESTION COURANTE -->
+          <!-- =============================================
+               QUESTION COURANTE
+          ============================================== -->
 
           <div class="question-section">
 
@@ -591,6 +707,9 @@ Quel produit est réservé aux professionnels ?;"
             <div id="bulkQuestionEditor">
             </div>
 
+
+
+            <!-- NAVIGATION -->
 
             <div class="bulk-navigation">
 
@@ -617,7 +736,9 @@ Quel produit est réservé aux professionnels ?;"
 
 
 
-          <!-- RÉCAP -->
+          <!-- =============================================
+               RÉCAPITULATIF
+          ============================================== -->
 
           <div class="bulk-summary">
 
@@ -655,14 +776,25 @@ Quel produit est réservé aux professionnels ?;"
 </div>
 
 
+
+<!-- =====================================================
+     SCRIPTS
+====================================================== -->
+
 <script src="app.js"></script>
 <script src="theme.js"></script>
 
 
 <script>
+
   document.addEventListener(
     "DOMContentLoaded",
     async function () {
+
+
+      /* ===============================================
+         SÉCURITÉ ADMIN
+      ================================================ */
 
       const role =
         String(
@@ -683,6 +815,11 @@ Quel produit est réservé aux professionnels ?;"
       }
 
 
+
+      /* ===============================================
+         NOM UTILISATEUR
+      ================================================ */
+
       const name =
         localStorage.getItem("full_name") ||
         "Administrateur";
@@ -695,10 +832,16 @@ Quel produit est réservé aux professionnels ?;"
 
 
       if (userElement) {
+
         userElement.innerText =
           name;
       }
 
+
+
+      /* ===============================================
+         INITIALISATION PAGE
+      ================================================ */
 
       if (
         typeof initializeQuestionAdmin ===
@@ -710,6 +853,7 @@ Quel produit est réservé aux professionnels ?;"
 
     }
   );
+
 </script>
 
 </body>
