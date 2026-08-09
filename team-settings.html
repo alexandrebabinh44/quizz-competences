@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <script>
+    const savedTheme =
+      localStorage.getItem("nickel_master_theme") || "light";
+
+    document.documentElement.setAttribute(
+      "data-theme",
+      savedTheme
+    );
+  </script>
+
+  <title>Mon équipe - Nickel Master</title>
+
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
+</head>
+
+
+<body class="dashboard-body">
+
+<div class="dashboard-layout">
+
+
+  <!-- =====================================================
+       SIDEBAR PRINCIPALE
+  ====================================================== -->
+
+  <aside class="sidebar">
+
+    <div class="logo">
+
+      <img
+        src="images/logo-nickel.png"
+        alt="Nickel"
+        class="sidebar-logo-img"
+      >
+
+      <span>
+        NICKEL<br>MASTER
+      </span>
+
+    </div>
+
+
+    <nav class="side-menu">
+
+      <button
+        onclick="window.location.href='home.html'"
+      >
+        🏠 Accueil
+      </button>
+
+
+      <button
+        onclick="window.location.href='training.html'"
+      >
+        🎯 Entraînement
+      </button>
+
+
+      <button>
+        🏆 Challenges
+      </button>
+
+
+      <button
+        onclick="window.location.href='ranking.html'"
+      >
+        📊 Classements
+      </button>
+
+
+      <button>
+        ⚔️ Battle
+      </button>
+
+
+      <button>
+        🎮 Kahoot
+      </button>
+
+
+      <button
+        onclick="window.location.href='profile.html'"
+      >
+        📈 Mes stats
+      </button>
+
+
+      <button
+        onclick="window.location.href='badges.html'"
+      >
+        🏅 Badges
+      </button>
+
+
+      <button>
+        💡 Boîte à idées
+      </button>
+
+
+      <button>
+        🚩 Signalements
+      </button>
+
+    </nav>
+
+
+    <div class="sidebar-bottom">
+
+      <button
+        class="active"
+        onclick="window.location.href='settings.html'"
+      >
+        ⚙️ Paramètres
+      </button>
+
+
+      <button
+        id="themeToggle"
+        class="sidebar-link theme-button"
+        onclick="toggleTheme()"
+      >
+        🌙 Mode sombre
+      </button>
+
+
+      <button
+        class="sidebar-link"
+        onclick="logout()"
+      >
+        🚪 Déconnexion
+      </button>
+
+    </div>
+
+  </aside>
+
+
+  <!-- =====================================================
+       CONTENU PRINCIPAL
+  ====================================================== -->
+
+  <main class="dashboard-main">
+
+
+    <!-- =========================
+         TOPBAR
+    ========================= -->
+
+    <header class="team-settings-topbar">
+
+      <div class="team-settings-topbar-left">
+
+        <button
+          type="button"
+          class="team-settings-back"
+          onclick="window.location.href='settings.html'"
+        >
+          ←
+        </button>
+
+        <div>
+
+          <h1>
+            Mon équipe
+          </h1>
+
+          <p id="teamSettingsTeamName">
+            Chargement de l'équipe...
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="team-settings-user">
+
+        <div
+          id="teamSettingsUserInitials"
+          class="team-settings-user-avatar"
+        >
+          NM
+        </div>
+
+        <div>
+
+          <strong id="topUserName">
+            Utilisateur
+          </strong>
+
+          <small id="teamSettingsUserRole">
+            Chef d'équipe
+          </small>
+
+        </div>
+
+      </div>
+
+    </header>
+
+
+
+    <!-- =====================================================
+         PAGE MON ÉQUIPE
+    ====================================================== -->
+
+    <section class="team-settings-page">
+
+
+      <!-- =================================================
+           NAVIGATION INTERNE
+      ================================================== -->
+
+      <aside class="team-settings-menu">
+
+        <div class="team-settings-menu-header">
+
+          <h2>
+            Mon équipe
+          </h2>
+
+          <p>
+            Gère les informations et les formations de ton équipe.
+          </p>
+
+        </div>
+
+
+        <button
+          type="button"
+          class="team-settings-menu-item"
+          disabled
+        >
+          <span>
+            👥
+          </span>
+
+          Informations équipe
+        </button>
+
+
+        <button
+          type="button"
+          class="team-settings-menu-item"
+          disabled
+        >
+          <span>
+            👤
+          </span>
+
+          Membres de l'équipe
+        </button>
+
+
+        <button
+          type="button"
+          class="team-settings-menu-item active"
+        >
+          <span>
+            🎓
+          </span>
+
+          Formations
+        </button>
+
+
+        <button
+          type="button"
+          class="team-settings-menu-item"
+          disabled
+        >
+          <span>
+            📅
+          </span>
+
+          Sessions de formation
+        </button>
+
+
+        <button
+          type="button"
+          class="team-settings-menu-item"
+          disabled
+        >
+          <span>
+            📊
+          </span>
+
+          Statistiques équipe
+        </button>
+
+      </aside>
+
+
+
+      <!-- =================================================
+           GESTION DES FORMATIONS
+      ================================================== -->
+
+      <div class="team-training-panel">
+
+
+        <!-- TITRE -->
+
+        <div class="team-training-title">
+
+          <div class="team-training-title-icon">
+            🎓
+          </div>
+
+          <div>
+
+            <h2>
+              Gestion des formations
+            </h2>
+
+            <p>
+              Attribue les formations aux membres de ton équipe.
+            </p>
+
+          </div>
+
+        </div>
+
+
+
+        <!-- =============================================
+             ZONE FORMATION + DESCRIPTION
+        ============================================== -->
+
+        <div class="team-training-selector-row">
+
+
+          <!-- FORMATION -->
+
+          <div class="team-training-selector">
+
+            <label for="teamTrainingSelect">
+              Formation
+            </label>
+
+            <select
+              id="teamTrainingSelect"
+              onchange="loadSelectedTeamTraining()"
+            >
+
+              <option value="">
+                Chargement...
+              </option>
+
+            </select>
+
+          </div>
+
+
+
+          <!-- DESCRIPTION -->
+
+          <div class="team-training-description">
+
+            <span class="team-training-description-label">
+              À propos de cette formation
+            </span>
+
+            <div
+              id="teamTrainingDescription"
+              class="team-training-description-box"
+            >
+              Sélectionne une formation pour afficher ses informations.
+            </div>
+
+          </div>
+
+        </div>
+
+
+
+        <!-- =============================================
+             ATTRIBUÉ À
+        ============================================== -->
+
+        <div class="team-training-members-title">
+
+          <h3>
+            Attribué à
+          </h3>
+
+          <span id="teamTrainingSelectedCount">
+            0 sélectionné
+          </span>
+
+        </div>
+
+
+
+        <!-- =============================================
+             TABLE MEMBRES
+        ============================================== -->
+
+        <div class="team-training-table-wrapper">
+
+          <table class="team-training-table">
+
+            <thead>
+
+              <tr>
+
+                <th class="team-training-check-column">
+
+                  <input
+                    id="teamTrainingCheckAll"
+                    type="checkbox"
+                    onchange="toggleAllTeamTrainingMembers(this.checked)"
+                  >
+
+                </th>
+
+                <th>
+                  Membre
+                </th>
+
+                <th>
+                  Rôle
+                </th>
+
+                <th>
+                  Statut actuel
+                </th>
+
+              </tr>
+
+            </thead>
+
+
+            <tbody id="teamTrainingMembers">
+
+              <tr>
+
+                <td colspan="4">
+
+                  <div class="team-training-loading">
+                    Chargement des membres...
+                  </div>
+
+                </td>
+
+              </tr>
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+
+
+        <!-- =============================================
+             ACTIONS
+        ============================================== -->
+
+        <div class="team-training-actions">
+
+          <button
+            type="button"
+            class="btn-secondary"
+            onclick="resetTeamTrainingChanges()"
+          >
+            Annuler
+          </button>
+
+
+          <button
+            type="button"
+            id="saveTeamTrainingButton"
+            class="btn-primary team-training-save"
+            onclick="saveTeamTrainingAssignments()"
+          >
+            💾 Enregistrer les modifications
+          </button>
+
+        </div>
+
+      </div>
+
+
+
+      <!-- =================================================
+           RÉCAPITULATIF
+      ================================================== -->
+
+      <aside class="team-training-summary">
+
+        <h2>
+          Récapitulatif
+        </h2>
+
+
+        <div class="team-training-summary-block">
+
+          <small>
+            Formation sélectionnée
+          </small>
+
+          <strong
+            id="teamTrainingSummaryName"
+            class="team-training-summary-tag"
+          >
+            —
+          </strong>
+
+        </div>
+
+
+        <div class="team-training-summary-block">
+
+          <small>
+            Membres formés
+          </small>
+
+          <strong
+            id="teamTrainingSummaryTrained"
+            class="team-training-summary-trained"
+          >
+            0 / 0
+          </strong>
+
+        </div>
+
+
+        <div class="team-training-summary-block">
+
+          <small>
+            Membres non formés
+          </small>
+
+          <strong
+            id="teamTrainingSummaryNotTrained"
+          >
+            0 / 0
+          </strong>
+
+        </div>
+
+
+        <div class="team-training-summary-info">
+
+          💡
+
+          <span>
+            Les modifications seront effectives immédiatement
+            pour les membres sélectionnés.
+          </span>
+
+        </div>
+
+      </aside>
+
+    </section>
+
+  </main>
+
+</div>
+
+
+
+<script src="app.js"></script>
+<script src="theme.js"></script>
+
+
+<script>
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    async function () {
+
+      const role =
+        String(
+          localStorage.getItem("role") || ""
+        ).toLowerCase();
+
+
+      /*
+       * Accès autorisé :
+       * - Chef d'équipe
+       * - Manager
+       * - Admin
+       */
+
+      const allowedRoles = [
+        "team_leader",
+        "manager",
+        "admin"
+      ];
+
+
+      if (
+        !allowedRoles.includes(
+          role
+        )
+      ) {
+
+        alert(
+          "Cette page est réservée à la gestion d'équipe."
+        );
+
+        window.location.href =
+          "settings.html";
+
+        return;
+      }
+
+
+      /*
+       * Chargement de la page.
+       */
+
+      if (
+        typeof loadTeamSettingsPage ===
+        "function"
+      ) {
+
+        await loadTeamSettingsPage();
+      }
+
+    }
+  );
+
+</script>
+
+</body>
+
+</html>
