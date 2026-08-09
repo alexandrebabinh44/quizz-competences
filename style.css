@@ -2033,3 +2033,171 @@ html[data-theme="dark"] .login-card {
 .login-brand-name span {
     margin-top: 5px;
 }
+/* =========================================================
+   MES FORMATIONS
+========================================================= */
+
+.trainings-page {
+    width: 100%;
+}
+
+.trainings-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            auto-fill,
+            minmax(220px, 1fr)
+        );
+
+    gap: 16px;
+}
+
+
+.training-card {
+    display: flex;
+
+    align-items: center;
+
+    gap: 14px;
+
+    min-height: 110px;
+
+    padding: 20px;
+
+    border-radius: 16px;
+
+    border:
+        1px solid
+        var(--border);
+
+    background:
+        var(--bg-card);
+
+    box-shadow:
+        var(--shadow-card);
+
+    transition:
+        transform .2s ease,
+        opacity .2s ease,
+        border-color .2s ease;
+}
+
+
+.training-card-active {
+    border-color:
+        rgba(
+            255,
+            90,
+            0,
+            .45
+        );
+
+    background:
+        var(--orange-soft);
+}
+
+
+.training-card-inactive {
+    opacity:
+        .45;
+
+    filter:
+        grayscale(.75);
+}
+
+
+.training-card-icon {
+    width:
+        48px;
+
+    height:
+        48px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    flex-shrink:
+        0;
+
+    border-radius:
+        14px;
+
+    background:
+        var(--bg-card-hover);
+
+    font-size:
+        24px;
+}
+
+
+.training-card-content h3 {
+    margin:
+        0
+        0
+        5px;
+
+    font-size:
+        17px;
+}
+
+
+.training-card-content p {
+    margin:
+        0;
+
+    color:
+        var(--text-secondary);
+
+    font-size:
+        13px;
+}
+
+
+.training-card-active
+.training-card-content h3 {
+    color:
+        var(--orange);
+}
+
+
+.training-empty {
+    grid-column:
+        1 / -1;
+
+    padding:
+        35px;
+
+    text-align:
+        center;
+
+    color:
+        var(--text-secondary);
+
+    background:
+        var(--bg-card);
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius:
+        16px;
+}
+
+
+@media (
+    max-width: 650px
+) {
+
+    .trainings-grid {
+        grid-template-columns:
+            1fr;
+    }
+}
