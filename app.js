@@ -10002,3 +10002,750 @@ async function deleteQuestionManagementQuestion(
         );
     }
 }
+/* =========================================================
+   ADMIN - GESTION DES CATÉGORIES
+========================================================= */
+
+let categoryManagementState = {
+
+    categories: [],
+
+    editingCategory: null
+};
+
+
+/* =========================================================
+   INITIALISATION
+========================================================= */
+
+async function initializeCategoryManagement() {
+
+    setupCategoryManagementEvents();
+
+    await loadCategoryManagementData();
+}
+
+
+/* =========================================================
+   EVENTS
+========================================================= */
+
+function setupCategoryManagementEvents() {
+
+    const createButton =
+        document.getElementById(
+            "createCategoryManagementButton"
+        );
+
+
+    const searchInput =
+        document.getElementById(
+            "categorySearchInput"
+        );
+
+
+    const closeButton =
+        document.getElementById(
+            "closeCategoryEditModal"
+        );
+
+
+    const cancelButton =
+        document.getElementById(
+            "cancelCategoryEdit"
+        );
+
+
+    const saveButton =
+        document.getElementById(
+            "saveCategoryEdit"
+        );
+
+
+    if (createButton) {
+
+        createButton.addEventListener(
+            "click",
+            createManagedCategory
+        );
+    }
+
+
+    if (searchInput) {
+
+        searchInput.addEventListener(
+            "input",
+            renderCategoryManagementList
+        );
+    }
+
+
+    if (closeButton) {
+
+        closeButton.addEventListener(
+            "click",
+            closeCategoryEditModal
+        );
+    }
+
+
+    if (cancelButton) {
+
+        cancelButton.addEventListener(
+            "click",
+            closeCategoryEditModal
+        );
+    }
+
+
+    if (saveButton) {
+
+        saveButton.addEventListener(
+            "click",
+            saveCategoryRename
+        );
+    }
+}
+
+
+/* =========================================================
+   CHARGEMENT
+========================================================= */
+
+async function loadCategoryManagementData() {
+
+    const container =
+        document.getElementById(
+            "categoryManagementList"
+        );
+
+
+    if (container) {
+
+        container.innerHTML = `
+            <div class="question-management-empty">
+                Chargement des catégories...
+            </div>
+        `;
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/questions?select=category`,
+                {
+                    headers:
+                        supabaseHeaders()
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                await response.text()
+            );
+        }
+
+
+        const rows =
+            await response.json();
+
+
+        const counts = {};
+
+
+        rows.forEach(
+            row => {
+
+                const category =
+                    String(
+                        row.category || ""
+                    ).trim();
+
+
+                if (!category) {
+                    return;
+                }
+
+
+                if (!counts[category]) {
+
+                    counts[category] =
+                        0;
+                }
+
+
+                counts[category]++;
+            }
+        );
+
+
+        categoryManagementState.categories =
+            Object.keys(counts)
+                .map(
+                    name => ({
+                        name,
+                        questionCount:
+                            counts[name]
+                    })
+                )
+                .sort(
+                    (a, b) =>
+                        a.name.localeCompare(
+                            b.name,
+                            "fr",
+                            {
+                                sensitivity:
+                                    "base"
+                            }
+                        )
+                );
+
+
+        updateCategoryManagementStats();
+
+        renderCategoryManagementList();
+
+
+    } catch (error) {
+
+        console.error(
+            "Erreur chargement catégories :",
+            error
+        );
+
+
+        if (container) {
+
+            container.innerHTML = `
+                <div class="question-management-empty">
+                    Impossible de charger les catégories.
+                </div>
+            `;
+        }
+    }
+}
+
+
+/* =========================================================
+   STATS
+========================================================= */
+
+function updateCategoryManagementStats() {
+
+    const categories =
+        categoryManagementState
+            .categories;
+
+
+    const totalQuestions =
+        categories.reduce(
+            (sum, item) =>
+                sum +
+                item.questionCount,
+            0
+        );
+
+
+    const emptyCategories =
+        categories.filter(
+            item =>
+                item.questionCount === 0
+        ).length;
+
+
+    const totalElement =
+        document.getElementById(
+            "categoryTotalCount"
+        );
+
+
+    const questionElement =
+        document.getElementById(
+            "categoryQuestionCount"
+        );
+
+
+    const emptyElement =
+        document.getElementById(
+            "categoryEmptyCount"
+        );
+
+
+    if (totalElement) {
+
+        totalElement.innerText =
+            categories.length;
+    }
+
+
+    if (questionElement) {
+
+        questionElement.innerText =
+            totalQuestions;
+    }
+
+
+    if (emptyElement) {
+
+        emptyElement.innerText =
+            emptyCategories;
+    }
+}
+
+
+/* =========================================================
+   LISTE
+========================================================= */
+
+function renderCategoryManagementList() {
+
+    const container =
+        document.getElementById(
+            "categoryManagementList"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    const search =
+        String(
+            document.getElementById(
+                "categorySearchInput"
+            )?.value || ""
+        )
+        .trim()
+        .toLowerCase();
+
+
+    const categories =
+        categoryManagementState
+            .categories
+            .filter(
+                item =>
+                    item.name
+                        .toLowerCase()
+                        .includes(
+                            search
+                        )
+            );
+
+
+    if (!categories.length) {
+
+        container.innerHTML = `
+            <div class="question-management-empty">
+                Aucune catégorie trouvée.
+            </div>
+        `;
+
+        return;
+    }
+
+
+    container.innerHTML =
+        categories
+            .map(
+                item => `
+
+                    <article class="category-management-card">
+
+                        <div class="category-management-main">
+
+                            <div class="category-icon">
+                                🗂️
+                            </div>
+
+
+                            <div>
+
+                                <h3>
+                                    ${escapeHtml(
+                                        item.name
+                                    )}
+                                </h3>
+
+                                <p>
+                                    ${item.questionCount}
+                                    question(s)
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="category-management-actions">
+
+                            <button
+                                type="button"
+                                class="btn-secondary"
+                                onclick="openCategoryEditModal('${encodeURIComponent(item.name)}')"
+                            >
+                                ✏️ Renommer
+                            </button>
+
+
+                            <button
+                                type="button"
+                                class="question-delete-button"
+                                onclick="deleteManagedCategory('${encodeURIComponent(item.name)}')"
+                            >
+                                🗑 Supprimer
+                            </button>
+
+                        </div>
+
+                    </article>
+
+                `
+            )
+            .join("");
+}
+
+
+/* =========================================================
+   CRÉATION
+========================================================= */
+
+async function createManagedCategory() {
+
+    const input =
+        document.getElementById(
+            "newCategoryName"
+        );
+
+
+    if (!input) {
+        return;
+    }
+
+
+    const name =
+        input.value
+            .trim();
+
+
+    if (!name) {
+
+        alert(
+            "Merci de renseigner un nom."
+        );
+
+        return;
+    }
+
+
+    const exists =
+        categoryManagementState
+            .categories
+            .some(
+                item =>
+                    item.name
+                        .toLowerCase() ===
+                    name.toLowerCase()
+            );
+
+
+    if (exists) {
+
+        alert(
+            "Cette catégorie existe déjà."
+        );
+
+        return;
+    }
+
+
+    /*
+     * Avec la structure actuelle,
+     * une catégorie est matérialisée
+     * lorsqu'une question utilise ce nom.
+     */
+
+    alert(
+        `Catégorie "${name}" prête ✅\n\nElle apparaîtra dès qu'une première question sera ajoutée dans cette catégorie.`
+    );
+
+
+    input.value =
+        "";
+}
+
+
+/* =========================================================
+   OUVRIR MODALE
+========================================================= */
+
+function openCategoryEditModal(
+    encodedName
+) {
+
+    const name =
+        decodeURIComponent(
+            encodedName
+        );
+
+
+    const category =
+        categoryManagementState
+            .categories
+            .find(
+                item =>
+                    item.name === name
+            );
+
+
+    if (!category) {
+        return;
+    }
+
+
+    categoryManagementState.editingCategory =
+        category;
+
+
+    const input =
+        document.getElementById(
+            "editCategoryName"
+        );
+
+
+    if (input) {
+
+        input.value =
+            category.name;
+    }
+
+
+    const modal =
+        document.getElementById(
+            "categoryEditModal"
+        );
+
+
+    if (modal) {
+
+        modal.style.display =
+            "flex";
+    }
+}
+
+
+/* =========================================================
+   FERMER MODALE
+========================================================= */
+
+function closeCategoryEditModal() {
+
+    const modal =
+        document.getElementById(
+            "categoryEditModal"
+        );
+
+
+    if (modal) {
+
+        modal.style.display =
+            "none";
+    }
+
+
+    categoryManagementState.editingCategory =
+        null;
+}
+
+
+/* =========================================================
+   RENOMMER
+========================================================= */
+
+async function saveCategoryRename() {
+
+    const current =
+        categoryManagementState
+            .editingCategory;
+
+
+    if (!current) {
+        return;
+    }
+
+
+    const newName =
+        document.getElementById(
+            "editCategoryName"
+        )?.value
+        .trim();
+
+
+    if (!newName) {
+
+        alert(
+            "Merci de renseigner un nom."
+        );
+
+        return;
+    }
+
+
+    if (
+        newName ===
+        current.name
+    ) {
+
+        closeCategoryEditModal();
+
+        return;
+    }
+
+
+    const duplicate =
+        categoryManagementState
+            .categories
+            .some(
+                item =>
+                    item.name
+                        .toLowerCase() ===
+                    newName.toLowerCase()
+            );
+
+
+    if (duplicate) {
+
+        alert(
+            "Une catégorie porte déjà ce nom."
+        );
+
+        return;
+    }
+
+
+    const confirmation =
+        confirm(
+            `Renommer "${current.name}" en "${newName}" ?\n\nToutes les questions de cette catégorie seront mises à jour.`
+        );
+
+
+    if (!confirmation) {
+        return;
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/questions?category=eq.${encodeURIComponent(current.name)}`,
+                {
+                    method:
+                        "PATCH",
+
+                    headers:
+                        supabaseHeaders({
+
+                            "Content-Type":
+                                "application/json",
+
+                            "Prefer":
+                                "return=minimal"
+                        }),
+
+                    body:
+                        JSON.stringify({
+
+                            category:
+                                newName,
+
+                            updated_at:
+                                new Date()
+                                    .toISOString()
+                        })
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                await response.text()
+            );
+        }
+
+
+        closeCategoryEditModal();
+
+        await loadCategoryManagementData();
+
+
+        alert(
+            "Catégorie renommée ✅"
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Erreur renommage catégorie :",
+            error
+        );
+
+
+        alert(
+            "Impossible de renommer la catégorie.\n\n" +
+            error.message
+        );
+    }
+}
+
+
+/* =========================================================
+   SUPPRIMER
+========================================================= */
+
+async function deleteManagedCategory(
+    encodedName
+) {
+
+    const name =
+        decodeURIComponent(
+            encodedName
+        );
+
+
+    const category =
+        categoryManagementState
+            .categories
+            .find(
+                item =>
+                    item.name === name
+            );
+
+
+    if (!category) {
+        return;
+    }
+
+
+    if (
+        category.questionCount > 0
+    ) {
+
+        alert(
+            `Impossible de supprimer "${name}".\n\nCette catégorie contient encore ${category.questionCount} question(s).\n\nDéplace ou supprime d'abord les questions concernées.`
+        );
+
+        return;
+    }
+
+
+    alert(
+        "Cette catégorie ne contient aucune question."
+    );
+}
