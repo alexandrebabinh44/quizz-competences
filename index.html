@@ -1,56 +1,352 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quiz Compétences</title>
-  <link rel="stylesheet" href="style.css">
-  <script>
-    const savedTheme =
-        localStorage.getItem(
-            "nickel_master_theme"
-        ) || "light";
+    <meta charset="UTF-8">
 
-    document.documentElement.setAttribute(
-        "data-theme",
-        savedTheme
-    );
-</script>
-<link
-    rel="stylesheet"
-    href="style.css"
->
-</head>
-<body>
-
-<div class="container">
-  <h1>Quiz Compétences</h1>
-
-  <label>Identifiant</label>
-  <input type="text" id="username">
-
-  <label>Mot de passe</label>
-  <input type="password" id="password">
-
-  <button onclick="login()">Se connecter</button>
-</div>
-<div class="login-register-zone">
-
-    <span>
-        Je n'ai pas encore de compte
-    </span>
-
-    <button
-        type="button"
-        class="btn-secondary"
-        onclick="window.location.href='register.html'"
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
     >
-        Créer mon compte
-    </button>
+
+    <title>Connexion - Nickel Master</title>
+
+    <script>
+        const savedTheme =
+            localStorage.getItem(
+                "nickel_master_theme"
+            ) || "light";
+
+        document.documentElement.setAttribute(
+            "data-theme",
+            savedTheme
+        );
+    </script>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+</head>
+
+
+<body class="login-page-body">
+
+<div class="login-page-shell">
+
+    <!-- =====================================================
+         EN-TÊTE
+    ====================================================== -->
+
+    <header class="login-page-header">
+
+        <div class="login-brand">
+
+            <div class="login-brand-icon">
+                ◆
+            </div>
+
+            <div>
+                <strong>
+                    NICKEL
+                </strong>
+
+                <span>
+                    MASTER
+                </span>
+            </div>
+
+        </div>
+
+
+        <button
+            type="button"
+            id="themeToggle"
+            class="login-theme-button"
+            onclick="toggleTheme()"
+        >
+            🌙 Mode sombre
+        </button>
+
+    </header>
+
+
+    <!-- =====================================================
+         CARTE PRINCIPALE
+    ====================================================== -->
+
+    <main class="login-main">
+
+        <section class="login-card">
+
+
+            <!-- =================================================
+                 PARTIE GAUCHE
+            ================================================== -->
+
+            <div class="login-visual-panel">
+
+                <div class="login-visual-decoration decoration-one">
+                    🏆
+                </div>
+
+                <div class="login-visual-decoration decoration-two">
+                    🎯
+                </div>
+
+                <div class="login-visual-decoration decoration-three">
+                    ⭐
+                </div>
+
+                <div class="login-visual-decoration decoration-four">
+                    📊
+                </div>
+
+
+                <div class="login-character">
+                    🧑‍💼
+                </div>
+
+
+                <div class="login-visual-text">
+
+                    <span>
+                        Bienvenue chez
+                    </span>
+
+                    <h1>
+                        Nickel Master
+                    </h1>
+
+                    <div class="login-orange-line">
+                    </div>
+
+                    <p>
+                        Entraîne-toi, relève des défis
+                        et deviens le meilleur !
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 PARTIE DROITE
+            ================================================== -->
+
+            <div class="login-form-panel">
+
+                <div class="login-form-icon">
+                    🔐
+                </div>
+
+
+                <h2>
+                    Connexion
+                </h2>
+
+                <p class="login-subtitle">
+                    Connecte-toi à ton compte pour continuer.
+                </p>
+
+
+                <!-- IDENTIFIANT -->
+
+                <label for="username">
+                    Identifiant
+                </label>
+
+                <div class="login-input-wrapper">
+
+                    <span class="login-input-icon">
+                        👤
+                    </span>
+
+                    <input
+                        type="text"
+                        id="username"
+                        placeholder="Ton identifiant (ex : a.babin)"
+                        autocomplete="username"
+                    >
+
+                </div>
+
+
+                <!-- MOT DE PASSE -->
+
+                <label for="password">
+                    Mot de passe
+                </label>
+
+                <div class="login-input-wrapper">
+
+                    <span class="login-input-icon">
+                        🔒
+                    </span>
+
+                    <input
+                        type="password"
+                        id="password"
+                        placeholder="Ton mot de passe"
+                        autocomplete="current-password"
+                    >
+
+                    <button
+                        type="button"
+                        class="login-password-toggle"
+                        onclick="toggleLoginPassword()"
+                        aria-label="Afficher ou masquer le mot de passe"
+                    >
+                        👁
+                    </button>
+
+                </div>
+
+
+                <!-- OPTIONS -->
+
+                <div class="login-options">
+
+                    <label class="login-remember">
+
+                        <input
+                            type="checkbox"
+                            id="rememberMe"
+                        >
+
+                        <span>
+                            Se souvenir de moi
+                        </span>
+
+                    </label>
+
+
+                    <button
+                        type="button"
+                        class="login-forgot-link"
+                        onclick="window.location.href='forgot-password.html'"
+                    >
+                        Mot de passe oublié ?
+                    </button>
+
+                </div>
+
+
+                <!-- CONNEXION -->
+
+                <button
+                    type="button"
+                    class="login-submit-button"
+                    onclick="login()"
+                >
+                    <span>
+                        ↪
+                    </span>
+
+                    Se connecter
+                </button>
+
+
+                <!-- SÉPARATEUR -->
+
+                <div class="login-separator">
+
+                    <span>
+                    </span>
+
+                    <small>
+                        ou
+                    </small>
+
+                    <span>
+                    </span>
+
+                </div>
+
+
+                <!-- CRÉATION COMPTE -->
+
+                <button
+                    type="button"
+                    class="login-create-account"
+                    onclick="window.location.href='register.html'"
+                >
+                    👤＋
+                    Créer mon compte
+                </button>
+
+
+                <!-- SÉCURITÉ -->
+
+                <div class="login-security">
+
+                    <div>
+                        🛡️
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Sécurisé et confidentiel
+                        </strong>
+
+                        <p>
+                            Tes données restent protégées
+                            dans Nickel Master.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
+
+    <footer class="login-footer">
+
+        <p>
+            Nickel Master
+        </p>
+
+    </footer>
 
 </div>
+
+
 <script src="app.js"></script>
 <script src="theme.js"></script>
 
+
+<script>
+    function toggleLoginPassword() {
+
+        const input =
+            document.getElementById(
+                "password"
+            );
+
+
+        if (!input) {
+            return;
+        }
+
+
+        input.type =
+            input.type === "password"
+                ? "text"
+                : "password";
+    }
+</script>
+
 </body>
+
 </html>
