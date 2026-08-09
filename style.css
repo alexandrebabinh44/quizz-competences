@@ -3898,5 +3898,168 @@ html[data-theme="dark"] .login-card {
 
     color: var(--orange);
 }
+/* =========================================================
+   GESTION DES CATÉGORIES
+========================================================= */
 
+.category-create-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 24px;
+
+    padding: 18px;
+
+    margin-bottom: 14px;
+
+    background: var(--bg-card);
+
+    border: 1px solid var(--border);
+    border-radius: 16px;
+
+    box-shadow: var(--shadow-card);
+}
+
+
+.category-create-card h2 {
+    margin: 0 0 5px;
+}
+
+
+.category-create-card p {
+    margin: 0;
+
+    color: var(--text-secondary);
+}
+
+
+.category-create-row {
+    display: flex;
+
+    gap: 10px;
+
+    min-width: 380px;
+}
+
+
+.category-create-row input {
+    margin: 0;
+}
+
+
+.category-search-card {
+    padding: 14px;
+
+    margin-bottom: 14px;
+
+    background: var(--bg-card);
+
+    border: 1px solid var(--border);
+    border-radius: 14px;
+}
+
+
+.category-search-card input {
+    margin: 0;
+}
+
+
+.category-management-list {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 10px;
+}
+
+
+.category-management-card {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 16px 18px;
+
+    background: var(--bg-card);
+
+    border: 1px solid var(--border);
+    border-radius: 14px;
+
+    box-shadow: var(--shadow-card);
+}
+
+
+.category-management-main {
+    display: flex;
+
+    align-items: center;
+
+    gap: 14px;
+}
+
+
+.category-icon {
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    background: var(--orange-soft);
+
+    border-radius: 12px;
+
+    font-size: 20px;
+}
+
+
+.category-management-main h3 {
+    margin: 0 0 4px;
+}
+
+
+.category-management-main p {
+    margin: 0;
+
+    color: var(--text-secondary);
+
+    font-size: 13px;
+}
+
+
+.category-management-actions {
+    display: flex;
+
+    gap: 8px;
+}
+
+
+@media (max-width: 800px) {
+
+    .category-create-card {
+        flex-direction: column;
+
+        align-items: stretch;
+    }
+
+
+    .category-create-row {
+        min-width: 0;
+    }
+
+
+    .category-management-card {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+}
 
