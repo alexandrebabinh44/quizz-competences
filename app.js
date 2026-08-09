@@ -485,6 +485,7 @@ async function loadHomeDashboard() {
         localStorage.getItem(
             "profile_id"
         );
+updateAdminNavigation();
 
     if (!profileId) {
         window.location.href =
