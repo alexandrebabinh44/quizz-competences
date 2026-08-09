@@ -1270,7 +1270,7 @@ textarea:focus {
 .login-brand {
     display: flex;
     align-items: center;
-    gap: 13px;
+    gap: 6px;
     color: var(--orange);
 }
 
