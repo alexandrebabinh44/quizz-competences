@@ -5284,7 +5284,7 @@ async function loadMyTrainings() {
 
         const userId =
             localStorage.getItem(
-                "user_id"
+                "profile_id"
             );
 
         if (!userId) {
