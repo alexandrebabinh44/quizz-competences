@@ -1893,8 +1893,8 @@ html[data-theme="dark"] .login-card {
 ========================================================= */
 
 .login-brand-symbol {
-    width: 32px;
-    height: 40px;
+    width: 42px;
+    height: 50px;
 
     object-fit: contain;
     object-position: center;
