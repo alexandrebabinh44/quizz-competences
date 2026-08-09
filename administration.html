@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <script>
+    const savedTheme =
+      localStorage.getItem("nickel_master_theme") || "light";
+
+    document.documentElement.setAttribute(
+      "data-theme",
+      savedTheme
+    );
+  </script>
+
+  <title>Administration - Nickel Master</title>
+
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
+</head>
+
+
+<body class="dashboard-body">
+
+<div class="dashboard-layout">
+
+
+  <aside class="sidebar">
+
+    <div class="logo">
+
+      <img
+        src="images/logo-nickel.png"
+        alt="Nickel"
+        class="sidebar-logo-img"
+      >
+
+      <span>
+        NICKEL<br>MASTER
+      </span>
+
+    </div>
+
+
+    <nav class="side-menu">
+
+      <button
+        onclick="window.location.href='home.html'"
+      >
+        🏠 Accueil
+      </button>
+
+      <button
+        onclick="window.location.href='training.html'"
+      >
+        🎯 Entraînement
+      </button>
+
+      <button>
+        🏆 Challenges
+      </button>
+
+      <button
+        onclick="window.location.href='ranking.html'"
+      >
+        📊 Classements
+      </button>
+
+      <button>
+        ⚔️ Battle
+      </button>
+
+      <button>
+        🎮 Kahoot
+      </button>
+
+      <button
+        onclick="window.location.href='profile.html'"
+      >
+        📈 Mes stats
+      </button>
+
+      <button
+        onclick="window.location.href='badges.html'"
+      >
+        🏅 Badges
+      </button>
+
+      <button>
+        💡 Boîte à idées
+      </button>
+
+      <button>
+        🚩 Signalements
+      </button>
+
+      <button
+        class="active"
+        onclick="window.location.href='administration.html'"
+      >
+        🛡️ Administration
+      </button>
+
+    </nav>
+
+
+    <div class="sidebar-bottom">
+
+      <button
+        onclick="window.location.href='settings.html'"
+      >
+        ⚙️ Paramètres
+      </button>
+
+      <button
+        id="themeToggle"
+        class="sidebar-link theme-button"
+        onclick="toggleTheme()"
+      >
+        🌙 Mode sombre
+      </button>
+
+      <button
+        class="sidebar-link"
+        onclick="logout()"
+      >
+        🚪 Déconnexion
+      </button>
+
+    </div>
+
+  </aside>
+
+
+  <main class="dashboard-main">
+
+    <header class="topbar">
+
+      <input
+        type="text"
+        placeholder="Rechercher..."
+        disabled
+      >
+
+      <div class="topbar-right">
+
+        <strong id="topUserName">
+          Administrateur
+        </strong>
+
+      </div>
+
+    </header>
+
+
+    <section class="settings-page">
+
+      <div class="settings-header">
+
+        <h1>
+          🛡️ Administration
+        </h1>
+
+        <p>
+          Gère les outils d’administration de Nickel Master.
+        </p>
+
+      </div>
+
+
+      <div class="settings-grid">
+
+
+        <!-- AJOUTER DES QUESTIONS -->
+
+        <button
+          class="settings-card"
+          onclick="window.location.href='admin-questions.html'"
+        >
+
+          <div class="settings-card-icon">
+            ➕
+          </div>
+
+          <div class="settings-card-content">
+
+            <h2>
+              Ajouter des questions
+            </h2>
+
+            <p>
+              Ajoute une question seule ou importe plusieurs questions en bloc.
+            </p>
+
+          </div>
+
+          <div class="settings-card-arrow">
+            ›
+          </div>
+
+        </button>
+
+
+        <!-- GÉRER LES QUESTIONS -->
+
+        <button
+          class="settings-card"
+          onclick="window.location.href='admin-question-management.html'"
+        >
+
+          <div class="settings-card-icon">
+            🧰
+          </div>
+
+          <div class="settings-card-content">
+
+            <h2>
+              Gérer les questions
+            </h2>
+
+            <p>
+              Recherche, modifie, désactive ou supprime les questions existantes.
+            </p>
+
+          </div>
+
+          <div class="settings-card-arrow">
+            ›
+          </div>
+
+        </button>
+
+
+        <!-- GÉRER LES CATÉGORIES -->
+
+        <button
+          class="settings-card"
+          onclick="window.location.href='admin-categories.html'"
+        >
+
+          <div class="settings-card-icon">
+            🗂️
+          </div>
+
+          <div class="settings-card-content">
+
+            <h2>
+              Gérer les catégories
+            </h2>
+
+            <p>
+              Crée, modifie ou organise les catégories de questions.
+            </p>
+
+          </div>
+
+          <div class="settings-card-arrow">
+            ›
+          </div>
+
+        </button>
+
+
+        <!-- APPROBATIONS -->
+
+        <button
+          class="settings-card"
+          onclick="window.location.href='approvals.html'"
+        >
+
+          <div class="settings-card-icon">
+            ✅
+          </div>
+
+          <div class="settings-card-content">
+
+            <h2>
+              Approbations
+            </h2>
+
+            <p>
+              Gère les demandes nécessitant une validation.
+            </p>
+
+          </div>
+
+          <div class="settings-card-arrow">
+            ›
+          </div>
+
+        </button>
+
+
+        <!-- SIGNALEMENTS -->
+
+        <button
+          class="settings-card settings-card-disabled"
+          disabled
+        >
+
+          <div class="settings-card-icon">
+            🚩
+          </div>
+
+          <div class="settings-card-content">
+
+            <h2>
+              Gestion des signalements
+            </h2>
+
+            <p>
+              Consulte et traite les signalements remontés par les collaborateurs.
+            </p>
+
+            <small>
+              Bientôt disponible
+            </small>
+
+          </div>
+
+        </button>
+
+
+        <!-- UTILISATEURS -->
+
+        <button
+          class="settings-card settings-card-disabled"
+          disabled
+        >
+
+          <div class="settings-card-icon">
+            👥
+          </div>
+
+          <div class="settings-card-content">
+
+            <h2>
+              Gestion des utilisateurs
+            </h2>
+
+            <p>
+              Gère les comptes, rôles et accès à Nickel Master.
+            </p>
+
+            <small>
+              Bientôt disponible
+            </small>
+
+          </div>
+
+        </button>
+
+
+      </div>
+
+    </section>
+
+  </main>
+
+</div>
+
+
+<script src="app.js"></script>
+<script src="theme.js"></script>
+
+<script>
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+      const role =
+        String(
+          localStorage.getItem("role") || ""
+        ).toLowerCase();
+
+
+      if (role !== "admin") {
+
+        alert(
+          "Cette page est réservée à l'administrateur."
+        );
+
+        window.location.href =
+          "home.html";
+
+        return;
+      }
+
+
+      const name =
+        localStorage.getItem("full_name") ||
+        "Administrateur";
+
+
+      const element =
+        document.getElementById(
+          "topUserName"
+        );
+
+
+      if (element) {
+
+        element.innerText =
+          name;
+      }
+
+    }
+  );
+
+</script>
+
+</body>
+
+</html>
