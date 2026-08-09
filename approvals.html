@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <script>
+        const savedTheme =
+            localStorage.getItem("nickel_master_theme") || "light";
+
+        document.documentElement.setAttribute(
+            "data-theme",
+            savedTheme
+        );
+    </script>
+
+    <title>Approbations - Nickel Master</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+</head>
+
+
+<body class="dashboard-body">
+
+<div class="dashboard-layout">
+
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            <div class="logo-icon">
+                ≡
+            </div>
+
+            <div>
+                <strong>NICKEL</strong>
+                <br>
+                <span>MASTER</span>
+            </div>
+        </div>
+
+
+        <nav class="side-menu">
+
+            <button
+                onclick="window.location.href='home.html'"
+            >
+                🏠 Accueil
+            </button>
+
+            <button
+                onclick="window.location.href='training.html'"
+            >
+                🎯 Entraînement
+            </button>
+
+            <button>
+                🏆 Challenges
+            </button>
+
+            <button
+                onclick="window.location.href='ranking.html'"
+            >
+                📊 Classements
+            </button>
+
+            <button>
+                ⚔️ Battle
+            </button>
+
+            <button>
+                🎮 Kahoot
+            </button>
+
+            <button
+                onclick="window.location.href='profile.html'"
+            >
+                📈 Mes stats
+            </button>
+
+            <button
+                onclick="window.location.href='badges.html'"
+            >
+                🏅 Badges
+            </button>
+
+            <button
+                class="active"
+                onclick="window.location.href='approvals.html'"
+            >
+                ✅ Approbations
+            </button>
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <button
+                onclick="window.location.href='settings.html'"
+            >
+                ⚙️ Paramètres
+            </button>
+
+            <button
+                id="themeToggle"
+                class="sidebar-link theme-button"
+                onclick="toggleTheme()"
+            >
+                🌙 Mode sombre
+            </button>
+
+            <button
+                class="sidebar-link"
+                onclick="logout()"
+            >
+                🚪 Déconnexion
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <main class="dashboard-main">
+
+        <header class="topbar">
+
+            <input
+                type="text"
+                placeholder="Rechercher..."
+                disabled
+            >
+
+            <div class="topbar-right">
+
+                <strong id="topUserName">
+                    Administrateur
+                </strong>
+
+            </div>
+
+        </header>
+
+
+        <section class="approval-page">
+
+            <div class="approval-header">
+
+                <h1>
+                    ✅ Approbations
+                </h1>
+
+                <p>
+                    Gère les demandes nécessitant une validation.
+                </p>
+
+            </div>
+
+
+            <div class="approval-menu">
+
+                <button
+                    class="approval-menu-card"
+                    onclick="showApprovalSection('accounts')"
+                >
+
+                    <div class="approval-menu-icon">
+                        👤
+                    </div>
+
+                    <div>
+                        <h2>
+                            Création de compte
+                        </h2>
+
+                        <p>
+                            Valide les demandes de comptes sensibles.
+                        </p>
+                    </div>
+
+                    <span
+                        id="accountApprovalCount"
+                        class="approval-count"
+                    >
+                        0
+                    </span>
+
+                </button>
+
+
+                <button
+                    class="approval-menu-card"
+                    onclick="showApprovalSection('challenges')"
+                >
+
+                    <div class="approval-menu-icon">
+                        🏆
+                    </div>
+
+                    <div>
+                        <h2>
+                            Challenges
+                        </h2>
+
+                        <p>
+                            Valide les challenges soumis.
+                        </p>
+                    </div>
+
+                    <span
+                        id="challengeApprovalCount"
+                        class="approval-count"
+                    >
+                        0
+                    </span>
+
+                </button>
+
+            </div>
+
+
+            <section
+                id="accountApprovalsSection"
+                class="approval-section"
+            >
+
+                <h2>
+                    Créations de compte en attente
+                </h2>
+
+                <div id="accountApprovalsList">
+                    Chargement...
+                </div>
+
+            </section>
+
+
+            <section
+                id="challengeApprovalsSection"
+                class="approval-section"
+                style="display:none;"
+            >
+
+                <h2>
+                    Challenges en attente
+                </h2>
+
+                <div id="challengeApprovalsList">
+
+                    <p>
+                        Les approbations de challenges seront reliées
+                        ici lorsque le module Challenges sera créé.
+                    </p>
+
+                </div>
+
+            </section>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<script src="app.js"></script>
+<script src="theme.js"></script>
+
+<script>
+    document.addEventListener(
+        "DOMContentLoaded",
+        loadApprovalsPage
+    );
+</script>
+
+</body>
+
+</html>
