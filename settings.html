@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <script>
+    const savedTheme =
+      localStorage.getItem("nickel_master_theme") || "light";
+
+    document.documentElement.setAttribute(
+      "data-theme",
+      savedTheme
+    );
+  </script>
+
+  <title>Paramètres - Nickel Master</title>
+
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
+</head>
+
+
+<body class="dashboard-body">
+
+<div class="dashboard-layout">
+
+  <!-- =========================
+       SIDEBAR
+  ========================= -->
+
+  <aside class="sidebar">
+
+    <div class="logo">
+
+      <div class="logo-icon">
+        ≡
+      </div>
+
+      <div>
+        <strong>NICKEL</strong>
+        <br>
+        <span>MASTER</span>
+      </div>
+
+    </div>
+
+
+    <nav class="side-menu">
+
+      <button
+        onclick="window.location.href='home.html'"
+      >
+        🏠 Accueil
+      </button>
+
+      <button
+        onclick="window.location.href='training.html'"
+      >
+        🎯 Entraînement
+      </button>
+
+      <button>
+        🏆 Challenges
+      </button>
+
+      <button
+        onclick="window.location.href='ranking.html'"
+      >
+        📊 Classements
+      </button>
+
+      <button>
+        ⚔️ Battle
+      </button>
+
+      <button>
+        🎮 Kahoot
+      </button>
+
+      <button
+        onclick="window.location.href='profile.html'"
+      >
+        📈 Mes stats
+      </button>
+
+      <button
+        onclick="window.location.href='badges.html'"
+      >
+        🏅 Badges
+      </button>
+
+      <button>
+        💡 Boîte à idées
+      </button>
+
+      <button>
+        🚩 Signalements
+      </button>
+
+    </nav>
+
+
+    <div class="sidebar-bottom">
+
+      <button
+        class="active"
+        onclick="window.location.href='settings.html'"
+      >
+        ⚙️ Paramètres
+      </button>
+
+      <button
+        id="themeToggle"
+        class="sidebar-link theme-button"
+        onclick="toggleTheme()"
+      >
+        🌙 Mode sombre
+      </button>
+
+      <button
+        class="sidebar-link"
+        onclick="logout()"
+      >
+        🚪 Déconnexion
+      </button>
+
+    </div>
+
+  </aside>
+
+
+  <!-- =========================
+       CONTENU
+  ========================= -->
+
+  <main class="dashboard-main">
+
+    <header class="topbar">
+
+      <input
+        type="text"
+        placeholder="Rechercher..."
+        disabled
+      >
+
+      <div class="topbar-right">
+
+        <strong id="topUserName">
+          Utilisateur
+        </strong>
+
+      </div>
+
+    </header>
+
+
+    <section class="settings-page">
+
+      <div class="settings-header">
+
+        <h1>
+          ⚙️ Paramètres
+        </h1>
+
+        <p>
+          Personnalise ton expérience Nickel Master.
+        </p>
+
+      </div>
+
+
+      <div class="settings-grid">
+
+
+        <!-- AVATAR -->
+
+        <button
+          class="settings-card"
+          onclick="window.location.href='avatar-settings.html'"
+        >
+
+          <div class="settings-card-icon">
+            👤
+          </div>
+
+          <div class="settings-card-content">
+
+            <h2>
+              Choisir son avatar
+            </h2>
+
+            <p>
+              Personnalise l'image affichée sur ton profil.
+            </p>
+
+          </div>
+
+          <div class="settings-card-arrow">
+            ›
+          </div>
+
+        </button>
+
+
+        <!-- APPARENCE -->
+
+        <button
+          class="settings-card"
+          onclick="toggleTheme()"
+        >
+
+          <div class="settings-card-icon">
+            🎨
+          </div>
+
+          <div class="settings-card-content">
+
+            <h2>
+              Apparence
+            </h2>
+
+            <p>
+              Bascule entre le mode clair et le mode sombre.
+            </p>
+
+          </div>
+
+          <div class="settings-card-arrow">
+            ›
+          </div>
+
+        </button>
+
+
+        <!-- MOT DE PASSE -->
+
+        <button
+          class="settings-card"
+          onclick="window.location.href='change-password.html'"
+        >
+
+          <div class="settings-card-icon">
+            🔐
+          </div>
+
+          <div class="settings-card-content">
+
+            <h2>
+              Mot de passe
+            </h2>
+
+            <p>
+              Modifie ton mot de passe Nickel Master.
+            </p>
+
+          </div>
+
+          <div class="settings-card-arrow">
+            ›
+          </div>
+
+        </button>
+
+
+        <!-- MON COMPTE -->
+
+        <button
+          class="settings-card"
+          onclick="window.location.href='profile.html'"
+        >
+
+          <div class="settings-card-icon">
+            🪪
+          </div>
+
+          <div class="settings-card-content">
+
+            <h2>
+              Mon compte
+            </h2>
+
+            <p>
+              Consulte les informations liées à ton profil.
+            </p>
+
+          </div>
+
+          <div class="settings-card-arrow">
+            ›
+          </div>
+
+        </button>
+
+
+        <!-- NOTIFICATIONS -->
+
+        <button
+          class="settings-card settings-card-disabled"
+          disabled
+        >
+
+          <div class="settings-card-icon">
+            🔔
+          </div>
+
+          <div class="settings-card-content">
+
+            <h2>
+              Notifications
+            </h2>
+
+            <p>
+              Choisis les alertes que tu souhaites recevoir.
+            </p>
+
+            <small>
+              Bientôt disponible
+            </small>
+
+          </div>
+
+        </button>
+
+
+        <!-- ACCESSIBILITÉ -->
+
+        <button
+          class="settings-card settings-card-disabled"
+          disabled
+        >
+
+          <div class="settings-card-icon">
+            ♿
+          </div>
+
+          <div class="settings-card-content">
+
+            <h2>
+              Accessibilité
+            </h2>
+
+            <p>
+              Contraste, taille du texte et animations.
+            </p>
+
+            <small>
+              Bientôt disponible
+            </small>
+
+          </div>
+
+        </button>
+
+
+      </div>
+
+    </section>
+
+  </main>
+
+</div>
+
+
+<script src="app.js"></script>
+<script src="theme.js"></script>
+
+<script>
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+      const name =
+        localStorage.getItem("full_name") ||
+        "Utilisateur";
+
+      const element =
+        document.getElementById(
+          "topUserName"
+        );
+
+      if (element) {
+        element.innerText =
+          name;
+      }
+
+    }
+  );
+
+</script>
+
+</body>
+
+</html>
