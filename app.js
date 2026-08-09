@@ -5290,3 +5290,261 @@ function resetRegisterForm() {
         "registerStep1"
     );
 }
+/* =========================================================
+   APPROBATIONS ADMIN
+========================================================= */
+
+function requireAdmin() {
+    const role =
+        String(
+            localStorage.getItem("role") || ""
+        ).toLowerCase();
+
+    if (role !== "admin") {
+        alert(
+            "Cette page est réservée à l'administrateur."
+        );
+
+        window.location.href =
+            "home.html";
+
+        return false;
+    }
+
+    return true;
+}
+
+
+async function loadApprovalsPage() {
+
+    if (!requireAdmin()) {
+        return;
+    }
+
+    const name =
+        localStorage.getItem(
+            "full_name"
+        ) ||
+        "Administrateur";
+
+    const topName =
+        document.getElementById(
+            "topUserName"
+        );
+
+    if (topName) {
+        topName.innerText =
+            name;
+    }
+
+    await loadAccountApprovals();
+}
+
+
+function showApprovalSection(type) {
+
+    const accounts =
+        document.getElementById(
+            "accountApprovalsSection"
+        );
+
+    const challenges =
+        document.getElementById(
+            "challengeApprovalsSection"
+        );
+
+    if (accounts) {
+        accounts.style.display =
+            type === "accounts"
+                ? "block"
+                : "none";
+    }
+
+    if (challenges) {
+        challenges.style.display =
+            type === "challenges"
+                ? "block"
+                : "none";
+    }
+}
+
+
+async function loadAccountApprovals() {
+
+    const container =
+        document.getElementById(
+            "accountApprovalsList"
+        );
+
+    if (!container) {
+        return;
+    }
+
+    container.innerHTML =
+        "Chargement...";
+
+    try {
+
+        const response =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/account_requests?status=eq.pending&select=*&order=created_at.asc`,
+                {
+                    headers:
+                        supabaseHeaders()
+                }
+            );
+
+        if (!response.ok) {
+            throw new Error(
+                await response.text()
+            );
+        }
+
+        const requests =
+            await response.json();
+
+
+        const counter =
+            document.getElementById(
+                "accountApprovalCount"
+            );
+
+        if (counter) {
+            counter.innerText =
+                requests.length;
+        }
+
+
+        if (!requests.length) {
+
+            container.innerHTML = `
+                <div class="approval-empty">
+                    ✅ Aucune demande en attente.
+                </div>
+            `;
+
+            return;
+        }
+
+
+        const teamsResponse =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/teams?select=id,name`,
+                {
+                    headers:
+                        supabaseHeaders()
+                }
+            );
+
+        const teams =
+            teamsResponse.ok
+                ? await teamsResponse.json()
+                : [];
+
+
+        const teamNames = {};
+
+        teams.forEach(team => {
+            teamNames[team.id] =
+                team.name;
+        });
+
+
+        container.innerHTML =
+            requests
+                .map(
+                    request => `
+                        <div class="approval-request-card">
+
+                            <div class="approval-request-info">
+
+                                <h3>
+                                    ${escapeHtml(
+                                        request.full_name
+                                    )}
+                                </h3>
+
+                                <p>
+                                    <strong>Service :</strong>
+                                    ${escapeHtml(
+                                        request.service
+                                    )}
+                                </p>
+
+                                <p>
+                                    <strong>Équipe :</strong>
+                                    ${escapeHtml(
+                                        teamNames[
+                                            request.team_id
+                                        ] ||
+                                        "Non renseignée"
+                                    )}
+                                </p>
+
+                                <p>
+                                    <strong>Rôle demandé :</strong>
+                                    ${escapeHtml(
+                                        request.requested_role
+                                    )}
+                                </p>
+
+                            </div>
+
+
+                            <div class="approval-request-actions">
+
+                                <button
+                                    class="approval-accept"
+                                    onclick="approveAccountRequest('${request.id}')"
+                                >
+                                    ✓ Accepter
+                                </button>
+
+
+                                <button
+                                    class="approval-reject"
+                                    onclick="rejectAccountRequest('${request.id}')"
+                                >
+                                    ✕ Refuser
+                                </button>
+
+                            </div>
+
+                        </div>
+                    `
+                )
+                .join("");
+
+    } catch (error) {
+
+        console.error(error);
+
+        container.innerHTML = `
+            <div class="approval-empty">
+                Impossible de charger les demandes.
+            </div>
+        `;
+    }
+}
+function updateAdminNavigation() {
+
+    const role =
+        String(
+            localStorage.getItem("role") || ""
+        ).toLowerCase();
+
+
+    const button =
+        document.getElementById(
+            "adminApprovalsButton"
+        );
+
+
+    if (
+        button &&
+        role === "admin"
+    ) {
+        button.style.display =
+            "";
+    }
+}
