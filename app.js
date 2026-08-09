@@ -4468,3 +4468,825 @@ document.addEventListener(
         }
     }
 );
+/* =========================================================
+   CRÉATION DE COMPTE
+========================================================= */
+
+let registerData = {
+    firstName: "",
+    lastName: "",
+    fullName: "",
+    username: "",
+    service: "",
+    teamId: null,
+    role: ""
+};
+
+
+/* =========================================================
+   NETTOYAGE TEXTE IDENTIFIANT
+========================================================= */
+
+function normalizeRegisterText(value) {
+    return String(value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-zA-Z0-9]/g, "")
+        .toLowerCase();
+}
+
+
+/* =========================================================
+   GÉNÉRER IDENTIFIANT
+========================================================= */
+
+function generateUsername(
+    firstName,
+    lastName
+) {
+
+    const first =
+        normalizeRegisterText(
+            firstName
+        );
+
+    const last =
+        normalizeRegisterText(
+            lastName
+        );
+
+
+    if (
+        !first ||
+        !last
+    ) {
+        return "";
+    }
+
+
+    return (
+        first.charAt(0) +
+        "." +
+        last
+    );
+}
+
+
+/* =========================================================
+   MOT DE PASSE ALÉATOIRE
+========================================================= */
+
+function generateTemporaryPassword() {
+
+    const chars =
+        "ABCDEFGHJKLMNPQRSTUVWXYZ" +
+        "abcdefghijkmnopqrstuvwxyz" +
+        "23456789";
+
+
+    let password =
+        "";
+
+
+    for (
+        let i = 0;
+        i < 10;
+        i++
+    ) {
+
+        password +=
+            chars.charAt(
+                Math.floor(
+                    Math.random() *
+                    chars.length
+                )
+            );
+    }
+
+
+    return password;
+}
+
+
+/* =========================================================
+   NAVIGATION FORMULAIRE
+========================================================= */
+
+function showRegisterStep(stepId) {
+
+    const steps = [
+        "registerStep1",
+        "existingAccountMessage",
+        "registerStep2",
+        "registerStep3",
+        "registerStep4",
+        "registerSuccess",
+        "registerPending"
+    ];
+
+
+    steps.forEach(
+        id => {
+
+            const element =
+                document.getElementById(
+                    id
+                );
+
+
+            if (element) {
+                element.style.display =
+                    id === stepId
+                        ? "block"
+                        : "none";
+            }
+        }
+    );
+}
+
+
+/* =========================================================
+   VÉRIFIER NOM + PRÉNOM
+========================================================= */
+
+async function checkRegisterIdentity() {
+
+    const firstName =
+        document
+            .getElementById(
+                "registerFirstName"
+            )
+            .value
+            .trim();
+
+
+    const lastName =
+        document
+            .getElementById(
+                "registerLastName"
+            )
+            .value
+            .trim();
+
+
+    if (
+        !firstName ||
+        !lastName
+    ) {
+
+        alert(
+            "Merci de renseigner ton prénom et ton nom."
+        );
+
+        return;
+    }
+
+
+    const fullName =
+        `${firstName} ${lastName}`;
+
+
+    const username =
+        generateUsername(
+            firstName,
+            lastName
+        );
+
+
+    try {
+
+        /*
+         * Vérification 1 :
+         * nom complet.
+         */
+
+        const nameResponse =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/profiles?select=id,full_name,username&full_name=ilike.${encodeURIComponent(fullName)}`,
+                {
+                    headers:
+                        supabaseHeaders()
+                }
+            );
+
+
+        if (!nameResponse.ok) {
+            throw new Error(
+                await nameResponse.text()
+            );
+        }
+
+
+        const nameMatches =
+            await nameResponse.json();
+
+
+        /*
+         * Vérification 2 :
+         * identifiant.
+         */
+
+        const usernameResponse =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/profiles?select=id&username=eq.${encodeURIComponent(username)}`,
+                {
+                    headers:
+                        supabaseHeaders()
+                }
+            );
+
+
+        if (!usernameResponse.ok) {
+            throw new Error(
+                await usernameResponse.text()
+            );
+        }
+
+
+        const usernameMatches =
+            await usernameResponse.json();
+
+
+        /*
+         * Si l'un des deux existe :
+         * STOP.
+         */
+
+        if (
+            nameMatches.length > 0 ||
+            usernameMatches.length > 0
+        ) {
+
+            showRegisterStep(
+                "existingAccountMessage"
+            );
+
+            return;
+        }
+
+
+        registerData.firstName =
+            firstName;
+
+        registerData.lastName =
+            lastName;
+
+        registerData.fullName =
+            fullName;
+
+        registerData.username =
+            username;
+
+
+        showRegisterStep(
+            "registerStep2"
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Erreur vérification compte :",
+            error
+        );
+
+
+        alert(
+            "Impossible de vérifier l'existence du compte."
+        );
+    }
+}
+
+
+/* =========================================================
+   CHOIX SERVICE
+========================================================= */
+
+function selectRegisterService(
+    service,
+    button
+) {
+
+    registerData.service =
+        service;
+
+
+    document
+        .querySelectorAll(
+            "#registerStep2 .register-choice"
+        )
+        .forEach(
+            element => {
+                element.classList.remove(
+                    "selected"
+                );
+            }
+        );
+
+
+    if (button) {
+        button.classList.add(
+            "selected"
+        );
+    }
+}
+
+
+async function continueAfterService() {
+
+    if (!registerData.service) {
+
+        alert(
+            "Merci de choisir ton service."
+        );
+
+        return;
+    }
+
+
+    /*
+     * On affiche les équipes
+     * correspondant au service.
+     */
+
+    await loadRegisterTeams(
+        registerData.service
+    );
+
+
+    showRegisterStep(
+        "registerStep3"
+    );
+}
+
+
+/* =========================================================
+   CHARGER ÉQUIPES
+========================================================= */
+
+async function loadRegisterTeams(
+    service
+) {
+
+    const container =
+        document.getElementById(
+            "registerTeams"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    container.innerHTML =
+        "Chargement...";
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/teams?select=id,name&service=eq.${encodeURIComponent(service)}&order=name.asc`,
+                {
+                    headers:
+                        supabaseHeaders()
+                }
+            );
+
+
+        if (!response.ok) {
+            throw new Error(
+                await response.text()
+            );
+        }
+
+
+        const teams =
+            await response.json();
+
+
+        if (!teams.length) {
+
+            container.innerHTML =
+                `
+                <p>
+                    Aucune équipe disponible
+                    pour ce service.
+                </p>
+                `;
+
+            return;
+        }
+
+
+        container.innerHTML =
+            teams
+                .map(
+                    team => `
+                        <button
+                            type="button"
+                            class="register-choice"
+                            onclick="selectRegisterTeam('${team.id}', this)"
+                        >
+                            👥
+                            <strong>
+                                ${escapeHtml(team.name)}
+                            </strong>
+                        </button>
+                    `
+                )
+                .join("");
+
+    } catch (error) {
+
+        console.error(
+            error
+        );
+
+
+        container.innerHTML =
+            `
+            <p>
+                Impossible de charger
+                les équipes.
+            </p>
+            `;
+    }
+}
+
+
+function selectRegisterTeam(
+    teamId,
+    button
+) {
+
+    registerData.teamId =
+        teamId;
+
+
+    document
+        .querySelectorAll(
+            "#registerTeams .register-choice"
+        )
+        .forEach(
+            element => {
+                element.classList.remove(
+                    "selected"
+                );
+            }
+        );
+
+
+    if (button) {
+        button.classList.add(
+            "selected"
+        );
+    }
+}
+
+
+function continueAfterTeam() {
+
+    if (!registerData.teamId) {
+
+        alert(
+            "Merci de choisir ton équipe."
+        );
+
+        return;
+    }
+
+
+    showRegisterStep(
+        "registerStep4"
+    );
+}
+
+
+/* =========================================================
+   CHOIX RÔLE
+========================================================= */
+
+function selectRegisterRole(
+    role,
+    button
+) {
+
+    registerData.role =
+        role;
+
+
+    document
+        .querySelectorAll(
+            "#registerStep4 .register-choice"
+        )
+        .forEach(
+            element => {
+                element.classList.remove(
+                    "selected"
+                );
+            }
+        );
+
+
+    if (button) {
+        button.classList.add(
+            "selected"
+        );
+    }
+}
+
+
+/* =========================================================
+   TERMINER INSCRIPTION
+========================================================= */
+
+async function finishAccountRegistration() {
+
+    if (!registerData.role) {
+
+        alert(
+            "Merci de choisir ton rôle."
+        );
+
+        return;
+    }
+
+
+    const sensitiveRoles = [
+        "Chef d'équipe",
+        "Manager",
+        "Direction"
+    ];
+
+
+    if (
+        sensitiveRoles.includes(
+            registerData.role
+        )
+    ) {
+
+        await createAccountApprovalRequest();
+
+        return;
+    }
+
+
+    await createImmediateAccount();
+}
+
+
+/* =========================================================
+   CRÉER CONSEILLER / SENIOR
+========================================================= */
+
+async function createImmediateAccount() {
+
+    const temporaryPassword =
+        generateTemporaryPassword();
+
+
+    try {
+
+        /*
+         * Dernière vérification
+         * juste avant l'insertion.
+         */
+
+        const duplicateResponse =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/profiles?select=id&username=eq.${encodeURIComponent(registerData.username)}`,
+                {
+                    headers:
+                        supabaseHeaders()
+                }
+            );
+
+
+        const duplicates =
+            duplicateResponse.ok
+                ? await duplicateResponse.json()
+                : [];
+
+
+        if (duplicates.length) {
+
+            showRegisterStep(
+                "existingAccountMessage"
+            );
+
+            return;
+        }
+
+
+        const response =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/profiles`,
+                {
+                    method:
+                        "POST",
+
+                    headers:
+                        supabaseHeaders({
+                            "Content-Type":
+                                "application/json",
+
+                            Prefer:
+                                "return=minimal"
+                        }),
+
+                    body:
+                        JSON.stringify({
+
+                            first_name:
+                                registerData.firstName,
+
+                            last_name:
+                                registerData.lastName,
+
+                            full_name:
+                                registerData.fullName,
+
+                            username:
+                                registerData.username,
+
+                            password:
+                                temporaryPassword,
+
+                            service:
+                                registerData.service,
+
+                            team_id:
+                                registerData.teamId,
+
+                            /*
+                             * Rôle technique.
+                             */
+                            role:
+                                "user",
+
+                            /*
+                             * Poste visible.
+                             */
+                            position:
+                                registerData.role,
+
+                            account_status:
+                                "active",
+
+                            must_change_password:
+                                true,
+
+                            xp:
+                                0,
+
+                            level:
+                                1
+                        })
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                await response.text()
+            );
+        }
+
+
+        document.getElementById(
+            "generatedUsername"
+        ).innerText =
+            registerData.username;
+
+
+        document.getElementById(
+            "generatedPassword"
+        ).innerText =
+            temporaryPassword;
+
+
+        showRegisterStep(
+            "registerSuccess"
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Erreur création compte :",
+            error
+        );
+
+
+        alert(
+            "Impossible de créer le compte : " +
+            error.message
+        );
+    }
+}
+
+
+/* =========================================================
+   DEMANDE APPROBATION
+========================================================= */
+
+async function createAccountApprovalRequest() {
+
+    try {
+
+        const response =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/account_requests`,
+                {
+                    method:
+                        "POST",
+
+                    headers:
+                        supabaseHeaders({
+                            "Content-Type":
+                                "application/json",
+
+                            Prefer:
+                                "return=minimal"
+                        }),
+
+                    body:
+                        JSON.stringify({
+
+                            first_name:
+                                registerData.firstName,
+
+                            last_name:
+                                registerData.lastName,
+
+                            full_name:
+                                registerData.fullName,
+
+                            service:
+                                registerData.service,
+
+                            team_id:
+                                String(
+                                    registerData.teamId
+                                ),
+
+                            requested_role:
+                                registerData.role,
+
+                            status:
+                                "pending"
+                        })
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                await response.text()
+            );
+        }
+
+
+        showRegisterStep(
+            "registerPending"
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Erreur demande compte :",
+            error
+        );
+
+
+        alert(
+            "Impossible d'envoyer la demande : " +
+            error.message
+        );
+    }
+}
+
+
+/* =========================================================
+   RECOMMENCER
+========================================================= */
+
+function resetRegisterForm() {
+
+    registerData = {
+        firstName: "",
+        lastName: "",
+        fullName: "",
+        username: "",
+        service: "",
+        teamId: null,
+        role: ""
+    };
+
+
+    showRegisterStep(
+        "registerStep1"
+    );
+}
