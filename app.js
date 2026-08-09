@@ -8753,3 +8753,1252 @@ async function importBulkQuestions() {
         }
     }
 }
+/* =========================================================
+   ADMIN - GESTION DES QUESTIONS
+========================================================= */
+
+let questionManagementState = {
+
+    questions: [],
+
+    filteredQuestions: [],
+
+    editingQuestion: null
+};
+
+
+/* =========================================================
+   INITIALISATION
+========================================================= */
+
+async function initializeQuestionManagement() {
+
+    setupQuestionManagementEvents();
+
+    await loadQuestionManagementData();
+}
+
+
+/* =========================================================
+   EVENTS
+========================================================= */
+
+function setupQuestionManagementEvents() {
+
+    [
+        "questionManagementSearch",
+        "questionManagementCategory",
+        "questionManagementType",
+        "questionManagementStatus"
+    ]
+    .forEach(
+        id => {
+
+            const element =
+                document.getElementById(id);
+
+            if (!element) {
+                return;
+            }
+
+            element.addEventListener(
+                id === "questionManagementSearch"
+                    ? "input"
+                    : "change",
+                applyQuestionManagementFilters
+            );
+        }
+    );
+
+
+    const close =
+        document.getElementById(
+            "closeQuestionEditModal"
+        );
+
+    const cancel =
+        document.getElementById(
+            "cancelQuestionEdit"
+        );
+
+    const save =
+        document.getElementById(
+            "saveQuestionEdit"
+        );
+
+    const type =
+        document.getElementById(
+            "editQuestionType"
+        );
+
+
+    if (close) {
+        close.addEventListener(
+            "click",
+            closeQuestionEditModal
+        );
+    }
+
+
+    if (cancel) {
+        cancel.addEventListener(
+            "click",
+            closeQuestionEditModal
+        );
+    }
+
+
+    if (save) {
+        save.addEventListener(
+            "click",
+            saveQuestionManagementEdit
+        );
+    }
+
+
+    if (type) {
+        type.addEventListener(
+            "change",
+            renderQuestionManagementEditAnswers
+        );
+    }
+}
+
+
+/* =========================================================
+   CHARGEMENT
+========================================================= */
+
+async function loadQuestionManagementData() {
+
+    const container =
+        document.getElementById(
+            "questionManagementList"
+        );
+
+    if (container) {
+        container.innerHTML =
+            "Chargement...";
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/questions?select=*&order=category.asc,order_number.asc`,
+                {
+                    headers:
+                        supabaseHeaders()
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                await response.text()
+            );
+        }
+
+
+        const questions =
+            await response.json();
+
+
+        questionManagementState.questions =
+            questions;
+
+
+        fillQuestionManagementCategories();
+
+        applyQuestionManagementFilters();
+
+
+    } catch (error) {
+
+        console.error(
+            "Erreur gestion questions :",
+            error
+        );
+
+        if (container) {
+
+            container.innerHTML = `
+                <div class="question-management-empty">
+                    Impossible de charger les questions.
+                </div>
+            `;
+        }
+    }
+}
+
+
+/* =========================================================
+   CATÉGORIES
+========================================================= */
+
+function fillQuestionManagementCategories() {
+
+    const select =
+        document.getElementById(
+            "questionManagementCategory"
+        );
+
+
+    if (!select) {
+        return;
+    }
+
+
+    const categories =
+        [
+            ...new Set(
+                questionManagementState
+                    .questions
+                    .map(
+                        question =>
+                            String(
+                                question.category || ""
+                            )
+                            .trim()
+                    )
+                    .filter(Boolean)
+            )
+        ]
+        .sort(
+            (a, b) =>
+                a.localeCompare(
+                    b,
+                    "fr",
+                    {
+                        sensitivity: "base"
+                    }
+                )
+        );
+
+
+    select.innerHTML = `
+        <option value="">
+            Toutes les catégories
+        </option>
+
+        ${
+            categories
+                .map(
+                    category => `
+                        <option value="${escapeHtml(category)}">
+                            ${escapeHtml(category)}
+                        </option>
+                    `
+                )
+                .join("")
+        }
+    `;
+}
+
+
+/* =========================================================
+   FILTRES
+========================================================= */
+
+function applyQuestionManagementFilters() {
+
+    const search =
+        String(
+            document.getElementById(
+                "questionManagementSearch"
+            )?.value || ""
+        )
+        .trim()
+        .toLowerCase();
+
+
+    const category =
+        document.getElementById(
+            "questionManagementCategory"
+        )?.value || "";
+
+
+    const type =
+        document.getElementById(
+            "questionManagementType"
+        )?.value || "";
+
+
+    const status =
+        document.getElementById(
+            "questionManagementStatus"
+        )?.value || "";
+
+
+    questionManagementState.filteredQuestions =
+        questionManagementState
+            .questions
+            .filter(
+                question => {
+
+                    const searchable =
+                        `${question.question || ""} ${question.category || ""}`
+                            .toLowerCase();
+
+
+                    if (
+                        search &&
+                        !searchable.includes(
+                            search
+                        )
+                    ) {
+                        return false;
+                    }
+
+
+                    if (
+                        category &&
+                        question.category !== category
+                    ) {
+                        return false;
+                    }
+
+
+                    if (
+                        type &&
+                        question.question_type !== type
+                    ) {
+                        return false;
+                    }
+
+
+                    if (
+                        status === "active" &&
+                        question.is_active === false
+                    ) {
+                        return false;
+                    }
+
+
+                    if (
+                        status === "inactive" &&
+                        question.is_active !== false
+                    ) {
+                        return false;
+                    }
+
+
+                    return true;
+                }
+            );
+
+
+    updateQuestionManagementStats();
+
+    renderQuestionManagementList();
+}
+
+
+/* =========================================================
+   STATS
+========================================================= */
+
+function updateQuestionManagementStats() {
+
+    const questions =
+        questionManagementState.questions;
+
+
+    const total =
+        questions.length;
+
+
+    const active =
+        questions.filter(
+            question =>
+                question.is_active !== false
+        ).length;
+
+
+    const inactive =
+        total - active;
+
+
+    const totalElement =
+        document.getElementById(
+            "questionManagementTotal"
+        );
+
+    const activeElement =
+        document.getElementById(
+            "questionManagementActive"
+        );
+
+    const inactiveElement =
+        document.getElementById(
+            "questionManagementInactive"
+        );
+
+
+    if (totalElement) {
+        totalElement.innerText =
+            total;
+    }
+
+    if (activeElement) {
+        activeElement.innerText =
+            active;
+    }
+
+    if (inactiveElement) {
+        inactiveElement.innerText =
+            inactive;
+    }
+}
+
+
+/* =========================================================
+   LISTE
+========================================================= */
+
+function renderQuestionManagementList() {
+
+    const container =
+        document.getElementById(
+            "questionManagementList"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    const questions =
+        questionManagementState
+            .filteredQuestions;
+
+
+    if (!questions.length) {
+
+        container.innerHTML = `
+            <div class="question-management-empty">
+                Aucune question trouvée.
+            </div>
+        `;
+
+        return;
+    }
+
+
+    container.innerHTML =
+        questions
+            .map(
+                question => {
+
+                    const active =
+                        question.is_active !== false;
+
+
+                    return `
+                        <article class="question-management-card">
+
+                            <div class="question-management-card-main">
+
+                                <div class="question-management-meta">
+
+                                    <span>
+                                        ${escapeHtml(
+                                            question.category || ""
+                                        )}
+                                    </span>
+
+                                    <span>
+                                        #${question.order_number ?? "—"}
+                                    </span>
+
+                                    <span>
+                                        ${escapeHtml(
+                                            getQuestionTypeLabel(
+                                                question.question_type
+                                            )
+                                        )}
+                                    </span>
+
+                                    <span
+                                        class="
+                                            question-status-badge
+                                            ${
+                                                active
+                                                    ? "active"
+                                                    : "inactive"
+                                            }
+                                        "
+                                    >
+                                        ${
+                                            active
+                                                ? "Active"
+                                                : "Désactivée"
+                                        }
+                                    </span>
+
+                                </div>
+
+
+                                <h3>
+                                    ${escapeHtml(
+                                        question.question || ""
+                                    )}
+                                </h3>
+
+
+                                <div class="question-management-answer-preview">
+
+                                    ${renderQuestionManagementChoices(
+                                        question
+                                    )}
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="question-management-actions">
+
+                                <button
+                                    type="button"
+                                    class="btn-secondary"
+                                    onclick="openQuestionManagementEdit('${question.id}')"
+                                >
+                                    ✏️ Modifier
+                                </button>
+
+
+                                <button
+                                    type="button"
+                                    class="btn-secondary"
+                                    onclick="toggleQuestionManagementActive('${question.id}')"
+                                >
+                                    ${
+                                        active
+                                            ? "⏸ Désactiver"
+                                            : "▶️ Réactiver"
+                                    }
+                                </button>
+
+
+                                <button
+                                    type="button"
+                                    class="question-delete-button"
+                                    onclick="deleteQuestionManagementQuestion('${question.id}')"
+                                >
+                                    🗑 Supprimer
+                                </button>
+
+                            </div>
+
+                        </article>
+                    `;
+                }
+            )
+            .join("");
+}
+
+
+/* =========================================================
+   TYPE LABEL
+========================================================= */
+
+function getQuestionTypeLabel(
+    type
+) {
+
+    const labels = {
+
+        true_false:
+            "Vrai / Faux",
+
+        simple_choice:
+            "Choix simple",
+
+        multiple_choice:
+            "Choix multiple",
+
+        open:
+            "Question ouverte"
+    };
+
+
+    return labels[type] || type || "—";
+}
+
+
+/* =========================================================
+   APERÇU RÉPONSES
+========================================================= */
+
+function renderQuestionManagementChoices(
+    question
+) {
+
+    const choices = {
+
+        A:
+            question.choice_a,
+
+        B:
+            question.choice_b,
+
+        C:
+            question.choice_c,
+
+        D:
+            question.choice_d
+    };
+
+
+    const correct =
+        String(
+            question.correct_answer || ""
+        )
+        .split(",")
+        .map(
+            item =>
+                item.trim()
+        )
+        .filter(Boolean);
+
+
+    return ["A", "B", "C", "D"]
+        .filter(
+            letter =>
+                choices[letter]
+        )
+        .map(
+            letter => `
+                <span
+                    class="
+                        question-management-choice
+                        ${
+                            correct.includes(letter)
+                                ? "correct"
+                                : ""
+                        }
+                    "
+                >
+                    <strong>${letter}</strong>
+                    ${escapeHtml(
+                        choices[letter]
+                    )}
+                </span>
+            `
+        )
+        .join("");
+}
+
+
+/* =========================================================
+   OUVRIR MODALE
+========================================================= */
+
+function openQuestionManagementEdit(
+    questionId
+) {
+
+    const question =
+        questionManagementState
+            .questions
+            .find(
+                item =>
+                    String(item.id) ===
+                    String(questionId)
+            );
+
+
+    if (!question) {
+        return;
+    }
+
+
+    questionManagementState.editingQuestion =
+        question;
+
+
+    document.getElementById(
+        "editQuestionCategory"
+    ).value =
+        question.category || "";
+
+
+    document.getElementById(
+        "editQuestionType"
+    ).value =
+        question.question_type || "true_false";
+
+
+    document.getElementById(
+        "editQuestionText"
+    ).value =
+        question.question || "";
+
+
+    renderQuestionManagementEditAnswers();
+
+
+    const modal =
+        document.getElementById(
+            "questionEditModal"
+        );
+
+
+    if (modal) {
+        modal.style.display =
+            "flex";
+    }
+}
+
+
+/* =========================================================
+   CHAMPS MODIFICATION
+========================================================= */
+
+function renderQuestionManagementEditAnswers() {
+
+    const question =
+        questionManagementState
+            .editingQuestion;
+
+
+    const container =
+        document.getElementById(
+            "editQuestionAnswers"
+        );
+
+
+    const type =
+        document.getElementById(
+            "editQuestionType"
+        )?.value;
+
+
+    if (
+        !question ||
+        !container ||
+        !type
+    ) {
+        return;
+    }
+
+
+    const currentCorrect =
+        String(
+            question.correct_answer || ""
+        )
+        .split(",")
+        .map(
+            value =>
+                value.trim()
+        );
+
+
+    if (
+        type === "true_false"
+    ) {
+
+        container.innerHTML = `
+
+            <div class="question-field">
+
+                <label>
+                    Bonne réponse
+                </label>
+
+                <label class="question-answer-option">
+
+                    <input
+                        type="radio"
+                        name="editCorrectAnswer"
+                        value="A"
+                        ${
+                            currentCorrect.includes("A")
+                                ? "checked"
+                                : ""
+                        }
+                    >
+
+                    <strong>A</strong>
+
+                    <span>Vrai</span>
+
+                </label>
+
+
+                <label class="question-answer-option">
+
+                    <input
+                        type="radio"
+                        name="editCorrectAnswer"
+                        value="B"
+                        ${
+                            currentCorrect.includes("B")
+                                ? "checked"
+                                : ""
+                        }
+                    >
+
+                    <strong>B</strong>
+
+                    <span>Faux</span>
+
+                </label>
+
+            </div>
+        `;
+
+        return;
+    }
+
+
+    const inputType =
+        type === "multiple_choice"
+            ? "checkbox"
+            : "radio";
+
+
+    container.innerHTML =
+        ["A", "B", "C", "D"]
+            .map(
+                letter => {
+
+                    const value =
+                        question[
+                            `choice_${letter.toLowerCase()}`
+                        ] || "";
+
+
+                    return `
+                        <div class="question-choice-row">
+
+                            <input
+                                type="${inputType}"
+                                name="editCorrectAnswer"
+                                value="${letter}"
+                                ${
+                                    currentCorrect.includes(letter)
+                                        ? "checked"
+                                        : ""
+                                }
+                            >
+
+                            <strong>
+                                ${letter}
+                            </strong>
+
+                            <input
+                                id="editChoice${letter}"
+                                type="text"
+                                value="${escapeHtml(value)}"
+                            >
+
+                        </div>
+                    `;
+                }
+            )
+            .join("");
+}
+
+
+/* =========================================================
+   FERMER MODALE
+========================================================= */
+
+function closeQuestionEditModal() {
+
+    const modal =
+        document.getElementById(
+            "questionEditModal"
+        );
+
+
+    if (modal) {
+        modal.style.display =
+            "none";
+    }
+
+
+    questionManagementState.editingQuestion =
+        null;
+}
+
+
+/* =========================================================
+   SAUVEGARDER MODIFICATION
+========================================================= */
+
+async function saveQuestionManagementEdit() {
+
+    const question =
+        questionManagementState
+            .editingQuestion;
+
+
+    if (!question) {
+        return;
+    }
+
+
+    const category =
+        document.getElementById(
+            "editQuestionCategory"
+        ).value
+        .trim();
+
+
+    const type =
+        document.getElementById(
+            "editQuestionType"
+        ).value;
+
+
+    const text =
+        document.getElementById(
+            "editQuestionText"
+        ).value
+        .trim();
+
+
+    const correct =
+        [
+            ...document.querySelectorAll(
+                'input[name="editCorrectAnswer"]:checked'
+            )
+        ]
+        .map(
+            input =>
+                input.value
+        );
+
+
+    if (
+        !category ||
+        !text ||
+        !correct.length
+    ) {
+
+        alert(
+            "Merci de compléter la question et sa bonne réponse."
+        );
+
+        return;
+    }
+
+
+    let choices;
+
+
+    if (type === "true_false") {
+
+        choices = {
+
+            A: "Vrai",
+            B: "Faux",
+            C: null,
+            D: null
+        };
+
+    } else {
+
+        choices = {
+
+            A:
+                document.getElementById(
+                    "editChoiceA"
+                )?.value
+                .trim() || null,
+
+            B:
+                document.getElementById(
+                    "editChoiceB"
+                )?.value
+                .trim() || null,
+
+            C:
+                document.getElementById(
+                    "editChoiceC"
+                )?.value
+                .trim() || null,
+
+            D:
+                document.getElementById(
+                    "editChoiceD"
+                )?.value
+                .trim() || null
+        };
+
+
+        if (
+            !choices.A ||
+            !choices.B ||
+            !choices.C ||
+            !choices.D
+        ) {
+
+            alert(
+                "Merci de renseigner les 4 propositions."
+            );
+
+            return;
+        }
+    }
+
+
+    const payload = {
+
+        category:
+            category,
+
+        question:
+            text,
+
+        question_type:
+            type,
+
+        correct_answer:
+            correct.join(", "),
+
+        keywords:
+            correct.join(", "),
+
+        max_points:
+            type === "multiple_choice"
+                ? correct.length
+                : 1,
+
+        expected_answer:
+            null,
+
+        choice_a:
+            choices.A,
+
+        choice_b:
+            choices.B,
+
+        choice_c:
+            choices.C,
+
+        choice_d:
+            choices.D,
+
+        updated_at:
+            new Date().toISOString()
+    };
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/questions?id=eq.${encodeURIComponent(question.id)}`,
+                {
+                    method:
+                        "PATCH",
+
+                    headers:
+                        supabaseHeaders({
+                            "Content-Type":
+                                "application/json",
+
+                            "Prefer":
+                                "return=minimal"
+                        }),
+
+                    body:
+                        JSON.stringify(
+                            payload
+                        )
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                await response.text()
+            );
+        }
+
+
+        closeQuestionEditModal();
+
+        await loadQuestionManagementData();
+
+
+        alert(
+            "Question modifiée ✅"
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Erreur modification question :",
+            error
+        );
+
+
+        alert(
+            "Impossible de modifier la question.\n\n" +
+            error.message
+        );
+    }
+}
+
+
+/* =========================================================
+   ACTIVER / DÉSACTIVER
+========================================================= */
+
+async function toggleQuestionManagementActive(
+    questionId
+) {
+
+    const question =
+        questionManagementState
+            .questions
+            .find(
+                item =>
+                    String(item.id) ===
+                    String(questionId)
+            );
+
+
+    if (!question) {
+        return;
+    }
+
+
+    const newStatus =
+        question.is_active === false;
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/questions?id=eq.${encodeURIComponent(questionId)}`,
+                {
+                    method:
+                        "PATCH",
+
+                    headers:
+                        supabaseHeaders({
+                            "Content-Type":
+                                "application/json",
+
+                            "Prefer":
+                                "return=minimal"
+                        }),
+
+                    body:
+                        JSON.stringify({
+
+                            is_active:
+                                newStatus,
+
+                            updated_at:
+                                new Date().toISOString()
+                        })
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                await response.text()
+            );
+        }
+
+
+        await loadQuestionManagementData();
+
+
+    } catch (error) {
+
+        console.error(
+            "Erreur statut question :",
+            error
+        );
+
+
+        alert(
+            "Impossible de modifier le statut."
+        );
+    }
+}
+
+
+/* =========================================================
+   SUPPRIMER
+========================================================= */
+
+async function deleteQuestionManagementQuestion(
+    questionId
+) {
+
+    const confirmation =
+        confirm(
+            "Supprimer définitivement cette question ?"
+        );
+
+
+    if (!confirmation) {
+        return;
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/questions?id=eq.${encodeURIComponent(questionId)}`,
+                {
+                    method:
+                        "DELETE",
+
+                    headers:
+                        supabaseHeaders({
+                            "Prefer":
+                                "return=minimal"
+                        })
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                await response.text()
+            );
+        }
+
+
+        await loadQuestionManagementData();
+
+
+        alert(
+            "Question supprimée."
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Erreur suppression question :",
+            error
+        );
+
+
+        alert(
+            "Impossible de supprimer la question.\n\n" +
+            error.message
+        );
+    }
+}
