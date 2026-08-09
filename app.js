@@ -5457,3 +5457,1134 @@ async function loadMyTrainings() {
         `;
     }
 }
+/* =========================================================
+   MON ÉQUIPE - GESTION DES FORMATIONS
+========================================================= */
+
+let teamTrainingState = {
+    currentProfile: null,
+    teamName: "",
+    trainings: [],
+    members: [],
+    selectedTrainingId: null,
+    originalAssignedIds: new Set(),
+    currentAssignedIds: new Set()
+};
+
+
+/* =========================================================
+   CHARGEMENT PAGE
+========================================================= */
+
+async function loadTeamSettingsPage() {
+
+    const profileId =
+        localStorage.getItem(
+            "profile_id"
+        );
+
+    if (!profileId) {
+        alert(
+            "Impossible d'identifier ton compte."
+        );
+
+        window.location.href =
+            "settings.html";
+
+        return;
+    }
+
+
+    try {
+
+        /* =========================
+           1. PROFIL CONNECTÉ
+        ========================= */
+
+        const profileResponse =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/profiles?id=eq.${encodeURIComponent(profileId)}&select=id,full_name,role,team,job_title,status`,
+                {
+                    headers:
+                        supabaseHeaders()
+                }
+            );
+
+
+        if (!profileResponse.ok) {
+            throw new Error(
+                await profileResponse.text()
+            );
+        }
+
+
+        const profiles =
+            await profileResponse.json();
+
+
+        if (!profiles.length) {
+            throw new Error(
+                "Profil introuvable."
+            );
+        }
+
+
+        const currentProfile =
+            profiles[0];
+
+
+        teamTrainingState.currentProfile =
+            currentProfile;
+
+
+        const role =
+            String(
+                currentProfile.role || ""
+            ).toLowerCase();
+
+
+        const allowedRoles = [
+            "team_leader",
+            "manager",
+            "admin"
+        ];
+
+
+        if (
+            !allowedRoles.includes(
+                role
+            )
+        ) {
+
+            alert(
+                "Tu n'as pas accès à cette page."
+            );
+
+            window.location.href =
+                "settings.html";
+
+            return;
+        }
+
+
+        /* =========================
+           2. INFOS EN-TÊTE
+        ========================= */
+
+        const userName =
+            document.getElementById(
+                "topUserName"
+            );
+
+
+        if (userName) {
+            userName.innerText =
+                currentProfile.full_name ||
+                "Utilisateur";
+        }
+
+
+        const userRole =
+            document.getElementById(
+                "teamSettingsUserRole"
+            );
+
+
+        if (userRole) {
+
+            userRole.innerText =
+                currentProfile.job_title ||
+                currentProfile.role ||
+                "";
+        }
+
+
+        const initials =
+            document.getElementById(
+                "teamSettingsUserInitials"
+            );
+
+
+        if (initials) {
+
+            initials.innerText =
+                getInitials(
+                    currentProfile.full_name
+                );
+        }
+
+
+        /* =========================
+           3. ÉQUIPE
+        ========================= */
+
+        let teamName =
+            currentProfile.team || "";
+
+
+        /*
+         * Pour un chef d'équipe :
+         * obligation d'avoir une équipe.
+         */
+
+        if (
+            role === "team_leader" &&
+            !teamName
+        ) {
+
+            throw new Error(
+                "Aucune équipe n'est associée à ce chef d'équipe."
+            );
+        }
+
+
+        teamTrainingState.teamName =
+            teamName;
+
+
+        const teamNameElement =
+            document.getElementById(
+                "teamSettingsTeamName"
+            );
+
+
+        if (teamNameElement) {
+
+            teamNameElement.innerText =
+                teamName
+                    ? teamName
+                    : "Toutes les équipes";
+        }
+
+
+        /* =========================
+           4. FORMATIONS
+        ========================= */
+
+        await loadTeamTrainings();
+
+
+        /* =========================
+           5. MEMBRES
+        ========================= */
+
+        await loadTeamMembers();
+
+
+        /* =========================
+           6. PREMIÈRE FORMATION
+        ========================= */
+
+        if (
+            teamTrainingState.trainings.length
+        ) {
+
+            const select =
+                document.getElementById(
+                    "teamTrainingSelect"
+                );
+
+
+            if (select) {
+
+                select.value =
+                    String(
+                        teamTrainingState
+                            .trainings[0]
+                            .id
+                    );
+            }
+
+
+            await loadSelectedTeamTraining();
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "Erreur chargement Mon équipe :",
+            error
+        );
+
+
+        alert(
+            "Impossible de charger la gestion de l'équipe.\n\n" +
+            error.message
+        );
+    }
+}
+
+
+/* =========================================================
+   INITIALES
+========================================================= */
+
+function getInitials(
+    fullName
+) {
+
+    const parts =
+        String(
+            fullName || ""
+        )
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean);
+
+
+    if (!parts.length) {
+        return "NM";
+    }
+
+
+    if (parts.length === 1) {
+
+        return parts[0]
+            .slice(0, 2)
+            .toUpperCase();
+    }
+
+
+    return (
+        parts[0].charAt(0) +
+        parts[parts.length - 1].charAt(0)
+    ).toUpperCase();
+}
+
+
+/* =========================================================
+   CHARGER LES FORMATIONS
+========================================================= */
+
+async function loadTeamTrainings() {
+
+    const response =
+        await fetch(
+            `${SUPABASE_URL}/rest/v1/trainings?select=id,name&order=name.asc`,
+            {
+                headers:
+                    supabaseHeaders()
+            }
+        );
+
+
+    if (!response.ok) {
+        throw new Error(
+            await response.text()
+        );
+    }
+
+
+    const trainings =
+        await response.json();
+
+
+    teamTrainingState.trainings =
+        trainings;
+
+
+    const select =
+        document.getElementById(
+            "teamTrainingSelect"
+        );
+
+
+    if (!select) {
+        return;
+    }
+
+
+    if (!trainings.length) {
+
+        select.innerHTML = `
+            <option value="">
+                Aucune formation disponible
+            </option>
+        `;
+
+        return;
+    }
+
+
+    select.innerHTML =
+        trainings
+            .map(
+                training => `
+                    <option
+                        value="${training.id}"
+                    >
+                        ${escapeHtml(
+                            training.name
+                        )}
+                    </option>
+                `
+            )
+            .join("");
+}
+
+
+/* =========================================================
+   CHARGER LES MEMBRES DE L'ÉQUIPE
+========================================================= */
+
+async function loadTeamMembers() {
+
+    const currentProfile =
+        teamTrainingState.currentProfile;
+
+
+    if (!currentProfile) {
+        return;
+    }
+
+
+    const role =
+        String(
+            currentProfile.role || ""
+        ).toLowerCase();
+
+
+    let url =
+        `${SUPABASE_URL}/rest/v1/profiles?select=id,full_name,role,team,job_title,status&status=eq.actif&order=full_name.asc`;
+
+
+    /*
+     * Chef d'équipe :
+     * uniquement sa propre équipe.
+     */
+
+    if (
+        role === "team_leader"
+    ) {
+
+        url +=
+            `&team=eq.${encodeURIComponent(
+                teamTrainingState.teamName
+            )}`;
+    }
+
+
+    /*
+     * Manager :
+     * pour l'instant, s'il possède une équipe,
+     * on limite à cette équipe.
+     */
+
+    if (
+        role === "manager" &&
+        teamTrainingState.teamName
+    ) {
+
+        url +=
+            `&team=eq.${encodeURIComponent(
+                teamTrainingState.teamName
+            )}`;
+    }
+
+
+    /*
+     * Admin :
+     * aucune restriction.
+     */
+
+
+    const response =
+        await fetch(
+            url,
+            {
+                headers:
+                    supabaseHeaders()
+            }
+        );
+
+
+    if (!response.ok) {
+        throw new Error(
+            await response.text()
+        );
+    }
+
+
+    const members =
+        await response.json();
+
+
+    /*
+     * On ne veut pas afficher
+     * certains profils techniques.
+     */
+
+    teamTrainingState.members =
+        members.filter(
+            member => {
+
+                const memberRole =
+                    String(
+                        member.role || ""
+                    ).toLowerCase();
+
+
+                return (
+                    memberRole !== "admin" &&
+                    memberRole !== "direction"
+                );
+            }
+        );
+}
+
+
+/* =========================================================
+   CHARGER UNE FORMATION SÉLECTIONNÉE
+========================================================= */
+
+async function loadSelectedTeamTraining() {
+
+    const select =
+        document.getElementById(
+            "teamTrainingSelect"
+        );
+
+
+    if (!select) {
+        return;
+    }
+
+
+    const trainingId =
+        select.value;
+
+
+    if (!trainingId) {
+        return;
+    }
+
+
+    teamTrainingState.selectedTrainingId =
+        String(
+            trainingId
+        );
+
+
+    const training =
+        teamTrainingState.trainings.find(
+            item =>
+                String(item.id) ===
+                String(trainingId)
+        );
+
+
+    /* =========================
+       NOM FORMATION
+    ========================= */
+
+    const summaryName =
+        document.getElementById(
+            "teamTrainingSummaryName"
+        );
+
+
+    if (summaryName) {
+
+        summaryName.innerText =
+            training
+                ? training.name
+                : "—";
+    }
+
+
+    /* =========================
+       DESCRIPTION
+    ========================= */
+
+    const description =
+        document.getElementById(
+            "teamTrainingDescription"
+        );
+
+
+    if (description) {
+
+        description.innerText =
+            training
+                ? `Formation : ${training.name}`
+                : "Sélectionne une formation.";
+    }
+
+
+    /* =========================
+       ATTRIBUTIONS EXISTANTES
+    ========================= */
+
+    const assignmentsResponse =
+        await fetch(
+            `${SUPABASE_URL}/rest/v1/user_trainings?select=user_id&training_id=eq.${encodeURIComponent(trainingId)}`,
+            {
+                headers:
+                    supabaseHeaders()
+            }
+        );
+
+
+    if (!assignmentsResponse.ok) {
+
+        throw new Error(
+            await assignmentsResponse.text()
+        );
+    }
+
+
+    const assignments =
+        await assignmentsResponse.json();
+
+
+    const assignedIds =
+        new Set(
+            assignments.map(
+                item =>
+                    String(
+                        item.user_id
+                    )
+            )
+        );
+
+
+    teamTrainingState.originalAssignedIds =
+        new Set(
+            assignedIds
+        );
+
+
+    teamTrainingState.currentAssignedIds =
+        new Set(
+            assignedIds
+        );
+
+
+    renderTeamTrainingMembers();
+}
+
+
+/* =========================================================
+   AFFICHER LES MEMBRES
+========================================================= */
+
+function renderTeamTrainingMembers() {
+
+    const container =
+        document.getElementById(
+            "teamTrainingMembers"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    const members =
+        teamTrainingState.members;
+
+
+    if (!members.length) {
+
+        container.innerHTML = `
+            <tr>
+                <td colspan="4">
+                    <div class="team-training-loading">
+                        Aucun membre disponible.
+                    </div>
+                </td>
+            </tr>
+        `;
+
+        updateTeamTrainingSummary();
+
+        return;
+    }
+
+
+    container.innerHTML =
+        members
+            .map(
+                member => {
+
+                    const memberId =
+                        String(
+                            member.id
+                        );
+
+
+                    const isAssigned =
+                        teamTrainingState
+                            .currentAssignedIds
+                            .has(
+                                memberId
+                            );
+
+
+                    return `
+                        <tr>
+
+                            <td class="team-training-check-column">
+
+                                <input
+                                    type="checkbox"
+                                    class="team-training-member-checkbox"
+                                    data-user-id="${memberId}"
+                                    ${isAssigned
+                                        ? "checked"
+                                        : ""
+                                    }
+                                    onchange="toggleTeamTrainingMember(
+                                        '${memberId}',
+                                        this.checked
+                                    )"
+                                >
+
+                            </td>
+
+
+                            <td>
+
+                                <div class="team-training-member">
+
+                                    <div class="team-training-member-avatar">
+                                        ${escapeHtml(
+                                            getInitials(
+                                                member.full_name
+                                            )
+                                        )}
+                                    </div>
+
+                                    <strong>
+                                        ${escapeHtml(
+                                            member.full_name ||
+                                            "Utilisateur"
+                                        )}
+                                    </strong>
+
+                                </div>
+
+                            </td>
+
+
+                            <td>
+
+                                ${escapeHtml(
+                                    member.job_title ||
+                                    member.role ||
+                                    ""
+                                )}
+
+                            </td>
+
+
+                            <td>
+
+                                ${
+                                    isAssigned
+                                        ? `
+                                            <span class="team-training-status team-training-status-trained">
+                                                ✓ Formé
+                                            </span>
+                                        `
+                                        : `
+                                            <span class="team-training-status team-training-status-untrained">
+                                                🔒 Non formé
+                                            </span>
+                                        `
+                                }
+
+                            </td>
+
+                        </tr>
+                    `;
+                }
+            )
+            .join("");
+
+
+    updateTeamTrainingSummary();
+}
+
+
+/* =========================================================
+   COCHER / DÉCOCHER UN MEMBRE
+========================================================= */
+
+function toggleTeamTrainingMember(
+    userId,
+    checked
+) {
+
+    const id =
+        String(
+            userId
+        );
+
+
+    if (checked) {
+
+        teamTrainingState
+            .currentAssignedIds
+            .add(
+                id
+            );
+
+    } else {
+
+        teamTrainingState
+            .currentAssignedIds
+            .delete(
+                id
+            );
+    }
+
+
+    renderTeamTrainingMembers();
+}
+
+
+/* =========================================================
+   TOUT COCHER / DÉCOCHER
+========================================================= */
+
+function toggleAllTeamTrainingMembers(
+    checked
+) {
+
+    teamTrainingState.members.forEach(
+        member => {
+
+            const id =
+                String(
+                    member.id
+                );
+
+
+            if (checked) {
+
+                teamTrainingState
+                    .currentAssignedIds
+                    .add(
+                        id
+                    );
+
+            } else {
+
+                teamTrainingState
+                    .currentAssignedIds
+                    .delete(
+                        id
+                    );
+            }
+        }
+    );
+
+
+    renderTeamTrainingMembers();
+}
+
+
+/* =========================================================
+   RÉCAPITULATIF
+========================================================= */
+
+function updateTeamTrainingSummary() {
+
+    const total =
+        teamTrainingState.members.length;
+
+
+    const trained =
+        teamTrainingState.members.filter(
+            member =>
+                teamTrainingState
+                    .currentAssignedIds
+                    .has(
+                        String(
+                            member.id
+                        )
+                    )
+        ).length;
+
+
+    const notTrained =
+        total - trained;
+
+
+    const trainedElement =
+        document.getElementById(
+            "teamTrainingSummaryTrained"
+        );
+
+
+    const notTrainedElement =
+        document.getElementById(
+            "teamTrainingSummaryNotTrained"
+        );
+
+
+    const selectedElement =
+        document.getElementById(
+            "teamTrainingSelectedCount"
+        );
+
+
+    if (trainedElement) {
+
+        trainedElement.innerText =
+            `${trained} / ${total}`;
+    }
+
+
+    if (notTrainedElement) {
+
+        notTrainedElement.innerText =
+            `${notTrained} / ${total}`;
+    }
+
+
+    if (selectedElement) {
+
+        selectedElement.innerText =
+            trained <= 1
+                ? `${trained} sélectionné`
+                : `${trained} sélectionnés`;
+    }
+
+
+    const checkAll =
+        document.getElementById(
+            "teamTrainingCheckAll"
+        );
+
+
+    if (checkAll) {
+
+        checkAll.checked =
+            total > 0 &&
+            trained === total;
+    }
+}
+
+
+/* =========================================================
+   ANNULER LES MODIFICATIONS
+========================================================= */
+
+function resetTeamTrainingChanges() {
+
+    teamTrainingState.currentAssignedIds =
+        new Set(
+            teamTrainingState.originalAssignedIds
+        );
+
+
+    renderTeamTrainingMembers();
+}
+
+
+/* =========================================================
+   ENREGISTRER
+========================================================= */
+
+async function saveTeamTrainingAssignments() {
+
+    const trainingId =
+        teamTrainingState.selectedTrainingId;
+
+
+    if (!trainingId) {
+
+        alert(
+            "Merci de sélectionner une formation."
+        );
+
+        return;
+    }
+
+
+    const button =
+        document.getElementById(
+            "saveTeamTrainingButton"
+        );
+
+
+    if (button) {
+
+        button.disabled =
+            true;
+
+        button.innerText =
+            "Enregistrement...";
+    }
+
+
+    try {
+
+        const original =
+            teamTrainingState
+                .originalAssignedIds;
+
+
+        const current =
+            teamTrainingState
+                .currentAssignedIds;
+
+
+        /* =========================
+           À AJOUTER
+        ========================= */
+
+        const toAdd =
+            [...current]
+                .filter(
+                    id =>
+                        !original.has(
+                            id
+                        )
+                );
+
+
+        /* =========================
+           À SUPPRIMER
+        ========================= */
+
+        const toRemove =
+            [...original]
+                .filter(
+                    id =>
+                        !current.has(
+                            id
+                        )
+                );
+
+
+        /* =========================
+           AJOUTS
+        ========================= */
+
+        for (
+            const userId
+            of toAdd
+        ) {
+
+            const response =
+                await fetch(
+                    `${SUPABASE_URL}/rest/v1/user_trainings`,
+                    {
+                        method:
+                            "POST",
+
+                        headers:
+                            supabaseHeaders({
+                                "Content-Type":
+                                    "application/json",
+
+                                "Prefer":
+                                    "return=minimal"
+                            }),
+
+                        body:
+                            JSON.stringify({
+                                user_id:
+                                    userId,
+
+                                training_id:
+                                    Number(
+                                        trainingId
+                                    )
+                            })
+                    }
+                );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    await response.text()
+                );
+            }
+        }
+
+
+        /* =========================
+           SUPPRESSIONS
+        ========================= */
+
+        for (
+            const userId
+            of toRemove
+        ) {
+
+            const response =
+                await fetch(
+                    `${SUPABASE_URL}/rest/v1/user_trainings?user_id=eq.${encodeURIComponent(userId)}&training_id=eq.${encodeURIComponent(trainingId)}`,
+                    {
+                        method:
+                            "DELETE",
+
+                        headers:
+                            supabaseHeaders({
+                                "Prefer":
+                                    "return=minimal"
+                            })
+                    }
+                );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    await response.text()
+                );
+            }
+        }
+
+
+        /* =========================
+           ACTUALISER ÉTAT
+        ========================= */
+
+        teamTrainingState.originalAssignedIds =
+            new Set(
+                current
+            );
+
+
+        alert(
+            "Les formations ont bien été mises à jour ✅"
+        );
+
+
+        await loadSelectedTeamTraining();
+
+
+    } catch (error) {
+
+        console.error(
+            "Erreur enregistrement formations :",
+            error
+        );
+
+
+        alert(
+            "Impossible d'enregistrer les modifications.\n\n" +
+            error.message
+        );
+
+
+    } finally {
+
+        if (button) {
+
+            button.disabled =
+                false;
+
+            button.innerText =
+                "💾 Enregistrer les modifications";
+        }
+    }
+}
