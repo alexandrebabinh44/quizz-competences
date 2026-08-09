@@ -1867,3 +1867,24 @@ html[data-theme="dark"] .login-card {
         padding: 20px;
     }
 }
+/* Adaptation connexion aux écrans peu hauts */
+@media (min-width: 851px) and (max-height: 800px) {
+
+    .login-main {
+        margin-top: -78px;
+        padding-bottom: 15px;
+    }
+
+    .login-card {
+        min-height: 540px;
+    }
+
+    .login-visual-panel {
+        min-height: 540px;
+    }
+
+    .login-form-panel {
+        padding-top: 30px;
+        padding-bottom: 25px;
+    }
+}
