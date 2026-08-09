@@ -5916,7 +5916,8 @@ async function loadTeamMembers() {
      */
 
     teamTrainingState.members =
-        members.filter(
+    members
+        .filter(
             member => {
 
                 const memberRole =
@@ -5925,12 +5926,92 @@ async function loadTeamMembers() {
                     ).toLowerCase();
 
 
+                /*
+                 * On retire :
+                 * - le profil connecté lui-même
+                 * - admin
+                 * - direction
+                 * - manager
+                 * - autres chefs d'équipe
+                 */
+
                 return (
+                    String(member.id) !==
+                        String(
+                            currentProfile.id
+                        ) &&
+
                     memberRole !== "admin" &&
-                    memberRole !== "direction"
+                    memberRole !== "direction" &&
+                    memberRole !== "manager" &&
+                    memberRole !== "team_leader"
+                );
+            }
+        )
+        .sort(
+            (a, b) => {
+
+                /*
+                 * Ordre hiérarchique :
+                 *
+                 * 1 = Conseiller Senior
+                 * 2 = Conseiller
+                 */
+
+                const hierarchy = {
+                    senior: 1,
+                    user: 2
+                };
+
+
+                const roleA =
+                    String(
+                        a.role || ""
+                    ).toLowerCase();
+
+
+                const roleB =
+                    String(
+                        b.role || ""
+                    ).toLowerCase();
+
+
+                const rankA =
+                    hierarchy[roleA] || 99;
+
+
+                const rankB =
+                    hierarchy[roleB] || 99;
+
+
+                /*
+                 * D'abord la hiérarchie.
+                 */
+
+                if (rankA !== rankB) {
+                    return rankA - rankB;
+                }
+
+
+                /*
+                 * Puis ordre alphabétique
+                 * dans chaque niveau.
+                 */
+
+                return String(
+                    a.full_name || ""
+                ).localeCompare(
+                    String(
+                        b.full_name || ""
+                    ),
+                    "fr",
+                    {
+                        sensitivity: "base"
+                    }
                 );
             }
         );
+
 }
 
 
