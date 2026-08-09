@@ -534,20 +534,6 @@ textarea:focus {
     border-radius: 50%;
 }
 
-.welcome-section {
-    margin-bottom: 16px;
-}
-
-.welcome-section h1 {
-    margin: 0 0 4px;
-    font-size: clamp(24px, 2vw, 32px);
-}
-
-.welcome-section p {
-    margin: 0;
-    color: var(--text-secondary);
-}
-
 .dashboard-grid {
     display: grid;
     grid-template-columns: repeat(12, minmax(0, 1fr));
