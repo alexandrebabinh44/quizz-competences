@@ -4505,6 +4505,81 @@ function generateUsername(
     firstName,
     lastName
 ) {
+/*
+ * Avant de proposer une nouvelle inscription,
+ * on cherche une ancienne demande.
+ */
+
+const requestResponse =
+    await fetch(
+        `${SUPABASE_URL}/rest/v1/account_requests?select=*&first_name=ilike.${encodeURIComponent(firstName)}&last_name=ilike.${encodeURIComponent(lastName)}&order=created_at.desc&limit=1`,
+        {
+            headers:
+                supabaseHeaders()
+        }
+    );
+
+
+if (!requestResponse.ok) {
+    throw new Error(
+        await requestResponse.text()
+    );
+}
+
+
+const previousRequests =
+    await requestResponse.json();
+
+
+if (previousRequests.length > 0) {
+
+    const previousRequest =
+        previousRequests[0];
+
+
+    /*
+     * DEMANDE TOUJOURS EN ATTENTE
+     */
+    if (
+        previousRequest.status ===
+        "pending"
+    ) {
+
+        showRegisterRequestPending();
+
+        return;
+    }
+
+
+    /*
+     * DEMANDE REFUSÉE
+     */
+    if (
+        previousRequest.status ===
+        "rejected"
+    ) {
+
+        showRegisterRequestRejected();
+
+        return;
+    }
+
+
+    /*
+     * DEMANDE APPROUVÉE
+     */
+    if (
+        previousRequest.status ===
+        "approved"
+    ) {
+
+        showApprovedAccountCredentials(
+            previousRequest
+        );
+
+        return;
+    }
+}
 
     const first =
         normalizeRegisterText(
