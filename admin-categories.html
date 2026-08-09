@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <script>
+    const savedTheme =
+      localStorage.getItem("nickel_master_theme") || "light";
+
+    document.documentElement.setAttribute(
+      "data-theme",
+      savedTheme
+    );
+  </script>
+
+  <title>Gestion des catégories - Nickel Master</title>
+
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
+</head>
+
+
+<body class="dashboard-body">
+
+<div class="dashboard-layout">
+
+
+  <!-- =========================
+       SIDEBAR
+  ========================= -->
+
+  <aside class="sidebar">
+
+    <div class="logo">
+
+      <img
+        src="images/logo-nickel.png"
+        alt="Nickel"
+        class="sidebar-logo-img"
+      >
+
+      <span>
+        NICKEL<br>MASTER
+      </span>
+
+    </div>
+
+
+    <nav class="side-menu">
+
+      <button
+        onclick="window.location.href='home.html'"
+      >
+        🏠 Accueil
+      </button>
+
+      <button
+        onclick="window.location.href='training.html'"
+      >
+        🎯 Entraînement
+      </button>
+
+      <button>
+        🏆 Challenges
+      </button>
+
+      <button
+        onclick="window.location.href='ranking.html'"
+      >
+        📊 Classements
+      </button>
+
+      <button>
+        ⚔️ Battle
+      </button>
+
+      <button>
+        🎮 Kahoot
+      </button>
+
+      <button
+        onclick="window.location.href='profile.html'"
+      >
+        📈 Mes stats
+      </button>
+
+      <button
+        onclick="window.location.href='badges.html'"
+      >
+        🏅 Badges
+      </button>
+
+      <button>
+        💡 Boîte à idées
+      </button>
+
+      <button>
+        🚩 Signalements
+      </button>
+
+      <button
+        class="active"
+        onclick="window.location.href='administration.html'"
+      >
+        🛡️ Administration
+      </button>
+
+    </nav>
+
+
+    <div class="sidebar-bottom">
+
+      <button
+        onclick="window.location.href='settings.html'"
+      >
+        ⚙️ Paramètres
+      </button>
+
+      <button
+        id="themeToggle"
+        class="sidebar-link theme-button"
+        onclick="toggleTheme()"
+      >
+        🌙 Mode sombre
+      </button>
+
+      <button
+        class="sidebar-link"
+        onclick="logout()"
+      >
+        🚪 Déconnexion
+      </button>
+
+    </div>
+
+  </aside>
+
+
+  <!-- =========================
+       CONTENU
+  ========================= -->
+
+  <main class="dashboard-main">
+
+    <header class="question-management-header">
+
+      <div>
+
+        <h1>
+          Gérer les catégories
+        </h1>
+
+        <p>
+          Crée, renomme et organise les catégories de questions.
+        </p>
+
+      </div>
+
+      <strong id="categoryAdminUser">
+        Administrateur
+      </strong>
+
+    </header>
+
+
+    <!-- AJOUT -->
+
+    <section class="category-create-card">
+
+      <div>
+
+        <h2>
+          Nouvelle catégorie
+        </h2>
+
+        <p>
+          Ajoute une catégorie disponible immédiatement dans la création de questions.
+        </p>
+
+      </div>
+
+
+      <div class="category-create-row">
+
+        <input
+          id="newCategoryName"
+          type="text"
+          placeholder="Nom de la catégorie..."
+        >
+
+        <button
+          id="createCategoryManagementButton"
+          type="button"
+          class="btn-primary"
+        >
+          + Ajouter
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <!-- STATS -->
+
+    <section class="question-management-stats">
+
+      <div>
+
+        <small>
+          Catégories
+        </small>
+
+        <strong id="categoryTotalCount">
+          0
+        </strong>
+
+      </div>
+
+      <div>
+
+        <small>
+          Questions associées
+        </small>
+
+        <strong id="categoryQuestionCount">
+          0
+        </strong>
+
+      </div>
+
+      <div>
+
+        <small>
+          Catégories vides
+        </small>
+
+        <strong id="categoryEmptyCount">
+          0
+        </strong>
+
+      </div>
+
+    </section>
+
+
+    <!-- RECHERCHE -->
+
+    <section class="category-search-card">
+
+      <input
+        id="categorySearchInput"
+        type="text"
+        placeholder="Rechercher une catégorie..."
+      >
+
+    </section>
+
+
+    <!-- LISTE -->
+
+    <section
+      id="categoryManagementList"
+      class="category-management-list"
+    >
+
+      <div class="question-management-empty">
+        Chargement des catégories...
+      </div>
+
+    </section>
+
+  </main>
+
+</div>
+
+
+
+<!-- =========================
+     MODALE RENOMMAGE
+========================= -->
+
+<div
+  id="categoryEditModal"
+  class="question-edit-modal"
+  style="display:none;"
+>
+
+  <div class="question-edit-modal-card">
+
+    <div class="question-edit-modal-header">
+
+      <h2>
+        Renommer la catégorie
+      </h2>
+
+      <button
+        type="button"
+        id="closeCategoryEditModal"
+      >
+        ✕
+      </button>
+
+    </div>
+
+
+    <div class="question-field">
+
+      <label for="editCategoryName">
+        Nouveau nom
+      </label>
+
+      <input
+        id="editCategoryName"
+        type="text"
+      >
+
+    </div>
+
+
+    <div class="question-edit-actions">
+
+      <button
+        type="button"
+        id="cancelCategoryEdit"
+        class="btn-secondary"
+      >
+        Annuler
+      </button>
+
+      <button
+        type="button"
+        id="saveCategoryEdit"
+        class="btn-primary"
+      >
+        💾 Enregistrer
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<script src="app.js"></script>
+<script src="theme.js"></script>
+
+
+<script>
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    async function () {
+
+      const role =
+        String(
+          localStorage.getItem("role") || ""
+        ).toLowerCase();
+
+      if (role !== "admin") {
+
+        alert(
+          "Cette page est réservée à l'administrateur."
+        );
+
+        window.location.href =
+          "home.html";
+
+        return;
+      }
+
+
+      const name =
+        localStorage.getItem("full_name") ||
+        "Administrateur";
+
+
+      const user =
+        document.getElementById(
+          "categoryAdminUser"
+        );
+
+
+      if (user) {
+
+        user.innerText =
+          name;
+      }
+
+
+      if (
+        typeof initializeCategoryManagement ===
+        "function"
+      ) {
+
+        await initializeCategoryManagement();
+      }
+
+    }
+  );
+
+</script>
+
+</body>
+
+</html>
