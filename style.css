@@ -1888,3 +1888,41 @@ html[data-theme="dark"] .login-card {
         padding-bottom: 25px;
     }
 }
+/* =========================================================
+   LOGO NICKEL - PAGE CONNEXION
+========================================================= */
+
+.login-brand-symbol {
+    width: 58px;
+    height: 72px;
+
+    object-fit: contain;
+    object-position: center;
+
+    flex-shrink: 0;
+}
+
+.login-brand-name {
+    display: flex;
+    flex-direction: column;
+
+    justify-content: center;
+
+    line-height: 0.88;
+}
+
+.login-brand-name strong,
+.login-brand-name span {
+    display: block;
+
+    color: var(--orange);
+
+    font-size: 25px;
+    font-weight: 900;
+
+    letter-spacing: -0.5px;
+}
+
+.login-brand-name span {
+    margin-top: 5px;
+}
