@@ -298,21 +298,23 @@ textarea:focus {
 .logo {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 6px;
     margin-bottom: 24px;
     color: var(--orange);
     font-size: 19px;
     font-weight: 700;
 }
 
-.logo-icon {
-    font-size: 30px;
-    font-weight: bold;
+.sidebar-logo-img {
+    width: 28px;
+    height: 38px;
+    object-fit: contain;
+    flex-shrink: 0;
 }
 
 .logo span {
     color: var(--orange);
-}
+}}
 
 .side-menu,
 .sidebar-bottom {
