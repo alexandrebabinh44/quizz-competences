@@ -32,6 +32,11 @@
 
 <div class="dashboard-layout">
 
+
+  <!-- =====================================================
+       SIDEBAR
+  ====================================================== -->
+
   <aside class="sidebar">
 
     <div class="logo">
@@ -49,6 +54,10 @@
     </div>
 
 
+    <!-- ===================================================
+         MENU PRINCIPAL
+    ==================================================== -->
+
     <nav class="side-menu">
 
       <button
@@ -57,35 +66,121 @@
         🏠 Accueil
       </button>
 
-      <button
-        onclick="window.location.href='admin-questions.html'"
-      >
-        ➕ Ajouter des questions
-      </button>
 
       <button
-        class="active"
-        onclick="window.location.href='admin-question-management.html'"
+        onclick="window.location.href='training.html'"
       >
-        🧰 Gérer les questions
+        🎯 Entraînement
       </button>
 
+
+      <button>
+        🏆 Challenges
+      </button>
+
+
       <button
-        onclick="window.location.href='approvals.html'"
+        onclick="window.location.href='ranking.html'"
       >
-        ✅ Approbations
+        📊 Classements
+      </button>
+
+
+      <button>
+        ⚔️ Battle
+      </button>
+
+
+      <button>
+        🎮 Kahoot
+      </button>
+
+
+      <button
+        onclick="window.location.href='profile.html'"
+      >
+        📈 Mes stats
+      </button>
+
+
+      <button
+        onclick="window.location.href='badges.html'"
+      >
+        🏅 Badges
+      </button>
+
+
+      <button>
+        💡 Boîte à idées
+      </button>
+
+
+      <button>
+        🚩 Signalements
       </button>
 
     </nav>
 
 
+
+    <!-- ===================================================
+         BAS SIDEBAR
+    ==================================================== -->
+
     <div class="sidebar-bottom">
+
+
+      <!-- ===============================================
+           PANEL ADMINISTRATION
+      ================================================ -->
+
+      <div class="admin-panel">
+
+        <div class="admin-panel-title">
+          🛡️ Administration
+        </div>
+
+
+        <button
+          type="button"
+          class="admin-panel-link"
+          onclick="window.location.href='admin-questions.html'"
+        >
+          ➕ Ajouter des questions
+        </button>
+
+
+        <button
+          type="button"
+          class="admin-panel-link active"
+          onclick="window.location.href='admin-question-management.html'"
+        >
+          🧰 Gérer les questions
+        </button>
+
+
+        <button
+          type="button"
+          class="admin-panel-link"
+          onclick="window.location.href='approvals.html'"
+        >
+          ✅ Approbations
+        </button>
+
+      </div>
+
+
+
+      <!-- PARAMÈTRES -->
 
       <button
         onclick="window.location.href='settings.html'"
       >
         ⚙️ Paramètres
       </button>
+
+
+      <!-- THÈME -->
 
       <button
         id="themeToggle"
@@ -94,6 +189,9 @@
       >
         🌙 Mode sombre
       </button>
+
+
+      <!-- DÉCONNEXION -->
 
       <button
         class="sidebar-link"
@@ -107,7 +205,17 @@
   </aside>
 
 
+
+  <!-- =====================================================
+       CONTENU PRINCIPAL
+  ====================================================== -->
+
   <main class="dashboard-main">
+
+
+    <!-- ===================================================
+         HEADER
+    ==================================================== -->
 
     <header class="question-management-header">
 
@@ -123,6 +231,7 @@
 
       </div>
 
+
       <strong id="questionManagementUser">
         Administrateur
       </strong>
@@ -130,9 +239,15 @@
     </header>
 
 
-    <!-- FILTRES -->
+
+    <!-- ===================================================
+         FILTRES
+    ==================================================== -->
 
     <section class="question-management-filters">
+
+
+      <!-- RECHERCHE -->
 
       <div class="question-filter-field">
 
@@ -148,6 +263,9 @@
 
       </div>
 
+
+
+      <!-- CATÉGORIE -->
 
       <div class="question-filter-field">
 
@@ -165,6 +283,9 @@
 
       </div>
 
+
+
+      <!-- TYPE -->
 
       <div class="question-filter-field">
 
@@ -195,6 +316,9 @@
       </div>
 
 
+
+      <!-- STATUT -->
+
       <div class="question-filter-field">
 
         <label for="questionManagementStatus">
@@ -222,35 +346,77 @@
     </section>
 
 
-    <!-- STATS -->
+
+    <!-- ===================================================
+         STATISTIQUES
+    ==================================================== -->
 
     <section class="question-management-stats">
 
-      <div>
-        <small>Total</small>
-        <strong id="questionManagementTotal">0</strong>
-      </div>
+
+      <!-- TOTAL -->
 
       <div>
-        <small>Actives</small>
-        <strong id="questionManagementActive">0</strong>
+
+        <small>
+          Total
+        </small>
+
+        <strong id="questionManagementTotal">
+          0
+        </strong>
+
       </div>
 
+
+
+      <!-- ACTIVES -->
+
       <div>
-        <small>Désactivées</small>
-        <strong id="questionManagementInactive">0</strong>
+
+        <small>
+          Actives
+        </small>
+
+        <strong id="questionManagementActive">
+          0
+        </strong>
+
+      </div>
+
+
+
+      <!-- DÉSACTIVÉES -->
+
+      <div>
+
+        <small>
+          Désactivées
+        </small>
+
+        <strong id="questionManagementInactive">
+          0
+        </strong>
+
       </div>
 
     </section>
 
 
-    <!-- LISTE -->
+
+    <!-- ===================================================
+         LISTE DES QUESTIONS
+    ==================================================== -->
 
     <section
       id="questionManagementList"
       class="question-management-list"
     >
-      Chargement...
+
+      <div class="question-management-empty">
+        Chargement des questions...
+      </div>
+
     </section>
 
   </main>
@@ -258,8 +424,9 @@
 </div>
 
 
+
 <!-- =====================================================
-     MODALE MODIFICATION
+     MODALE DE MODIFICATION
 ====================================================== -->
 
 <div
@@ -270,21 +437,33 @@
 
   <div class="question-edit-modal-card">
 
+
+    <!-- ===================================================
+         HEADER MODALE
+    ==================================================== -->
+
     <div class="question-edit-modal-header">
 
       <h2>
         Modifier la question
       </h2>
 
+
       <button
         type="button"
         id="closeQuestionEditModal"
+        aria-label="Fermer"
       >
         ✕
       </button>
 
     </div>
 
+
+
+    <!-- ===================================================
+         CATÉGORIE
+    ==================================================== -->
 
     <div class="question-field">
 
@@ -295,10 +474,16 @@
       <input
         id="editQuestionCategory"
         type="text"
+        autocomplete="off"
       >
 
     </div>
 
+
+
+    <!-- ===================================================
+         TYPE
+    ==================================================== -->
 
     <div class="question-field">
 
@@ -325,20 +510,39 @@
     </div>
 
 
+
+    <!-- ===================================================
+         QUESTION
+    ==================================================== -->
+
     <div class="question-field">
 
       <label for="editQuestionText">
         Question
       </label>
 
-      <textarea id="editQuestionText"></textarea>
+      <textarea
+        id="editQuestionText"
+        maxlength="500"
+        placeholder="Rédige la question..."
+      ></textarea>
 
     </div>
 
+
+
+    <!-- ===================================================
+         RÉPONSES DYNAMIQUES
+    ==================================================== -->
 
     <div id="editQuestionAnswers">
     </div>
 
+
+
+    <!-- ===================================================
+         ACTIONS MODALE
+    ==================================================== -->
 
     <div class="question-edit-actions">
 
@@ -350,12 +554,13 @@
         Annuler
       </button>
 
+
       <button
         type="button"
         class="btn-primary"
         id="saveQuestionEdit"
       >
-        Enregistrer
+        💾 Enregistrer
       </button>
 
     </div>
@@ -365,18 +570,31 @@
 </div>
 
 
+
+<!-- =====================================================
+     SCRIPTS
+====================================================== -->
+
 <script src="app.js"></script>
 <script src="theme.js"></script>
 
+
 <script>
+
   document.addEventListener(
     "DOMContentLoaded",
     async function () {
+
+
+      /* ===============================================
+         SÉCURITÉ ADMIN
+      ================================================ */
 
       const role =
         String(
           localStorage.getItem("role") || ""
         ).toLowerCase();
+
 
       if (role !== "admin") {
 
@@ -390,18 +608,34 @@
         return;
       }
 
+
+
+      /* ===============================================
+         NOM UTILISATEUR
+      ================================================ */
+
       const name =
         localStorage.getItem("full_name") ||
         "Administrateur";
+
 
       const user =
         document.getElementById(
           "questionManagementUser"
         );
 
+
       if (user) {
-        user.innerText = name;
+
+        user.innerText =
+          name;
       }
+
+
+
+      /* ===============================================
+         INITIALISATION GESTION QUESTIONS
+      ================================================ */
 
       if (
         typeof initializeQuestionManagement ===
@@ -409,10 +643,17 @@
       ) {
 
         await initializeQuestionManagement();
+
+      } else {
+
+        console.error(
+          "initializeQuestionManagement() est introuvable dans app.js"
+        );
       }
 
     }
   );
+
 </script>
 
 </body>
