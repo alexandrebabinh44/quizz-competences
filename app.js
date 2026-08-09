@@ -5371,12 +5371,15 @@ function resetRegisterForm() {
 ========================================================= */
 
 function requireAdmin() {
+
     const role =
         String(
             localStorage.getItem("role") || ""
         ).toLowerCase();
 
+
     if (role !== "admin") {
+
         alert(
             "Cette page est réservée à l'administrateur."
         );
@@ -5387,9 +5390,14 @@ function requireAdmin() {
         return false;
     }
 
+
     return true;
 }
 
+
+/* =========================================================
+   CHARGEMENT PAGE APPROBATIONS
+========================================================= */
 
 async function loadApprovalsPage() {
 
@@ -5397,25 +5405,34 @@ async function loadApprovalsPage() {
         return;
     }
 
+
     const name =
         localStorage.getItem(
             "full_name"
         ) ||
         "Administrateur";
 
+
     const topName =
         document.getElementById(
             "topUserName"
         );
 
+
     if (topName) {
+
         topName.innerText =
             name;
     }
 
+
     await loadAccountApprovals();
 }
 
+
+/* =========================================================
+   CHOIX TYPE D'APPROBATION
+========================================================= */
 
 function showApprovalSection(type) {
 
@@ -5424,19 +5441,24 @@ function showApprovalSection(type) {
             "accountApprovalsSection"
         );
 
+
     const challenges =
         document.getElementById(
             "challengeApprovalsSection"
         );
 
+
     if (accounts) {
+
         accounts.style.display =
             type === "accounts"
                 ? "block"
                 : "none";
     }
 
+
     if (challenges) {
+
         challenges.style.display =
             type === "challenges"
                 ? "block"
@@ -5445,6 +5467,10 @@ function showApprovalSection(type) {
 }
 
 
+/* =========================================================
+   CHARGER LES DEMANDES DE CRÉATION DE COMPTE
+========================================================= */
+
 async function loadAccountApprovals() {
 
     const container =
@@ -5452,12 +5478,15 @@ async function loadAccountApprovals() {
             "accountApprovalsList"
         );
 
+
     if (!container) {
         return;
     }
 
+
     container.innerHTML =
         "Chargement...";
+
 
     try {
 
@@ -5470,26 +5499,39 @@ async function loadAccountApprovals() {
                 }
             );
 
+
         if (!response.ok) {
+
             throw new Error(
                 await response.text()
             );
         }
 
+
         const requests =
             await response.json();
 
+
+        /* ========================
+           COMPTEUR
+        ======================== */
 
         const counter =
             document.getElementById(
                 "accountApprovalCount"
             );
 
+
         if (counter) {
+
             counter.innerText =
                 requests.length;
         }
 
+
+        /* ========================
+           AUCUNE DEMANDE
+        ======================== */
 
         if (!requests.length) {
 
@@ -5503,6 +5545,10 @@ async function loadAccountApprovals() {
         }
 
 
+        /* ========================
+           RÉCUPÉRER LES ÉQUIPES
+        ======================== */
+
         const teamsResponse =
             await fetch(
                 `${SUPABASE_URL}/rest/v1/teams?select=id,name`,
@@ -5512,6 +5558,7 @@ async function loadAccountApprovals() {
                 }
             );
 
+
         const teams =
             teamsResponse.ok
                 ? await teamsResponse.json()
@@ -5520,80 +5567,118 @@ async function loadAccountApprovals() {
 
         const teamNames = {};
 
-        teams.forEach(team => {
-            teamNames[team.id] =
-                team.name;
-        });
 
+        teams.forEach(
+            team => {
+
+                teamNames[
+                    String(team.id)
+                ] =
+                    team.name;
+            }
+        );
+
+
+        /* ========================
+           AFFICHAGE
+        ======================== */
 
         container.innerHTML =
             requests
                 .map(
-                    request => `
-                        <div class="approval-request-card">
+                    request => {
 
-                            <div class="approval-request-info">
+                        const teamName =
+                            teamNames[
+                                String(
+                                    request.team_id
+                                )
+                            ] ||
+                            "Non renseignée";
 
-                                <h3>
-                                    ${escapeHtml(
-                                        request.full_name
-                                    )}
-                                </h3>
 
-                                <p>
-                                    <strong>Service :</strong>
-                                    ${escapeHtml(
-                                        request.service
-                                    )}
-                                </p>
+                        return `
+                            <div class="approval-request-card">
 
-                                <p>
-                                    <strong>Équipe :</strong>
-                                    ${escapeHtml(
-                                        teamNames[
-                                            request.team_id
-                                        ] ||
-                                        "Non renseignée"
-                                    )}
-                                </p>
+                                <div class="approval-request-info">
 
-                                <p>
-                                    <strong>Rôle demandé :</strong>
-                                    ${escapeHtml(
-                                        request.requested_role
-                                    )}
-                                </p>
+                                    <h3>
+                                        ${escapeHtml(
+                                            request.full_name
+                                        )}
+                                    </h3>
+
+
+                                    <p>
+                                        <strong>
+                                            Service :
+                                        </strong>
+
+                                        ${escapeHtml(
+                                            request.service
+                                        )}
+                                    </p>
+
+
+                                    <p>
+                                        <strong>
+                                            Équipe :
+                                        </strong>
+
+                                        ${escapeHtml(
+                                            teamName
+                                        )}
+                                    </p>
+
+
+                                    <p>
+                                        <strong>
+                                            Rôle demandé :
+                                        </strong>
+
+                                        ${escapeHtml(
+                                            request.requested_role
+                                        )}
+                                    </p>
+
+                                </div>
+
+
+                                <div class="approval-request-actions">
+
+                                    <button
+                                        type="button"
+                                        class="approval-accept"
+                                        onclick="approveAccountRequest('${request.id}')"
+                                    >
+                                        ✓ Accepter
+                                    </button>
+
+
+                                    <button
+                                        type="button"
+                                        class="approval-reject"
+                                        onclick="rejectAccountRequest('${request.id}')"
+                                    >
+                                        ✕ Refuser
+                                    </button>
+
+                                </div>
 
                             </div>
-
-
-                            <div class="approval-request-actions">
-
-                                <button
-                                    class="approval-accept"
-                                    onclick="approveAccountRequest('${request.id}')"
-                                >
-                                    ✓ Accepter
-                                </button>
-
-
-                                <button
-                                    class="approval-reject"
-                                    onclick="rejectAccountRequest('${request.id}')"
-                                >
-                                    ✕ Refuser
-                                </button>
-
-                            </div>
-
-                        </div>
-                    `
+                        `;
+                    }
                 )
                 .join("");
 
+
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Erreur chargement approbations :",
+            error
+        );
+
 
         container.innerHTML = `
             <div class="approval-empty">
@@ -5602,6 +5687,413 @@ async function loadAccountApprovals() {
         `;
     }
 }
+
+
+/* =========================================================
+   ACCEPTER UNE DEMANDE
+========================================================= */
+
+async function approveAccountRequest(
+    requestId
+) {
+
+    if (!requireAdmin()) {
+        return;
+    }
+
+
+    const confirmation =
+        confirm(
+            "Confirmer la création de ce compte ?"
+        );
+
+
+    if (!confirmation) {
+        return;
+    }
+
+
+    try {
+
+        /* ========================
+           1. RÉCUPÉRER LA DEMANDE
+        ======================== */
+
+        const requestResponse =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/account_requests?id=eq.${encodeURIComponent(requestId)}&status=eq.pending&select=*`,
+                {
+                    headers:
+                        supabaseHeaders()
+                }
+            );
+
+
+        if (!requestResponse.ok) {
+
+            throw new Error(
+                await requestResponse.text()
+            );
+        }
+
+
+        const requests =
+            await requestResponse.json();
+
+
+        if (!requests.length) {
+
+            alert(
+                "Cette demande n'existe plus ou a déjà été traitée."
+            );
+
+            await loadAccountApprovals();
+
+            return;
+        }
+
+
+        const request =
+            requests[0];
+
+
+        /* ========================
+           2. GÉNÉRER IDENTIFIANT
+        ======================== */
+
+        const username =
+            generateUsername(
+                request.first_name,
+                request.last_name
+            );
+
+
+        if (!username) {
+
+            throw new Error(
+                "Impossible de générer l'identifiant."
+            );
+        }
+
+
+        /* ========================
+           3. VÉRIFIER DOUBLON
+        ======================== */
+
+        const duplicateResponse =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/profiles?select=id&username=eq.${encodeURIComponent(username)}`,
+                {
+                    headers:
+                        supabaseHeaders()
+                }
+            );
+
+
+        if (!duplicateResponse.ok) {
+
+            throw new Error(
+                await duplicateResponse.text()
+            );
+        }
+
+
+        const duplicates =
+            await duplicateResponse.json();
+
+
+        if (duplicates.length > 0) {
+
+            alert(
+                "Impossible de créer le compte : cet utilisateur possède déjà un compte."
+            );
+
+            return;
+        }
+
+
+        /* ========================
+           4. MOT DE PASSE PROVISOIRE
+        ======================== */
+
+        const temporaryPassword =
+            generateTemporaryPassword();
+
+
+        /* ========================
+           5. RÔLE TECHNIQUE
+        ======================== */
+
+        const roleMap = {
+
+            "Chef d'équipe":
+                "chef_equipe",
+
+            "Manager":
+                "manager",
+
+            "Direction":
+                "direction"
+        };
+
+
+        const technicalRole =
+            roleMap[
+                request.requested_role
+            ] ||
+            "user";
+
+
+        /* ========================
+           6. CRÉER LE PROFIL
+        ======================== */
+
+        const createResponse =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/profiles`,
+                {
+                    method:
+                        "POST",
+
+                    headers:
+                        supabaseHeaders({
+                            "Content-Type":
+                                "application/json",
+
+                            "Prefer":
+                                "return=minimal"
+                        }),
+
+                    body:
+                        JSON.stringify({
+
+                            first_name:
+                                request.first_name,
+
+                            last_name:
+                                request.last_name,
+
+                            full_name:
+                                request.full_name,
+
+                            username:
+                                username,
+
+                            password:
+                                temporaryPassword,
+
+                            service:
+                                request.service,
+
+                            team_id:
+                                request.team_id,
+
+                            role:
+                                technicalRole,
+
+                            position:
+                                request.requested_role,
+
+                            account_status:
+                                "active",
+
+                            must_change_password:
+                                true,
+
+                            xp:
+                                0,
+
+                            level:
+                                1
+                        })
+                }
+            );
+
+
+        if (!createResponse.ok) {
+
+            throw new Error(
+                await createResponse.text()
+            );
+        }
+
+
+        /* ========================
+           7. METTRE LA DEMANDE
+           EN APPROUVÉE
+        ======================== */
+
+        const updateRequestResponse =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/account_requests?id=eq.${encodeURIComponent(requestId)}`,
+                {
+                    method:
+                        "PATCH",
+
+                    headers:
+                        supabaseHeaders({
+                            "Content-Type":
+                                "application/json",
+
+                            "Prefer":
+                                "return=minimal"
+                        }),
+
+                    body:
+                        JSON.stringify({
+
+                            status:
+                                "approved",
+
+                            generated_username:
+                                username,
+
+                            temporary_password:
+                                temporaryPassword,
+
+                            credentials_retrieved:
+                                false,
+
+                            processed_at:
+                                new Date().toISOString()
+                        })
+                }
+            );
+
+
+        if (!updateRequestResponse.ok) {
+
+            throw new Error(
+                await updateRequestResponse.text()
+            );
+        }
+
+
+        /* ========================
+           8. CONFIRMATION ADMIN
+        ======================== */
+
+        alert(
+            "Compte approuvé ✅\n\n" +
+            "Le collaborateur pourra maintenant revenir dans « Créer mon compte » et renseigner son prénom et son nom pour récupérer ses identifiants."
+        );
+
+
+        /* ========================
+           9. RECHARGER LA LISTE
+        ======================== */
+
+        await loadAccountApprovals();
+
+
+    } catch (error) {
+
+        console.error(
+            "Erreur approbation compte :",
+            error
+        );
+
+
+        alert(
+            "Impossible d'approuver cette demande.\n\n" +
+            error.message
+        );
+    }
+}
+
+
+/* =========================================================
+   REFUSER UNE DEMANDE
+========================================================= */
+
+async function rejectAccountRequest(
+    requestId
+) {
+
+    if (!requireAdmin()) {
+        return;
+    }
+
+
+    const confirmation =
+        confirm(
+            "Confirmer le refus de cette demande de création de compte ?"
+        );
+
+
+    if (!confirmation) {
+        return;
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/account_requests?id=eq.${encodeURIComponent(requestId)}`,
+                {
+                    method:
+                        "PATCH",
+
+                    headers:
+                        supabaseHeaders({
+                            "Content-Type":
+                                "application/json",
+
+                            "Prefer":
+                                "return=minimal"
+                        }),
+
+                    body:
+                        JSON.stringify({
+
+                            status:
+                                "rejected",
+
+                            processed_at:
+                                new Date().toISOString()
+                        })
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                await response.text()
+            );
+        }
+
+
+        alert(
+            "Demande refusée ❌\n\n" +
+            "Lorsque le collaborateur reviendra dans « Créer mon compte » avec son prénom et son nom, Nickel Master lui indiquera que sa demande a été refusée."
+        );
+
+
+        await loadAccountApprovals();
+
+
+    } catch (error) {
+
+        console.error(
+            "Erreur refus demande :",
+            error
+        );
+
+
+        alert(
+            "Impossible de refuser cette demande.\n\n" +
+            error.message
+        );
+    }
+}
+
+
+/* =========================================================
+   AFFICHER LE MENU APPROBATIONS UNIQUEMENT À L'ADMIN
+========================================================= */
+
 function updateAdminNavigation() {
 
     const role =
@@ -5616,11 +6108,20 @@ function updateAdminNavigation() {
         );
 
 
-    if (
-        button &&
-        role === "admin"
-    ) {
+    if (!button) {
+        return;
+    }
+
+
+    if (role === "admin") {
+
         button.style.display =
             "";
+
+    } else {
+
+        button.style.display =
+            "none";
     }
 }
+
