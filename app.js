@@ -4483,11 +4483,6 @@ let registerData = {
     role: ""
 };
 
-
-/* =========================================================
-   NETTOYAGE TEXTE IDENTIFIANT
-========================================================= */
-
 function normalizeRegisterText(value) {
     return String(value || "")
         .normalize("NFD")
@@ -4496,160 +4491,33 @@ function normalizeRegisterText(value) {
         .toLowerCase();
 }
 
+function generateUsername(firstName, lastName) {
+    const first = normalizeRegisterText(firstName);
+    const last = normalizeRegisterText(lastName);
 
-/* =========================================================
-   GÉNÉRER IDENTIFIANT
-========================================================= */
+    if (!first || !last) return "";
 
-function generateUsername(
-    firstName,
-    lastName
-) {
-/*
- * Avant de proposer une nouvelle inscription,
- * on cherche une ancienne demande.
- */
-
-const requestResponse =
-    await fetch(
-        `${SUPABASE_URL}/rest/v1/account_requests?select=*&first_name=ilike.${encodeURIComponent(firstName)}&last_name=ilike.${encodeURIComponent(lastName)}&order=created_at.desc&limit=1`,
-        {
-            headers:
-                supabaseHeaders()
-        }
-    );
-
-
-if (!requestResponse.ok) {
-    throw new Error(
-        await requestResponse.text()
-    );
+    return first.charAt(0) + "." + last;
 }
-
-
-const previousRequests =
-    await requestResponse.json();
-
-
-if (previousRequests.length > 0) {
-
-    const previousRequest =
-        previousRequests[0];
-
-
-    /*
-     * DEMANDE TOUJOURS EN ATTENTE
-     */
-    if (
-        previousRequest.status ===
-        "pending"
-    ) {
-
-        showRegisterRequestPending();
-
-        return;
-    }
-
-
-    /*
-     * DEMANDE REFUSÉE
-     */
-    if (
-        previousRequest.status ===
-        "rejected"
-    ) {
-
-        showRegisterRequestRejected();
-
-        return;
-    }
-
-
-    /*
-     * DEMANDE APPROUVÉE
-     */
-    if (
-        previousRequest.status ===
-        "approved"
-    ) {
-
-        showApprovedAccountCredentials(
-            previousRequest
-        );
-
-        return;
-    }
-}
-
-    const first =
-        normalizeRegisterText(
-            firstName
-        );
-
-    const last =
-        normalizeRegisterText(
-            lastName
-        );
-
-
-    if (
-        !first ||
-        !last
-    ) {
-        return "";
-    }
-
-
-    return (
-        first.charAt(0) +
-        "." +
-        last
-    );
-}
-
-
-/* =========================================================
-   MOT DE PASSE ALÉATOIRE
-========================================================= */
 
 function generateTemporaryPassword() {
-
     const chars =
         "ABCDEFGHJKLMNPQRSTUVWXYZ" +
         "abcdefghijkmnopqrstuvwxyz" +
         "23456789";
 
+    let password = "";
 
-    let password =
-        "";
-
-
-    for (
-        let i = 0;
-        i < 10;
-        i++
-    ) {
-
-        password +=
-            chars.charAt(
-                Math.floor(
-                    Math.random() *
-                    chars.length
-                )
-            );
+    for (let i = 0; i < 10; i++) {
+        password += chars.charAt(
+            Math.floor(Math.random() * chars.length)
+        );
     }
-
 
     return password;
 }
 
-
-/* =========================================================
-   NAVIGATION FORMULAIRE
-========================================================= */
-
 function showRegisterStep(stepId) {
-
     const steps = [
         "registerStep1",
         "existingAccountMessage",
@@ -4657,437 +4525,237 @@ function showRegisterStep(stepId) {
         "registerStep3",
         "registerStep4",
         "registerSuccess",
-        "registerPending"
+        "registerPending",
+        "registerRequestStillPending",
+        "registerRequestRejected",
+        "registerRequestApproved"
     ];
 
-
-    steps.forEach(
-        id => {
-
-            const element =
-                document.getElementById(
-                    id
-                );
-
-
-            if (element) {
-                element.style.display =
-                    id === stepId
-                        ? "block"
-                        : "none";
-            }
+    steps.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.style.display = id === stepId ? "block" : "none";
         }
-    );
+    });
 }
 
+function showRegisterRequestPending() {
+    showRegisterStep("registerRequestStillPending");
+}
 
-/* =========================================================
-   VÉRIFIER NOM + PRÉNOM
-========================================================= */
+function showRegisterRequestRejected() {
+    showRegisterStep("registerRequestRejected");
+}
+
+function showApprovedAccountCredentials(request) {
+    const usernameElement = document.getElementById("approvedUsername");
+    const passwordElement = document.getElementById("approvedTemporaryPassword");
+
+    if (usernameElement) {
+        usernameElement.innerText = request.generated_username || "Indisponible";
+    }
+
+    if (passwordElement) {
+        passwordElement.innerText = request.temporary_password || "Indisponible";
+    }
+
+    showRegisterStep("registerRequestApproved");
+}
 
 async function checkRegisterIdentity() {
+    const firstNameElement = document.getElementById("registerFirstName");
+    const lastNameElement = document.getElementById("registerLastName");
 
-    const firstName =
-        document
-            .getElementById(
-                "registerFirstName"
-            )
-            .value
-            .trim();
+    if (!firstNameElement || !lastNameElement) return;
 
+    const firstName = firstNameElement.value.trim();
+    const lastName = lastNameElement.value.trim();
 
-    const lastName =
-        document
-            .getElementById(
-                "registerLastName"
-            )
-            .value
-            .trim();
-
-
-    if (
-        !firstName ||
-        !lastName
-    ) {
-
-        alert(
-            "Merci de renseigner ton prénom et ton nom."
-        );
-
+    if (!firstName || !lastName) {
+        alert("Merci de renseigner ton prénom et ton nom.");
         return;
     }
 
+    const fullName = `${firstName} ${lastName}`;
+    const username = generateUsername(firstName, lastName);
 
-    const fullName =
-        `${firstName} ${lastName}`;
-
-
-    const username =
-        generateUsername(
-            firstName,
-            lastName
-        );
-
+    if (!username) {
+        alert("Impossible de générer l'identifiant.");
+        return;
+    }
 
     try {
+        const requestResponse = await fetch(
+            `${SUPABASE_URL}/rest/v1/account_requests?select=*&first_name=ilike.${encodeURIComponent(firstName)}&last_name=ilike.${encodeURIComponent(lastName)}&order=created_at.desc&limit=1`,
+            { headers: supabaseHeaders() }
+        );
 
-        /*
-         * Vérification 1 :
-         * nom complet.
-         */
+        if (!requestResponse.ok) {
+            throw new Error(await requestResponse.text());
+        }
 
-        const nameResponse =
-            await fetch(
-                `${SUPABASE_URL}/rest/v1/profiles?select=id,full_name,username&full_name=ilike.${encodeURIComponent(fullName)}`,
-                {
-                    headers:
-                        supabaseHeaders()
-                }
-            );
+        const previousRequests = await requestResponse.json();
 
+        if (previousRequests.length > 0) {
+            const previousRequest = previousRequests[0];
+
+            if (previousRequest.status === "pending") {
+                showRegisterRequestPending();
+                return;
+            }
+
+            if (previousRequest.status === "rejected") {
+                showRegisterRequestRejected();
+                return;
+            }
+
+            if (previousRequest.status === "approved") {
+                showApprovedAccountCredentials(previousRequest);
+                return;
+            }
+        }
+
+        const nameResponse = await fetch(
+            `${SUPABASE_URL}/rest/v1/profiles?select=id,full_name,username&full_name=ilike.${encodeURIComponent(fullName)}`,
+            { headers: supabaseHeaders() }
+        );
 
         if (!nameResponse.ok) {
-            throw new Error(
-                await nameResponse.text()
-            );
+            throw new Error(await nameResponse.text());
         }
 
+        const nameMatches = await nameResponse.json();
 
-        const nameMatches =
-            await nameResponse.json();
-
-
-        /*
-         * Vérification 2 :
-         * identifiant.
-         */
-
-        const usernameResponse =
-            await fetch(
-                `${SUPABASE_URL}/rest/v1/profiles?select=id&username=eq.${encodeURIComponent(username)}`,
-                {
-                    headers:
-                        supabaseHeaders()
-                }
-            );
-
+        const usernameResponse = await fetch(
+            `${SUPABASE_URL}/rest/v1/profiles?select=id,full_name,username&username=eq.${encodeURIComponent(username)}`,
+            { headers: supabaseHeaders() }
+        );
 
         if (!usernameResponse.ok) {
-            throw new Error(
-                await usernameResponse.text()
-            );
+            throw new Error(await usernameResponse.text());
         }
 
+        const usernameMatches = await usernameResponse.json();
 
-        const usernameMatches =
-            await usernameResponse.json();
-
-
-        /*
-         * Si l'un des deux existe :
-         * STOP.
-         */
-
-        if (
-            nameMatches.length > 0 ||
-            usernameMatches.length > 0
-        ) {
-
-            showRegisterStep(
-                "existingAccountMessage"
-            );
-
+        if (nameMatches.length > 0 || usernameMatches.length > 0) {
+            showRegisterStep("existingAccountMessage");
             return;
         }
 
+        registerData.firstName = firstName;
+        registerData.lastName = lastName;
+        registerData.fullName = fullName;
+        registerData.username = username;
+        registerData.service = "";
+        registerData.teamId = null;
+        registerData.role = "";
 
-        registerData.firstName =
-            firstName;
-
-        registerData.lastName =
-            lastName;
-
-        registerData.fullName =
-            fullName;
-
-        registerData.username =
-            username;
-
-
-        showRegisterStep(
-            "registerStep2"
-        );
+        showRegisterStep("registerStep2");
 
     } catch (error) {
-
-        console.error(
-            "Erreur vérification compte :",
-            error
-        );
-
-
-        alert(
-            "Impossible de vérifier l'existence du compte."
-        );
+        console.error("Erreur vérification compte :", error);
+        alert("Impossible de vérifier l'existence du compte.\n\n" + error.message);
     }
 }
 
-
-/* =========================================================
-   CHOIX SERVICE
-========================================================= */
-
-function selectRegisterService(
-    service,
-    button
-) {
-
-    registerData.service =
-        service;
-
+function selectRegisterService(service, button) {
+    registerData.service = service;
+    registerData.teamId = null;
+    registerData.role = "";
 
     document
-        .querySelectorAll(
-            "#registerStep2 .register-choice"
-        )
-        .forEach(
-            element => {
-                element.classList.remove(
-                    "selected"
-                );
-            }
-        );
+        .querySelectorAll("#registerStep2 .register-choice")
+        .forEach(element => element.classList.remove("selected"));
 
-
-    if (button) {
-        button.classList.add(
-            "selected"
-        );
-    }
+    if (button) button.classList.add("selected");
 }
-
 
 async function continueAfterService() {
-
     if (!registerData.service) {
-
-        alert(
-            "Merci de choisir ton service."
-        );
-
+        alert("Merci de choisir ton service.");
         return;
     }
 
-
-    /*
-     * On affiche les équipes
-     * correspondant au service.
-     */
-
-    await loadRegisterTeams(
-        registerData.service
-    );
-
-
-    showRegisterStep(
-        "registerStep3"
-    );
+    await loadRegisterTeams(registerData.service);
+    showRegisterStep("registerStep3");
 }
 
+async function loadRegisterTeams(service) {
+    const container = document.getElementById("registerTeams");
+    if (!container) return;
 
-/* =========================================================
-   CHARGER ÉQUIPES
-========================================================= */
-
-async function loadRegisterTeams(
-    service
-) {
-
-    const container =
-        document.getElementById(
-            "registerTeams"
-        );
-
-
-    if (!container) {
-        return;
-    }
-
-
-    container.innerHTML =
-        "Chargement...";
-
+    container.innerHTML = "Chargement...";
 
     try {
-
-        const response =
-            await fetch(
-                `${SUPABASE_URL}/rest/v1/teams?select=id,name&service=eq.${encodeURIComponent(service)}&order=name.asc`,
-                {
-                    headers:
-                        supabaseHeaders()
-                }
-            );
-
+        const response = await fetch(
+            `${SUPABASE_URL}/rest/v1/teams?select=id,name&service=eq.${encodeURIComponent(service)}&order=name.asc`,
+            { headers: supabaseHeaders() }
+        );
 
         if (!response.ok) {
-            throw new Error(
-                await response.text()
-            );
+            throw new Error(await response.text());
         }
 
-
-        const teams =
-            await response.json();
-
+        const teams = await response.json();
 
         if (!teams.length) {
-
-            container.innerHTML =
-                `
-                <p>
-                    Aucune équipe disponible
-                    pour ce service.
-                </p>
-                `;
-
+            container.innerHTML = `<p>Aucune équipe disponible pour ce service.</p>`;
             return;
         }
 
-
-        container.innerHTML =
-            teams
-                .map(
-                    team => `
-                        <button
-                            type="button"
-                            class="register-choice"
-                            onclick="selectRegisterTeam('${team.id}', this)"
-                        >
-                            👥
-                            <strong>
-                                ${escapeHtml(team.name)}
-                            </strong>
-                        </button>
-                    `
-                )
-                .join("");
+        container.innerHTML = teams
+            .map(team => `
+                <button
+                    type="button"
+                    class="register-choice"
+                    onclick="selectRegisterTeam('${team.id}', this)"
+                >
+                    👥
+                    <strong>${escapeHtml(team.name)}</strong>
+                </button>
+            `)
+            .join("");
 
     } catch (error) {
-
-        console.error(
-            error
-        );
-
-
-        container.innerHTML =
-            `
-            <p>
-                Impossible de charger
-                les équipes.
-            </p>
-            `;
+        console.error("Erreur chargement équipes :", error);
+        container.innerHTML = `<p>Impossible de charger les équipes.</p>`;
     }
 }
 
-
-function selectRegisterTeam(
-    teamId,
-    button
-) {
-
-    registerData.teamId =
-        teamId;
-
+function selectRegisterTeam(teamId, button) {
+    registerData.teamId = teamId;
 
     document
-        .querySelectorAll(
-            "#registerTeams .register-choice"
-        )
-        .forEach(
-            element => {
-                element.classList.remove(
-                    "selected"
-                );
-            }
-        );
+        .querySelectorAll("#registerTeams .register-choice")
+        .forEach(element => element.classList.remove("selected"));
 
-
-    if (button) {
-        button.classList.add(
-            "selected"
-        );
-    }
+    if (button) button.classList.add("selected");
 }
-
 
 function continueAfterTeam() {
-
     if (!registerData.teamId) {
-
-        alert(
-            "Merci de choisir ton équipe."
-        );
-
+        alert("Merci de choisir ton équipe.");
         return;
     }
 
-
-    showRegisterStep(
-        "registerStep4"
-    );
+    showRegisterStep("registerStep4");
 }
 
-
-/* =========================================================
-   CHOIX RÔLE
-========================================================= */
-
-function selectRegisterRole(
-    role,
-    button
-) {
-
-    registerData.role =
-        role;
-
+function selectRegisterRole(role, button) {
+    registerData.role = role;
 
     document
-        .querySelectorAll(
-            "#registerStep4 .register-choice"
-        )
-        .forEach(
-            element => {
-                element.classList.remove(
-                    "selected"
-                );
-            }
-        );
+        .querySelectorAll("#registerStep4 .register-choice")
+        .forEach(element => element.classList.remove("selected"));
 
-
-    if (button) {
-        button.classList.add(
-            "selected"
-        );
-    }
+    if (button) button.classList.add("selected");
 }
 
-
-/* =========================================================
-   TERMINER INSCRIPTION
-========================================================= */
-
 async function finishAccountRegistration() {
-
     if (!registerData.role) {
-
-        alert(
-            "Merci de choisir ton rôle."
-        );
-
+        alert("Merci de choisir ton rôle.");
         return;
     }
-
 
     const sensitiveRoles = [
         "Chef d'équipe",
@@ -5095,262 +4763,134 @@ async function finishAccountRegistration() {
         "Direction"
     ];
 
-
-    if (
-        sensitiveRoles.includes(
-            registerData.role
-        )
-    ) {
-
+    if (sensitiveRoles.includes(registerData.role)) {
         await createAccountApprovalRequest();
-
         return;
     }
-
 
     await createImmediateAccount();
 }
 
-
-/* =========================================================
-   CRÉER CONSEILLER / SENIOR
-========================================================= */
-
 async function createImmediateAccount() {
-
-    const temporaryPassword =
-        generateTemporaryPassword();
-
+    const temporaryPassword = generateTemporaryPassword();
 
     try {
+        const duplicateResponse = await fetch(
+            `${SUPABASE_URL}/rest/v1/profiles?select=id,full_name,username&username=eq.${encodeURIComponent(registerData.username)}`,
+            { headers: supabaseHeaders() }
+        );
 
-        /*
-         * Dernière vérification
-         * juste avant l'insertion.
-         */
+        if (!duplicateResponse.ok) {
+            throw new Error(await duplicateResponse.text());
+        }
 
-        const duplicateResponse =
-            await fetch(
-                `${SUPABASE_URL}/rest/v1/profiles?select=id&username=eq.${encodeURIComponent(registerData.username)}`,
-                {
-                    headers:
-                        supabaseHeaders()
-                }
-            );
+        const duplicates = await duplicateResponse.json();
 
-
-        const duplicates =
-            duplicateResponse.ok
-                ? await duplicateResponse.json()
-                : [];
-
-
-        if (duplicates.length) {
-
-            showRegisterStep(
-                "existingAccountMessage"
-            );
-
+        if (duplicates.length > 0) {
+            showRegisterStep("existingAccountMessage");
             return;
         }
 
-
-        const response =
-            await fetch(
-                `${SUPABASE_URL}/rest/v1/profiles`,
-                {
-                    method:
-                        "POST",
-
-                    headers:
-                        supabaseHeaders({
-                            "Content-Type":
-                                "application/json",
-
-                            Prefer:
-                                "return=minimal"
-                        }),
-
-                    body:
-                        JSON.stringify({
-
-                            first_name:
-                                registerData.firstName,
-
-                            last_name:
-                                registerData.lastName,
-
-                            full_name:
-                                registerData.fullName,
-
-                            username:
-                                registerData.username,
-
-                            password:
-                                temporaryPassword,
-
-                            service:
-                                registerData.service,
-
-                            team_id:
-                                registerData.teamId,
-
-                            /*
-                             * Rôle technique.
-                             */
-                            role:
-                                "user",
-
-                            /*
-                             * Poste visible.
-                             */
-                            position:
-                                registerData.role,
-
-                            account_status:
-                                "active",
-
-                            must_change_password:
-                                true,
-
-                            xp:
-                                0,
-
-                            level:
-                                1
-                        })
-                }
-            );
-
+        const response = await fetch(
+            `${SUPABASE_URL}/rest/v1/profiles`,
+            {
+                method: "POST",
+                headers: supabaseHeaders({
+                    "Content-Type": "application/json",
+                    Prefer: "return=minimal"
+                }),
+                body: JSON.stringify({
+                    first_name: registerData.firstName,
+                    last_name: registerData.lastName,
+                    full_name: registerData.fullName,
+                    username: registerData.username,
+                    password: temporaryPassword,
+                    service: registerData.service,
+                    team_id: registerData.teamId,
+                    role: "user",
+                    position: registerData.role,
+                    account_status: "active",
+                    must_change_password: true,
+                    xp: 0,
+                    level: 1
+                })
+            }
+        );
 
         if (!response.ok) {
-
-            throw new Error(
-                await response.text()
-            );
+            throw new Error(await response.text());
         }
 
+        const usernameElement = document.getElementById("generatedUsername");
+        const passwordElement = document.getElementById("generatedPassword");
 
-        document.getElementById(
-            "generatedUsername"
-        ).innerText =
-            registerData.username;
+        if (usernameElement) {
+            usernameElement.innerText = registerData.username;
+        }
 
+        if (passwordElement) {
+            passwordElement.innerText = temporaryPassword;
+        }
 
-        document.getElementById(
-            "generatedPassword"
-        ).innerText =
-            temporaryPassword;
-
-
-        showRegisterStep(
-            "registerSuccess"
-        );
+        showRegisterStep("registerSuccess");
 
     } catch (error) {
-
-        console.error(
-            "Erreur création compte :",
-            error
-        );
-
-
-        alert(
-            "Impossible de créer le compte : " +
-            error.message
-        );
+        console.error("Erreur création compte :", error);
+        alert("Impossible de créer le compte :\n\n" + error.message);
     }
 }
-
-
-/* =========================================================
-   DEMANDE APPROBATION
-========================================================= */
 
 async function createAccountApprovalRequest() {
-
     try {
+        const existingRequestResponse = await fetch(
+            `${SUPABASE_URL}/rest/v1/account_requests?select=id,status&first_name=ilike.${encodeURIComponent(registerData.firstName)}&last_name=ilike.${encodeURIComponent(registerData.lastName)}&status=eq.pending&limit=1`,
+            { headers: supabaseHeaders() }
+        );
 
-        const response =
-            await fetch(
-                `${SUPABASE_URL}/rest/v1/account_requests`,
-                {
-                    method:
-                        "POST",
-
-                    headers:
-                        supabaseHeaders({
-                            "Content-Type":
-                                "application/json",
-
-                            Prefer:
-                                "return=minimal"
-                        }),
-
-                    body:
-                        JSON.stringify({
-
-                            first_name:
-                                registerData.firstName,
-
-                            last_name:
-                                registerData.lastName,
-
-                            full_name:
-                                registerData.fullName,
-
-                            service:
-                                registerData.service,
-
-                            team_id:
-                                String(
-                                    registerData.teamId
-                                ),
-
-                            requested_role:
-                                registerData.role,
-
-                            status:
-                                "pending"
-                        })
-                }
-            );
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                await response.text()
-            );
+        if (!existingRequestResponse.ok) {
+            throw new Error(await existingRequestResponse.text());
         }
 
+        const existingRequests = await existingRequestResponse.json();
 
-        showRegisterStep(
-            "registerPending"
+        if (existingRequests.length > 0) {
+            showRegisterRequestPending();
+            return;
+        }
+
+        const response = await fetch(
+            `${SUPABASE_URL}/rest/v1/account_requests`,
+            {
+                method: "POST",
+                headers: supabaseHeaders({
+                    "Content-Type": "application/json",
+                    Prefer: "return=minimal"
+                }),
+                body: JSON.stringify({
+                    first_name: registerData.firstName,
+                    last_name: registerData.lastName,
+                    full_name: registerData.fullName,
+                    service: registerData.service,
+                    team_id: String(registerData.teamId),
+                    requested_role: registerData.role,
+                    status: "pending"
+                })
+            }
         );
+
+        if (!response.ok) {
+            throw new Error(await response.text());
+        }
+
+        showRegisterStep("registerPending");
 
     } catch (error) {
-
-        console.error(
-            "Erreur demande compte :",
-            error
-        );
-
-
-        alert(
-            "Impossible d'envoyer la demande : " +
-            error.message
-        );
+        console.error("Erreur demande compte :", error);
+        alert("Impossible d'envoyer la demande :\n\n" + error.message);
     }
 }
 
-
-/* =========================================================
-   RECOMMENCER
-========================================================= */
-
 function resetRegisterForm() {
-
     registerData = {
         firstName: "",
         lastName: "",
@@ -5361,324 +4901,162 @@ function resetRegisterForm() {
         role: ""
     };
 
+    const firstNameElement = document.getElementById("registerFirstName");
+    const lastNameElement = document.getElementById("registerLastName");
 
-    showRegisterStep(
-        "registerStep1"
-    );
+    if (firstNameElement) firstNameElement.value = "";
+    if (lastNameElement) lastNameElement.value = "";
+
+    document
+        .querySelectorAll(".register-choice")
+        .forEach(element => element.classList.remove("selected"));
+
+    showRegisterStep("registerStep1");
 }
+
 /* =========================================================
    APPROBATIONS ADMIN
 ========================================================= */
 
 function requireAdmin() {
-
-    const role =
-        String(
-            localStorage.getItem("role") || ""
-        ).toLowerCase();
-
+    const role = String(
+        localStorage.getItem("role") || ""
+    ).toLowerCase();
 
     if (role !== "admin") {
-
-        alert(
-            "Cette page est réservée à l'administrateur."
-        );
-
-        window.location.href =
-            "home.html";
-
+        alert("Cette page est réservée à l'administrateur.");
+        window.location.href = "home.html";
         return false;
     }
-
 
     return true;
 }
 
-
-/* =========================================================
-   CHARGEMENT PAGE APPROBATIONS
-========================================================= */
-
 async function loadApprovalsPage() {
-
-    if (!requireAdmin()) {
-        return;
-    }
-
+    if (!requireAdmin()) return;
 
     const name =
-        localStorage.getItem(
-            "full_name"
-        ) ||
+        localStorage.getItem("full_name") ||
         "Administrateur";
 
+    const topName = document.getElementById("topUserName");
 
-    const topName =
-        document.getElementById(
-            "topUserName"
-        );
-
-
-    if (topName) {
-
-        topName.innerText =
-            name;
-    }
-
+    if (topName) topName.innerText = name;
 
     await loadAccountApprovals();
 }
 
-
-/* =========================================================
-   CHOIX TYPE D'APPROBATION
-========================================================= */
-
 function showApprovalSection(type) {
-
-    const accounts =
-        document.getElementById(
-            "accountApprovalsSection"
-        );
-
-
-    const challenges =
-        document.getElementById(
-            "challengeApprovalsSection"
-        );
-
+    const accounts = document.getElementById("accountApprovalsSection");
+    const challenges = document.getElementById("challengeApprovalsSection");
 
     if (accounts) {
-
-        accounts.style.display =
-            type === "accounts"
-                ? "block"
-                : "none";
+        accounts.style.display = type === "accounts" ? "block" : "none";
     }
 
-
     if (challenges) {
-
-        challenges.style.display =
-            type === "challenges"
-                ? "block"
-                : "none";
+        challenges.style.display = type === "challenges" ? "block" : "none";
     }
 }
 
-
-/* =========================================================
-   CHARGER LES DEMANDES DE CRÉATION DE COMPTE
-========================================================= */
-
 async function loadAccountApprovals() {
+    const container = document.getElementById("accountApprovalsList");
+    if (!container) return;
 
-    const container =
-        document.getElementById(
-            "accountApprovalsList"
-        );
-
-
-    if (!container) {
-        return;
-    }
-
-
-    container.innerHTML =
-        "Chargement...";
-
+    container.innerHTML = "Chargement...";
 
     try {
-
-        const response =
-            await fetch(
-                `${SUPABASE_URL}/rest/v1/account_requests?status=eq.pending&select=*&order=created_at.asc`,
-                {
-                    headers:
-                        supabaseHeaders()
-                }
-            );
-
+        const response = await fetch(
+            `${SUPABASE_URL}/rest/v1/account_requests?status=eq.pending&select=*&order=created_at.asc`,
+            { headers: supabaseHeaders() }
+        );
 
         if (!response.ok) {
-
-            throw new Error(
-                await response.text()
-            );
+            throw new Error(await response.text());
         }
 
+        const requests = await response.json();
+        const counter = document.getElementById("accountApprovalCount");
 
-        const requests =
-            await response.json();
-
-
-        /* ========================
-           COMPTEUR
-        ======================== */
-
-        const counter =
-            document.getElementById(
-                "accountApprovalCount"
-            );
-
-
-        if (counter) {
-
-            counter.innerText =
-                requests.length;
-        }
-
-
-        /* ========================
-           AUCUNE DEMANDE
-        ======================== */
+        if (counter) counter.innerText = requests.length;
 
         if (!requests.length) {
-
             container.innerHTML = `
                 <div class="approval-empty">
                     ✅ Aucune demande en attente.
                 </div>
             `;
-
             return;
         }
 
+        const teamsResponse = await fetch(
+            `${SUPABASE_URL}/rest/v1/teams?select=id,name`,
+            { headers: supabaseHeaders() }
+        );
 
-        /* ========================
-           RÉCUPÉRER LES ÉQUIPES
-        ======================== */
-
-        const teamsResponse =
-            await fetch(
-                `${SUPABASE_URL}/rest/v1/teams?select=id,name`,
-                {
-                    headers:
-                        supabaseHeaders()
-                }
-            );
-
-
-        const teams =
-            teamsResponse.ok
-                ? await teamsResponse.json()
-                : [];
-
+        const teams = teamsResponse.ok
+            ? await teamsResponse.json()
+            : [];
 
         const teamNames = {};
 
+        teams.forEach(team => {
+            teamNames[String(team.id)] = team.name;
+        });
 
-        teams.forEach(
-            team => {
+        container.innerHTML = requests
+            .map(request => {
+                const teamName =
+                    teamNames[String(request.team_id)] ||
+                    "Non renseignée";
 
-                teamNames[
-                    String(team.id)
-                ] =
-                    team.name;
-            }
-        );
+                return `
+                    <div class="approval-request-card">
 
+                        <div class="approval-request-info">
+                            <h3>${escapeHtml(request.full_name)}</h3>
 
-        /* ========================
-           AFFICHAGE
-        ======================== */
+                            <p>
+                                <strong>Service :</strong>
+                                ${escapeHtml(request.service)}
+                            </p>
 
-        container.innerHTML =
-            requests
-                .map(
-                    request => {
+                            <p>
+                                <strong>Équipe :</strong>
+                                ${escapeHtml(teamName)}
+                            </p>
 
-                        const teamName =
-                            teamNames[
-                                String(
-                                    request.team_id
-                                )
-                            ] ||
-                            "Non renseignée";
+                            <p>
+                                <strong>Rôle demandé :</strong>
+                                ${escapeHtml(request.requested_role)}
+                            </p>
+                        </div>
 
+                        <div class="approval-request-actions">
+                            <button
+                                type="button"
+                                class="approval-accept"
+                                onclick="approveAccountRequest('${request.id}')"
+                            >
+                                ✓ Accepter
+                            </button>
 
-                        return `
-                            <div class="approval-request-card">
+                            <button
+                                type="button"
+                                class="approval-reject"
+                                onclick="rejectAccountRequest('${request.id}')"
+                            >
+                                ✕ Refuser
+                            </button>
+                        </div>
 
-                                <div class="approval-request-info">
-
-                                    <h3>
-                                        ${escapeHtml(
-                                            request.full_name
-                                        )}
-                                    </h3>
-
-
-                                    <p>
-                                        <strong>
-                                            Service :
-                                        </strong>
-
-                                        ${escapeHtml(
-                                            request.service
-                                        )}
-                                    </p>
-
-
-                                    <p>
-                                        <strong>
-                                            Équipe :
-                                        </strong>
-
-                                        ${escapeHtml(
-                                            teamName
-                                        )}
-                                    </p>
-
-
-                                    <p>
-                                        <strong>
-                                            Rôle demandé :
-                                        </strong>
-
-                                        ${escapeHtml(
-                                            request.requested_role
-                                        )}
-                                    </p>
-
-                                </div>
-
-
-                                <div class="approval-request-actions">
-
-                                    <button
-                                        type="button"
-                                        class="approval-accept"
-                                        onclick="approveAccountRequest('${request.id}')"
-                                    >
-                                        ✓ Accepter
-                                    </button>
-
-
-                                    <button
-                                        type="button"
-                                        class="approval-reject"
-                                        onclick="rejectAccountRequest('${request.id}')"
-                                    >
-                                        ✕ Refuser
-                                    </button>
-
-                                </div>
-
-                            </div>
-                        `;
-                    }
-                )
-                .join("");
-
+                    </div>
+                `;
+            })
+            .join("");
 
     } catch (error) {
-
-        console.error(
-            "Erreur chargement approbations :",
-            error
-        );
-
+        console.error("Erreur chargement approbations :", error);
 
         container.innerHTML = `
             <div class="approval-empty">
@@ -5688,311 +5066,134 @@ async function loadAccountApprovals() {
     }
 }
 
+async function approveAccountRequest(requestId) {
+    if (!requireAdmin()) return;
 
-/* =========================================================
-   ACCEPTER UNE DEMANDE
-========================================================= */
+    const confirmation = confirm(
+        "Confirmer la création de ce compte ?"
+    );
 
-async function approveAccountRequest(
-    requestId
-) {
-
-    if (!requireAdmin()) {
-        return;
-    }
-
-
-    const confirmation =
-        confirm(
-            "Confirmer la création de ce compte ?"
-        );
-
-
-    if (!confirmation) {
-        return;
-    }
-
+    if (!confirmation) return;
 
     try {
-
-        /* ========================
-           1. RÉCUPÉRER LA DEMANDE
-        ======================== */
-
-        const requestResponse =
-            await fetch(
-                `${SUPABASE_URL}/rest/v1/account_requests?id=eq.${encodeURIComponent(requestId)}&status=eq.pending&select=*`,
-                {
-                    headers:
-                        supabaseHeaders()
-                }
-            );
-
+        const requestResponse = await fetch(
+            `${SUPABASE_URL}/rest/v1/account_requests?id=eq.${encodeURIComponent(requestId)}&status=eq.pending&select=*`,
+            { headers: supabaseHeaders() }
+        );
 
         if (!requestResponse.ok) {
-
-            throw new Error(
-                await requestResponse.text()
-            );
+            throw new Error(await requestResponse.text());
         }
 
-
-        const requests =
-            await requestResponse.json();
-
+        const requests = await requestResponse.json();
 
         if (!requests.length) {
-
-            alert(
-                "Cette demande n'existe plus ou a déjà été traitée."
-            );
-
+            alert("Cette demande n'existe plus ou a déjà été traitée.");
             await loadAccountApprovals();
-
             return;
         }
 
-
-        const request =
-            requests[0];
-
-
-        /* ========================
-           2. GÉNÉRER IDENTIFIANT
-        ======================== */
-
-        const username =
-            generateUsername(
-                request.first_name,
-                request.last_name
-            );
-
+        const request = requests[0];
+        const username = generateUsername(
+            request.first_name,
+            request.last_name
+        );
 
         if (!username) {
-
-            throw new Error(
-                "Impossible de générer l'identifiant."
-            );
+            throw new Error("Impossible de générer l'identifiant.");
         }
 
-
-        /* ========================
-           3. VÉRIFIER DOUBLON
-        ======================== */
-
-        const duplicateResponse =
-            await fetch(
-                `${SUPABASE_URL}/rest/v1/profiles?select=id&username=eq.${encodeURIComponent(username)}`,
-                {
-                    headers:
-                        supabaseHeaders()
-                }
-            );
-
+        const duplicateResponse = await fetch(
+            `${SUPABASE_URL}/rest/v1/profiles?select=id&username=eq.${encodeURIComponent(username)}`,
+            { headers: supabaseHeaders() }
+        );
 
         if (!duplicateResponse.ok) {
-
-            throw new Error(
-                await duplicateResponse.text()
-            );
+            throw new Error(await duplicateResponse.text());
         }
 
-
-        const duplicates =
-            await duplicateResponse.json();
-
+        const duplicates = await duplicateResponse.json();
 
         if (duplicates.length > 0) {
-
             alert(
                 "Impossible de créer le compte : cet utilisateur possède déjà un compte."
             );
-
             return;
         }
 
-
-        /* ========================
-           4. MOT DE PASSE PROVISOIRE
-        ======================== */
-
-        const temporaryPassword =
-            generateTemporaryPassword();
-
-
-        /* ========================
-           5. RÔLE TECHNIQUE
-        ======================== */
+        const temporaryPassword = generateTemporaryPassword();
 
         const roleMap = {
-
-            "Chef d'équipe":
-                "chef_equipe",
-
-            "Manager":
-                "manager",
-
-            "Direction":
-                "direction"
+            "Chef d'équipe": "chef_equipe",
+            "Manager": "manager",
+            "Direction": "direction"
         };
 
-
         const technicalRole =
-            roleMap[
-                request.requested_role
-            ] ||
+            roleMap[request.requested_role] ||
             "user";
 
-
-        /* ========================
-           6. CRÉER LE PROFIL
-        ======================== */
-
-        const createResponse =
-            await fetch(
-                `${SUPABASE_URL}/rest/v1/profiles`,
-                {
-                    method:
-                        "POST",
-
-                    headers:
-                        supabaseHeaders({
-                            "Content-Type":
-                                "application/json",
-
-                            "Prefer":
-                                "return=minimal"
-                        }),
-
-                    body:
-                        JSON.stringify({
-
-                            first_name:
-                                request.first_name,
-
-                            last_name:
-                                request.last_name,
-
-                            full_name:
-                                request.full_name,
-
-                            username:
-                                username,
-
-                            password:
-                                temporaryPassword,
-
-                            service:
-                                request.service,
-
-                            team_id:
-                                request.team_id,
-
-                            role:
-                                technicalRole,
-
-                            position:
-                                request.requested_role,
-
-                            account_status:
-                                "active",
-
-                            must_change_password:
-                                true,
-
-                            xp:
-                                0,
-
-                            level:
-                                1
-                        })
-                }
-            );
-
+        const createResponse = await fetch(
+            `${SUPABASE_URL}/rest/v1/profiles`,
+            {
+                method: "POST",
+                headers: supabaseHeaders({
+                    "Content-Type": "application/json",
+                    Prefer: "return=minimal"
+                }),
+                body: JSON.stringify({
+                    first_name: request.first_name,
+                    last_name: request.last_name,
+                    full_name: request.full_name,
+                    username: username,
+                    password: temporaryPassword,
+                    service: request.service,
+                    team_id: request.team_id,
+                    role: technicalRole,
+                    position: request.requested_role,
+                    account_status: "active",
+                    must_change_password: true,
+                    xp: 0,
+                    level: 1
+                })
+            }
+        );
 
         if (!createResponse.ok) {
-
-            throw new Error(
-                await createResponse.text()
-            );
+            throw new Error(await createResponse.text());
         }
 
-
-        /* ========================
-           7. METTRE LA DEMANDE
-           EN APPROUVÉE
-        ======================== */
-
-        const updateRequestResponse =
-            await fetch(
-                `${SUPABASE_URL}/rest/v1/account_requests?id=eq.${encodeURIComponent(requestId)}`,
-                {
-                    method:
-                        "PATCH",
-
-                    headers:
-                        supabaseHeaders({
-                            "Content-Type":
-                                "application/json",
-
-                            "Prefer":
-                                "return=minimal"
-                        }),
-
-                    body:
-                        JSON.stringify({
-
-                            status:
-                                "approved",
-
-                            generated_username:
-                                username,
-
-                            temporary_password:
-                                temporaryPassword,
-
-                            credentials_retrieved:
-                                false,
-
-                            processed_at:
-                                new Date().toISOString()
-                        })
-                }
-            );
-
+        const updateRequestResponse = await fetch(
+            `${SUPABASE_URL}/rest/v1/account_requests?id=eq.${encodeURIComponent(requestId)}`,
+            {
+                method: "PATCH",
+                headers: supabaseHeaders({
+                    "Content-Type": "application/json",
+                    Prefer: "return=minimal"
+                }),
+                body: JSON.stringify({
+                    status: "approved",
+                    generated_username: username,
+                    temporary_password: temporaryPassword,
+                    credentials_retrieved: false,
+                    processed_at: new Date().toISOString()
+                })
+            }
+        );
 
         if (!updateRequestResponse.ok) {
-
-            throw new Error(
-                await updateRequestResponse.text()
-            );
+            throw new Error(await updateRequestResponse.text());
         }
-
-
-        /* ========================
-           8. CONFIRMATION ADMIN
-        ======================== */
 
         alert(
             "Compte approuvé ✅\n\n" +
             "Le collaborateur pourra maintenant revenir dans « Créer mon compte » et renseigner son prénom et son nom pour récupérer ses identifiants."
         );
 
-
-        /* ========================
-           9. RECHARGER LA LISTE
-        ======================== */
-
         await loadAccountApprovals();
 
-
     } catch (error) {
-
-        console.error(
-            "Erreur approbation compte :",
-            error
-        );
-
+        console.error("Erreur approbation compte :", error);
 
         alert(
             "Impossible d'approuver cette demande.\n\n" +
@@ -6001,86 +5202,44 @@ async function approveAccountRequest(
     }
 }
 
+async function rejectAccountRequest(requestId) {
+    if (!requireAdmin()) return;
 
-/* =========================================================
-   REFUSER UNE DEMANDE
-========================================================= */
+    const confirmation = confirm(
+        "Confirmer le refus de cette demande de création de compte ?"
+    );
 
-async function rejectAccountRequest(
-    requestId
-) {
-
-    if (!requireAdmin()) {
-        return;
-    }
-
-
-    const confirmation =
-        confirm(
-            "Confirmer le refus de cette demande de création de compte ?"
-        );
-
-
-    if (!confirmation) {
-        return;
-    }
-
+    if (!confirmation) return;
 
     try {
-
-        const response =
-            await fetch(
-                `${SUPABASE_URL}/rest/v1/account_requests?id=eq.${encodeURIComponent(requestId)}`,
-                {
-                    method:
-                        "PATCH",
-
-                    headers:
-                        supabaseHeaders({
-                            "Content-Type":
-                                "application/json",
-
-                            "Prefer":
-                                "return=minimal"
-                        }),
-
-                    body:
-                        JSON.stringify({
-
-                            status:
-                                "rejected",
-
-                            processed_at:
-                                new Date().toISOString()
-                        })
-                }
-            );
-
+        const response = await fetch(
+            `${SUPABASE_URL}/rest/v1/account_requests?id=eq.${encodeURIComponent(requestId)}`,
+            {
+                method: "PATCH",
+                headers: supabaseHeaders({
+                    "Content-Type": "application/json",
+                    Prefer: "return=minimal"
+                }),
+                body: JSON.stringify({
+                    status: "rejected",
+                    processed_at: new Date().toISOString()
+                })
+            }
+        );
 
         if (!response.ok) {
-
-            throw new Error(
-                await response.text()
-            );
+            throw new Error(await response.text());
         }
-
 
         alert(
             "Demande refusée ❌\n\n" +
             "Lorsque le collaborateur reviendra dans « Créer mon compte » avec son prénom et son nom, Nickel Master lui indiquera que sa demande a été refusée."
         );
 
-
         await loadAccountApprovals();
 
-
     } catch (error) {
-
-        console.error(
-            "Erreur refus demande :",
-            error
-        );
-
+        console.error("Erreur refus demande :", error);
 
         alert(
             "Impossible de refuser cette demande.\n\n" +
@@ -6089,39 +5248,17 @@ async function rejectAccountRequest(
     }
 }
 
-
-/* =========================================================
-   AFFICHER LE MENU APPROBATIONS UNIQUEMENT À L'ADMIN
-========================================================= */
-
 function updateAdminNavigation() {
+    const role = String(
+        localStorage.getItem("role") || ""
+    ).toLowerCase();
 
-    const role =
-        String(
-            localStorage.getItem("role") || ""
-        ).toLowerCase();
+    const button = document.getElementById(
+        "adminApprovalsButton"
+    );
 
+    if (!button) return;
 
-    const button =
-        document.getElementById(
-            "adminApprovalsButton"
-        );
-
-
-    if (!button) {
-        return;
-    }
-
-
-    if (role === "admin") {
-
-        button.style.display =
-            "";
-
-    } else {
-
-        button.style.display =
-            "none";
-    }
+    button.style.display = role === "admin" ? "" : "none";
 }
 
