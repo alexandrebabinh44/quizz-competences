@@ -33,6 +33,10 @@
 <div class="dashboard-layout">
 
 
+  <!-- =====================================================
+       SIDEBAR
+  ====================================================== -->
+
   <aside class="sidebar">
 
     <div class="logo">
@@ -50,6 +54,10 @@
     </div>
 
 
+    <!-- ===================================================
+         MENU PRINCIPAL
+    ==================================================== -->
+
     <nav class="side-menu">
 
       <button
@@ -58,15 +66,18 @@
         🏠 Accueil
       </button>
 
+
       <button
         onclick="window.location.href='training.html'"
       >
         🎯 Entraînement
       </button>
 
+
       <button>
         🏆 Challenges
       </button>
+
 
       <button
         onclick="window.location.href='ranking.html'"
@@ -74,13 +85,16 @@
         📊 Classements
       </button>
 
+
       <button>
         ⚔️ Battle
       </button>
 
+
       <button>
         🎮 Kahoot
       </button>
+
 
       <button
         onclick="window.location.href='profile.html'"
@@ -88,30 +102,40 @@
         📈 Mes stats
       </button>
 
+
       <button
         onclick="window.location.href='badges.html'"
       >
         🏅 Badges
       </button>
 
+
       <button>
         💡 Boîte à idées
       </button>
+
 
       <button>
         🚩 Signalements
       </button>
 
+
+      <!-- ADMINISTRATION -->
+
       <button
-  id="administrationMenuButton"
-  onclick="window.location.href='administration.html'"
-  style="display:none;"
->
-  🛡️ Administration
-</button>
+        class="active"
+        onclick="window.location.href='administration.html'"
+      >
+        🛡️ Administration
+      </button>
 
     </nav>
 
+
+
+    <!-- ===================================================
+         BAS SIDEBAR
+    ==================================================== -->
 
     <div class="sidebar-bottom">
 
@@ -121,6 +145,7 @@
         ⚙️ Paramètres
       </button>
 
+
       <button
         id="themeToggle"
         class="sidebar-link theme-button"
@@ -128,6 +153,7 @@
       >
         🌙 Mode sombre
       </button>
+
 
       <button
         class="sidebar-link"
@@ -141,7 +167,17 @@
   </aside>
 
 
+
+  <!-- =====================================================
+       CONTENU PRINCIPAL
+  ====================================================== -->
+
   <main class="dashboard-main">
+
+
+    <!-- ===================================================
+         TOPBAR
+    ==================================================== -->
 
     <header class="topbar">
 
@@ -150,6 +186,7 @@
         placeholder="Rechercher..."
         disabled
       >
+
 
       <div class="topbar-right">
 
@@ -162,7 +199,15 @@
     </header>
 
 
+
+    <!-- ===================================================
+         PAGE ADMINISTRATION
+    ==================================================== -->
+
     <section class="settings-page">
+
+
+      <!-- HEADER -->
 
       <div class="settings-header">
 
@@ -177,10 +222,17 @@
       </div>
 
 
+
+      <!-- =================================================
+           CARTES
+      ================================================== -->
+
       <div class="settings-grid">
 
 
-        <!-- AJOUTER DES QUESTIONS -->
+        <!-- ===============================================
+             AJOUTER DES QUESTIONS
+        ================================================ -->
 
         <button
           class="settings-card"
@@ -190,6 +242,7 @@
           <div class="settings-card-icon">
             ➕
           </div>
+
 
           <div class="settings-card-content">
 
@@ -203,6 +256,7 @@
 
           </div>
 
+
           <div class="settings-card-arrow">
             ›
           </div>
@@ -210,7 +264,10 @@
         </button>
 
 
-        <!-- GÉRER LES QUESTIONS -->
+
+        <!-- ===============================================
+             GÉRER LES QUESTIONS
+        ================================================ -->
 
         <button
           class="settings-card"
@@ -220,6 +277,7 @@
           <div class="settings-card-icon">
             🧰
           </div>
+
 
           <div class="settings-card-content">
 
@@ -233,6 +291,7 @@
 
           </div>
 
+
           <div class="settings-card-arrow">
             ›
           </div>
@@ -240,7 +299,10 @@
         </button>
 
 
-        <!-- GÉRER LES CATÉGORIES -->
+
+        <!-- ===============================================
+             GÉRER LES CATÉGORIES
+        ================================================ -->
 
         <button
           class="settings-card"
@@ -250,6 +312,7 @@
           <div class="settings-card-icon">
             🗂️
           </div>
+
 
           <div class="settings-card-content">
 
@@ -263,6 +326,7 @@
 
           </div>
 
+
           <div class="settings-card-arrow">
             ›
           </div>
@@ -270,7 +334,10 @@
         </button>
 
 
-        <!-- APPROBATIONS -->
+
+        <!-- ===============================================
+             APPROBATIONS
+        ================================================ -->
 
         <button
           class="settings-card"
@@ -280,6 +347,7 @@
           <div class="settings-card-icon">
             ✅
           </div>
+
 
           <div class="settings-card-content">
 
@@ -293,6 +361,7 @@
 
           </div>
 
+
           <div class="settings-card-arrow">
             ›
           </div>
@@ -300,7 +369,10 @@
         </button>
 
 
-        <!-- SIGNALEMENTS -->
+
+        <!-- ===============================================
+             SIGNALEMENTS
+        ================================================ -->
 
         <button
           class="settings-card settings-card-disabled"
@@ -310,6 +382,7 @@
           <div class="settings-card-icon">
             🚩
           </div>
+
 
           <div class="settings-card-content">
 
@@ -330,7 +403,10 @@
         </button>
 
 
-        <!-- UTILISATEURS -->
+
+        <!-- ===============================================
+             UTILISATEURS
+        ================================================ -->
 
         <button
           class="settings-card settings-card-disabled"
@@ -341,6 +417,7 @@
             👥
           </div>
 
+
           <div class="settings-card-content">
 
             <h2>
@@ -348,7 +425,7 @@
             </h2>
 
             <p>
-              Gère les comptes, rôles et accès à Nickel Master.
+              Gère les comptes, les rôles et les accès à Nickel Master.
             </p>
 
             <small>
@@ -359,7 +436,6 @@
 
         </button>
 
-
       </div>
 
     </section>
@@ -369,14 +445,25 @@
 </div>
 
 
+
+<!-- =====================================================
+     SCRIPTS
+====================================================== -->
+
 <script src="app.js"></script>
 <script src="theme.js"></script>
+
 
 <script>
 
   document.addEventListener(
     "DOMContentLoaded",
     function () {
+
+
+      /* ===============================================
+         VÉRIFICATION ADMIN
+      ================================================ */
 
       const role =
         String(
@@ -396,6 +483,11 @@
         return;
       }
 
+
+
+      /* ===============================================
+         NOM UTILISATEUR
+      ================================================ */
 
       const name =
         localStorage.getItem("full_name") ||
