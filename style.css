@@ -2201,3 +2201,664 @@ html[data-theme="dark"] .login-card {
             1fr;
     }
 }
+/* =========================================================
+   MON ÉQUIPE - GESTION DES FORMATIONS
+========================================================= */
+
+.team-settings-topbar {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-bottom: 20px;
+    padding: 14px 18px;
+
+    background: var(--bg-card);
+
+    border: 1px solid var(--border);
+    border-radius: var(--radius-medium);
+
+    box-shadow: var(--shadow-card);
+}
+
+
+.team-settings-topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+
+.team-settings-topbar-left h1 {
+    margin: 0 0 3px;
+    font-size: 24px;
+}
+
+
+.team-settings-topbar-left p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+
+.team-settings-back {
+    width: 38px;
+    height: 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    background: var(--bg-card);
+    color: var(--text-main);
+
+    border: 1px solid var(--border);
+    border-radius: 10px;
+
+    font-size: 20px;
+}
+
+
+.team-settings-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+
+.team-settings-user-avatar {
+    width: 40px;
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    background: var(--orange);
+    color: white;
+
+    font-size: 13px;
+    font-weight: 800;
+}
+
+
+.team-settings-user strong,
+.team-settings-user small {
+    display: block;
+}
+
+
+.team-settings-user small {
+    margin-top: 2px;
+    color: var(--text-secondary);
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   GRILLE PRINCIPALE
+========================================================= */
+
+.team-settings-page {
+    display: grid;
+
+    grid-template-columns:
+        250px
+        minmax(0, 1fr)
+        240px;
+
+    gap: 16px;
+
+    align-items: start;
+
+    width: 100%;
+}
+
+
+/* =========================================================
+   MENU INTERNE
+========================================================= */
+
+.team-settings-menu {
+    background: var(--bg-card);
+
+    border: 1px solid var(--border);
+    border-radius: 18px;
+
+    overflow: hidden;
+
+    box-shadow: var(--shadow-card);
+}
+
+
+.team-settings-menu-header {
+    padding: 20px;
+
+    border-bottom: 1px solid var(--border);
+}
+
+
+.team-settings-menu-header h2 {
+    margin: 0 0 6px;
+
+    font-size: 18px;
+}
+
+
+.team-settings-menu-header p {
+    margin: 0;
+
+    color: var(--text-secondary);
+
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+
+.team-settings-menu-item {
+    width: 100%;
+    min-height: 58px;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 14px 18px;
+
+    background: transparent;
+    color: var(--text-main);
+
+    border: none;
+    border-bottom: 1px solid var(--border);
+
+    text-align: left;
+
+    font-size: 14px;
+}
+
+
+.team-settings-menu-item:last-child {
+    border-bottom: none;
+}
+
+
+.team-settings-menu-item.active {
+    background: var(--orange-soft);
+    color: var(--orange);
+
+    font-weight: 700;
+}
+
+
+.team-settings-menu-item:disabled {
+    opacity: .55;
+    cursor: default;
+}
+
+
+/* =========================================================
+   PANEL CENTRAL
+========================================================= */
+
+.team-training-panel {
+    min-width: 0;
+
+    background: var(--bg-card);
+
+    border: 1px solid var(--border);
+    border-radius: 18px;
+
+    padding: 22px;
+
+    box-shadow: var(--shadow-card);
+}
+
+
+.team-training-title {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+
+    margin-bottom: 22px;
+}
+
+
+.team-training-title-icon {
+    width: 44px;
+    height: 44px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 12px;
+
+    background: var(--orange-soft);
+    color: var(--orange);
+
+    font-size: 22px;
+}
+
+
+.team-training-title h2 {
+    margin: 0 0 5px;
+
+    font-size: 23px;
+}
+
+
+.team-training-title p {
+    margin: 0;
+
+    color: var(--text-secondary);
+
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   SÉLECTEUR
+========================================================= */
+
+.team-training-selector-row {
+    display: grid;
+
+    grid-template-columns:
+        minmax(220px, .8fr)
+        minmax(260px, 1.2fr);
+
+    gap: 16px;
+
+    padding: 16px;
+
+    margin-bottom: 18px;
+
+    background: var(--bg-card-hover);
+
+    border: 1px solid var(--border);
+    border-radius: 14px;
+}
+
+
+.team-training-selector label,
+.team-training-description-label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: var(--text-secondary);
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+
+.team-training-selector select {
+    width: 100%;
+
+    margin: 0;
+
+    padding: 12px 14px;
+
+    background: var(--bg-card);
+
+    border: 1px solid var(--border);
+    border-radius: 10px;
+
+    color: var(--text-main);
+
+    font-weight: 700;
+}
+
+
+.team-training-description-box {
+    min-height: 46px;
+
+    display: flex;
+    align-items: center;
+
+    padding: 12px 14px;
+
+    background: var(--orange-soft);
+
+    color: var(--text-main);
+
+    border: 1px solid rgba(255, 90, 0, .18);
+    border-radius: 10px;
+
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+
+/* =========================================================
+   ATTRIBUÉ À
+========================================================= */
+
+.team-training-members-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    margin: 4px 0 10px;
+}
+
+
+.team-training-members-title h3 {
+    margin: 0;
+
+    font-size: 16px;
+}
+
+
+.team-training-members-title span {
+    color: var(--text-secondary);
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.team-training-table-wrapper {
+    width: 100%;
+
+    overflow-x: auto;
+
+    border: 1px solid var(--border);
+    border-radius: 14px;
+}
+
+
+.team-training-table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    min-width: 620px;
+}
+
+
+.team-training-table th,
+.team-training-table td {
+    padding: 13px 14px;
+
+    text-align: left;
+
+    border-bottom: 1px solid var(--border);
+
+    vertical-align: middle;
+}
+
+
+.team-training-table th {
+    background: var(--bg-card-hover);
+
+    color: var(--text-secondary);
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+
+.team-training-table tr:last-child td {
+    border-bottom: none;
+}
+
+
+.team-training-check-column {
+    width: 46px;
+    text-align: center !important;
+}
+
+
+.team-training-check-column input {
+    width: 18px;
+    height: 18px;
+
+    margin: 0;
+
+    accent-color: var(--orange);
+}
+
+
+.team-training-member {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+
+.team-training-member-avatar {
+    width: 34px;
+    height: 34px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    background: var(--orange-soft);
+    color: var(--orange);
+
+    font-size: 11px;
+    font-weight: 800;
+}
+
+
+.team-training-member strong {
+    font-size: 13px;
+}
+
+
+.team-training-status {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-width: 94px;
+
+    padding: 7px 10px;
+
+    border-radius: 8px;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+
+.team-training-status-trained {
+    background: rgba(65, 183, 94, .12);
+    color: var(--green);
+
+    border: 1px solid rgba(65, 183, 94, .25);
+}
+
+
+.team-training-status-untrained {
+    background: var(--bg-card-hover);
+    color: var(--text-secondary);
+
+    border: 1px solid var(--border);
+}
+
+
+.team-training-loading {
+    padding: 28px;
+
+    text-align: center;
+
+    color: var(--text-secondary);
+}
+
+
+/* =========================================================
+   ACTIONS
+========================================================= */
+
+.team-training-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    gap: 12px;
+
+    margin-top: 20px;
+}
+
+
+.team-training-save {
+    min-width: 250px;
+}
+
+
+/* =========================================================
+   RÉCAPITULATIF
+========================================================= */
+
+.team-training-summary {
+    background: var(--bg-card);
+
+    border: 1px solid var(--border);
+    border-radius: 18px;
+
+    padding: 20px;
+
+    box-shadow: var(--shadow-card);
+}
+
+
+.team-training-summary h2 {
+    margin: 0 0 20px;
+
+    font-size: 18px;
+}
+
+
+.team-training-summary-block {
+    margin-bottom: 22px;
+}
+
+
+.team-training-summary-block small {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: var(--text-secondary);
+
+    font-size: 12px;
+}
+
+
+.team-training-summary-block strong {
+    display: inline-block;
+
+    font-size: 18px;
+}
+
+
+.team-training-summary-tag {
+    padding: 6px 10px;
+
+    background: var(--orange-soft);
+    color: var(--orange);
+
+    border-radius: 8px;
+
+    font-size: 13px !important;
+}
+
+
+.team-training-summary-trained {
+    color: var(--green);
+}
+
+
+.team-training-summary-info {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 8px;
+
+    padding: 12px;
+
+    margin-top: 12px;
+
+    background: var(--orange-soft);
+
+    border: 1px solid rgba(255, 90, 0, .18);
+    border-radius: 10px;
+
+    color: var(--text-secondary);
+
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1250px) {
+
+    .team-settings-page {
+        grid-template-columns:
+            210px
+            minmax(0, 1fr);
+    }
+
+    .team-training-summary {
+        grid-column: 2;
+    }
+}
+
+
+@media (max-width: 900px) {
+
+    .team-settings-page {
+        grid-template-columns: 1fr;
+    }
+
+    .team-training-summary {
+        grid-column: auto;
+    }
+
+    .team-training-selector-row {
+        grid-template-columns: 1fr;
+    }
+
+    .team-settings-topbar {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .team-training-actions {
+        flex-direction: column;
+    }
+
+    .team-training-actions button {
+        width: 100%;
+    }
+}
