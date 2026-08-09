@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <script>
+        const savedTheme =
+            localStorage.getItem("nickel_master_theme") || "light";
+
+        document.documentElement.setAttribute(
+            "data-theme",
+            savedTheme
+        );
+    </script>
+
+    <title>Créer mon compte - Nickel Master</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+</head>
+
+
+<body>
+
+<div class="register-page">
+
+    <div class="register-card">
+
+        <button
+            type="button"
+            class="register-back"
+            onclick="window.location.href='index.html'"
+        >
+            ← Retour
+        </button>
+
+
+        <div class="register-logo">
+            <span>◆</span>
+        </div>
+
+
+        <h1>
+            Créer mon compte
+        </h1>
+
+        <p class="register-subtitle">
+            Quelques informations suffisent
+            pour rejoindre Nickel Master.
+        </p>
+
+
+        <!-- ========================
+             ÉTAPE 1
+        ======================== -->
+
+        <div
+            id="registerStep1"
+            class="register-step"
+        >
+
+            <h2>
+                👤 Ton identité
+            </h2>
+
+
+            <label>
+                Prénom
+            </label>
+
+            <input
+                id="registerFirstName"
+                type="text"
+                placeholder="Alexandre"
+                autocomplete="given-name"
+            >
+
+
+            <label>
+                Nom
+            </label>
+
+            <input
+                id="registerLastName"
+                type="text"
+                placeholder="Babin"
+                autocomplete="family-name"
+            >
+
+
+            <button
+                type="button"
+                class="btn-primary"
+                onclick="checkRegisterIdentity()"
+            >
+                Continuer
+            </button>
+
+        </div>
+
+
+        <!-- ========================
+             COMPTE DÉJÀ EXISTANT
+        ======================== -->
+
+        <div
+            id="existingAccountMessage"
+            class="register-step"
+            style="display:none;"
+        >
+
+            <div class="register-existing-icon">
+                🔐
+            </div>
+
+            <h2>
+                Compte déjà existant
+            </h2>
+
+            <p>
+                Il semblerait que tu possèdes déjà un compte.
+                Nous te conseillons de modifier ton mot de passe
+                si tu ne le connais pas.
+            </p>
+
+            <button
+                type="button"
+                class="btn-primary"
+                onclick="window.location.href='forgot-password.html'"
+            >
+                Mot de passe oublié
+            </button>
+
+            <button
+                type="button"
+                class="btn-secondary"
+                onclick="resetRegisterForm()"
+            >
+                Retour
+            </button>
+
+        </div>
+
+
+        <!-- ========================
+             ÉTAPE 2 : SERVICE
+        ======================== -->
+
+        <div
+            id="registerStep2"
+            class="register-step"
+            style="display:none;"
+        >
+
+            <h2>
+                🏢 Ton service
+            </h2>
+
+            <p>
+                De quel service es-tu ?
+            </p>
+
+
+            <div class="register-choice-grid">
+
+                <button
+                    type="button"
+                    class="register-choice"
+                    onclick="selectRegisterService('Front', this)"
+                >
+                    🎧
+                    <strong>Front</strong>
+                </button>
+
+
+                <button
+                    type="button"
+                    class="register-choice"
+                    onclick="selectRegisterService('Fidélisation', this)"
+                >
+                    🤝
+                    <strong>Fidélisation</strong>
+                </button>
+
+
+                <button
+                    type="button"
+                    class="register-choice"
+                    onclick="selectRegisterService('Réseaux Sociaux', this)"
+                >
+                    💬
+                    <strong>Réseaux Sociaux</strong>
+                </button>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="btn-primary"
+                onclick="continueAfterService()"
+            >
+                Continuer
+            </button>
+
+        </div>
+
+
+        <!-- ========================
+             ÉTAPE 3 : ÉQUIPE
+        ======================== -->
+
+        <div
+            id="registerStep3"
+            class="register-step"
+            style="display:none;"
+        >
+
+            <h2>
+                👥 Ton équipe
+            </h2>
+
+            <p>
+                Dans quelle équipe es-tu ?
+            </p>
+
+
+            <div
+                id="registerTeams"
+                class="register-choice-grid"
+            >
+                Chargement...
+            </div>
+
+
+            <button
+                type="button"
+                class="btn-primary"
+                onclick="continueAfterTeam()"
+            >
+                Continuer
+            </button>
+
+        </div>
+
+
+        <!-- ========================
+             ÉTAPE 4 : RÔLE
+        ======================== -->
+
+        <div
+            id="registerStep4"
+            class="register-step"
+            style="display:none;"
+        >
+
+            <h2>
+                ⭐ Ton rôle
+            </h2>
+
+            <p>
+                Quel rôle as-tu ?
+            </p>
+
+
+            <div class="register-role-list">
+
+                <button
+                    type="button"
+                    class="register-choice"
+                    onclick="selectRegisterRole('Conseiller', this)"
+                >
+                    Conseiller
+                </button>
+
+
+                <button
+                    type="button"
+                    class="register-choice"
+                    onclick="selectRegisterRole('Conseiller Senior', this)"
+                >
+                    Conseiller Senior
+                </button>
+
+
+                <button
+                    type="button"
+                    class="register-choice"
+                    onclick="selectRegisterRole('Chef d\\'équipe', this)"
+                >
+                    Chef d'équipe
+                </button>
+
+
+                <button
+                    type="button"
+                    class="register-choice"
+                    onclick="selectRegisterRole('Manager', this)"
+                >
+                    Manager
+                </button>
+
+
+                <button
+                    type="button"
+                    class="register-choice"
+                    onclick="selectRegisterRole('Direction', this)"
+                >
+                    Direction
+                </button>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="btn-primary"
+                onclick="finishAccountRegistration()"
+            >
+                Créer mon compte
+            </button>
+
+        </div>
+
+
+        <!-- ========================
+             COMPTE CRÉÉ
+        ======================== -->
+
+        <div
+            id="registerSuccess"
+            class="register-step register-result"
+            style="display:none;"
+        >
+
+            <div class="register-result-icon">
+                ✅
+            </div>
+
+            <h2>
+                Ton compte est créé !
+            </h2>
+
+            <p>
+                Ton identifiant est :
+            </p>
+
+            <div
+                id="generatedUsername"
+                class="register-credential"
+            >
+            </div>
+
+
+            <p>
+                Ton mot de passe provisoire est :
+            </p>
+
+            <div
+                id="generatedPassword"
+                class="register-credential"
+            >
+            </div>
+
+
+            <p class="register-warning">
+                🔐 Tu devras choisir ton propre
+                mot de passe lors de ta première connexion.
+            </p>
+
+
+            <button
+                type="button"
+                class="btn-primary"
+                onclick="window.location.href='index.html'"
+            >
+                Aller à la connexion
+            </button>
+
+        </div>
+
+
+        <!-- ========================
+             DEMANDE ENVOYÉE
+        ======================== -->
+
+        <div
+            id="registerPending"
+            class="register-step register-result"
+            style="display:none;"
+        >
+
+            <div class="register-result-icon">
+                ⏳
+            </div>
+
+            <h2>
+                Demande envoyée
+            </h2>
+
+            <p>
+                Ce rôle nécessite une validation
+                avant la création du compte.
+            </p>
+
+            <p>
+                Ta demande a bien été transmise.
+            </p>
+
+
+            <button
+                type="button"
+                class="btn-primary"
+                onclick="window.location.href='index.html'"
+            >
+                Retour à la connexion
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script src="app.js"></script>
+<script src="theme.js"></script>
+
+</body>
+
+</html>
