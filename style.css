@@ -1327,7 +1327,9 @@ textarea:focus {
     display: flex;
     align-items: flex-start;
     justify-content: center;
-    padding: 24px 30px 46px;
+    padding: 0 30px 30px;
+   /* Fait remonter la carte au niveau du logo */
+   margin-top: -78px
 }
 
 .login-card {
