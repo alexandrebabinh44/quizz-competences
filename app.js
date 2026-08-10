@@ -12447,3 +12447,130 @@ function getTrainingCategoryIcon(
 
     return "📚";
 }
+/* =========================================================
+   MENU ADMINISTRATION GLOBAL
+========================================================= */
+
+function ensureAdministrationMenu() {
+
+    const role =
+        String(
+            localStorage.getItem("role") || ""
+        )
+        .trim()
+        .toLowerCase();
+
+
+    /*
+     * Administration uniquement pour les admins.
+     */
+    if (role !== "admin") {
+        return;
+    }
+
+
+    const sideMenu =
+        document.querySelector(
+            ".side-menu"
+        );
+
+
+    if (!sideMenu) {
+        return;
+    }
+
+
+    /*
+     * Évite de créer le bouton plusieurs fois
+     * si la page le possède déjà.
+     */
+    const existingButton =
+        document.getElementById(
+            "administrationMenuButton"
+        );
+
+
+    if (existingButton) {
+
+        existingButton.style.display =
+            "";
+
+        return;
+    }
+
+
+    /*
+     * Création du bouton Administration.
+     */
+    const button =
+        document.createElement(
+            "button"
+        );
+
+
+    button.id =
+        "administrationMenuButton";
+
+
+    button.type =
+        "button";
+
+
+    button.innerHTML =
+        "🛡️ Administration";
+
+
+    button.onclick =
+        function () {
+
+            window.location.href =
+                "administration.html";
+        };
+
+
+    /*
+     * Si on est déjà sur Administration,
+     * on applique la classe active.
+     */
+    const currentPage =
+        window.location.pathname
+            .split("/")
+            .pop()
+            .toLowerCase();
+
+
+    if (
+        currentPage ===
+        "administration.html"
+    ) {
+
+        button.classList.add(
+            "active"
+        );
+    }
+
+
+    /*
+     * On ajoute Administration
+     * après Signalements.
+     */
+    sideMenu.appendChild(
+        button
+    );
+}
+
+
+
+/* =========================================================
+   INITIALISATION MENU GLOBAL
+========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        ensureAdministrationMenu();
+
+    }
+);
+
