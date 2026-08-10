@@ -12620,17 +12620,17 @@ function ensureAdministrationMenu() {
         .toLowerCase();
 
 
-    const adminPages =
-        [
-            "administration.html",
-            "admin-questions.html",
-            "admin-question-management.html",
-            "admin-categories.html",
-            "admin-users.html",
-            "admin-user-detail.html",
-            "approvals.html",
-           "admin-quizzes.html"
-        ];
+    const adminPages = [
+    "administration.html",
+    "admin-quizzes.html",
+    "admin-questions.html",
+    "admin-question-management.html",
+    "admin-categories.html",
+    "admin-users.html",
+    "admin-user-detail.html",
+    "approvals.html"
+];
+
 
 
     if (
