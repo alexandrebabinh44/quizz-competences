@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <script>
+    const savedTheme =
+      localStorage.getItem("nickel_master_theme") || "light";
+
+    document.documentElement.setAttribute(
+      "data-theme",
+      savedTheme
+    );
+  </script>
+
+  <title>Entraînement ciblé - Nickel Master</title>
+
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
+
+</head>
+
+
+<body class="dashboard-body">
+
+<div class="dashboard-layout">
+
+
+  <aside class="sidebar">
+
+    <div class="logo">
+
+      <img
+        src="images/logo-nickel.png"
+        alt="Nickel"
+        class="sidebar-logo-img"
+      >
+
+      <span>
+        NICKEL<br>MASTER
+      </span>
+
+    </div>
+
+
+    <nav class="side-menu">
+
+      <button onclick="window.location.href='home.html'">
+        🏠 Accueil
+      </button>
+
+      <button
+        class="active"
+        onclick="window.location.href='training.html'"
+      >
+        🎯 Entraînement
+      </button>
+
+      <button>
+        🏆 Challenges
+      </button>
+
+      <button onclick="window.location.href='ranking.html'">
+        📊 Classements
+      </button>
+
+      <button>
+        ⚔️ Battle
+      </button>
+
+      <button>
+        🎮 Kahoot
+      </button>
+
+      <button onclick="window.location.href='profile.html'">
+        📈 Mes stats
+      </button>
+
+      <button onclick="window.location.href='badges.html'">
+        🏅 Badges
+      </button>
+
+      <button>
+        💡 Boîte à idées
+      </button>
+
+      <button>
+        🚩 Signalements
+      </button>
+
+    </nav>
+
+
+    <div class="sidebar-bottom">
+
+      <button onclick="window.location.href='settings.html'">
+        ⚙️ Paramètres
+      </button>
+
+      <button
+        id="themeToggle"
+        class="sidebar-link theme-button"
+        onclick="toggleTheme()"
+      >
+        🌙 Mode sombre
+      </button>
+
+      <button
+        class="sidebar-link"
+        onclick="logout()"
+      >
+        🚪 Déconnexion
+      </button>
+
+    </div>
+
+  </aside>
+
+
+  <main class="dashboard-main">
+
+    <section class="training-selection-page">
+
+      <div class="training-selection-header">
+
+        <h1>
+          🎯 Entraînement ciblé
+        </h1>
+
+        <p>
+          Choisis une catégorie pour lancer une session d'entraînement ciblée.
+        </p>
+
+      </div>
+
+
+      <div class="training-info-box">
+
+        ℹ️
+
+        <span>
+          Seules les catégories liées à tes formations actives sont proposées.
+        </span>
+
+      </div>
+
+
+      <h2 class="training-categories-title">
+        Catégories disponibles
+      </h2>
+
+
+      <div
+        id="targetedCategoryGrid"
+        class="training-category-grid"
+      >
+
+        <div class="training-loading">
+          Chargement de tes catégories...
+        </div>
+
+      </div>
+
+
+      <div class="training-selection-actions">
+
+        <button
+          class="btn-secondary"
+          onclick="window.location.href='training.html'"
+        >
+          ← Retour
+        </button>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</div>
+
+
+<script src="app.js"></script>
+<script src="theme.js"></script>
+
+
+<script>
+
+document.addEventListener(
+  "DOMContentLoaded",
+  async function () {
+
+    if (
+      typeof initializeTargetedTrainingPage ===
+      "function"
+    ) {
+      await initializeTargetedTrainingPage();
+    }
+
+  }
+);
+
+</script>
+
+</body>
+
+</html>
