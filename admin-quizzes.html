@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <script>
+    const savedTheme =
+      localStorage.getItem("nickel_master_theme") || "light";
+
+    document.documentElement.setAttribute(
+      "data-theme",
+      savedTheme
+    );
+  </script>
+
+  <title>Gestion des Quiz - Nickel Master</title>
+
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
+</head>
+
+
+<body class="dashboard-body">
+
+<div class="dashboard-layout">
+
+
+  <!-- =====================================================
+       SIDEBAR
+  ====================================================== -->
+
+  <aside class="sidebar">
+
+    <div class="logo">
+
+      <img
+        src="images/logo-nickel.png"
+        alt="Nickel"
+        class="sidebar-logo-img"
+      >
+
+      <span>
+        NICKEL<br>MASTER
+      </span>
+
+    </div>
+
+
+    <nav class="side-menu">
+
+      <button
+        onclick="window.location.href='home.html'"
+      >
+        🏠 Accueil
+      </button>
+
+      <button
+        onclick="window.location.href='training.html'"
+      >
+        🎯 Entraînement
+      </button>
+
+      <button>
+        🏆 Challenges
+      </button>
+
+      <button
+        onclick="window.location.href='ranking.html'"
+      >
+        📊 Classements
+      </button>
+
+      <button>
+        ⚔️ Battle
+      </button>
+
+      <button>
+        🎮 Kahoot
+      </button>
+
+      <button
+        onclick="window.location.href='profile.html'"
+      >
+        📈 Mes stats
+      </button>
+
+      <button
+        onclick="window.location.href='badges.html'"
+      >
+        🏅 Badges
+      </button>
+
+    </nav>
+
+
+    <div class="sidebar-bottom">
+
+      <button
+        onclick="window.location.href='settings.html'"
+      >
+        ⚙️ Paramètres
+      </button>
+
+      <button
+        id="themeToggle"
+        class="sidebar-link theme-button"
+        onclick="toggleTheme()"
+      >
+        🌙 Mode sombre
+      </button>
+
+      <button
+        class="sidebar-link"
+        onclick="logout()"
+      >
+        🚪 Déconnexion
+      </button>
+
+    </div>
+
+  </aside>
+
+
+
+  <!-- =====================================================
+       CONTENU
+  ====================================================== -->
+
+  <main class="dashboard-main">
+
+    <header class="topbar">
+
+      <input
+        type="text"
+        placeholder="Rechercher..."
+        disabled
+      >
+
+      <div class="topbar-right">
+
+        <strong id="topUserName">
+          Administrateur
+        </strong>
+
+      </div>
+
+    </header>
+
+
+
+    <section class="settings-page">
+
+      <div class="settings-header">
+
+        <h1>
+          🎯 Gestion des Quiz
+        </h1>
+
+        <p>
+          Gère les questions et les catégories utilisées dans les différents modes de quiz.
+        </p>
+
+      </div>
+
+
+
+      <div class="settings-grid">
+
+
+        <!-- AJOUTER DES QUESTIONS -->
+
+        <button
+          class="settings-card"
+          onclick="window.location.href='admin-questions.html'"
+        >
+
+          <div class="settings-card-icon">
+            ➕
+          </div>
+
+          <div class="settings-card-content">
+
+            <h2>
+              Ajouter des questions
+            </h2>
+
+            <p>
+              Ajoute une question seule ou importe plusieurs questions en bloc.
+            </p>
+
+          </div>
+
+          <div class="settings-card-arrow">
+            ›
+          </div>
+
+        </button>
+
+
+
+        <!-- GÉRER LES QUESTIONS -->
+
+        <button
+          class="settings-card"
+          onclick="window.location.href='admin-question-management.html'"
+        >
+
+          <div class="settings-card-icon">
+            🧰
+          </div>
+
+          <div class="settings-card-content">
+
+            <h2>
+              Gérer les questions
+            </h2>
+
+            <p>
+              Recherche, modifie, désactive ou supprime les questions existantes.
+            </p>
+
+          </div>
+
+          <div class="settings-card-arrow">
+            ›
+          </div>
+
+        </button>
+
+
+
+        <!-- GÉRER LES CATÉGORIES -->
+
+        <button
+          class="settings-card"
+          onclick="window.location.href='admin-categories.html'"
+        >
+
+          <div class="settings-card-icon">
+            🗂️
+          </div>
+
+          <div class="settings-card-content">
+
+            <h2>
+              Gérer les catégories
+            </h2>
+
+            <p>
+              Crée, renomme, organise ou supprime les catégories de questions.
+            </p>
+
+          </div>
+
+          <div class="settings-card-arrow">
+            ›
+          </div>
+
+        </button>
+
+
+
+        <!-- RETOUR ADMINISTRATION -->
+
+        <button
+          class="settings-card"
+          onclick="window.location.href='administration.html'"
+        >
+
+          <div class="settings-card-icon">
+            🛡️
+          </div>
+
+          <div class="settings-card-content">
+
+            <h2>
+              Retour à l'administration
+            </h2>
+
+            <p>
+              Retourne au panneau principal d'administration.
+            </p>
+
+          </div>
+
+          <div class="settings-card-arrow">
+            ›
+          </div>
+
+        </button>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</div>
+
+
+
+<script src="app.js"></script>
+<script src="theme.js"></script>
+
+
+<script>
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+      const role =
+        String(
+          localStorage.getItem("role") || ""
+        )
+        .trim()
+        .toLowerCase();
+
+
+      if (role !== "admin") {
+
+        alert(
+          "Cette page est réservée à l'administrateur."
+        );
+
+        window.location.href =
+          "home.html";
+
+        return;
+      }
+
+
+      const name =
+        localStorage.getItem("full_name") ||
+        "Administrateur";
+
+
+      const user =
+        document.getElementById(
+          "topUserName"
+        );
+
+
+      if (user) {
+        user.innerText = name;
+      }
+
+    }
+  );
+
+</script>
+
+</body>
+
+</html>
