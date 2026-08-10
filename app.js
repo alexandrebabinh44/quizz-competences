@@ -8300,48 +8300,237 @@ function renderCurrentBulkQuestion() {
     }
 
 
+
+    /* =====================================================
+       SÉCURITÉ STRUCTURE
+    ====================================================== */
+
+    if (!item.choices) {
+
+        item.choices = {
+            A: "",
+            B: "",
+            C: "",
+            D: ""
+        };
+    }
+
+
+    if (!Array.isArray(item.correct)) {
+
+        item.correct = [];
+    }
+
+
+
+    /* =====================================================
+       INITIALISATION SELON LE TYPE
+    ====================================================== */
+
+    if (
+        item.type ===
+        "true_false"
+    ) {
+
+        item.choices.A =
+            "Vrai";
+
+        item.choices.B =
+            "Faux";
+
+        item.choices.C =
+            "";
+
+        item.choices.D =
+            "";
+
+
+        /*
+         * En vrai/faux :
+         * une seule bonne réponse maximum.
+         */
+        if (
+            item.correct.length > 1
+        ) {
+
+            item.correct =
+                item.correct.slice(
+                    0,
+                    1
+                );
+        }
+    }
+
+
+    else if (
+        item.type ===
+        "simple_choice"
+    ) {
+
+        /*
+         * Choix simple :
+         * une seule réponse correcte maximum.
+         */
+
+        if (
+            item.correct.length > 1
+        ) {
+
+            item.correct =
+                item.correct.slice(
+                    0,
+                    1
+                );
+        }
+    }
+
+
+    else if (
+        item.type ===
+        "multiple_choice"
+    ) {
+
+        /*
+         * Plusieurs bonnes réponses possibles.
+         * On conserve item.correct tel quel.
+         */
+    }
+
+
+
+    /* =====================================================
+       TYPE DE SÉLECTION
+    ====================================================== */
+
     const multiple =
         item.type ===
         "multiple_choice";
 
 
+    const inputType =
+        multiple
+            ? "checkbox"
+            : "radio";
+
+
+
+    /* =====================================================
+       LETTRES À AFFICHER
+    ====================================================== */
+
+    const letters =
+        item.type ===
+        "true_false"
+            ? ["A", "B"]
+            : ["A", "B", "C", "D"];
+
+
+
+    /* =====================================================
+       RENDU
+    ====================================================== */
+
     container.innerHTML = `
 
         <div class="bulk-current-question">
 
-            <strong>
-                ${escapeHtml(
-                    item.question
-                )}
-            </strong>
 
+            <!-- QUESTION -->
+
+            <div class="question-field">
+
+                <label>
+                    Question
+                </label>
+
+                <textarea
+                    id="bulkCurrentQuestionText"
+                    maxlength="500"
+                >${escapeHtml(
+                    item.question || ""
+                )}</textarea>
+
+            </div>
+
+
+
+            <!-- TYPE -->
+
+            <div class="question-field">
+
+                <label>
+                    Type de question
+                </label>
+
+                <select
+                    id="bulkCurrentQuestionType"
+                >
+
+                    <option
+                        value="true_false"
+                        ${
+                            item.type ===
+                            "true_false"
+                                ? "selected"
+                                : ""
+                        }
+                    >
+                        Vrai / Faux
+                    </option>
+
+
+                    <option
+                        value="simple_choice"
+                        ${
+                            item.type ===
+                            "simple_choice"
+                                ? "selected"
+                                : ""
+                        }
+                    >
+                        Choix simple
+                    </option>
+
+
+                    <option
+                        value="multiple_choice"
+                        ${
+                            item.type ===
+                            "multiple_choice"
+                                ? "selected"
+                                : ""
+                        }
+                    >
+                        Choix multiple
+                    </option>
+
+                </select>
+
+            </div>
+
+
+
+            <!-- RÉPONSES -->
 
             <div class="bulk-answer-editor">
 
                 ${
-                    ["A", "B", "C", "D"]
-                        .filter(
-                            letter =>
-                                item.type !==
-                                    "true_false" ||
-                                ["A", "B"]
-                                    .includes(
-                                        letter
-                                    )
-                        )
+                    letters
                         .map(
                             letter => `
 
-                                <label class="bulk-answer-row">
+                                <label
+                                    class="bulk-answer-row"
+                                >
+
+
+                                    <!-- BONNE RÉPONSE -->
 
                                     <input
-                                        type="${
-                                            multiple
-                                                ? "checkbox"
-                                                : "radio"
-                                        }"
+                                        type="${inputType}"
                                         name="bulkCorrectAnswer"
                                         value="${letter}"
+
                                         ${
                                             item.correct
                                                 .includes(
@@ -8352,18 +8541,35 @@ function renderCurrentBulkQuestion() {
                                         }
                                     >
 
+
+
+                                    <!-- LETTRE -->
+
                                     <strong>
                                         ${letter}
                                     </strong>
 
+
+
+                                    <!-- PROPOSITION -->
+
                                     <input
                                         type="text"
                                         data-bulk-choice="${letter}"
+
                                         value="${escapeHtml(
                                             item.choices[
                                                 letter
                                             ] || ""
                                         )}"
+
+                                        placeholder="${
+                                            item.type ===
+                                            "true_false"
+                                                ? ""
+                                                : `Proposition ${letter}`
+                                        }"
+
                                         ${
                                             item.type ===
                                             "true_false"
@@ -8385,6 +8591,142 @@ function renderCurrentBulkQuestion() {
     `;
 
 
+
+    /* =====================================================
+       MODIFICATION DU TEXTE DE LA QUESTION
+    ====================================================== */
+
+    const questionInput =
+        document.getElementById(
+            "bulkCurrentQuestionText"
+        );
+
+
+    if (questionInput) {
+
+        questionInput.addEventListener(
+            "input",
+            function () {
+
+                item.question =
+                    questionInput.value;
+
+                updateBulkSummary();
+            }
+        );
+    }
+
+
+
+    /* =====================================================
+       MODIFICATION DU TYPE
+    ====================================================== */
+
+    const typeSelect =
+        document.getElementById(
+            "bulkCurrentQuestionType"
+        );
+
+
+    if (typeSelect) {
+
+        typeSelect.addEventListener(
+            "change",
+            function () {
+
+                /*
+                 * On sauvegarde d'abord
+                 * les valeurs déjà saisies.
+                 */
+
+                saveCurrentBulkEditorState();
+
+
+                item.type =
+                    typeSelect.value;
+
+
+                /* =========================
+                   PASSAGE EN VRAI / FAUX
+                ========================= */
+
+                if (
+                    item.type ===
+                    "true_false"
+                ) {
+
+                    item.choices = {
+                        A: "Vrai",
+                        B: "Faux",
+                        C: "",
+                        D: ""
+                    };
+
+
+                    item.correct = [];
+                }
+
+
+                /* =========================
+                   PASSAGE EN CHOIX SIMPLE
+                ========================= */
+
+                else if (
+                    item.type ===
+                    "simple_choice"
+                ) {
+
+                    item.choices = {
+                        A: "",
+                        B: "",
+                        C: "",
+                        D: ""
+                    };
+
+
+                    item.correct = [];
+                }
+
+
+                /* =========================
+                   PASSAGE EN CHOIX MULTIPLE
+                ========================= */
+
+                else if (
+                    item.type ===
+                    "multiple_choice"
+                ) {
+
+                    item.choices = {
+                        A: "",
+                        B: "",
+                        C: "",
+                        D: ""
+                    };
+
+
+                    item.correct = [];
+                }
+
+
+                /*
+                 * On reconstruit l'éditeur
+                 * immédiatement.
+                 */
+
+                renderCurrentBulkQuestion();
+
+                updateBulkSummary();
+            }
+        );
+    }
+
+
+
+    /* =====================================================
+       MODIFICATION DE LA BONNE RÉPONSE
+    ====================================================== */
+
     container
         .querySelectorAll(
             'input[name="bulkCorrectAnswer"]'
@@ -8394,11 +8736,21 @@ function renderCurrentBulkQuestion() {
 
                 input.addEventListener(
                     "change",
-                    saveCurrentBulkEditorState
+                    function () {
+
+                        saveCurrentBulkEditorState();
+
+                        updateBulkSummary();
+                    }
                 );
             }
         );
 
+
+
+    /* =====================================================
+       MODIFICATION DES PROPOSITIONS
+    ====================================================== */
 
     container
         .querySelectorAll(
@@ -8409,11 +8761,17 @@ function renderCurrentBulkQuestion() {
 
                 input.addEventListener(
                     "input",
-                    saveCurrentBulkEditorState
+                    function () {
+
+                        saveCurrentBulkEditorState();
+
+                        updateBulkSummary();
+                    }
                 );
             }
         );
 }
+
 
 
 /* =========================================================
