@@ -1,31 +1,321 @@
-<div id="choix-mode">
-  <h1>🎯 Entraînement</h1>
-  <h2>Choisissez votre mode</h2>
+<!DOCTYPE html>
+<html lang="fr">
 
-  <button onclick="afficherChoixThemes()">
-    🎯 Entraînement ciblé
-  </button>
+<head>
 
-  <button onclick="lancerFlashXtrem()">
-    ⚡ Flash Xtrem
-  </button>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <script>
+    const savedTheme =
+      localStorage.getItem("nickel_master_theme") || "light";
+
+    document.documentElement.setAttribute(
+      "data-theme",
+      savedTheme
+    );
+  </script>
+
+  <title>Entraînement - Nickel Master</title>
+
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
+
+</head>
+
+
+<body class="dashboard-body">
+
+<div class="dashboard-layout">
+
+
+  <!-- SIDEBAR -->
+
+  <aside class="sidebar">
+
+    <div class="logo">
+
+      <img
+        src="images/logo-nickel.png"
+        alt="Nickel"
+        class="sidebar-logo-img"
+      >
+
+      <span>
+        NICKEL<br>MASTER
+      </span>
+
+    </div>
+
+
+    <nav class="side-menu">
+
+      <button onclick="window.location.href='home.html'">
+        🏠 Accueil
+      </button>
+
+      <button
+        class="active"
+        onclick="window.location.href='training.html'"
+      >
+        🎯 Entraînement
+      </button>
+
+      <button>
+        🏆 Challenges
+      </button>
+
+      <button onclick="window.location.href='ranking.html'">
+        📊 Classements
+      </button>
+
+      <button>
+        ⚔️ Battle
+      </button>
+
+      <button>
+        🎮 Kahoot
+      </button>
+
+      <button onclick="window.location.href='profile.html'">
+        📈 Mes stats
+      </button>
+
+      <button onclick="window.location.href='badges.html'">
+        🏅 Badges
+      </button>
+
+      <button>
+        💡 Boîte à idées
+      </button>
+
+      <button>
+        🚩 Signalements
+      </button>
+
+      <button
+        id="administrationMenuButton"
+        onclick="window.location.href='administration.html'"
+        style="display:none;"
+      >
+        🛡️ Administration
+      </button>
+
+    </nav>
+
+
+    <div class="sidebar-bottom">
+
+      <button onclick="window.location.href='settings.html'">
+        ⚙️ Paramètres
+      </button>
+
+      <button
+        id="themeToggle"
+        class="sidebar-link theme-button"
+        onclick="toggleTheme()"
+      >
+        🌙 Mode sombre
+      </button>
+
+      <button
+        class="sidebar-link"
+        onclick="logout()"
+      >
+        🚪 Déconnexion
+      </button>
+
+    </div>
+
+  </aside>
+
+
+  <!-- CONTENU -->
+
+  <main class="dashboard-main">
+
+
+    <section class="training-home-page">
+
+      <div class="training-page-header">
+
+        <h1>
+          Entraînement
+        </h1>
+
+        <p>
+          Choisis ton mode d'entraînement et progresse à ton rythme.
+        </p>
+
+      </div>
+
+
+      <div class="training-mode-grid">
+
+
+        <!-- CIBLÉ -->
+
+        <article class="training-mode-card">
+
+          <div class="training-mode-visual training-target-visual">
+            🎯
+          </div>
+
+          <h2>
+            Entraînement ciblé
+          </h2>
+
+          <p>
+            Choisis une catégorie parmi celles auxquelles tu es formé et réponds à 10 questions aléatoires.
+          </p>
+
+          <div class="training-mode-tags">
+
+            <span>
+              🔟 10 questions
+            </span>
+
+            <span>
+              🏷️ Catégorie au choix
+            </span>
+
+          </div>
+
+          <button
+            class="training-mode-start"
+            onclick="window.location.href='training-targeted.html'"
+          >
+            Commencer →
+          </button>
+
+        </article>
+
+
+
+        <!-- FLASH -->
+
+        <article class="training-mode-card">
+
+          <div class="training-mode-visual training-flash-visual">
+            ⚡
+          </div>
+
+          <h2>
+            Flash
+          </h2>
+
+          <p>
+            Une catégorie autorisée est tirée au hasard et 10 questions sont sélectionnées pour un entraînement rapide.
+          </p>
+
+          <div class="training-mode-tags">
+
+            <span>
+              🔟 10 questions
+            </span>
+
+            <span>
+              🔀 Catégorie aléatoire
+            </span>
+
+          </div>
+
+          <button
+            class="training-mode-start"
+            onclick="window.location.href='training-flash.html'"
+          >
+            Lancer ⚡
+          </button>
+
+        </article>
+
+
+
+        <!-- XTREM -->
+
+        <article class="training-mode-card training-mode-card-xtrem">
+
+          <div class="training-mode-visual training-xtrem-visual">
+            🔥
+          </div>
+
+          <h2>
+            Flash Xtrem
+          </h2>
+
+          <p>
+            Toutes tes catégories autorisées sont mélangées pour un défi de 10 questions.
+          </p>
+
+          <div class="training-mode-tags">
+
+            <span>
+              🔟 10 questions
+            </span>
+
+            <span>
+              🎲 Catégories mélangées
+            </span>
+
+          </div>
+
+          <button
+            class="training-mode-start"
+            onclick="window.location.href='training-xtrem.html'"
+          >
+            Démarrer 🚀
+          </button>
+
+        </article>
+
+      </div>
+
+    </section>
+
+  </main>
+
 </div>
 
-<div id="choix-themes" style="display: none;">
-  <h2>Choisissez un thème</h2>
-
-  <button onclick="lancerEntrainementCible('TAUTH')">
-    TAUTH
-  </button>
-
-  <button onclick="lancerEntrainementCible('TCARTE')">
-    TCARTE
-  </button>
-
-  <button onclick="retourChoixMode()">
-    Retour
-  </button>
-</div>
 
 <script src="app.js"></script>
 <script src="theme.js"></script>
+
+
+<script>
+
+document.addEventListener(
+  "DOMContentLoaded",
+  function () {
+
+    const role =
+      String(
+        localStorage.getItem("role") || ""
+      ).toLowerCase();
+
+    const administrationButton =
+      document.getElementById(
+        "administrationMenuButton"
+      );
+
+    if (
+      administrationButton &&
+      role === "admin"
+    ) {
+      administrationButton.style.display =
+        "flex";
+    }
+
+  }
+);
+
+</script>
+
+</body>
+
+</html>
