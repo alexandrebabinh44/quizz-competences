@@ -8804,17 +8804,58 @@ function saveCurrentBulkEditorState() {
     }
 
 
-    item.correct =
-        [
-            ...container
-                .querySelectorAll(
-                    'input[name="bulkCorrectAnswer"]:checked'
-                )
-        ]
-        .map(
-            input =>
-                input.value
+
+    /* =====================================================
+       1. SAUVEGARDE DU TEXTE DE LA QUESTION
+    ====================================================== */
+
+    const questionInput =
+        container.querySelector(
+            "#bulkCurrentQuestionText"
         );
+
+
+    if (questionInput) {
+
+        item.question =
+            String(
+                questionInput.value || ""
+            ).trim();
+    }
+
+
+
+    /* =====================================================
+       2. SAUVEGARDE DU TYPE
+    ====================================================== */
+
+    const typeSelect =
+        container.querySelector(
+            "#bulkCurrentQuestionType"
+        );
+
+
+    if (typeSelect) {
+
+        item.type =
+            typeSelect.value;
+    }
+
+
+
+    /* =====================================================
+       3. SAUVEGARDE DES PROPOSITIONS
+    ====================================================== */
+
+    if (!item.choices) {
+
+        item.choices = {
+            A: "",
+            B: "",
+            C: "",
+            D: ""
+        };
+    }
 
 
     container
@@ -8824,18 +8865,145 @@ function saveCurrentBulkEditorState() {
         .forEach(
             input => {
 
-                item.choices[
+                const letter =
                     input.dataset
-                        .bulkChoice
+                        .bulkChoice;
+
+
+                if (!letter) {
+                    return;
+                }
+
+
+                item.choices[
+                    letter
                 ] =
-                    input.value
-                        .trim();
+                    String(
+                        input.value || ""
+                    ).trim();
             }
         );
 
 
+
+    /* =====================================================
+       4. SAUVEGARDE DES BONNES RÉPONSES
+    ====================================================== */
+
+    const checkedAnswers =
+        [
+            ...container
+                .querySelectorAll(
+                    'input[name="bulkCorrectAnswer"]:checked'
+                )
+        ]
+        .map(
+            input =>
+                String(
+                    input.value || ""
+                )
+                .trim()
+                .toUpperCase()
+        )
+        .filter(Boolean);
+
+
+
+    /* =====================================================
+       VRAI / FAUX
+       Une seule réponse correcte
+    ====================================================== */
+
+    if (
+        item.type ===
+        "true_false"
+    ) {
+
+        item.correct =
+            checkedAnswers.length
+                ? [
+                    checkedAnswers[0]
+                ]
+                : [];
+
+
+        /*
+         * On force les valeurs standard.
+         */
+
+        item.choices.A =
+            "Vrai";
+
+        item.choices.B =
+            "Faux";
+
+        item.choices.C =
+            "";
+
+        item.choices.D =
+            "";
+    }
+
+
+
+    /* =====================================================
+       CHOIX SIMPLE
+       Une seule réponse correcte
+    ====================================================== */
+
+    else if (
+        item.type ===
+        "simple_choice"
+    ) {
+
+        item.correct =
+            checkedAnswers.length
+                ? [
+                    checkedAnswers[0]
+                ]
+                : [];
+    }
+
+
+
+    /* =====================================================
+       CHOIX MULTIPLE
+       Plusieurs réponses correctes possibles
+    ====================================================== */
+
+    else if (
+        item.type ===
+        "multiple_choice"
+    ) {
+
+        item.correct =
+            [
+                ...new Set(
+                    checkedAnswers
+                )
+            ];
+    }
+
+
+
+    /* =====================================================
+       TYPE INCONNU
+    ====================================================== */
+
+    else {
+
+        item.correct = [];
+    }
+
+
+
+    /* =====================================================
+       5. MISE À JOUR DU RÉCAPITULATIF
+    ====================================================== */
+
     updateBulkSummary();
 }
+
 
 
 /* =========================================================
