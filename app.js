@@ -12669,4 +12669,49 @@ document.addEventListener(
 
     }
 );
+/* =========================================================
+   AFFICHAGE DE LA PAGE UNE FOIS PRÊTE
+========================================================= */
 
+function revealNickelMasterPage() {
+
+    const body =
+        document.body;
+
+
+    if (!body) {
+        return;
+    }
+
+
+    body.classList.add(
+        "page-ready"
+    );
+}
+
+
+if (
+    document.readyState ===
+    "loading"
+) {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+            requestAnimationFrame(
+                revealNickelMasterPage
+            );
+
+        },
+        {
+            once: true
+        }
+    );
+
+} else {
+
+    requestAnimationFrame(
+        revealNickelMasterPage
+    );
+}
