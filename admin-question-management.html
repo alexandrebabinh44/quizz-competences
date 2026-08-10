@@ -109,24 +109,6 @@
         🏅 Badges
       </button>
 
-
-      <button>
-        💡 Boîte à idées
-      </button>
-
-
-      <button>
-        🚩 Signalements
-      </button>
-
-
-      <button
-        class="active"
-        onclick="window.location.href='administration.html'"
-      >
-        🛡️ Administration
-      </button>
-
     </nav>
 
 
@@ -533,7 +515,9 @@
       const role =
         String(
           localStorage.getItem("role") || ""
-        ).toLowerCase();
+        )
+        .trim()
+        .toLowerCase();
 
 
       if (role !== "admin") {
