@@ -12670,6 +12670,2860 @@ document.addEventListener(
     }
 );
 /* =========================================================
+   =========================================================
+   GESTION DES UTILISATEURS - ADMINISTRATION
+   =========================================================
+========================================================= */
+
+
+/* =========================================================
+   ÉTAT GLOBAL
+========================================================= */
+
+const adminUsersState = {
+
+    users: [],
+
+    roles: [],
+
+    teams: [],
+
+    filteredUsers: [],
+
+    currentUser: null,
+
+    currentPage: 1,
+
+    perPage: 6,
+
+    search: "",
+
+    roleFilter: "",
+
+    teamFilter: "",
+
+    statusFilter: ""
+};
+
+
+
+/* =========================================================
+   INITIALISATION PAGE
+========================================================= */
+
+async function initializeAdminUsersPage() {
+
+    console.log(
+        "👥 Initialisation gestion utilisateurs"
+    );
+
+
+    try {
+
+        await Promise.all([
+            loadAdminUsersRoles(),
+            loadAdminUsersTeams(),
+            loadAdminUsersProfiles()
+        ]);
+
+
+        populateAdminUsersRoleOptions();
+
+        populateAdminUsersTeamOptions();
+
+        populateAdminUsersServiceOptions();
+
+        populateAdminUsersManagerOptions();
+
+
+        bindAdminUsersEvents();
+
+
+        applyAdminUsersFilters();
+
+
+        console.log(
+            "✅ Gestion utilisateurs initialisée"
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "❌ Erreur initialisation gestion utilisateurs :",
+            error
+        );
+
+
+        const tbody =
+            document.getElementById(
+                "adminUsersTableBody"
+            );
+
+
+        if (tbody) {
+
+            tbody.innerHTML = `
+                <tr>
+                    <td
+                        colspan="7"
+                        class="admin-users-loading"
+                    >
+                        Impossible de charger les utilisateurs.
+                    </td>
+                </tr>
+            `;
+        }
+    }
+}
+
+
+
+/* =========================================================
+   CHARGEMENT DES RÔLES
+========================================================= */
+
+async function loadAdminUsersRoles() {
+
+    const response =
+        await fetch(
+            `${SUPABASE_URL}/rest/v1/roles?select=id,code,name,hierarchy_level&order=hierarchy_level.asc`,
+            {
+                headers:
+                    supabaseHeaders()
+            }
+        );
+
+
+    if (!response.ok) {
+
+        throw new Error(
+            await response.text()
+        );
+    }
+
+
+    adminUsersState.roles =
+        await response.json();
+
+
+    console.log(
+        "🛡️ Rôles :",
+        adminUsersState.roles
+    );
+}
+
+
+
+/* =========================================================
+   CHARGEMENT DES ÉQUIPES
+========================================================= */
+
+async function loadAdminUsersTeams() {
+
+    const response =
+        await fetch(
+            `${SUPABASE_URL}/rest/v1/teams?select=id,name,manager_id,service,created_at&order=name.asc`,
+            {
+                headers:
+                    supabaseHeaders()
+            }
+        );
+
+
+    if (!response.ok) {
+
+        throw new Error(
+            await response.text()
+        );
+    }
+
+
+    adminUsersState.teams =
+        await response.json();
+
+
+    console.log(
+        "👥 Équipes :",
+        adminUsersState.teams
+    );
+}
+
+
+
+/* =========================================================
+   CHARGEMENT DES PROFILS
+========================================================= */
+
+async function loadAdminUsersProfiles() {
+
+    const fields = [
+        "id",
+        "full_name",
+        "username",
+        "role",
+        "team",
+        "job_title",
+        "status",
+        "level",
+        "xp",
+        "created_at",
+        "must_change_password",
+        "team_id",
+        "position",
+        "hire_date",
+        "last_seen_at",
+        "avatar_key",
+        "first_name",
+        "last_name",
+        "service",
+        "account_status",
+        "departure_date",
+        "notes",
+        "manager_id"
+    ]
+    .join(",");
+
+
+    const response =
+        await fetch(
+            `${SUPABASE_URL}/rest/v1/profiles?select=${fields}&order=full_name.asc`,
+            {
+                headers:
+                    supabaseHeaders()
+            }
+        );
+
+
+    if (!response.ok) {
+
+        throw new Error(
+            await response.text()
+        );
+    }
+
+
+    adminUsersState.users =
+        await response.json();
+
+
+    console.log(
+        "👤 Profils :",
+        adminUsersState.users
+    );
+}
+
+
+
+/* =========================================================
+   ÉVÉNEMENTS
+========================================================= */
+
+function bindAdminUsersEvents() {
+
+    const search =
+        document.getElementById(
+            "adminUsersSearch"
+        );
+
+
+    const role =
+        document.getElementById(
+            "adminUsersRoleFilter"
+        );
+
+
+    const team =
+        document.getElementById(
+            "adminUsersTeamFilter"
+        );
+
+
+    const status =
+        document.getElementById(
+            "adminUsersStatusFilter"
+        );
+
+
+    const perPage =
+        document.getElementById(
+            "adminUsersPerPage"
+        );
+
+
+    if (search) {
+
+        search.addEventListener(
+            "input",
+            function () {
+
+                adminUsersState.search =
+                    String(
+                        search.value || ""
+                    )
+                    .trim()
+                    .toLowerCase();
+
+
+                adminUsersState.currentPage =
+                    1;
+
+
+                applyAdminUsersFilters();
+            }
+        );
+    }
+
+
+    if (role) {
+
+        role.addEventListener(
+            "change",
+            function () {
+
+                adminUsersState.roleFilter =
+                    role.value;
+
+
+                adminUsersState.currentPage =
+                    1;
+
+
+                applyAdminUsersFilters();
+            }
+        );
+    }
+
+
+    if (team) {
+
+        team.addEventListener(
+            "change",
+            function () {
+
+                adminUsersState.teamFilter =
+                    team.value;
+
+
+                adminUsersState.currentPage =
+                    1;
+
+
+                applyAdminUsersFilters();
+            }
+        );
+    }
+
+
+    if (status) {
+
+        status.addEventListener(
+            "change",
+            function () {
+
+                adminUsersState.statusFilter =
+                    status.value;
+
+
+                adminUsersState.currentPage =
+                    1;
+
+
+                applyAdminUsersFilters();
+            }
+        );
+    }
+
+
+    if (perPage) {
+
+        perPage.addEventListener(
+            "change",
+            function () {
+
+                adminUsersState.perPage =
+                    Number(
+                        perPage.value
+                    ) || 6;
+
+
+                adminUsersState.currentPage =
+                    1;
+
+
+                renderAdminUsersTable();
+            }
+        );
+    }
+
+
+
+    /* =====================================================
+       PAGINATION
+    ====================================================== */
+
+    document
+        .getElementById(
+            "adminUsersPreviousPage"
+        )
+        ?.addEventListener(
+            "click",
+            function () {
+
+                if (
+                    adminUsersState.currentPage >
+                    1
+                ) {
+
+                    adminUsersState.currentPage--;
+
+                    renderAdminUsersTable();
+                }
+            }
+        );
+
+
+    document
+        .getElementById(
+            "adminUsersNextPage"
+        )
+        ?.addEventListener(
+            "click",
+            function () {
+
+                const totalPages =
+                    getAdminUsersTotalPages();
+
+
+                if (
+                    adminUsersState.currentPage <
+                    totalPages
+                ) {
+
+                    adminUsersState.currentPage++;
+
+                    renderAdminUsersTable();
+                }
+            }
+        );
+
+
+
+    /* =====================================================
+       MODALE
+    ====================================================== */
+
+    document
+        .getElementById(
+            "adminUserEditClose"
+        )
+        ?.addEventListener(
+            "click",
+            closeAdminUserEditModal
+        );
+
+
+    document
+        .getElementById(
+            "adminUserEditCancel"
+        )
+        ?.addEventListener(
+            "click",
+            closeAdminUserEditModal
+        );
+
+
+    document
+        .getElementById(
+            "adminUserSaveButton"
+        )
+        ?.addEventListener(
+            "click",
+            saveAdminUserChanges
+        );
+
+
+    document
+        .getElementById(
+            "adminUserDeactivateButton"
+        )
+        ?.addEventListener(
+            "click",
+            toggleAdminUserAccountStatus
+        );
+
+
+
+    /* =====================================================
+       CHANGEMENT DE FONCTION / RÔLE
+    ====================================================== */
+
+    document
+        .getElementById(
+            "adminUserEditJobTitle"
+        )
+        ?.addEventListener(
+            "change",
+            syncAdminUserRolePreview
+        );
+
+
+
+    /* =====================================================
+       CHANGEMENT D'ÉQUIPE
+    ====================================================== */
+
+    document
+        .getElementById(
+            "adminUserEditTeam"
+        )
+        ?.addEventListener(
+            "change",
+            handleAdminUserTeamChange
+        );
+
+
+
+    /* =====================================================
+       CLIC HORS DE LA MODALE
+    ====================================================== */
+
+    const modal =
+        document.getElementById(
+            "adminUserEditModal"
+        );
+
+
+    if (modal) {
+
+        modal.addEventListener(
+            "click",
+            function (event) {
+
+                if (
+                    event.target === modal
+                ) {
+
+                    closeAdminUserEditModal();
+                }
+            }
+        );
+    }
+
+
+
+    /* =====================================================
+       AJOUT UTILISATEUR
+       POUR LE MOMENT ON GARDE LE BOUTON MAIS SANS CRÉATION
+    ====================================================== */
+
+    document
+        .getElementById(
+            "adminAddUserButton"
+        )
+        ?.addEventListener(
+            "click",
+            function () {
+
+                alert(
+                    "La création d'utilisateur sera reliée à l'étape suivante."
+                );
+            }
+        );
+}
+
+
+
+/* =========================================================
+   OPTIONS RÔLES
+========================================================= */
+
+function populateAdminUsersRoleOptions() {
+
+    const filter =
+        document.getElementById(
+            "adminUsersRoleFilter"
+        );
+
+
+    const jobTitle =
+        document.getElementById(
+            "adminUserEditJobTitle"
+        );
+
+
+    if (filter) {
+
+        filter.innerHTML =
+            `
+                <option value="">
+                    Tous les rôles
+                </option>
+            ` +
+            adminUsersState.roles
+                .map(
+                    role => `
+                        <option value="${escapeHtml(role.code)}">
+                            ${escapeHtml(role.name)}
+                        </option>
+                    `
+                )
+                .join("");
+    }
+
+
+    if (jobTitle) {
+
+        jobTitle.innerHTML =
+            adminUsersState.roles
+                .map(
+                    role => `
+                        <option value="${escapeHtml(role.code)}">
+                            ${escapeHtml(role.name)}
+                        </option>
+                    `
+                )
+                .join("");
+    }
+}
+
+
+
+/* =========================================================
+   OPTIONS ÉQUIPES
+========================================================= */
+
+function populateAdminUsersTeamOptions() {
+
+    const filter =
+        document.getElementById(
+            "adminUsersTeamFilter"
+        );
+
+
+    const edit =
+        document.getElementById(
+            "adminUserEditTeam"
+        );
+
+
+    const options =
+        adminUsersState.teams
+            .map(
+                team => `
+                    <option value="${escapeHtml(team.id)}">
+                        ${escapeHtml(team.name)}
+                    </option>
+                `
+            )
+            .join("");
+
+
+    if (filter) {
+
+        filter.innerHTML =
+            `
+                <option value="">
+                    Toutes les équipes
+                </option>
+            ` +
+            options;
+    }
+
+
+    if (edit) {
+
+        edit.innerHTML =
+            `
+                <option value="">
+                    Aucune équipe
+                </option>
+            ` +
+            options;
+    }
+}
+
+
+
+/* =========================================================
+   OPTIONS SERVICES
+========================================================= */
+
+function populateAdminUsersServiceOptions() {
+
+    const select =
+        document.getElementById(
+            "adminUserEditService"
+        );
+
+
+    if (!select) {
+        return;
+    }
+
+
+    const services =
+        [
+            ...new Set(
+                [
+                    ...adminUsersState.teams.map(
+                        team =>
+                            String(
+                                team.service || ""
+                            )
+                            .trim()
+                    ),
+
+                    ...adminUsersState.users.map(
+                        user =>
+                            String(
+                                user.service || ""
+                            )
+                            .trim()
+                    )
+                ]
+                .filter(Boolean)
+            )
+        ]
+        .sort(
+            (a, b) =>
+                a.localeCompare(
+                    b,
+                    "fr",
+                    {
+                        sensitivity:
+                            "base"
+                    }
+                )
+        );
+
+
+    select.innerHTML =
+        `
+            <option value="">
+                Aucun service
+            </option>
+        ` +
+        services
+            .map(
+                service => `
+                    <option value="${escapeHtml(service)}">
+                        ${escapeHtml(service)}
+                    </option>
+                `
+            )
+            .join("");
+}
+
+
+
+/* =========================================================
+   OPTIONS MANAGERS
+========================================================= */
+
+function populateAdminUsersManagerOptions() {
+
+    const select =
+        document.getElementById(
+            "adminUserEditManager"
+        );
+
+
+    if (!select) {
+        return;
+    }
+
+
+    const managerRoles =
+        new Set([
+            "team_leader",
+            "manager",
+            "responsable",
+            "direction",
+            "admin"
+        ]);
+
+
+    const possibleManagers =
+        adminUsersState.users
+            .filter(
+                user =>
+                    managerRoles.has(
+                        String(
+                            user.role || ""
+                        )
+                        .trim()
+                        .toLowerCase()
+                    )
+            )
+            .sort(
+                (a, b) =>
+                    getAdminUserDisplayName(a)
+                        .localeCompare(
+                            getAdminUserDisplayName(b),
+                            "fr"
+                        )
+            );
+
+
+    select.innerHTML =
+        `
+            <option value="">
+                Aucun manager
+            </option>
+        ` +
+        possibleManagers
+            .map(
+                user => `
+                    <option value="${escapeHtml(user.id)}">
+                        ${escapeHtml(
+                            getAdminUserDisplayName(
+                                user
+                            )
+                        )}
+                    </option>
+                `
+            )
+            .join("");
+}
+
+
+
+/* =========================================================
+   FILTRES
+========================================================= */
+
+function applyAdminUsersFilters() {
+
+    adminUsersState.filteredUsers =
+        adminUsersState.users
+            .filter(
+                user => {
+
+                    const searchText =
+                        [
+                            user.full_name,
+                            user.first_name,
+                            user.last_name,
+                            user.username,
+                            user.job_title,
+                            user.position,
+                            user.team,
+                            user.service
+                        ]
+                        .map(
+                            value =>
+                                String(
+                                    value || ""
+                                )
+                                .toLowerCase()
+                        )
+                        .join(" ");
+
+
+                    if (
+                        adminUsersState.search &&
+                        !searchText.includes(
+                            adminUsersState.search
+                        )
+                    ) {
+
+                        return false;
+                    }
+
+
+                    if (
+                        adminUsersState.roleFilter &&
+                        String(
+                            user.role || ""
+                        ) !==
+                        adminUsersState.roleFilter
+                    ) {
+
+                        return false;
+                    }
+
+
+                    if (
+                        adminUsersState.teamFilter &&
+                        String(
+                            user.team_id || ""
+                        ) !==
+                        adminUsersState.teamFilter
+                    ) {
+
+                        return false;
+                    }
+
+
+                    if (
+                        adminUsersState.statusFilter &&
+                        normalizeAdminAccountStatus(
+                            user
+                        ) !==
+                        adminUsersState.statusFilter
+                    ) {
+
+                        return false;
+                    }
+
+
+                    return true;
+                }
+            );
+
+
+    updateAdminUsersStats();
+
+    renderAdminUsersTable();
+}
+
+
+
+/* =========================================================
+   STATISTIQUES
+========================================================= */
+
+function updateAdminUsersStats() {
+
+    const users =
+        adminUsersState.users;
+
+
+    setAdminUsersText(
+        "adminUsersTotal",
+        users.length
+    );
+
+
+    setAdminUsersText(
+        "adminUsersAdmins",
+        users.filter(
+            user =>
+                String(
+                    user.role || ""
+                ) ===
+                "admin"
+        ).length
+    );
+
+
+    const managementRoles =
+        new Set([
+            "senior",
+            "team_leader",
+            "manager",
+            "responsable",
+            "direction"
+        ]);
+
+
+    setAdminUsersText(
+        "adminUsersLeaders",
+        users.filter(
+            user =>
+                managementRoles.has(
+                    String(
+                        user.role || ""
+                    )
+                )
+        ).length
+    );
+
+
+    setAdminUsersText(
+        "adminUsersActive",
+        users.filter(
+            user =>
+                normalizeAdminAccountStatus(
+                    user
+                ) ===
+                "active"
+        ).length
+    );
+}
+
+
+
+/* =========================================================
+   TABLEAU
+========================================================= */
+
+function renderAdminUsersTable() {
+
+    const tbody =
+        document.getElementById(
+            "adminUsersTableBody"
+        );
+
+
+    if (!tbody) {
+        return;
+    }
+
+
+    const total =
+        adminUsersState.filteredUsers.length;
+
+
+    const totalPages =
+        getAdminUsersTotalPages();
+
+
+    if (
+        adminUsersState.currentPage >
+        totalPages
+    ) {
+
+        adminUsersState.currentPage =
+            totalPages;
+    }
+
+
+    const start =
+        (
+            adminUsersState.currentPage -
+            1
+        ) *
+        adminUsersState.perPage;
+
+
+    const end =
+        start +
+        adminUsersState.perPage;
+
+
+    const users =
+        adminUsersState.filteredUsers
+            .slice(
+                start,
+                end
+            );
+
+
+    if (!users.length) {
+
+        tbody.innerHTML = `
+            <tr>
+                <td
+                    colspan="7"
+                    class="admin-users-loading"
+                >
+                    Aucun utilisateur trouvé.
+                </td>
+            </tr>
+        `;
+
+
+        renderAdminUsersPagination();
+
+        return;
+    }
+
+
+    tbody.innerHTML =
+        users
+            .map(
+                user => {
+
+                    const team =
+                        getAdminTeamById(
+                            user.team_id
+                        );
+
+
+                    const status =
+                        normalizeAdminAccountStatus(
+                            user
+                        );
+
+
+                    return `
+                        <tr>
+
+                            <td>
+                                ${renderAdminUserIdentity(user)}
+                            </td>
+
+
+                            <td>
+                                <span
+                                    class="admin-user-role-badge ${escapeHtml(
+                                        String(
+                                            user.role || "user"
+                                        )
+                                    )}"
+                                >
+                                    ${escapeHtml(
+                                        getAdminRoleLabel(
+                                            user.role,
+                                            user.job_title
+                                        )
+                                    )}
+                                </span>
+                            </td>
+
+
+                            <td>
+                                ${
+                                    escapeHtml(
+                                        team?.name ||
+                                        user.team ||
+                                        "—"
+                                    )
+                                }
+                            </td>
+
+
+                            <td>
+                                ${
+                                    escapeHtml(
+                                        user.service ||
+                                        team?.service ||
+                                        "—"
+                                    )
+                                }
+                            </td>
+
+
+                            <td>
+                                <span
+                                    class="admin-user-status-badge ${status}"
+                                >
+                                    ${getAdminStatusLabel(status)}
+                                </span>
+                            </td>
+
+
+                            <td>
+                                ${
+                                    formatAdminUserLastSeen(
+                                        user.last_seen_at
+                                    )
+                                }
+                            </td>
+
+
+                            <td>
+
+                                <div class="admin-user-actions">
+
+                                    <button
+                                        type="button"
+                                        class="admin-user-action-button"
+                                        onclick="openAdminUserEditModal('${escapeHtml(user.id)}')"
+                                        title="Modifier"
+                                    >
+                                        ✏️
+                                    </button>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+                    `;
+                }
+            )
+            .join("");
+
+
+    renderAdminUsersPagination();
+}
+
+
+
+/* =========================================================
+   IDENTITÉ
+========================================================= */
+
+function renderAdminUserIdentity(
+    user
+) {
+
+    const name =
+        getAdminUserDisplayName(
+            user
+        );
+
+
+    const initials =
+        getAdminUserInitials(
+            user
+        );
+
+
+    return `
+        <div class="admin-user-cell">
+
+            <div class="admin-user-avatar">
+                ${escapeHtml(initials)}
+            </div>
+
+            <div class="admin-user-cell-info">
+
+                <strong>
+                    ${escapeHtml(name)}
+                </strong>
+
+                <span>
+                    @${escapeHtml(
+                        user.username ||
+                        "sans-identifiant"
+                    )}
+                </span>
+
+            </div>
+
+        </div>
+    `;
+}
+
+
+
+/* =========================================================
+   PAGINATION
+========================================================= */
+
+function getAdminUsersTotalPages() {
+
+    return Math.max(
+        1,
+        Math.ceil(
+            adminUsersState
+                .filteredUsers
+                .length /
+            adminUsersState.perPage
+        )
+    );
+}
+
+
+
+function renderAdminUsersPagination() {
+
+    const total =
+        adminUsersState.filteredUsers.length;
+
+
+    const totalPages =
+        getAdminUsersTotalPages();
+
+
+    const start =
+        total
+            ? (
+                (
+                    adminUsersState.currentPage -
+                    1
+                ) *
+                adminUsersState.perPage
+            ) + 1
+            : 0;
+
+
+    const end =
+        Math.min(
+            adminUsersState.currentPage *
+            adminUsersState.perPage,
+            total
+        );
+
+
+    const info =
+        document.getElementById(
+            "adminUsersPaginationInfo"
+        );
+
+
+    if (info) {
+
+        info.innerText =
+            `Affichage ${start} à ${end} sur ${total} utilisateur(s)`;
+    }
+
+
+    const numbers =
+        document.getElementById(
+            "adminUsersPageNumbers"
+        );
+
+
+    if (numbers) {
+
+        numbers.innerHTML =
+            buildAdminUsersPageButtons(
+                totalPages
+            );
+    }
+
+
+    const previous =
+        document.getElementById(
+            "adminUsersPreviousPage"
+        );
+
+
+    const next =
+        document.getElementById(
+            "adminUsersNextPage"
+        );
+
+
+    if (previous) {
+
+        previous.disabled =
+            adminUsersState.currentPage <=
+            1;
+    }
+
+
+    if (next) {
+
+        next.disabled =
+            adminUsersState.currentPage >=
+            totalPages;
+    }
+}
+
+
+
+function buildAdminUsersPageButtons(
+    totalPages
+) {
+
+    let pages = [];
+
+
+    if (
+        totalPages <=
+        7
+    ) {
+
+        for (
+            let i = 1;
+            i <= totalPages;
+            i++
+        ) {
+
+            pages.push(i);
+        }
+
+    } else {
+
+        pages = [
+            1,
+            2,
+            3,
+            "...",
+            totalPages
+        ];
+
+
+        if (
+            adminUsersState.currentPage >
+            3 &&
+            adminUsersState.currentPage <
+            totalPages
+        ) {
+
+            pages = [
+                1,
+                "...",
+                adminUsersState.currentPage,
+                "...",
+                totalPages
+            ];
+        }
+    }
+
+
+    return pages
+        .map(
+            page => {
+
+                if (
+                    page ===
+                    "..."
+                ) {
+
+                    return `
+                        <span
+                            style="
+                                display:inline-flex;
+                                align-items:center;
+                                padding:0 5px;
+                            "
+                        >
+                            …
+                        </span>
+                    `;
+                }
+
+
+                return `
+                    <button
+                        type="button"
+                        class="${
+                            page ===
+                            adminUsersState.currentPage
+                                ? "active"
+                                : ""
+                        }"
+                        onclick="goToAdminUsersPage(${page})"
+                    >
+                        ${page}
+                    </button>
+                `;
+            }
+        )
+        .join("");
+}
+
+
+
+function goToAdminUsersPage(
+    page
+) {
+
+    adminUsersState.currentPage =
+        page;
+
+
+    renderAdminUsersTable();
+}
+
+
+
+/* =========================================================
+   OUVERTURE MODALE
+========================================================= */
+
+function openAdminUserEditModal(
+    userId
+) {
+
+    const user =
+        adminUsersState.users
+            .find(
+                item =>
+                    String(
+                        item.id
+                    ) ===
+                    String(
+                        userId
+                    )
+            );
+
+
+    if (!user) {
+
+        console.error(
+            "Utilisateur introuvable :",
+            userId
+        );
+
+        return;
+    }
+
+
+    adminUsersState.currentUser =
+        user;
+
+
+    const modal =
+        document.getElementById(
+            "adminUserEditModal"
+        );
+
+
+    if (!modal) {
+        return;
+    }
+
+
+
+    /* =====================================================
+       IDENTITÉ
+    ====================================================== */
+
+    setAdminUsersText(
+        "adminUserEditDisplayName",
+        getAdminUserDisplayName(
+            user
+        )
+    );
+
+
+    setAdminUsersText(
+        "adminUserEditUsername",
+        user.username
+            ? `@${user.username}`
+            : "—"
+    );
+
+
+    setAdminUsersText(
+        "adminUserEditId",
+        user.id || "—"
+    );
+
+
+    setAdminUsersText(
+        "adminUserEditCreatedAt",
+        formatAdminDate(
+            user.created_at
+        )
+    );
+
+
+    setAdminUsersText(
+        "adminUserEditLastSeen",
+        formatAdminUserLastSeen(
+            user.last_seen_at
+        )
+    );
+
+
+    setAdminUsersText(
+        "adminUserEditAvatar",
+        getAdminUserInitials(
+            user
+        )
+    );
+
+
+
+    /* =====================================================
+       FORMULAIRE
+    ====================================================== */
+
+    setAdminUsersInputValue(
+        "adminUserEditFirstName",
+        user.first_name ||
+        deriveAdminFirstName(
+            user.full_name
+        )
+    );
+
+
+    setAdminUsersInputValue(
+        "adminUserEditLastName",
+        user.last_name ||
+        deriveAdminLastName(
+            user.full_name
+        )
+    );
+
+
+    setAdminUsersInputValue(
+        "adminUserEditJobTitle",
+        user.role ||
+        "user"
+    );
+
+
+    setAdminUsersInputValue(
+        "adminUserEditRole",
+        user.role ||
+        "user"
+    );
+
+
+    setAdminUsersInputValue(
+        "adminUserEditTeam",
+        user.team_id ||
+        ""
+    );
+
+
+    const team =
+        getAdminTeamById(
+            user.team_id
+        );
+
+
+    setAdminUsersSelectValueAllowMissing(
+        "adminUserEditService",
+        user.service ||
+        team?.service ||
+        ""
+    );
+
+
+    setAdminUsersInputValue(
+        "adminUserEditManager",
+        user.manager_id ||
+        team?.manager_id ||
+        ""
+    );
+
+
+    setAdminUsersInputValue(
+        "adminUserEditStatus",
+        normalizeAdminAccountStatus(
+            user
+        )
+    );
+
+
+    setAdminUsersInputValue(
+        "adminUserEditHireDate",
+        normalizeAdminDateInput(
+            user.hire_date
+        )
+    );
+
+
+    setAdminUsersInputValue(
+        "adminUserEditDepartureDate",
+        normalizeAdminDateInput(
+            user.departure_date
+        )
+    );
+
+
+    setAdminUsersInputValue(
+        "adminUserEditNotes",
+        user.notes ||
+        ""
+    );
+
+
+    updateAdminDeactivateButton(
+        user
+    );
+
+
+    modal.style.display =
+        "flex";
+
+
+    document.body.style.overflow =
+        "hidden";
+}
+
+
+
+/* =========================================================
+   FERMETURE MODALE
+========================================================= */
+
+function closeAdminUserEditModal() {
+
+    const modal =
+        document.getElementById(
+            "adminUserEditModal"
+        );
+
+
+    if (modal) {
+
+        modal.style.display =
+            "none";
+    }
+
+
+    adminUsersState.currentUser =
+        null;
+
+
+    document.body.style.overflow =
+        "";
+}
+
+
+
+/* =========================================================
+   APERÇU RÔLE
+========================================================= */
+
+function syncAdminUserRolePreview() {
+
+    const jobTitle =
+        document.getElementById(
+            "adminUserEditJobTitle"
+        );
+
+
+    const role =
+        document.getElementById(
+            "adminUserEditRole"
+        );
+
+
+    if (
+        !jobTitle ||
+        !role
+    ) {
+        return;
+    }
+
+
+    role.value =
+        jobTitle.value;
+}
+
+
+
+/* =========================================================
+   ÉQUIPE → SERVICE + MANAGER
+========================================================= */
+
+function handleAdminUserTeamChange() {
+
+    const select =
+        document.getElementById(
+            "adminUserEditTeam"
+        );
+
+
+    if (!select) {
+        return;
+    }
+
+
+    const team =
+        getAdminTeamById(
+            select.value
+        );
+
+
+    if (!team) {
+        return;
+    }
+
+
+    if (team.service) {
+
+        setAdminUsersSelectValueAllowMissing(
+            "adminUserEditService",
+            team.service
+        );
+    }
+
+
+    if (team.manager_id) {
+
+        setAdminUsersInputValue(
+            "adminUserEditManager",
+            team.manager_id
+        );
+    }
+}
+
+
+
+/* =========================================================
+   SAUVEGARDE
+========================================================= */
+
+async function saveAdminUserChanges() {
+
+    const user =
+        adminUsersState.currentUser;
+
+
+    if (!user) {
+        return;
+    }
+
+
+    const firstName =
+        getAdminUsersInputValue(
+            "adminUserEditFirstName"
+        )
+        .trim();
+
+
+    const lastName =
+        getAdminUsersInputValue(
+            "adminUserEditLastName"
+        )
+        .trim();
+
+
+    const roleCode =
+        getAdminUsersInputValue(
+            "adminUserEditJobTitle"
+        );
+
+
+    const role =
+        adminUsersState.roles
+            .find(
+                item =>
+                    item.code ===
+                    roleCode
+            );
+
+
+    if (!role) {
+
+        alert(
+            "Le rôle sélectionné est invalide."
+        );
+
+        return;
+    }
+
+
+    const teamId =
+        getAdminUsersInputValue(
+            "adminUserEditTeam"
+        ) ||
+        null;
+
+
+    const team =
+        getAdminTeamById(
+            teamId
+        );
+
+
+    const service =
+        getAdminUsersInputValue(
+            "adminUserEditService"
+        ) ||
+        null;
+
+
+    const managerId =
+        getAdminUsersInputValue(
+            "adminUserEditManager"
+        ) ||
+        null;
+
+
+    const accountStatus =
+        getAdminUsersInputValue(
+            "adminUserEditStatus"
+        ) ||
+        "active";
+
+
+    const hireDate =
+        getAdminUsersInputValue(
+            "adminUserEditHireDate"
+        ) ||
+        null;
+
+
+    const departureDate =
+        getAdminUsersInputValue(
+            "adminUserEditDepartureDate"
+        ) ||
+        null;
+
+
+    const notes =
+        getAdminUsersInputValue(
+            "adminUserEditNotes"
+        )
+        .trim() ||
+        null;
+
+
+    const fullName =
+        [
+            firstName,
+            lastName
+        ]
+        .filter(Boolean)
+        .join(" ")
+        .trim();
+
+
+    if (!fullName) {
+
+        alert(
+            "Le nom du collaborateur est obligatoire."
+        );
+
+        return;
+    }
+
+
+
+    /* =====================================================
+       SYNCHRONISATION NOUVELLE + ANCIENNE STRUCTURE
+    ====================================================== */
+
+    const payload = {
+
+        first_name:
+            firstName ||
+            null,
+
+        last_name:
+            lastName ||
+            null,
+
+        full_name:
+            fullName,
+
+        role:
+            role.code,
+
+        job_title:
+            role.name,
+
+        position:
+            role.name,
+
+        team_id:
+            teamId,
+
+        team:
+            team?.name ||
+            null,
+
+        service:
+            service,
+
+        manager_id:
+            managerId,
+
+        account_status:
+            accountStatus,
+
+        status:
+            convertAdminStatusToLegacy(
+                accountStatus
+            ),
+
+        hire_date:
+            hireDate,
+
+        departure_date:
+            departureDate,
+
+        notes:
+            notes
+    };
+
+
+    console.log(
+        "💾 Modification utilisateur :",
+        payload
+    );
+
+
+    const button =
+        document.getElementById(
+            "adminUserSaveButton"
+        );
+
+
+    const oldText =
+        button?.innerHTML;
+
+
+    if (button) {
+
+        button.disabled = true;
+
+        button.innerHTML =
+            "Enregistrement...";
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/profiles?id=eq.${encodeURIComponent(user.id)}`,
+                {
+                    method:
+                        "PATCH",
+
+                    headers: {
+                        ...supabaseHeaders(),
+
+                        "Content-Type":
+                            "application/json",
+
+                        Prefer:
+                            "return=representation"
+                    },
+
+                    body:
+                        JSON.stringify(
+                            payload
+                        )
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                await response.text()
+            );
+        }
+
+
+        const updated =
+            await response.json();
+
+
+        if (
+            updated &&
+            updated.length
+        ) {
+
+            Object.assign(
+                user,
+                updated[0]
+            );
+        } else {
+
+            Object.assign(
+                user,
+                payload
+            );
+        }
+
+
+        /*
+         * Si on modifie son propre profil,
+         * on met également le localStorage à jour.
+         */
+
+        const loggedProfileId =
+            localStorage.getItem(
+                "profile_id"
+            );
+
+
+        if (
+            String(
+                loggedProfileId
+            ) ===
+            String(
+                user.id
+            )
+        ) {
+
+            localStorage.setItem(
+                "full_name",
+                fullName
+            );
+
+
+            localStorage.setItem(
+                "role",
+                role.code
+            );
+        }
+
+
+        populateAdminUsersManagerOptions();
+
+        populateAdminUsersServiceOptions();
+
+        applyAdminUsersFilters();
+
+
+        closeAdminUserEditModal();
+
+
+        alert(
+            "✅ Les modifications ont été enregistrées."
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "❌ Erreur modification utilisateur :",
+            error
+        );
+
+
+        alert(
+            "Impossible d'enregistrer les modifications."
+        );
+
+
+    } finally {
+
+        if (button) {
+
+            button.disabled =
+                false;
+
+
+            button.innerHTML =
+                oldText ||
+                "💾 Enregistrer les modifications";
+        }
+    }
+}
+
+
+
+/* =========================================================
+   DÉSACTIVER / RÉACTIVER
+========================================================= */
+
+async function toggleAdminUserAccountStatus() {
+
+    const user =
+        adminUsersState.currentUser;
+
+
+    if (!user) {
+        return;
+    }
+
+
+    const currentStatus =
+        normalizeAdminAccountStatus(
+            user
+        );
+
+
+    const activating =
+        currentStatus !==
+        "active";
+
+
+    const newStatus =
+        activating
+            ? "active"
+            : "inactive";
+
+
+    const confirmation =
+        activating
+            ? "Réactiver ce compte ?"
+            : "Désactiver ce compte ? Le profil et son historique seront conservés.";
+
+
+    if (
+        !confirm(
+            confirmation
+        )
+    ) {
+
+        return;
+    }
+
+
+    const payload = {
+
+        account_status:
+            newStatus,
+
+        status:
+            convertAdminStatusToLegacy(
+                newStatus
+            )
+    };
+
+
+    /*
+     * Si on désactive sans date de départ,
+     * on peut automatiquement utiliser aujourd'hui.
+     */
+
+    if (
+        newStatus ===
+        "inactive" &&
+        !user.departure_date
+    ) {
+
+        payload.departure_date =
+            new Date()
+                .toISOString()
+                .slice(
+                    0,
+                    10
+                );
+    }
+
+
+    if (
+        newStatus ===
+        "active"
+    ) {
+
+        payload.departure_date =
+            null;
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/profiles?id=eq.${encodeURIComponent(user.id)}`,
+                {
+                    method:
+                        "PATCH",
+
+                    headers: {
+                        ...supabaseHeaders(),
+
+                        "Content-Type":
+                            "application/json",
+
+                        Prefer:
+                            "return=representation"
+                    },
+
+                    body:
+                        JSON.stringify(
+                            payload
+                        )
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                await response.text()
+            );
+        }
+
+
+        Object.assign(
+            user,
+            payload
+        );
+
+
+        applyAdminUsersFilters();
+
+
+        closeAdminUserEditModal();
+
+
+        alert(
+            newStatus ===
+            "active"
+                ? "✅ Le compte a été réactivé."
+                : "✅ Le compte a été désactivé."
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "❌ Erreur changement statut :",
+            error
+        );
+
+
+        alert(
+            "Impossible de modifier le statut du compte."
+        );
+    }
+}
+
+
+
+/* =========================================================
+   BOUTON DÉSACTIVATION
+========================================================= */
+
+function updateAdminDeactivateButton(
+    user
+) {
+
+    const button =
+        document.getElementById(
+            "adminUserDeactivateButton"
+        );
+
+
+    if (!button) {
+        return;
+    }
+
+
+    const status =
+        normalizeAdminAccountStatus(
+            user
+        );
+
+
+    if (
+        status ===
+        "active"
+    ) {
+
+        button.innerText =
+            "Désactiver le compte";
+
+        button.classList.add(
+            "admin-user-danger-button"
+        );
+
+    } else {
+
+        button.innerText =
+            "Réactiver le compte";
+    }
+}
+
+
+
+/* =========================================================
+   OUTILS
+========================================================= */
+
+function getAdminTeamById(
+    teamId
+) {
+
+    if (!teamId) {
+        return null;
+    }
+
+
+    return (
+        adminUsersState.teams
+            .find(
+                team =>
+                    String(
+                        team.id
+                    ) ===
+                    String(
+                        teamId
+                    )
+            ) ||
+        null
+    );
+}
+
+
+
+function getAdminRoleLabel(
+    roleCode,
+    fallback
+) {
+
+    const role =
+        adminUsersState.roles
+            .find(
+                item =>
+                    item.code ===
+                    roleCode
+            );
+
+
+    return (
+        role?.name ||
+        fallback ||
+        roleCode ||
+        "Utilisateur"
+    );
+}
+
+
+
+function normalizeAdminAccountStatus(
+    user
+) {
+
+    let status =
+        String(
+            user?.account_status ||
+            user?.status ||
+            "active"
+        )
+        .trim()
+        .toLowerCase();
+
+
+    if (
+        status ===
+        "actif"
+    ) {
+
+        status =
+            "active";
+    }
+
+
+    if (
+        status ===
+        "inactif"
+    ) {
+
+        status =
+            "inactive";
+    }
+
+
+    if (
+        status ===
+        "suspendu"
+    ) {
+
+        status =
+            "suspended";
+    }
+
+
+    if (
+        ![
+            "active",
+            "inactive",
+            "suspended"
+        ]
+        .includes(
+            status
+        )
+    ) {
+
+        status =
+            "active";
+    }
+
+
+    return status;
+}
+
+
+
+function convertAdminStatusToLegacy(
+    status
+) {
+
+    if (
+        status ===
+        "inactive"
+    ) {
+
+        return "inactif";
+    }
+
+
+    if (
+        status ===
+        "suspended"
+    ) {
+
+        return "suspendu";
+    }
+
+
+    return "actif";
+}
+
+
+
+function getAdminStatusLabel(
+    status
+) {
+
+    switch (
+        status
+    ) {
+
+        case "inactive":
+            return "Inactif";
+
+        case "suspended":
+            return "Suspendu";
+
+        default:
+            return "Actif";
+    }
+}
+
+
+
+function getAdminUserDisplayName(
+    user
+) {
+
+    const constructed =
+        [
+            user?.first_name,
+            user?.last_name
+        ]
+        .filter(Boolean)
+        .join(" ")
+        .trim();
+
+
+    return (
+        constructed ||
+        user?.full_name ||
+        user?.username ||
+        "Utilisateur"
+    );
+}
+
+
+
+function getAdminUserInitials(
+    user
+) {
+
+    const name =
+        getAdminUserDisplayName(
+            user
+        );
+
+
+    return name
+        .split(/\s+/)
+        .filter(Boolean)
+        .slice(
+            0,
+            2
+        )
+        .map(
+            word =>
+                word.charAt(0)
+                    .toUpperCase()
+        )
+        .join("");
+}
+
+
+
+function deriveAdminFirstName(
+    fullName
+) {
+
+    const parts =
+        String(
+            fullName || ""
+        )
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean);
+
+
+    return (
+        parts[0] ||
+        ""
+    );
+}
+
+
+
+function deriveAdminLastName(
+    fullName
+) {
+
+    const parts =
+        String(
+            fullName || ""
+        )
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean);
+
+
+    if (
+        parts.length <=
+        1
+    ) {
+
+        return "";
+    }
+
+
+    return parts
+        .slice(1)
+        .join(" ");
+}
+
+
+
+function formatAdminDate(
+    value
+) {
+
+    if (!value) {
+        return "—";
+    }
+
+
+    const date =
+        new Date(
+            value
+        );
+
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+
+        return String(
+            value
+        );
+    }
+
+
+    return date
+        .toLocaleDateString(
+            "fr-FR"
+        );
+}
+
+
+
+function normalizeAdminDateInput(
+    value
+) {
+
+    if (!value) {
+        return "";
+    }
+
+
+    return String(
+        value
+    )
+    .slice(
+        0,
+        10
+    );
+}
+
+
+
+function formatAdminUserLastSeen(
+    value
+) {
+
+    if (!value) {
+        return "Jamais";
+    }
+
+
+    const date =
+        new Date(
+            value
+        );
+
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+
+        return "—";
+    }
+
+
+    const now =
+        new Date();
+
+
+    const difference =
+        now.getTime() -
+        date.getTime();
+
+
+    const minutes =
+        Math.floor(
+            difference /
+            60000
+        );
+
+
+    if (
+        minutes <
+        1
+    ) {
+
+        return "À l'instant";
+    }
+
+
+    if (
+        minutes <
+        60
+    ) {
+
+        return `Il y a ${minutes} min`;
+    }
+
+
+    const hours =
+        Math.floor(
+            minutes /
+            60
+        );
+
+
+    if (
+        hours <
+        24
+    ) {
+
+        return `Il y a ${hours} h`;
+    }
+
+
+    const days =
+        Math.floor(
+            hours /
+            24
+        );
+
+
+    if (
+        days ===
+        1
+    ) {
+
+        return "Hier";
+    }
+
+
+    if (
+        days <
+        30
+    ) {
+
+        return `Il y a ${days} jours`;
+    }
+
+
+    return date
+        .toLocaleDateString(
+            "fr-FR"
+        );
+}
+
+
+
+function setAdminUsersText(
+    id,
+    value
+) {
+
+    const element =
+        document.getElementById(
+            id
+        );
+
+
+    if (element) {
+
+        element.textContent =
+            value ?? "";
+    }
+}
+
+
+
+function setAdminUsersInputValue(
+    id,
+    value
+) {
+
+    const element =
+        document.getElementById(
+            id
+        );
+
+
+    if (element) {
+
+        element.value =
+            value ?? "";
+    }
+}
+
+
+
+function getAdminUsersInputValue(
+    id
+) {
+
+    const element =
+        document.getElementById(
+            id
+        );
+
+
+    return (
+        element?.value ??
+        ""
+    );
+}
+
+
+
+function setAdminUsersSelectValueAllowMissing(
+    id,
+    value
+) {
+
+    const select =
+        document.getElementById(
+            id
+        );
+
+
+    if (!select) {
+        return;
+    }
+
+
+    const normalized =
+        String(
+            value || ""
+        );
+
+
+    const exists =
+        [
+            ...select.options
+        ]
+        .some(
+            option =>
+                option.value ===
+                normalized
+        );
+
+
+    if (
+        normalized &&
+        !exists
+    ) {
+
+        const option =
+            document.createElement(
+                "option"
+            );
+
+
+        option.value =
+            normalized;
+
+
+        option.textContent =
+            normalized;
+
+
+        select.appendChild(
+            option
+        );
+    }
+
+
+    select.value =
+        normalized;
+}
+
+
+/* =========================================================
    AFFICHAGE DE LA PAGE UNE FOIS PRÊTE
 ========================================================= */
 
