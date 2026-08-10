@@ -10749,3 +10749,784 @@ async function deleteManagedCategory(
         "Cette catégorie ne contient aucune question."
     );
 }
+/* =========================================================
+   NICKEL MASTER
+   FORMATIONS -> CATÉGORIES AUTORISÉES
+========================================================= */
+
+async function getTrainingEligibleCategories() {
+
+    const profileId =
+        localStorage.getItem(
+            "profile_id"
+        );
+
+
+    if (!profileId) {
+
+        console.error(
+            "profile_id introuvable"
+        );
+
+        return [];
+    }
+
+
+    /* ===============================================
+       1. FORMATIONS DU COLLABORATEUR
+    ================================================ */
+
+    const userTrainingsResponse =
+        await fetch(
+            `${SUPABASE_URL}/rest/v1/user_trainings?user_id=eq.${encodeURIComponent(profileId)}&select=training_id`,
+            {
+                headers:
+                    supabaseHeaders()
+            }
+        );
+
+
+    if (!userTrainingsResponse.ok) {
+
+        throw new Error(
+            await userTrainingsResponse.text()
+        );
+    }
+
+
+    const userTrainings =
+        await userTrainingsResponse.json();
+
+
+    const trainingIds =
+        [
+            ...new Set(
+                userTrainings
+                    .map(
+                        item =>
+                            item.training_id
+                    )
+                    .filter(
+                        value =>
+                            value !== null &&
+                            value !== undefined
+                    )
+            )
+        ];
+
+
+    if (!trainingIds.length) {
+
+        return [];
+    }
+
+
+    /* ===============================================
+       2. CATÉGORIES LIÉES À CES FORMATIONS
+    ================================================ */
+
+    const categoriesResponse =
+        await fetch(
+            `${SUPABASE_URL}/rest/v1/categories?select=id,name,training_id`,
+            {
+                headers:
+                    supabaseHeaders()
+            }
+        );
+
+
+    if (!categoriesResponse.ok) {
+
+        throw new Error(
+            await categoriesResponse.text()
+        );
+    }
+
+
+    const categories =
+        await categoriesResponse.json();
+
+
+    const allowedTrainingIds =
+        new Set(
+            trainingIds.map(String)
+        );
+
+
+    return categories
+        .filter(
+            category =>
+                category.training_id !== null &&
+                allowedTrainingIds.has(
+                    String(
+                        category.training_id
+                    )
+                )
+        )
+        .sort(
+            (a, b) =>
+                String(a.name)
+                    .localeCompare(
+                        String(b.name),
+                        "fr",
+                        {
+                            sensitivity:
+                                "base"
+                        }
+                    )
+        );
+}
+
+
+
+/* =========================================================
+   QUESTIONS AUTORISÉES
+========================================================= */
+
+async function getTrainingEligibleQuestions() {
+
+    const categories =
+        await getTrainingEligibleCategories();
+
+
+    const allowedCategories =
+        new Set(
+            categories.map(
+                category =>
+                    String(category.name)
+                        .trim()
+                        .toLowerCase()
+            )
+        );
+
+
+    if (!allowedCategories.size) {
+
+        return [];
+    }
+
+
+    const response =
+        await fetch(
+            `${SUPABASE_URL}/rest/v1/questions?select=*`,
+            {
+                headers:
+                    supabaseHeaders()
+            }
+        );
+
+
+    if (!response.ok) {
+
+        throw new Error(
+            await response.text()
+        );
+    }
+
+
+    const questions =
+        await response.json();
+
+
+    return questions.filter(
+        question => {
+
+            const category =
+                String(
+                    question.category || ""
+                )
+                .trim()
+                .toLowerCase();
+
+
+            const allowedType =
+                [
+                    "true_false",
+                    "simple_choice",
+                    "multiple_choice"
+                ]
+                .includes(
+                    question.question_type
+                );
+
+
+            const active =
+                question.is_active !== false;
+
+
+            return (
+                allowedCategories.has(
+                    category
+                ) &&
+                allowedType &&
+                active
+            );
+        }
+    );
+}
+
+
+
+/* =========================================================
+   MÉLANGE
+========================================================= */
+
+function shuffleTrainingQuestions(
+    array
+) {
+
+    const copy =
+        [...array];
+
+
+    for (
+        let i = copy.length - 1;
+        i > 0;
+        i--
+    ) {
+
+        const j =
+            Math.floor(
+                Math.random() *
+                (i + 1)
+            );
+
+
+        [
+            copy[i],
+            copy[j]
+        ] =
+        [
+            copy[j],
+            copy[i]
+        ];
+    }
+
+
+    return copy;
+}
+
+
+
+/* =========================================================
+   ENTRAÎNEMENT CIBLÉ
+========================================================= */
+
+async function initializeTargetedTrainingPage() {
+
+    const container =
+        document.getElementById(
+            "targetedCategoryGrid"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    try {
+
+        const categories =
+            await getTrainingEligibleCategories();
+
+
+        const questions =
+            await getTrainingEligibleQuestions();
+
+
+        if (!categories.length) {
+
+            container.innerHTML = `
+                <div class="training-empty-state">
+                    Aucune catégorie disponible pour le moment.
+                </div>
+            `;
+
+            return;
+        }
+
+
+        container.innerHTML =
+            categories
+                .map(
+                    category => {
+
+                        const count =
+                            questions.filter(
+                                question =>
+                                    String(
+                                        question.category
+                                    )
+                                    .trim()
+                                    .toLowerCase() ===
+                                    String(
+                                        category.name
+                                    )
+                                    .trim()
+                                    .toLowerCase()
+                            ).length;
+
+
+                        if (!count) {
+                            return "";
+                        }
+
+
+                        return `
+                            <article class="training-category-card">
+
+                                <div class="training-category-icon">
+                                    ${getTrainingCategoryIcon(category.name)}
+                                </div>
+
+                                <h3>
+                                    ${escapeHtml(category.name)}
+                                </h3>
+
+                                <p>
+                                    Questions disponibles
+                                </p>
+
+                                <strong>
+                                    ${count}
+                                </strong>
+
+                                <button
+                                    onclick="startTargetedTraining('${encodeURIComponent(category.name)}')"
+                                >
+                                    Choisir
+                                </button>
+
+                            </article>
+                        `;
+                    }
+                )
+                .join("");
+
+
+    } catch (error) {
+
+        console.error(
+            "Erreur catégories ciblées :",
+            error
+        );
+
+
+        container.innerHTML = `
+            <div class="training-empty-state">
+                Impossible de charger les catégories.
+            </div>
+        `;
+    }
+}
+
+
+
+/* =========================================================
+   DÉMARRER CIBLÉ
+========================================================= */
+
+async function startTargetedTraining(
+    encodedCategory
+) {
+
+    const category =
+        decodeURIComponent(
+            encodedCategory
+        );
+
+
+    /*
+     * IMPORTANT :
+     * on revérifie les droits,
+     * même si la catégorie était affichée.
+     */
+
+    const allowedCategories =
+        await getTrainingEligibleCategories();
+
+
+    const authorized =
+        allowedCategories.some(
+            item =>
+                String(item.name)
+                    .trim()
+                    .toLowerCase() ===
+                category
+                    .trim()
+                    .toLowerCase()
+        );
+
+
+    if (!authorized) {
+
+        alert(
+            "Cette catégorie n'est pas disponible pour ton profil."
+        );
+
+        return;
+    }
+
+
+    const questions =
+        await getTrainingEligibleQuestions();
+
+
+    const categoryQuestions =
+        questions.filter(
+            question =>
+                String(
+                    question.category
+                )
+                .trim()
+                .toLowerCase() ===
+                category
+                    .trim()
+                    .toLowerCase()
+        );
+
+
+    const selected =
+        shuffleTrainingQuestions(
+            categoryQuestions
+        )
+        .slice(
+            0,
+            10
+        );
+
+
+    if (!selected.length) {
+
+        alert(
+            "Aucune question disponible dans cette catégorie."
+        );
+
+        return;
+    }
+
+
+    saveTrainingLaunch(
+        "targeted",
+        selected,
+        category
+    );
+}
+
+
+
+/* =========================================================
+   FLASH
+========================================================= */
+
+async function initializeFlashTrainingPage() {
+
+    const container =
+        document.getElementById(
+            "flashCategoryGrid"
+        );
+
+
+    const button =
+        document.getElementById(
+            "launchFlashButton"
+        );
+
+
+    if (!container || !button) {
+        return;
+    }
+
+
+    try {
+
+        const categories =
+            await getTrainingEligibleCategories();
+
+
+        if (!categories.length) {
+
+            container.innerHTML = `
+                <div class="training-empty-state">
+                    Aucune catégorie disponible.
+                </div>
+            `;
+
+            button.disabled =
+                true;
+
+            return;
+        }
+
+
+        container.innerHTML =
+            categories
+                .map(
+                    category => `
+                        <div class="flash-category-item">
+
+                            <span>
+                                ${getTrainingCategoryIcon(category.name)}
+                            </span>
+
+                            <strong>
+                                ${escapeHtml(category.name)}
+                            </strong>
+
+                            <b>
+                                ✓
+                            </b>
+
+                        </div>
+                    `
+                )
+                .join("");
+
+
+        button.onclick =
+            startFlashTraining;
+
+
+    } catch (error) {
+
+        console.error(
+            error
+        );
+    }
+}
+
+
+
+/* =========================================================
+   LANCER FLASH
+========================================================= */
+
+async function startFlashTraining() {
+
+    const questions =
+        await getTrainingEligibleQuestions();
+
+
+    const categories =
+        [
+            ...new Set(
+                questions.map(
+                    question =>
+                        question.category
+                )
+            )
+        ];
+
+
+    if (!categories.length) {
+
+        alert(
+            "Aucune catégorie disponible."
+        );
+
+        return;
+    }
+
+
+    const randomCategory =
+        categories[
+            Math.floor(
+                Math.random() *
+                categories.length
+            )
+        ];
+
+
+    const categoryQuestions =
+        questions.filter(
+            question =>
+                question.category ===
+                randomCategory
+        );
+
+
+    const selected =
+        shuffleTrainingQuestions(
+            categoryQuestions
+        )
+        .slice(
+            0,
+            10
+        );
+
+
+    saveTrainingLaunch(
+        "flash",
+        selected,
+        randomCategory
+    );
+}
+
+
+
+/* =========================================================
+   XTREM
+========================================================= */
+
+async function initializeXtremTrainingPage() {
+
+    const button =
+        document.getElementById(
+            "launchXtremButton"
+        );
+
+
+    if (!button) {
+        return;
+    }
+
+
+    button.onclick =
+        startXtremTraining;
+}
+
+
+
+/* =========================================================
+   LANCER XTREM
+========================================================= */
+
+async function startXtremTraining() {
+
+    const questions =
+        await getTrainingEligibleQuestions();
+
+
+    if (!questions.length) {
+
+        alert(
+            "Aucune question disponible pour tes formations."
+        );
+
+        return;
+    }
+
+
+    const selected =
+        shuffleTrainingQuestions(
+            questions
+        )
+        .slice(
+            0,
+            10
+        );
+
+
+    saveTrainingLaunch(
+        "xtrem",
+        selected,
+        null
+    );
+}
+
+
+
+/* =========================================================
+   ENVOI VERS LE QUIZ
+========================================================= */
+
+function saveTrainingLaunch(
+    mode,
+    questions,
+    category
+) {
+
+    localStorage.setItem(
+        "training_mode",
+        mode
+    );
+
+
+    localStorage.setItem(
+        "training_questions",
+        JSON.stringify(
+            questions
+        )
+    );
+
+
+    if (category) {
+
+        localStorage.setItem(
+            "training_category",
+            category
+        );
+
+    } else {
+
+        localStorage.removeItem(
+            "training_category"
+        );
+    }
+
+
+    window.location.href =
+        "training-quiz.html";
+}
+
+
+
+/* =========================================================
+   ICÔNES CATÉGORIES
+========================================================= */
+
+function getTrainingCategoryIcon(
+    category
+) {
+
+    const value =
+        String(
+            category || ""
+        )
+        .toLowerCase();
+
+
+    if (value.includes("wero")) {
+        return "W";
+    }
+
+
+    if (
+        value.includes("pro")
+    ) {
+        return "👤";
+    }
+
+
+    if (
+        value.includes("auth")
+    ) {
+        return "🔐";
+    }
+
+
+    if (
+        value.includes("carte")
+    ) {
+        return "💳";
+    }
+
+
+    if (
+        value.includes("sécur") ||
+        value.includes("secur")
+    ) {
+        return "🛡️";
+    }
+
+
+    if (
+        value.includes("acquisition")
+    ) {
+        return "👥";
+    }
+
+
+    return "📚";
+}
