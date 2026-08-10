@@ -10754,6 +10754,33 @@ async function deleteManagedCategory(
    FORMATIONS -> CATÉGORIES AUTORISÉES
 ========================================================= */
 
+/* =========================================================
+   FORMATIONS -> CATÉGORIES AUTORISÉES
+========================================================= */
+
+
+/* =========================================================
+   NORMALISATION DES NOMS
+========================================================= */
+
+function normalizeTrainingName(value) {
+
+    return String(value || "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(
+            /[\u0300-\u036f]/g,
+            ""
+        );
+}
+
+
+
+/* =========================================================
+   CATÉGORIES AUTORISÉES POUR LE COLLABORATEUR
+========================================================= */
+
 async function getTrainingEligibleCategories() {
 
     const profileId =
@@ -10801,7 +10828,7 @@ async function getTrainingEligibleCategories() {
 
 
         console.log(
-            "🎓 user_trainings :",
+            "🎓 Formations attribuées dans user_trainings :",
             userTrainings
         );
 
@@ -10824,7 +10851,7 @@ async function getTrainingEligibleCategories() {
 
 
         console.log(
-            "🎓 IDs formations autorisées :",
+            "🎓 IDs des formations autorisées :",
             trainingIds
         );
 
@@ -10832,7 +10859,7 @@ async function getTrainingEligibleCategories() {
         if (!trainingIds.length) {
 
             console.log(
-                "⚠️ Aucune formation attribuée."
+                "⚠️ Aucune formation attribuée au collaborateur."
             );
 
             return [];
@@ -10894,7 +10921,7 @@ async function getTrainingEligibleCategories() {
 
 
         /* =================================================
-           3. CATÉGORIES
+           3. RÉCUPÉRATION DES CATÉGORIES
         ================================================= */
 
         const categoriesResponse =
@@ -10920,14 +10947,14 @@ async function getTrainingEligibleCategories() {
 
 
         console.log(
-            "📚 Catégories Supabase :",
+            "📚 Catégories disponibles dans Supabase :",
             categories
         );
 
 
 
         /* =================================================
-           4. CATÉGORIES AUTORISÉES
+           4. NOMS DES FORMATIONS AUTORISÉES
         ================================================= */
 
         const allowedTrainingNames =
@@ -10941,33 +10968,45 @@ async function getTrainingEligibleCategories() {
             );
 
 
-        const eligible =
+
+        /* =================================================
+           5. FILTRAGE DES CATÉGORIES AUTORISÉES
+        ================================================= */
+
+        const eligibleCategories =
             categories.filter(
                 category => {
 
                     /*
-                     * MÉTHODE PRINCIPALE :
-                     * catégorie reliée grâce à training_id
+                     * MÉTHODE PRINCIPALE
+                     *
+                     * Si la catégorie possède un training_id,
+                     * celui-ci doit faire partie des formations
+                     * attribuées au collaborateur.
                      */
 
                     if (
                         category.training_id !== null &&
-                        category.training_id !== undefined &&
-                        allowedTrainingIds.has(
+                        category.training_id !== undefined
+                    ) {
+
+                        return allowedTrainingIds.has(
                             String(
                                 category.training_id
                             )
-                        )
-                    ) {
-
-                        return true;
+                        );
                     }
 
 
                     /*
-                     * SÉCURITÉ / FALLBACK :
-                     * si training_id n'a pas encore été renseigné,
-                     * on accepte une correspondance exacte de nom.
+                     * FALLBACK
+                     *
+                     * Pour les anciennes catégories qui n'ont
+                     * pas encore de training_id :
+                     *
+                     * Compte Pro -> Compte Pro
+                     * Wero -> Wero
+                     * Attestations -> Attestations
                      */
 
                     return allowedTrainingNames.has(
@@ -10980,16 +11019,20 @@ async function getTrainingEligibleCategories() {
 
 
         console.log(
-            "✅ Catégories accessibles :",
-            eligible
+            "✅ Catégories accessibles au collaborateur :",
+            eligibleCategories
         );
 
 
-        return eligible.sort(
+        /* =================================================
+           6. TRI ALPHABÉTIQUE
+        ================================================= */
+
+        return eligibleCategories.sort(
             (a, b) =>
-                String(a.name)
+                String(a.name || "")
                     .localeCompare(
-                        String(b.name),
+                        String(b.name || ""),
                         "fr",
                         {
                             sensitivity:
@@ -11002,224 +11045,176 @@ async function getTrainingEligibleCategories() {
     } catch (error) {
 
         console.error(
-            "❌ Erreur récupération formations/catégories :",
+            "❌ Erreur récupération formations / catégories :",
             error
         );
 
         return [];
     }
 }
-function normalizeTrainingName(
-    value
-) {
-
-    return String(
-        value || ""
-    )
-    .trim()
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(
-        /[\u0300-\u036f]/g,
-        ""
-    );
-}
-
-
-    /* ===============================================
-       1. FORMATIONS DU COLLABORATEUR
-    ================================================ */
-
-    const userTrainingsResponse =
-        await fetch(
-            `${SUPABASE_URL}/rest/v1/user_trainings?user_id=eq.${encodeURIComponent(profileId)}&select=training_id`,
-            {
-                headers:
-                    supabaseHeaders()
-            }
-        );
-
-
-    if (!userTrainingsResponse.ok) {
-
-        throw new Error(
-            await userTrainingsResponse.text()
-        );
-    }
-
-
-    const userTrainings =
-        await userTrainingsResponse.json();
-
-
-    const trainingIds =
-        [
-            ...new Set(
-                userTrainings
-                    .map(
-                        item =>
-                            item.training_id
-                    )
-                    .filter(
-                        value =>
-                            value !== null &&
-                            value !== undefined
-                    )
-            )
-        ];
-
-
-    if (!trainingIds.length) {
-
-        return [];
-    }
-
-
-    /* ===============================================
-       2. CATÉGORIES LIÉES À CES FORMATIONS
-    ================================================ */
-
-    const categoriesResponse =
-        await fetch(
-            `${SUPABASE_URL}/rest/v1/categories?select=id,name,training_id`,
-            {
-                headers:
-                    supabaseHeaders()
-            }
-        );
-
-
-    if (!categoriesResponse.ok) {
-
-        throw new Error(
-            await categoriesResponse.text()
-        );
-    }
-
-
-    const categories =
-        await categoriesResponse.json();
-
-
-    const allowedTrainingIds =
-        new Set(
-            trainingIds.map(String)
-        );
-
-
-    return categories
-        .filter(
-            category =>
-                category.training_id !== null &&
-                allowedTrainingIds.has(
-                    String(
-                        category.training_id
-                    )
-                )
-        )
-        .sort(
-            (a, b) =>
-                String(a.name)
-                    .localeCompare(
-                        String(b.name),
-                        "fr",
-                        {
-                            sensitivity:
-                                "base"
-                        }
-                    )
-        );
-}
 
 
 
 /* =========================================================
-   QUESTIONS AUTORISÉES
+   QUESTIONS AUTORISÉES POUR LE COLLABORATEUR
 ========================================================= */
 
 async function getTrainingEligibleQuestions() {
 
-    const categories =
-        await getTrainingEligibleCategories();
+    try {
+
+        /* =================================================
+           1. CATÉGORIES AUTORISÉES
+        ================================================= */
+
+        const categories =
+            await getTrainingEligibleCategories();
 
 
-    const allowedCategories =
-        new Set(
-            categories.map(
-                category =>
-                    String(category.name)
-                        .trim()
-                        .toLowerCase()
-            )
+        const allowedCategories =
+            new Set(
+                categories.map(
+                    category =>
+                        normalizeTrainingName(
+                            category.name
+                        )
+                )
+            );
+
+
+        console.log(
+            "📚 Catégories utilisées pour filtrer les questions :",
+            [...allowedCategories]
         );
 
 
-    if (!allowedCategories.size) {
+        if (!allowedCategories.size) {
+
+            console.log(
+                "⚠️ Aucune catégorie autorisée."
+            );
+
+            return [];
+        }
+
+
+
+        /* =================================================
+           2. RÉCUPÉRATION DES QUESTIONS
+        ================================================= */
+
+        const response =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/questions?select=*`,
+                {
+                    headers:
+                        supabaseHeaders()
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                await response.text()
+            );
+        }
+
+
+        const questions =
+            await response.json();
+
+
+        console.log(
+            "❓ Questions récupérées :",
+            questions.length
+        );
+
+
+
+        /* =================================================
+           3. FILTRAGE
+        ================================================= */
+
+        const eligibleQuestions =
+            questions.filter(
+                question => {
+
+                    const category =
+                        normalizeTrainingName(
+                            question.category
+                        );
+
+
+                    /*
+                     * Pour les entraînements actuels :
+                     *
+                     * true_false
+                     * simple_choice
+                     * multiple_choice
+                     *
+                     * Les questions open restent réservées
+                     * au futur bilan de compétences.
+                     */
+
+                    const allowedType =
+                        [
+                            "true_false",
+                            "simple_choice",
+                            "multiple_choice"
+                        ]
+                        .includes(
+                            String(
+                                question.question_type || ""
+                            )
+                            .trim()
+                            .toLowerCase()
+                        );
+
+
+                    /*
+                     * Une question est considérée active
+                     * sauf si is_active vaut explicitement false.
+                     */
+
+                    const active =
+                        question.is_active !== false;
+
+
+                    const categoryAllowed =
+                        allowedCategories.has(
+                            category
+                        );
+
+
+                    return (
+                        categoryAllowed &&
+                        allowedType &&
+                        active
+                    );
+                }
+            );
+
+
+        console.log(
+            "✅ Questions autorisées pour ce collaborateur :",
+            eligibleQuestions.length
+        );
+
+
+        return eligibleQuestions;
+
+
+    } catch (error) {
+
+        console.error(
+            "❌ Erreur récupération questions autorisées :",
+            error
+        );
 
         return [];
     }
-
-
-    const response =
-        await fetch(
-            `${SUPABASE_URL}/rest/v1/questions?select=*`,
-            {
-                headers:
-                    supabaseHeaders()
-            }
-        );
-
-
-    if (!response.ok) {
-
-        throw new Error(
-            await response.text()
-        );
-    }
-
-
-    const questions =
-        await response.json();
-
-
-    return questions.filter(
-        question => {
-
-            const category =
-                String(
-                    question.category || ""
-                )
-                .trim()
-                .toLowerCase();
-
-
-            const allowedType =
-                [
-                    "true_false",
-                    "simple_choice",
-                    "multiple_choice"
-                ]
-                .includes(
-                    question.question_type
-                );
-
-
-            const active =
-                question.is_active !== false;
-
-
-            return (
-                allowedCategories.has(
-                    category
-                ) &&
-                allowedType &&
-                active
-            );
-        }
-    );
 }
-
-
 
 /* =========================================================
    MÉLANGE
