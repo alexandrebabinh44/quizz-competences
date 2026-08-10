@@ -10765,11 +10765,265 @@ async function getTrainingEligibleCategories() {
     if (!profileId) {
 
         console.error(
-            "profile_id introuvable"
+            "❌ profile_id introuvable dans le localStorage"
         );
 
         return [];
     }
+
+
+    try {
+
+        /* =================================================
+           1. FORMATIONS ATTRIBUÉES AU COLLABORATEUR
+        ================================================= */
+
+        const userTrainingsResponse =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/user_trainings?user_id=eq.${encodeURIComponent(profileId)}&select=training_id`,
+                {
+                    headers:
+                        supabaseHeaders()
+                }
+            );
+
+
+        if (!userTrainingsResponse.ok) {
+
+            throw new Error(
+                await userTrainingsResponse.text()
+            );
+        }
+
+
+        const userTrainings =
+            await userTrainingsResponse.json();
+
+
+        console.log(
+            "🎓 user_trainings :",
+            userTrainings
+        );
+
+
+        const trainingIds =
+            [
+                ...new Set(
+                    userTrainings
+                        .map(
+                            item =>
+                                item.training_id
+                        )
+                        .filter(
+                            value =>
+                                value !== null &&
+                                value !== undefined
+                        )
+                )
+            ];
+
+
+        console.log(
+            "🎓 IDs formations autorisées :",
+            trainingIds
+        );
+
+
+        if (!trainingIds.length) {
+
+            console.log(
+                "⚠️ Aucune formation attribuée."
+            );
+
+            return [];
+        }
+
+
+
+        /* =================================================
+           2. RÉCUPÉRATION DES FORMATIONS
+        ================================================= */
+
+        const trainingsResponse =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/trainings?select=id,name`,
+                {
+                    headers:
+                        supabaseHeaders()
+                }
+            );
+
+
+        if (!trainingsResponse.ok) {
+
+            throw new Error(
+                await trainingsResponse.text()
+            );
+        }
+
+
+        const trainings =
+            await trainingsResponse.json();
+
+
+        const allowedTrainingIds =
+            new Set(
+                trainingIds.map(
+                    id =>
+                        String(id)
+                )
+            );
+
+
+        const allowedTrainings =
+            trainings.filter(
+                training =>
+                    allowedTrainingIds.has(
+                        String(
+                            training.id
+                        )
+                    )
+            );
+
+
+        console.log(
+            "✅ Formations du collaborateur :",
+            allowedTrainings
+        );
+
+
+
+        /* =================================================
+           3. CATÉGORIES
+        ================================================= */
+
+        const categoriesResponse =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/categories?select=id,name,training_id`,
+                {
+                    headers:
+                        supabaseHeaders()
+                }
+            );
+
+
+        if (!categoriesResponse.ok) {
+
+            throw new Error(
+                await categoriesResponse.text()
+            );
+        }
+
+
+        const categories =
+            await categoriesResponse.json();
+
+
+        console.log(
+            "📚 Catégories Supabase :",
+            categories
+        );
+
+
+
+        /* =================================================
+           4. CATÉGORIES AUTORISÉES
+        ================================================= */
+
+        const allowedTrainingNames =
+            new Set(
+                allowedTrainings.map(
+                    training =>
+                        normalizeTrainingName(
+                            training.name
+                        )
+                )
+            );
+
+
+        const eligible =
+            categories.filter(
+                category => {
+
+                    /*
+                     * MÉTHODE PRINCIPALE :
+                     * catégorie reliée grâce à training_id
+                     */
+
+                    if (
+                        category.training_id !== null &&
+                        category.training_id !== undefined &&
+                        allowedTrainingIds.has(
+                            String(
+                                category.training_id
+                            )
+                        )
+                    ) {
+
+                        return true;
+                    }
+
+
+                    /*
+                     * SÉCURITÉ / FALLBACK :
+                     * si training_id n'a pas encore été renseigné,
+                     * on accepte une correspondance exacte de nom.
+                     */
+
+                    return allowedTrainingNames.has(
+                        normalizeTrainingName(
+                            category.name
+                        )
+                    );
+                }
+            );
+
+
+        console.log(
+            "✅ Catégories accessibles :",
+            eligible
+        );
+
+
+        return eligible.sort(
+            (a, b) =>
+                String(a.name)
+                    .localeCompare(
+                        String(b.name),
+                        "fr",
+                        {
+                            sensitivity:
+                                "base"
+                        }
+                    )
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "❌ Erreur récupération formations/catégories :",
+            error
+        );
+
+        return [];
+    }
+}
+function normalizeTrainingName(
+    value
+) {
+
+    return String(
+        value || ""
+    )
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(
+        /[\u0300-\u036f]/g,
+        ""
+    );
+}
 
 
     /* ===============================================
