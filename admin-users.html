@@ -62,18 +62,15 @@
         🏠 Accueil
       </button>
 
-
       <button
         onclick="window.location.href='training.html'"
       >
         🎯 Entraînement
       </button>
 
-
       <button>
         🏆 Challenges
       </button>
-
 
       <button
         onclick="window.location.href='ranking.html'"
@@ -81,23 +78,19 @@
         📊 Classements
       </button>
 
-
       <button>
         ⚔️ Battle
       </button>
 
-
       <button>
         🎮 Kahoot
       </button>
-
 
       <button
         onclick="window.location.href='profile.html'"
       >
         📈 Mes stats
       </button>
-
 
       <button
         onclick="window.location.href='badges.html'"
@@ -116,7 +109,6 @@
         ⚙️ Paramètres
       </button>
 
-
       <button
         id="themeToggle"
         class="sidebar-link theme-button"
@@ -124,7 +116,6 @@
       >
         🌙 Mode sombre
       </button>
-
 
       <button
         class="sidebar-link"
@@ -143,70 +134,823 @@
        CONTENU
   ====================================================== -->
 
-  <main class="dashboard-main">
+  <main class="dashboard-main admin-users-page">
 
 
     <!-- ===================================================
-         TOPBAR
+         HEADER
     ==================================================== -->
 
-    <header class="topbar">
+    <header class="admin-users-header">
 
-      <input
-        type="text"
-        placeholder="Rechercher..."
-        disabled
-      >
-
-      <div class="topbar-right">
-
-        <strong id="topUserName">
-          Administrateur
-        </strong>
-
-      </div>
-
-    </header>
-
-
-
-    <!-- ===================================================
-         PAGE UTILISATEURS
-    ==================================================== -->
-
-    <section class="settings-page">
-
-      <div class="settings-header">
+      <div>
 
         <h1>
           👥 Gestion des utilisateurs
         </h1>
 
         <p>
-          Consulte et gère les profils Nickel Master.
+          Consulte, modifie les rôles et gère les comptes des utilisateurs.
         </p>
 
       </div>
 
 
+      <strong id="adminUsersCurrentUser">
+        Administrateur
+      </strong>
+
+    </header>
+
+
+
+    <!-- ===================================================
+         STATISTIQUES
+    ==================================================== -->
+
+    <section class="admin-users-stats">
+
+
+      <article class="admin-users-stat-card">
+
+        <div class="admin-users-stat-icon">
+          👥
+        </div>
+
+        <div>
+
+          <small>
+            Utilisateurs totaux
+          </small>
+
+          <strong id="adminUsersTotal">
+            0
+          </strong>
+
+          <span>
+            Tous profils confondus
+          </span>
+
+        </div>
+
+      </article>
+
+
+
+      <article class="admin-users-stat-card">
+
+        <div class="admin-users-stat-icon">
+          🛡️
+        </div>
+
+        <div>
+
+          <small>
+            Administrateurs
+          </small>
+
+          <strong id="adminUsersAdmins">
+            0
+          </strong>
+
+          <span>
+            Accès complet
+          </span>
+
+        </div>
+
+      </article>
+
+
+
+      <article class="admin-users-stat-card">
+
+        <div class="admin-users-stat-icon">
+          ⭐
+        </div>
+
+        <div>
+
+          <small>
+            Encadrement
+          </small>
+
+          <strong id="adminUsersLeaders">
+            0
+          </strong>
+
+          <span>
+            Senior, chef d'équipe, manager...
+          </span>
+
+        </div>
+
+      </article>
+
+
+
+      <article class="admin-users-stat-card">
+
+        <div class="admin-users-stat-icon">
+          👤
+        </div>
+
+        <div>
+
+          <small>
+            Comptes actifs
+          </small>
+
+          <strong id="adminUsersActive">
+            0
+          </strong>
+
+          <span>
+            Utilisateurs actifs
+          </span>
+
+        </div>
+
+      </article>
+
+    </section>
+
+
+
+    <!-- ===================================================
+         FILTRES
+    ==================================================== -->
+
+    <section class="admin-users-toolbar">
+
+
+      <div class="admin-users-search">
+
+        <span>
+          🔎
+        </span>
+
+        <input
+          id="adminUsersSearch"
+          type="text"
+          placeholder="Rechercher un utilisateur..."
+        >
+
+      </div>
+
+
+
+      <div class="admin-users-filter">
+
+        <label for="adminUsersRoleFilter">
+          Rôle
+        </label>
+
+        <select id="adminUsersRoleFilter">
+
+          <option value="">
+            Tous les rôles
+          </option>
+
+          <option value="user">
+            Conseiller
+          </option>
+
+          <option value="senior">
+            Conseiller Senior
+          </option>
+
+          <option value="team_leader">
+            Chef d'équipe
+          </option>
+
+          <option value="manager">
+            Manager
+          </option>
+
+          <option value="responsable">
+            Responsable
+          </option>
+
+          <option value="direction">
+            Direction
+          </option>
+
+          <option value="admin">
+            Administrateur
+          </option>
+
+        </select>
+
+      </div>
+
+
+
+      <div class="admin-users-filter">
+
+        <label for="adminUsersTeamFilter">
+          Équipe
+        </label>
+
+        <select id="adminUsersTeamFilter">
+
+          <option value="">
+            Toutes les équipes
+          </option>
+
+        </select>
+
+      </div>
+
+
+
+      <div class="admin-users-filter">
+
+        <label for="adminUsersStatusFilter">
+          Statut
+        </label>
+
+        <select id="adminUsersStatusFilter">
+
+          <option value="">
+            Tous les statuts
+          </option>
+
+          <option value="active">
+            Actif
+          </option>
+
+          <option value="inactive">
+            Inactif
+          </option>
+
+          <option value="suspended">
+            Suspendu
+          </option>
+
+        </select>
+
+      </div>
+
+
+
+      <button
+        type="button"
+        id="adminAddUserButton"
+        class="btn-primary admin-users-add-button"
+      >
+        + Ajouter un utilisateur
+      </button>
+
+    </section>
+
+
+
+    <!-- ===================================================
+         TABLEAU
+    ==================================================== -->
+
+    <section class="admin-users-table-card">
+
+      <div class="admin-users-table-wrapper">
+
+        <table class="admin-users-table">
+
+          <thead>
+
+            <tr>
+
+              <th>
+                Utilisateur
+              </th>
+
+              <th>
+                Fonction
+              </th>
+
+              <th>
+                Équipe
+              </th>
+
+              <th>
+                Service
+              </th>
+
+              <th>
+                Statut
+              </th>
+
+              <th>
+                Dernière activité
+              </th>
+
+              <th>
+                Actions
+              </th>
+
+            </tr>
+
+          </thead>
+
+
+          <tbody id="adminUsersTableBody">
+
+            <tr>
+
+              <td
+                colspan="7"
+                class="admin-users-loading"
+              >
+                Chargement des utilisateurs...
+              </td>
+
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+
+
       <!-- =================================================
-           LISTE UTILISATEURS
+           PAGINATION
       ================================================== -->
 
-      <div
-        id="usersList"
-        class="admin-users-list"
-      >
+      <div class="admin-users-pagination">
 
-        <div class="question-management-empty">
-          Chargement des utilisateurs...
+        <span id="adminUsersPaginationInfo">
+          —
+        </span>
+
+
+        <div class="admin-users-pagination-buttons">
+
+          <button
+            type="button"
+            id="adminUsersPreviousPage"
+          >
+            ‹
+          </button>
+
+
+          <span id="adminUsersPageNumbers">
+          </span>
+
+
+          <button
+            type="button"
+            id="adminUsersNextPage"
+          >
+            ›
+          </button>
+
         </div>
+
+
+        <select id="adminUsersPerPage">
+
+          <option value="6">
+            6 par page
+          </option>
+
+          <option value="10">
+            10 par page
+          </option>
+
+          <option value="20">
+            20 par page
+          </option>
+
+          <option value="50">
+            50 par page
+          </option>
+
+        </select>
 
       </div>
 
     </section>
 
   </main>
+
+</div>
+
+
+
+<!-- =====================================================
+     MODALE MODIFICATION UTILISATEUR
+====================================================== -->
+
+<div
+  id="adminUserEditModal"
+  class="admin-user-modal"
+  style="display:none;"
+>
+
+  <div class="admin-user-modal-card">
+
+
+    <!-- ===================================================
+         HEADER
+    ==================================================== -->
+
+    <div class="admin-user-modal-header">
+
+      <div>
+
+        <h2>
+          Modifier l'utilisateur
+        </h2>
+
+        <p id="adminUserEditSubtitle">
+          Gestion du profil Nickel Master
+        </p>
+
+      </div>
+
+
+      <button
+        type="button"
+        id="adminUserEditClose"
+        class="admin-user-modal-close"
+        aria-label="Fermer"
+      >
+        ✕
+      </button>
+
+    </div>
+
+
+
+    <!-- ===================================================
+         CONTENU
+    ==================================================== -->
+
+    <div class="admin-user-modal-content">
+
+
+      <!-- =================================================
+           COLONNE PROFIL
+      ================================================== -->
+
+      <aside class="admin-user-profile-summary">
+
+        <div
+          id="adminUserEditAvatar"
+          class="admin-user-edit-avatar"
+        >
+          👤
+        </div>
+
+
+        <strong id="adminUserEditDisplayName">
+          Utilisateur
+        </strong>
+
+
+        <span id="adminUserEditUsername">
+          —
+        </span>
+
+
+        <div class="admin-user-profile-info">
+
+          <div>
+
+            <small>
+              ID utilisateur
+            </small>
+
+            <strong id="adminUserEditId">
+              —
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <small>
+              Inscription
+            </small>
+
+            <strong id="adminUserEditCreatedAt">
+              —
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <small>
+              Dernière activité
+            </small>
+
+            <strong id="adminUserEditLastSeen">
+              —
+            </strong>
+
+          </div>
+
+        </div>
+
+      </aside>
+
+
+
+      <!-- =================================================
+           FORMULAIRE
+      ================================================== -->
+
+      <section class="admin-user-edit-form">
+
+
+        <div class="admin-user-form-grid">
+
+
+          <!-- PRÉNOM -->
+
+          <div class="question-field">
+
+            <label for="adminUserEditFirstName">
+              Prénom
+            </label>
+
+            <input
+              id="adminUserEditFirstName"
+              type="text"
+            >
+
+          </div>
+
+
+
+          <!-- NOM -->
+
+          <div class="question-field">
+
+            <label for="adminUserEditLastName">
+              Nom
+            </label>
+
+            <input
+              id="adminUserEditLastName"
+              type="text"
+            >
+
+          </div>
+
+
+
+          <!-- FONCTION -->
+
+          <div class="question-field">
+
+            <label for="adminUserEditJobTitle">
+              Fonction / Titre
+            </label>
+
+            <select id="adminUserEditJobTitle">
+
+              <option value="Conseiller">
+                Conseiller
+              </option>
+
+              <option value="Conseiller Senior">
+                Conseiller Senior
+              </option>
+
+              <option value="Chef d'équipe">
+                Chef d'équipe
+              </option>
+
+              <option value="Manager">
+                Manager
+              </option>
+
+              <option value="Responsable">
+                Responsable
+              </option>
+
+              <option value="Direction">
+                Direction
+              </option>
+
+              <option value="Administrateur">
+                Administrateur
+              </option>
+
+            </select>
+
+          </div>
+
+
+
+          <!-- RÔLE TECHNIQUE -->
+
+          <div class="question-field">
+
+            <label for="adminUserEditRole">
+              Rôle technique
+            </label>
+
+            <input
+              id="adminUserEditRole"
+              type="text"
+              readonly
+            >
+
+          </div>
+
+
+
+          <!-- ÉQUIPE -->
+
+          <div class="question-field">
+
+            <label for="adminUserEditTeam">
+              Équipe
+            </label>
+
+            <select id="adminUserEditTeam">
+
+              <option value="">
+                Aucune équipe
+              </option>
+
+            </select>
+
+          </div>
+
+
+
+          <!-- SERVICE -->
+
+          <div class="question-field">
+
+            <label for="adminUserEditService">
+              Service
+            </label>
+
+            <select id="adminUserEditService">
+
+              <option value="">
+                Aucun service
+              </option>
+
+            </select>
+
+          </div>
+
+
+
+          <!-- MANAGER -->
+
+          <div class="question-field">
+
+            <label for="adminUserEditManager">
+              Manager
+            </label>
+
+            <select id="adminUserEditManager">
+
+              <option value="">
+                Aucun manager
+              </option>
+
+            </select>
+
+          </div>
+
+
+
+          <!-- STATUT -->
+
+          <div class="question-field">
+
+            <label for="adminUserEditStatus">
+              Statut du compte
+            </label>
+
+            <select id="adminUserEditStatus">
+
+              <option value="active">
+                Actif
+              </option>
+
+              <option value="inactive">
+                Inactif
+              </option>
+
+              <option value="suspended">
+                Suspendu
+              </option>
+
+            </select>
+
+          </div>
+
+
+
+          <!-- DATE ARRIVÉE -->
+
+          <div class="question-field">
+
+            <label for="adminUserEditHireDate">
+              Date d'arrivée
+            </label>
+
+            <input
+              id="adminUserEditHireDate"
+              type="date"
+            >
+
+          </div>
+
+
+
+          <!-- DATE DÉPART -->
+
+          <div class="question-field">
+
+            <label for="adminUserEditDepartureDate">
+              Date de départ
+            </label>
+
+            <input
+              id="adminUserEditDepartureDate"
+              type="date"
+            >
+
+          </div>
+
+        </div>
+
+
+
+        <!-- NOTES -->
+
+        <div class="question-field admin-user-notes-field">
+
+          <label for="adminUserEditNotes">
+            Notes internes
+          </label>
+
+          <textarea
+            id="adminUserEditNotes"
+            placeholder="Ajouter une note interne..."
+          ></textarea>
+
+        </div>
+
+      </section>
+
+    </div>
+
+
+
+    <!-- ===================================================
+         ACTIONS
+    ==================================================== -->
+
+    <div class="admin-user-modal-actions">
+
+      <button
+        type="button"
+        id="adminUserEditCancel"
+        class="btn-secondary"
+      >
+        Annuler
+      </button>
+
+
+      <div class="admin-user-modal-actions-right">
+
+        <button
+          type="button"
+          id="adminUserDeactivateButton"
+          class="admin-user-danger-button"
+        >
+          Désactiver le compte
+        </button>
+
+
+        <button
+          type="button"
+          id="adminUserSaveButton"
+          class="btn-primary"
+        >
+          💾 Enregistrer les modifications
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
 
 </div>
 
@@ -225,11 +969,6 @@
   document.addEventListener(
     "DOMContentLoaded",
     async function () {
-
-
-      /* ===============================================
-         SÉCURITÉ ADMIN
-      ================================================ */
 
       const role =
         String(
@@ -252,45 +991,35 @@
       }
 
 
-
-      /* ===============================================
-         NOM UTILISATEUR
-      ================================================ */
-
       const name =
         localStorage.getItem("full_name") ||
         "Administrateur";
 
 
-      const user =
+      const userElement =
         document.getElementById(
-          "topUserName"
+          "adminUsersCurrentUser"
         );
 
 
-      if (user) {
+      if (userElement) {
 
-        user.innerText =
+        userElement.innerText =
           name;
       }
 
 
-
-      /* ===============================================
-         CHARGEMENT UTILISATEURS
-      ================================================ */
-
       if (
-        typeof loadUsersAdmin ===
+        typeof initializeAdminUsersPage ===
         "function"
       ) {
 
-        await loadUsersAdmin();
+        await initializeAdminUsersPage();
 
       } else {
 
         console.error(
-          "loadUsersAdmin() est introuvable dans app.js"
+          "initializeAdminUsersPage() est introuvable dans app.js"
         );
       }
 
