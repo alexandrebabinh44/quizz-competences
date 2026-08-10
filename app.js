@@ -12628,7 +12628,8 @@ function ensureAdministrationMenu() {
             "admin-categories.html",
             "admin-users.html",
             "admin-user-detail.html",
-            "approvals.html"
+            "approvals.html",
+           "admin-quizzes.html"
         ];
 
 
