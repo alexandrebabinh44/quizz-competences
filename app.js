@@ -8053,14 +8053,14 @@ function analyseBulkQuestions() {
 
 
     const raw =
-        input.value;
+        String(
+            input.value || ""
+        );
 
 
     const questions =
         raw
-            .split(
-                /[;\n]+/
-            )
+            .split(/[;\n]+/)
             .map(
                 item =>
                     item.trim()
@@ -8078,54 +8078,137 @@ function analyseBulkQuestions() {
     }
 
 
-    const category =
+    const categorySelect =
         document.getElementById(
             "bulkCategory"
-        )?.value ||
-        questionAdminState
-            .categories[0] ||
+        );
+
+
+    const typeSelect =
+        document.getElementById(
+            "bulkQuestionType"
+        );
+
+
+    const category =
+        categorySelect?.value ||
+        questionAdminState.categories?.[0] ||
         "";
 
 
     const type =
-        document.getElementById(
-            "bulkQuestionType"
-        )?.value ||
+        typeSelect?.value ||
         "true_false";
 
 
     questionAdminState.bulkQuestions =
         questions.map(
-            question => ({
+            question => {
 
-                question:
-                    question,
-
-                category:
-                    category,
-
-                type:
-                    type,
-
-                choices: {
-                    A:
-                        type ===
-                            "true_false"
-                            ? "Vrai"
-                            : "",
-
-                    B:
-                        type ===
-                            "true_false"
-                            ? "Faux"
-                            : "",
-
+                let choices = {
+                    A: "",
+                    B: "",
                     C: "",
                     D: ""
-                },
+                };
 
-                correct: []
-            })
+
+                let correct = [];
+
+
+                /* =========================
+                   VRAI / FAUX
+                ========================= */
+
+                if (
+                    type ===
+                    "true_false"
+                ) {
+
+                    choices = {
+                        A: "Vrai",
+                        B: "Faux",
+                        C: "",
+                        D: ""
+                    };
+
+
+                    /*
+                     * Rien de sélectionné par défaut.
+                     * L'admin devra choisir Vrai ou Faux.
+                     */
+                    correct = [];
+                }
+
+
+                /* =========================
+                   CHOIX SIMPLE
+                ========================= */
+
+                else if (
+                    type ===
+                    "simple_choice"
+                ) {
+
+                    choices = {
+                        A: "",
+                        B: "",
+                        C: "",
+                        D: ""
+                    };
+
+
+                    /*
+                     * Une seule réponse correcte,
+                     * mais aucune par défaut.
+                     */
+                    correct = [];
+                }
+
+
+                /* =========================
+                   CHOIX MULTIPLE
+                ========================= */
+
+                else if (
+                    type ===
+                    "multiple_choice"
+                ) {
+
+                    choices = {
+                        A: "",
+                        B: "",
+                        C: "",
+                        D: ""
+                    };
+
+
+                    /*
+                     * Plusieurs réponses possibles,
+                     * aucune cochée par défaut.
+                     */
+                    correct = [];
+                }
+
+
+                return {
+
+                    question:
+                        question,
+
+                    category:
+                        category,
+
+                    type:
+                        type,
+
+                    choices:
+                        choices,
+
+                    correct:
+                        correct
+                };
+            }
         );
 
 
@@ -8143,6 +8226,19 @@ function analyseBulkQuestions() {
 
         configuration.style.display =
             "";
+    }
+
+
+    const detectedCount =
+        document.getElementById(
+            "bulkDetectedCount"
+        );
+
+
+    if (detectedCount) {
+
+        detectedCount.textContent =
+            `${questions.length} question${questions.length > 1 ? "s" : ""} détectée${questions.length > 1 ? "s" : ""}`;
     }
 
 
