@@ -1,41 +1,304 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
   <meta charset="UTF-8">
-  <title>Gestion utilisateurs</title>
-  <link rel="stylesheet" href="style.css">
-<script>
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <script>
     const savedTheme =
-        localStorage.getItem(
-            "nickel_master_theme"
-        ) || "light";
+      localStorage.getItem("nickel_master_theme") || "light";
 
     document.documentElement.setAttribute(
-        "data-theme",
-        savedTheme
+      "data-theme",
+      savedTheme
     );
-</script>
-<link
+  </script>
+
+  <title>Gestion des utilisateurs - Nickel Master</title>
+
+  <link
     rel="stylesheet"
     href="style.css"
->
+  >
 </head>
-<body>
 
-<div class="container wide">
-  <h1>👥 Gestion utilisateurs</h1>
-  <p class="subtitle">Liste des profils Nickel Master</p>
 
-  <div id="usersList"></div>
+<body class="dashboard-body">
 
-  <button onclick="window.location.href='home.html'">Retour</button>
+<div class="dashboard-layout">
+
+
+  <!-- =====================================================
+       SIDEBAR
+  ====================================================== -->
+
+  <aside class="sidebar">
+
+    <div class="logo">
+
+      <img
+        src="images/logo-nickel.png"
+        alt="Nickel"
+        class="sidebar-logo-img"
+      >
+
+      <span>
+        NICKEL<br>MASTER
+      </span>
+
+    </div>
+
+
+    <nav class="side-menu">
+
+      <button
+        onclick="window.location.href='home.html'"
+      >
+        🏠 Accueil
+      </button>
+
+
+      <button
+        onclick="window.location.href='training.html'"
+      >
+        🎯 Entraînement
+      </button>
+
+
+      <button>
+        🏆 Challenges
+      </button>
+
+
+      <button
+        onclick="window.location.href='ranking.html'"
+      >
+        📊 Classements
+      </button>
+
+
+      <button>
+        ⚔️ Battle
+      </button>
+
+
+      <button>
+        🎮 Kahoot
+      </button>
+
+
+      <button
+        onclick="window.location.href='profile.html'"
+      >
+        📈 Mes stats
+      </button>
+
+
+      <button
+        onclick="window.location.href='badges.html'"
+      >
+        🏅 Badges
+      </button>
+
+    </nav>
+
+
+    <div class="sidebar-bottom">
+
+      <button
+        onclick="window.location.href='settings.html'"
+      >
+        ⚙️ Paramètres
+      </button>
+
+
+      <button
+        id="themeToggle"
+        class="sidebar-link theme-button"
+        onclick="toggleTheme()"
+      >
+        🌙 Mode sombre
+      </button>
+
+
+      <button
+        class="sidebar-link"
+        onclick="logout()"
+      >
+        🚪 Déconnexion
+      </button>
+
+    </div>
+
+  </aside>
+
+
+
+  <!-- =====================================================
+       CONTENU
+  ====================================================== -->
+
+  <main class="dashboard-main">
+
+
+    <!-- ===================================================
+         TOPBAR
+    ==================================================== -->
+
+    <header class="topbar">
+
+      <input
+        type="text"
+        placeholder="Rechercher..."
+        disabled
+      >
+
+      <div class="topbar-right">
+
+        <strong id="topUserName">
+          Administrateur
+        </strong>
+
+      </div>
+
+    </header>
+
+
+
+    <!-- ===================================================
+         PAGE UTILISATEURS
+    ==================================================== -->
+
+    <section class="settings-page">
+
+      <div class="settings-header">
+
+        <h1>
+          👥 Gestion des utilisateurs
+        </h1>
+
+        <p>
+          Consulte et gère les profils Nickel Master.
+        </p>
+
+      </div>
+
+
+      <!-- =================================================
+           LISTE UTILISATEURS
+      ================================================== -->
+
+      <div
+        id="usersList"
+        class="admin-users-list"
+      >
+
+        <div class="question-management-empty">
+          Chargement des utilisateurs...
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
 </div>
 
+
+
+<!-- =====================================================
+     SCRIPTS
+====================================================== -->
+
 <script src="app.js"></script>
-<script>
-  loadUsersAdmin();
-</script>
 <script src="theme.js"></script>
 
+
+<script>
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    async function () {
+
+
+      /* ===============================================
+         SÉCURITÉ ADMIN
+      ================================================ */
+
+      const role =
+        String(
+          localStorage.getItem("role") || ""
+        )
+        .trim()
+        .toLowerCase();
+
+
+      if (role !== "admin") {
+
+        alert(
+          "Cette page est réservée à l'administrateur."
+        );
+
+        window.location.href =
+          "home.html";
+
+        return;
+      }
+
+
+
+      /* ===============================================
+         NOM UTILISATEUR
+      ================================================ */
+
+      const name =
+        localStorage.getItem("full_name") ||
+        "Administrateur";
+
+
+      const user =
+        document.getElementById(
+          "topUserName"
+        );
+
+
+      if (user) {
+
+        user.innerText =
+          name;
+      }
+
+
+
+      /* ===============================================
+         CHARGEMENT UTILISATEURS
+      ================================================ */
+
+      if (
+        typeof loadUsersAdmin ===
+        "function"
+      ) {
+
+        await loadUsersAdmin();
+
+      } else {
+
+        console.error(
+          "loadUsersAdmin() est introuvable dans app.js"
+        );
+      }
+
+    }
+  );
+
+</script>
+
 </body>
+
 </html>
