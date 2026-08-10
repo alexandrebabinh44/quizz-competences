@@ -4618,4 +4618,16 @@ html[data-theme="dark"] .login-card {
     }
 
 }
+/* =========================================================
+   CHARGEMENT DES PAGES
+   Évite les flashs / déplacements visuels au changement
+========================================================= */
 
+.dashboard-body {
+    opacity: 0;
+}
+
+.dashboard-body.page-ready {
+    opacity: 1;
+    transition: opacity 0.10s ease;
+}
