@@ -8252,6 +8252,10 @@ function analyseBulkQuestions() {
    AFFICHAGE QUESTION BLOC
 ========================================================= */
 
+/* =========================================================
+   RENDU QUESTION COURANTE DU BLOC
+========================================================= */
+
 function renderCurrentBulkQuestion() {
 
     const item =
@@ -8274,6 +8278,13 @@ function renderCurrentBulkQuestion() {
     ) {
         return;
     }
+
+
+    /*
+     * On s'assure que les événements
+     * de configuration par défaut sont installés.
+     */
+    setupBulkDefaultConfigurationListeners();
 
 
     const index =
@@ -8346,9 +8357,10 @@ function renderCurrentBulkQuestion() {
 
 
         /*
-         * En vrai/faux :
-         * une seule bonne réponse maximum.
+         * Une seule bonne réponse
+         * pour un Vrai / Faux.
          */
+
         if (
             item.correct.length > 1
         ) {
@@ -8368,8 +8380,8 @@ function renderCurrentBulkQuestion() {
     ) {
 
         /*
-         * Choix simple :
-         * une seule réponse correcte maximum.
+         * Une seule bonne réponse
+         * pour un choix simple.
          */
 
         if (
@@ -8385,44 +8397,36 @@ function renderCurrentBulkQuestion() {
     }
 
 
-    else if (
-        item.type ===
-        "multiple_choice"
-    ) {
-
-        /*
-         * Plusieurs bonnes réponses possibles.
-         * On conserve item.correct tel quel.
-         */
-    }
-
-
 
     /* =====================================================
-       TYPE DE SÉLECTION
+       RADIO OU CHECKBOX
     ====================================================== */
 
-    const multiple =
-        item.type ===
-        "multiple_choice";
-
-
     const inputType =
-        multiple
+        item.type ===
+        "multiple_choice"
             ? "checkbox"
             : "radio";
 
 
 
     /* =====================================================
-       LETTRES À AFFICHER
+       PROPOSITIONS À AFFICHER
     ====================================================== */
 
     const letters =
         item.type ===
         "true_false"
-            ? ["A", "B"]
-            : ["A", "B", "C", "D"];
+            ? [
+                "A",
+                "B"
+            ]
+            : [
+                "A",
+                "B",
+                "C",
+                "D"
+            ];
 
 
 
@@ -8454,63 +8458,7 @@ function renderCurrentBulkQuestion() {
 
 
 
-            <!-- TYPE -->
-
-            <div class="question-field">
-
-                <label>
-                    Type de question
-                </label>
-
-                <select
-                    id="bulkCurrentQuestionType"
-                >
-
-                    <option
-                        value="true_false"
-                        ${
-                            item.type ===
-                            "true_false"
-                                ? "selected"
-                                : ""
-                        }
-                    >
-                        Vrai / Faux
-                    </option>
-
-
-                    <option
-                        value="simple_choice"
-                        ${
-                            item.type ===
-                            "simple_choice"
-                                ? "selected"
-                                : ""
-                        }
-                    >
-                        Choix simple
-                    </option>
-
-
-                    <option
-                        value="multiple_choice"
-                        ${
-                            item.type ===
-                            "multiple_choice"
-                                ? "selected"
-                                : ""
-                        }
-                    >
-                        Choix multiple
-                    </option>
-
-                </select>
-
-            </div>
-
-
-
-            <!-- RÉPONSES -->
+            <!-- PROPOSITIONS -->
 
             <div class="bulk-answer-editor">
 
@@ -8542,7 +8490,6 @@ function renderCurrentBulkQuestion() {
                                     >
 
 
-
                                     <!-- LETTRE -->
 
                                     <strong>
@@ -8550,11 +8497,11 @@ function renderCurrentBulkQuestion() {
                                     </strong>
 
 
-
                                     <!-- PROPOSITION -->
 
                                     <input
                                         type="text"
+
                                         data-bulk-choice="${letter}"
 
                                         value="${escapeHtml(
@@ -8597,8 +8544,8 @@ function renderCurrentBulkQuestion() {
     ====================================================== */
 
     const questionInput =
-        document.getElementById(
-            "bulkCurrentQuestionText"
+        container.querySelector(
+            "#bulkCurrentQuestionText"
         );
 
 
@@ -8619,112 +8566,7 @@ function renderCurrentBulkQuestion() {
 
 
     /* =====================================================
-       MODIFICATION DU TYPE
-    ====================================================== */
-
-    const typeSelect =
-        document.getElementById(
-            "bulkCurrentQuestionType"
-        );
-
-
-    if (typeSelect) {
-
-        typeSelect.addEventListener(
-            "change",
-            function () {
-
-                /*
-                 * On sauvegarde d'abord
-                 * les valeurs déjà saisies.
-                 */
-
-                saveCurrentBulkEditorState();
-
-
-                item.type =
-                    typeSelect.value;
-
-
-                /* =========================
-                   PASSAGE EN VRAI / FAUX
-                ========================= */
-
-                if (
-                    item.type ===
-                    "true_false"
-                ) {
-
-                    item.choices = {
-                        A: "Vrai",
-                        B: "Faux",
-                        C: "",
-                        D: ""
-                    };
-
-
-                    item.correct = [];
-                }
-
-
-                /* =========================
-                   PASSAGE EN CHOIX SIMPLE
-                ========================= */
-
-                else if (
-                    item.type ===
-                    "simple_choice"
-                ) {
-
-                    item.choices = {
-                        A: "",
-                        B: "",
-                        C: "",
-                        D: ""
-                    };
-
-
-                    item.correct = [];
-                }
-
-
-                /* =========================
-                   PASSAGE EN CHOIX MULTIPLE
-                ========================= */
-
-                else if (
-                    item.type ===
-                    "multiple_choice"
-                ) {
-
-                    item.choices = {
-                        A: "",
-                        B: "",
-                        C: "",
-                        D: ""
-                    };
-
-
-                    item.correct = [];
-                }
-
-
-                /*
-                 * On reconstruit l'éditeur
-                 * immédiatement.
-                 */
-
-                renderCurrentBulkQuestion();
-
-                updateBulkSummary();
-            }
-        );
-    }
-
-
-
-    /* =====================================================
-       MODIFICATION DE LA BONNE RÉPONSE
+       MODIFICATION BONNE(S) RÉPONSE(S)
     ====================================================== */
 
     container
@@ -8739,8 +8581,6 @@ function renderCurrentBulkQuestion() {
                     function () {
 
                         saveCurrentBulkEditorState();
-
-                        updateBulkSummary();
                     }
                 );
             }
@@ -8764,8 +8604,6 @@ function renderCurrentBulkQuestion() {
                     function () {
 
                         saveCurrentBulkEditorState();
-
-                        updateBulkSummary();
                     }
                 );
             }
@@ -8775,7 +8613,225 @@ function renderCurrentBulkQuestion() {
 
 
 /* =========================================================
-   SAUVER ÉTAT BLOC
+   CONFIGURATION PAR DÉFAUT DU BLOC
+========================================================= */
+
+function setupBulkDefaultConfigurationListeners() {
+
+    const categorySelect =
+        document.getElementById(
+            "bulkCategory"
+        );
+
+
+    const typeSelect =
+        document.getElementById(
+            "bulkQuestionType"
+        );
+
+
+    const applyDefaults =
+        document.getElementById(
+            "bulkApplyDefaults"
+        );
+
+
+    /*
+     * On évite d'installer plusieurs fois
+     * les mêmes événements.
+     */
+
+    if (
+        typeSelect &&
+        !typeSelect.dataset.bulkListenerInstalled
+    ) {
+
+        typeSelect.dataset.bulkListenerInstalled =
+            "true";
+
+
+        typeSelect.addEventListener(
+            "change",
+            function () {
+
+                if (
+                    applyDefaults &&
+                    applyDefaults.checked
+                ) {
+
+                    applyBulkDefaultsToAllQuestions();
+                }
+            }
+        );
+    }
+
+
+    if (
+        categorySelect &&
+        !categorySelect.dataset.bulkListenerInstalled
+    ) {
+
+        categorySelect.dataset.bulkListenerInstalled =
+            "true";
+
+
+        categorySelect.addEventListener(
+            "change",
+            function () {
+
+                if (
+                    applyDefaults &&
+                    applyDefaults.checked
+                ) {
+
+                    applyBulkDefaultsToAllQuestions();
+                }
+            }
+        );
+    }
+
+
+    if (
+        applyDefaults &&
+        !applyDefaults.dataset.bulkListenerInstalled
+    ) {
+
+        applyDefaults.dataset.bulkListenerInstalled =
+            "true";
+
+
+        applyDefaults.addEventListener(
+            "change",
+            function () {
+
+                if (
+                    applyDefaults.checked
+                ) {
+
+                    applyBulkDefaultsToAllQuestions();
+                }
+            }
+        );
+    }
+}
+
+
+
+/* =========================================================
+   APPLIQUER CATÉGORIE + TYPE À TOUT LE BLOC
+========================================================= */
+
+function applyBulkDefaultsToAllQuestions() {
+
+    const category =
+        document.getElementById(
+            "bulkCategory"
+        )?.value || "";
+
+
+    const type =
+        document.getElementById(
+            "bulkQuestionType"
+        )?.value ||
+        "true_false";
+
+
+    if (
+        !questionAdminState.bulkQuestions ||
+        !questionAdminState.bulkQuestions.length
+    ) {
+        return;
+    }
+
+
+    questionAdminState
+        .bulkQuestions
+        .forEach(
+            item => {
+
+                /*
+                 * Catégorie
+                 */
+
+                item.category =
+                    category;
+
+
+                /*
+                 * Si le type change,
+                 * on recrée proprement
+                 * les propositions.
+                 */
+
+                if (
+                    item.type !==
+                    type
+                ) {
+
+                    item.type =
+                        type;
+
+
+                    item.correct =
+                        [];
+
+
+                    if (
+                        type ===
+                        "true_false"
+                    ) {
+
+                        item.choices = {
+                            A:
+                                "Vrai",
+
+                            B:
+                                "Faux",
+
+                            C:
+                                "",
+
+                            D:
+                                ""
+                        };
+                    }
+
+
+                    else {
+
+                        item.choices = {
+                            A:
+                                "",
+
+                            B:
+                                "",
+
+                            C:
+                                "",
+
+                            D:
+                                ""
+                        };
+                    }
+                }
+            }
+        );
+
+
+    /*
+     * On reconstruit immédiatement
+     * la question affichée.
+     */
+
+    renderCurrentBulkQuestion();
+
+    updateBulkSummary();
+}
+
+
+
+/* =========================================================
+   SAUVER ÉTAT QUESTION COURANTE
 ========================================================= */
 
 function saveCurrentBulkEditorState() {
@@ -8806,7 +8862,7 @@ function saveCurrentBulkEditorState() {
 
 
     /* =====================================================
-       1. SAUVEGARDE DU TEXTE DE LA QUESTION
+       1. TEXTE DE LA QUESTION
     ====================================================== */
 
     const questionInput =
@@ -8826,25 +8882,7 @@ function saveCurrentBulkEditorState() {
 
 
     /* =====================================================
-       2. SAUVEGARDE DU TYPE
-    ====================================================== */
-
-    const typeSelect =
-        container.querySelector(
-            "#bulkCurrentQuestionType"
-        );
-
-
-    if (typeSelect) {
-
-        item.type =
-            typeSelect.value;
-    }
-
-
-
-    /* =====================================================
-       3. SAUVEGARDE DES PROPOSITIONS
+       2. PROPOSITIONS
     ====================================================== */
 
     if (!item.choices) {
@@ -8887,7 +8925,7 @@ function saveCurrentBulkEditorState() {
 
 
     /* =====================================================
-       4. SAUVEGARDE DES BONNES RÉPONSES
+       3. BONNE(S) RÉPONSE(S)
     ====================================================== */
 
     const checkedAnswers =
@@ -8911,7 +8949,6 @@ function saveCurrentBulkEditorState() {
 
     /* =====================================================
        VRAI / FAUX
-       Une seule réponse correcte
     ====================================================== */
 
     if (
@@ -8926,10 +8963,6 @@ function saveCurrentBulkEditorState() {
                 ]
                 : [];
 
-
-        /*
-         * On force les valeurs standard.
-         */
 
         item.choices.A =
             "Vrai";
@@ -8948,7 +8981,6 @@ function saveCurrentBulkEditorState() {
 
     /* =====================================================
        CHOIX SIMPLE
-       Une seule réponse correcte
     ====================================================== */
 
     else if (
@@ -8968,7 +9000,6 @@ function saveCurrentBulkEditorState() {
 
     /* =====================================================
        CHOIX MULTIPLE
-       Plusieurs réponses correctes possibles
     ====================================================== */
 
     else if (
@@ -8992,14 +9023,10 @@ function saveCurrentBulkEditorState() {
 
     else {
 
-        item.correct = [];
+        item.correct =
+            [];
     }
 
-
-
-    /* =====================================================
-       5. MISE À JOUR DU RÉCAPITULATIF
-    ====================================================== */
 
     updateBulkSummary();
 }
@@ -9007,7 +9034,7 @@ function saveCurrentBulkEditorState() {
 
 
 /* =========================================================
-   NAVIGATION BLOC
+   NAVIGATION ENTRE LES QUESTIONS
 ========================================================= */
 
 function changeBulkQuestion(
@@ -9042,8 +9069,9 @@ function changeBulkQuestion(
 }
 
 
+
 /* =========================================================
-   RÉCAP BLOC
+   RÉCAPITULATIF DU BLOC
 ========================================================= */
 
 function updateBulkSummary() {
@@ -9060,19 +9088,56 @@ function updateBulkSummary() {
             .filter(
                 item => {
 
+                    /*
+                     * Informations obligatoires
+                     */
+
                     if (
                         !item.question ||
                         !item.category ||
                         !item.type ||
+                        !Array.isArray(
+                            item.correct
+                        ) ||
                         !item.correct.length
                     ) {
+
                         return false;
                     }
 
 
+
+                    /* =========================
+                       VRAI / FAUX
+                    ========================= */
+
                     if (
-                        item.type !==
+                        item.type ===
                         "true_false"
+                    ) {
+
+                        return (
+                            item.correct[0] ===
+                                "A" ||
+                            item.correct[0] ===
+                                "B"
+                        );
+                    }
+
+
+
+                    /* =========================
+                       CHOIX SIMPLE / MULTIPLE
+
+                       Les 4 propositions
+                       doivent être renseignées.
+                    ========================= */
+
+                    if (
+                        item.type ===
+                            "simple_choice" ||
+                        item.type ===
+                            "multiple_choice"
                     ) {
 
                         return [
@@ -9084,15 +9149,18 @@ function updateBulkSummary() {
                         .every(
                             letter =>
                                 Boolean(
-                                    item.choices[
-                                        letter
-                                    ]
+                                    String(
+                                        item.choices?.[
+                                            letter
+                                        ] || ""
+                                    )
+                                    .trim()
                                 )
                         );
                     }
 
 
-                    return true;
+                    return false;
                 }
             )
             .length;
@@ -9110,8 +9178,6 @@ function updateBulkSummary() {
             `${ready} question(s) prête(s) sur ${total}.`;
     }
 }
-
-
 /* =========================================================
    IMPORT BLOC
 ========================================================= */
