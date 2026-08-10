@@ -4062,4 +4062,560 @@ html[data-theme="dark"] .login-card {
         flex-direction: column;
     }
 }
+/* =========================================================
+   NOUVELLES PAGES ENTRAÎNEMENT
+========================================================= */
+
+.training-home-page,
+.training-selection-page {
+    width: 100%;
+}
+
+
+.training-page-header,
+.training-selection-header {
+    margin-bottom: 28px;
+}
+
+
+.training-page-header h1,
+.training-selection-header h1 {
+    margin: 0 0 7px;
+
+    font-size: 34px;
+}
+
+
+.training-page-header p,
+.training-selection-header p {
+    margin: 0;
+
+    color: var(--text-secondary);
+}
+
+
+/* =========================
+   CARTES MODES
+========================= */
+
+.training-mode-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 22px;
+}
+
+
+.training-mode-card {
+    display: flex;
+    flex-direction: column;
+
+    padding: 22px;
+
+    min-height: 430px;
+
+    background: var(--bg-card);
+
+    border: 1px solid var(--border);
+    border-radius: 20px;
+
+    box-shadow: var(--shadow-card);
+}
+
+
+.training-mode-visual {
+    height: 160px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 14px;
+
+    background: var(--orange-soft);
+
+    border-radius: 16px;
+
+    font-size: 78px;
+}
+
+
+.training-mode-card h2 {
+    margin: 0 0 10px;
+
+    text-align: center;
+
+    font-size: 22px;
+}
+
+
+.training-mode-card > p {
+    flex: 1;
+
+    margin: 0;
+
+    text-align: center;
+
+    line-height: 1.6;
+
+    color: var(--text-secondary);
+}
+
+
+.training-mode-tags {
+    display: flex;
+
+    justify-content: center;
+
+    flex-wrap: wrap;
+
+    gap: 8px;
+
+    margin: 20px 0;
+}
+
+
+.training-mode-tags span {
+    padding: 7px 10px;
+
+    border: 1px solid var(--border);
+    border-radius: 9px;
+
+    font-size: 12px;
+}
+
+
+.training-mode-start,
+.training-large-launch {
+    border: none;
+
+    background: var(--orange);
+
+    color: white;
+
+    border-radius: 11px;
+
+    padding: 13px 18px;
+
+    font-weight: 800;
+
+    cursor: pointer;
+}
+
+
+/* =========================
+   INFO
+========================= */
+
+.training-info-box {
+    display: flex;
+
+    align-items: center;
+
+    gap: 14px;
+
+    padding: 17px;
+
+    margin-bottom: 28px;
+
+    background:
+        rgba(50, 120, 255, .05);
+
+    border:
+        1px solid
+        rgba(50, 120, 255, .20);
+
+    border-radius: 12px;
+
+    color: var(--text-main);
+}
+
+
+.training-categories-title {
+    margin: 0 0 18px;
+}
+
+
+/* =========================
+   CATÉGORIES CIBLÉES
+========================= */
+
+.training-category-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 18px;
+}
+
+
+.training-category-card {
+    padding: 20px;
+
+    background: var(--bg-card);
+
+    border: 1px solid var(--border);
+    border-radius: 17px;
+
+    box-shadow: var(--shadow-card);
+}
+
+
+.training-category-icon {
+    width: 50px;
+    height: 50px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 14px;
+
+    background: var(--orange-soft);
+
+    color: var(--orange);
+
+    border-radius: 13px;
+
+    font-size: 24px;
+    font-weight: 900;
+}
+
+
+.training-category-card h3 {
+    margin: 0 0 6px;
+}
+
+
+.training-category-card p {
+    display: inline;
+
+    color: var(--text-secondary);
+
+    font-size: 13px;
+}
+
+
+.training-category-card > strong {
+    display: block;
+
+    margin: 4px 0 18px;
+
+    font-size: 18px;
+}
+
+
+.training-category-card button {
+    width: 100%;
+
+    padding: 10px;
+
+    background: transparent;
+
+    color: var(--orange);
+
+    border: 1px solid var(--orange);
+    border-radius: 9px;
+
+    font-weight: 800;
+
+    cursor: pointer;
+}
+
+
+.training-category-card button:hover {
+    background: var(--orange);
+
+    color: white;
+}
+
+
+/* =========================
+   FLASH
+========================= */
+
+.training-category-grid-compact {
+    margin-bottom: 28px;
+}
+
+
+.flash-category-item {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 16px;
+
+    background: var(--bg-card);
+
+    border: 1px solid var(--border);
+    border-radius: 13px;
+}
+
+
+.flash-category-item > span {
+    color: var(--orange);
+
+    font-size: 22px;
+}
+
+
+.flash-category-item strong {
+    flex: 1;
+}
+
+
+.flash-category-item b {
+    width: 22px;
+    height: 22px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    background: var(--green);
+
+    color: white;
+
+    border-radius: 50%;
+}
+
+
+.flash-principle-card,
+.xtrem-main-card {
+    padding: 22px;
+
+    background: var(--bg-card);
+
+    border: 1px solid var(--border);
+    border-radius: 18px;
+
+    box-shadow: var(--shadow-card);
+}
+
+
+.flash-principle-grid,
+.xtrem-features {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap: 12px;
+
+    margin-top: 16px;
+}
+
+
+.flash-principle-grid > div,
+.xtrem-features > div {
+    padding: 15px;
+
+    background: var(--bg-card-hover);
+
+    border: 1px solid var(--border);
+    border-radius: 12px;
+}
+
+
+.flash-principle-grid span {
+    display: block;
+
+    margin-bottom: 8px;
+
+    font-size: 25px;
+}
+
+
+.flash-principle-grid strong,
+.flash-principle-grid small,
+.xtrem-features strong,
+.xtrem-features small {
+    display: block;
+}
+
+
+.flash-principle-grid small,
+.xtrem-features small {
+    margin-top: 5px;
+
+    color: var(--text-secondary);
+}
+
+
+/* =========================
+   XTREM
+========================= */
+
+.xtrem-main-card {
+    display: grid;
+
+    grid-template-columns:
+        240px
+        minmax(0, 1fr);
+
+    gap: 28px;
+}
+
+
+.xtrem-logo {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-height: 220px;
+
+    background: var(--orange-soft);
+
+    border-radius: 18px;
+
+    font-size: 120px;
+}
+
+
+.xtrem-description {
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+}
+
+
+.xtrem-badge {
+    width: fit-content;
+
+    padding: 5px 10px;
+
+    background: var(--orange-soft);
+
+    color: var(--orange);
+
+    border-radius: 30px;
+
+    font-size: 11px;
+    font-weight: 900;
+}
+
+
+.xtrem-description h2 {
+    margin: 10px 0 4px;
+
+    font-size: 42px;
+}
+
+
+.xtrem-description h2 strong {
+    color: var(--orange);
+}
+
+
+.xtrem-description h3 {
+    margin: 0 0 10px;
+}
+
+
+.xtrem-description p {
+    color: var(--text-secondary);
+}
+
+
+.xtrem-features {
+    grid-column: 1 / -1;
+}
+
+
+/* =========================
+   ACTIONS
+========================= */
+
+.training-selection-actions,
+.training-launch-row {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 16px;
+
+    margin-top: 26px;
+}
+
+
+.training-large-launch {
+    min-width: 300px;
+
+    font-size: 16px;
+}
+
+
+.training-empty-state,
+.training-loading {
+    grid-column: 1 / -1;
+
+    padding: 40px;
+
+    text-align: center;
+
+    background: var(--bg-card);
+
+    border: 1px solid var(--border);
+    border-radius: 16px;
+
+    color: var(--text-secondary);
+}
+
+
+@media (max-width: 1000px) {
+
+    .training-mode-grid,
+    .training-category-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+
+    .flash-principle-grid,
+    .xtrem-features {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+}
+
+
+@media (max-width: 700px) {
+
+    .training-mode-grid,
+    .training-category-grid {
+        grid-template-columns: 1fr;
+    }
+
+
+    .xtrem-main-card {
+        grid-template-columns: 1fr;
+    }
+
+
+    .training-launch-row {
+        flex-direction: column;
+    }
+
+
+    .training-large-launch {
+        width: 100%;
+
+        min-width: 0;
+    }
+
+}
 
