@@ -33,9 +33,9 @@
 <div class="dashboard-layout">
 
 
-  <!-- =========================
+  <!-- =====================================================
        SIDEBAR
-  ========================= -->
+  ====================================================== -->
 
   <aside class="sidebar">
 
@@ -62,15 +62,18 @@
         🏠 Accueil
       </button>
 
+
       <button
         onclick="window.location.href='training.html'"
       >
         🎯 Entraînement
       </button>
 
+
       <button>
         🏆 Challenges
       </button>
+
 
       <button
         onclick="window.location.href='ranking.html'"
@@ -78,13 +81,16 @@
         📊 Classements
       </button>
 
+
       <button>
         ⚔️ Battle
       </button>
 
+
       <button>
         🎮 Kahoot
       </button>
+
 
       <button
         onclick="window.location.href='profile.html'"
@@ -92,25 +98,11 @@
         📈 Mes stats
       </button>
 
+
       <button
         onclick="window.location.href='badges.html'"
       >
         🏅 Badges
-      </button>
-
-      <button>
-        💡 Boîte à idées
-      </button>
-
-      <button>
-        🚩 Signalements
-      </button>
-
-      <button
-        class="active"
-        onclick="window.location.href='administration.html'"
-      >
-        🛡️ Administration
       </button>
 
     </nav>
@@ -124,6 +116,7 @@
         ⚙️ Paramètres
       </button>
 
+
       <button
         id="themeToggle"
         class="sidebar-link theme-button"
@@ -131,6 +124,7 @@
       >
         🌙 Mode sombre
       </button>
+
 
       <button
         class="sidebar-link"
@@ -144,11 +138,17 @@
   </aside>
 
 
-  <!-- =========================
+
+  <!-- =====================================================
        CONTENU
-  ========================= -->
+  ====================================================== -->
 
   <main class="dashboard-main">
+
+
+    <!-- ===================================================
+         HEADER
+    ==================================================== -->
 
     <header class="question-management-header">
 
@@ -164,6 +164,7 @@
 
       </div>
 
+
       <strong id="categoryAdminUser">
         Administrateur
       </strong>
@@ -171,7 +172,10 @@
     </header>
 
 
-    <!-- AJOUT -->
+
+    <!-- ===================================================
+         AJOUT CATÉGORIE
+    ==================================================== -->
 
     <section class="category-create-card">
 
@@ -196,6 +200,7 @@
           placeholder="Nom de la catégorie..."
         >
 
+
         <button
           id="createCategoryManagementButton"
           type="button"
@@ -209,9 +214,13 @@
     </section>
 
 
-    <!-- STATS -->
+
+    <!-- ===================================================
+         STATISTIQUES
+    ==================================================== -->
 
     <section class="question-management-stats">
+
 
       <div>
 
@@ -225,6 +234,7 @@
 
       </div>
 
+
       <div>
 
         <small>
@@ -236,6 +246,7 @@
         </strong>
 
       </div>
+
 
       <div>
 
@@ -252,7 +263,10 @@
     </section>
 
 
-    <!-- RECHERCHE -->
+
+    <!-- ===================================================
+         RECHERCHE
+    ==================================================== -->
 
     <section class="category-search-card">
 
@@ -265,7 +279,10 @@
     </section>
 
 
-    <!-- LISTE -->
+
+    <!-- ===================================================
+         LISTE
+    ==================================================== -->
 
     <section
       id="categoryManagementList"
@@ -284,9 +301,9 @@
 
 
 
-<!-- =========================
+<!-- =====================================================
      MODALE RENOMMAGE
-========================= -->
+====================================================== -->
 
 <div
   id="categoryEditModal"
@@ -296,20 +313,24 @@
 
   <div class="question-edit-modal-card">
 
+
     <div class="question-edit-modal-header">
 
       <h2>
         Renommer la catégorie
       </h2>
 
+
       <button
         type="button"
         id="closeCategoryEditModal"
+        aria-label="Fermer"
       >
         ✕
       </button>
 
     </div>
+
 
 
     <div class="question-field">
@@ -318,12 +339,15 @@
         Nouveau nom
       </label>
 
+
       <input
         id="editCategoryName"
         type="text"
+        autocomplete="off"
       >
 
     </div>
+
 
 
     <div class="question-edit-actions">
@@ -335,6 +359,7 @@
       >
         Annuler
       </button>
+
 
       <button
         type="button"
@@ -352,6 +377,10 @@
 
 
 
+<!-- =====================================================
+     SCRIPTS
+====================================================== -->
+
 <script src="app.js"></script>
 <script src="theme.js"></script>
 
@@ -362,10 +391,18 @@
     "DOMContentLoaded",
     async function () {
 
+
+      /* ===============================================
+         SÉCURITÉ ADMIN
+      ================================================ */
+
       const role =
         String(
           localStorage.getItem("role") || ""
-        ).toLowerCase();
+        )
+        .trim()
+        .toLowerCase();
+
 
       if (role !== "admin") {
 
@@ -379,6 +416,11 @@
         return;
       }
 
+
+
+      /* ===============================================
+         NOM UTILISATEUR
+      ================================================ */
 
       const name =
         localStorage.getItem("full_name") ||
@@ -398,12 +440,23 @@
       }
 
 
+
+      /* ===============================================
+         INITIALISATION CATÉGORIES
+      ================================================ */
+
       if (
         typeof initializeCategoryManagement ===
         "function"
       ) {
 
         await initializeCategoryManagement();
+
+      } else {
+
+        console.error(
+          "initializeCategoryManagement() est introuvable dans app.js"
+        );
       }
 
     }
