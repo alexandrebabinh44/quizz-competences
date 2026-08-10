@@ -54,10 +54,6 @@
     </div>
 
 
-    <!-- ===================================================
-         MENU PRINCIPAL
-    ==================================================== -->
-
     <nav class="side-menu">
 
       <button
@@ -66,18 +62,15 @@
         🏠 Accueil
       </button>
 
-
       <button
         onclick="window.location.href='training.html'"
       >
         🎯 Entraînement
       </button>
 
-
       <button>
         🏆 Challenges
       </button>
-
 
       <button
         onclick="window.location.href='ranking.html'"
@@ -85,16 +78,13 @@
         📊 Classements
       </button>
 
-
       <button>
         ⚔️ Battle
       </button>
 
-
       <button>
         🎮 Kahoot
       </button>
-
 
       <button
         onclick="window.location.href='profile.html'"
@@ -102,28 +92,14 @@
         📈 Mes stats
       </button>
 
-
       <button
         onclick="window.location.href='badges.html'"
       >
         🏅 Badges
       </button>
 
+    </nav>
 
-      <button>
-        💡 Boîte à idées
-      </button>
-
-
-      <button>
-        🚩 Signalements
-      </button>
-
-
-
-    <!-- ===================================================
-         BAS SIDEBAR
-    ==================================================== -->
 
     <div class="sidebar-bottom">
 
@@ -133,7 +109,6 @@
         ⚙️ Paramètres
       </button>
 
-
       <button
         id="themeToggle"
         class="sidebar-link theme-button"
@@ -141,7 +116,6 @@
       >
         🌙 Mode sombre
       </button>
-
 
       <button
         class="sidebar-link"
@@ -175,7 +149,6 @@
         disabled
       >
 
-
       <div class="topbar-right">
 
         <strong id="topUserName">
@@ -189,13 +162,10 @@
 
 
     <!-- ===================================================
-         PAGE ADMINISTRATION
+         ADMINISTRATION
     ==================================================== -->
 
     <section class="settings-page">
-
-
-      <!-- HEADER -->
 
       <div class="settings-header">
 
@@ -204,46 +174,40 @@
         </h1>
 
         <p>
-          Gère les outils d’administration de Nickel Master.
+          Gère les outils d'administration de Nickel Master.
         </p>
 
       </div>
 
 
 
-      <!-- =================================================
-           CARTES
-      ================================================== -->
-
       <div class="settings-grid">
 
 
-        <!-- ===============================================
-             AJOUTER DES QUESTIONS
-        ================================================ -->
+        <!-- =================================================
+             GESTION DES QUIZ
+        ================================================== -->
 
         <button
           class="settings-card"
-          onclick="window.location.href='admin-questions.html'"
+          onclick="window.location.href='admin-quizzes.html'"
         >
 
           <div class="settings-card-icon">
-            ➕
+            🎯
           </div>
-
 
           <div class="settings-card-content">
 
             <h2>
-              Ajouter des questions
+              Gestion des Quiz
             </h2>
 
             <p>
-              Ajoute une question seule ou importe plusieurs questions en bloc.
+              Ajoute, modifie et organise les questions et les catégories.
             </p>
 
           </div>
-
 
           <div class="settings-card-arrow">
             ›
@@ -253,79 +217,9 @@
 
 
 
-        <!-- ===============================================
-             GÉRER LES QUESTIONS
-        ================================================ -->
-
-        <button
-          class="settings-card"
-          onclick="window.location.href='admin-question-management.html'"
-        >
-
-          <div class="settings-card-icon">
-            🧰
-          </div>
-
-
-          <div class="settings-card-content">
-
-            <h2>
-              Gérer les questions
-            </h2>
-
-            <p>
-              Recherche, modifie, désactive ou supprime les questions existantes.
-            </p>
-
-          </div>
-
-
-          <div class="settings-card-arrow">
-            ›
-          </div>
-
-        </button>
-
-
-
-        <!-- ===============================================
-             GÉRER LES CATÉGORIES
-        ================================================ -->
-
-        <button
-          class="settings-card"
-          onclick="window.location.href='admin-categories.html'"
-        >
-
-          <div class="settings-card-icon">
-            🗂️
-          </div>
-
-
-          <div class="settings-card-content">
-
-            <h2>
-              Gérer les catégories
-            </h2>
-
-            <p>
-              Crée, modifie ou organise les catégories de questions.
-            </p>
-
-          </div>
-
-
-          <div class="settings-card-arrow">
-            ›
-          </div>
-
-        </button>
-
-
-
-        <!-- ===============================================
+        <!-- =================================================
              APPROBATIONS
-        ================================================ -->
+        ================================================== -->
 
         <button
           class="settings-card"
@@ -336,7 +230,6 @@
             ✅
           </div>
 
-
           <div class="settings-card-content">
 
             <h2>
@@ -344,11 +237,10 @@
             </h2>
 
             <p>
-              Gère les demandes nécessitant une validation.
+              Consulte et traite les demandes nécessitant une validation.
             </p>
 
           </div>
-
 
           <div class="settings-card-arrow">
             ›
@@ -358,9 +250,9 @@
 
 
 
-        <!-- ===============================================
-             SIGNALEMENTS
-        ================================================ -->
+        <!-- =================================================
+             GESTION DES SIGNALEMENTS
+        ================================================== -->
 
         <button
           class="settings-card settings-card-disabled"
@@ -371,7 +263,6 @@
             🚩
           </div>
 
-
           <div class="settings-card-content">
 
             <h2>
@@ -379,7 +270,7 @@
             </h2>
 
             <p>
-              Consulte et traite les signalements remontés par les collaborateurs.
+              Consulte les questions signalées et traite les remontées des collaborateurs.
             </p>
 
             <small>
@@ -392,19 +283,18 @@
 
 
 
-        <!-- ===============================================
-             UTILISATEURS
-        ================================================ -->
+        <!-- =================================================
+             GESTION DES UTILISATEURS
+        ================================================== -->
 
         <button
-          class="settings-card settings-card-disabled"
-          disabled
+          class="settings-card"
+          onclick="window.location.href='admin-users.html'"
         >
 
           <div class="settings-card-icon">
             👥
           </div>
-
 
           <div class="settings-card-content">
 
@@ -416,6 +306,39 @@
               Gère les comptes, les rôles et les accès à Nickel Master.
             </p>
 
+          </div>
+
+          <div class="settings-card-arrow">
+            ›
+          </div>
+
+        </button>
+
+
+
+        <!-- =================================================
+             GESTION DE LA BOÎTE À IDÉES
+        ================================================== -->
+
+        <button
+          class="settings-card settings-card-disabled"
+          disabled
+        >
+
+          <div class="settings-card-icon">
+            💡
+          </div>
+
+          <div class="settings-card-content">
+
+            <h2>
+              Gestion de la boîte à idées
+            </h2>
+
+            <p>
+              Consulte, classe et traite les idées proposées par les collaborateurs.
+            </p>
+
             <small>
               Bientôt disponible
             </small>
@@ -423,6 +346,7 @@
           </div>
 
         </button>
+
 
       </div>
 
@@ -448,15 +372,16 @@
     "DOMContentLoaded",
     function () {
 
-
       /* ===============================================
-         VÉRIFICATION ADMIN
+         SÉCURITÉ ADMIN
       ================================================ */
 
       const role =
         String(
           localStorage.getItem("role") || ""
-        ).toLowerCase();
+        )
+        .trim()
+        .toLowerCase();
 
 
       if (role !== "admin") {
@@ -482,15 +407,15 @@
         "Administrateur";
 
 
-      const element =
+      const user =
         document.getElementById(
           "topUserName"
         );
 
 
-      if (element) {
+      if (user) {
 
-        element.innerText =
+        user.innerText =
           name;
       }
 
