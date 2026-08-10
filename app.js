@@ -12448,7 +12448,7 @@ function getTrainingCategoryIcon(
     return "📚";
 }
 /* =========================================================
-   MENU ADMINISTRATION GLOBAL
+   SIDEBAR ADMIN GLOBALE
 ========================================================= */
 
 function ensureAdministrationMenu() {
@@ -12459,14 +12459,6 @@ function ensureAdministrationMenu() {
         )
         .trim()
         .toLowerCase();
-
-
-    /*
-     * Administration uniquement pour les admins.
-     */
-    if (role !== "admin") {
-        return;
-    }
 
 
     const sideMenu =
@@ -12480,47 +12472,132 @@ function ensureAdministrationMenu() {
     }
 
 
-    /*
-     * Évite de créer le bouton plusieurs fois
-     * si la page le possède déjà.
-     */
-    const existingButton =
-        document.getElementById(
-            "administrationMenuButton"
-        );
+    /* =====================================================
+       COMPTE NON ADMIN
+    ====================================================== */
+
+    if (role !== "admin") {
+
+        const adminButton =
+            document.getElementById(
+                "administrationMenuButton"
+            );
 
 
-    if (existingButton) {
+        if (adminButton) {
+            adminButton.remove();
+        }
 
-        existingButton.style.display =
-            "";
 
         return;
     }
 
 
+
+    /* =====================================================
+       ADMIN :
+       ON RETIRE LES ENTRÉES QUI DOIVENT ÊTRE
+       UNIQUEMENT DANS ADMINISTRATION
+    ====================================================== */
+
+    const buttons =
+        [
+            ...sideMenu.querySelectorAll(
+                "button"
+            )
+        ];
+
+
+    buttons.forEach(
+        button => {
+
+            const text =
+                String(
+                    button.textContent || ""
+                )
+                .trim()
+                .toLowerCase();
+
+
+            if (
+                text.includes(
+                    "approbation"
+                ) ||
+                text.includes(
+                    "boîte à idées"
+                ) ||
+                text.includes(
+                    "boite à idées"
+                ) ||
+                text.includes(
+                    "signalement"
+                )
+            ) {
+
+                button.remove();
+            }
+        }
+    );
+
+
+
+    /* =====================================================
+       SUPPRESSION D'ÉVENTUELS DOUBLONS ADMINISTRATION
+    ====================================================== */
+
+    const existingAdminButtons =
+        [
+            ...sideMenu.querySelectorAll(
+                "button"
+            )
+        ]
+        .filter(
+            button =>
+                String(
+                    button.textContent || ""
+                )
+                .trim()
+                .toLowerCase()
+                .includes(
+                    "administration"
+                )
+        );
+
+
     /*
-     * Création du bouton Administration.
+     * On supprime tout pour repartir proprement.
      */
-    const button =
+
+    existingAdminButtons.forEach(
+        button =>
+            button.remove()
+    );
+
+
+
+    /* =====================================================
+       CRÉATION DU BOUTON ADMINISTRATION
+    ====================================================== */
+
+    const administrationButton =
         document.createElement(
             "button"
         );
 
 
-    button.id =
+    administrationButton.id =
         "administrationMenuButton";
 
 
-    button.type =
+    administrationButton.type =
         "button";
 
 
-    button.innerHTML =
+    administrationButton.innerHTML =
         "🛡️ Administration";
 
 
-    button.onclick =
+    administrationButton.onclick =
         function () {
 
             window.location.href =
@@ -12528,41 +12605,59 @@ function ensureAdministrationMenu() {
         };
 
 
-    /*
-     * Si on est déjà sur Administration,
-     * on applique la classe active.
-     */
+
+    /* =====================================================
+       ÉTAT ACTIF
+    ====================================================== */
+
     const currentPage =
-        window.location.pathname
-            .split("/")
-            .pop()
-            .toLowerCase();
+        String(
+            window.location.pathname
+                .split("/")
+                .pop() ||
+            ""
+        )
+        .toLowerCase();
+
+
+    const adminPages =
+        [
+            "administration.html",
+            "admin-questions.html",
+            "admin-question-management.html",
+            "admin-categories.html",
+            "admin-users.html",
+            "admin-user-detail.html",
+            "approvals.html"
+        ];
 
 
     if (
-        currentPage ===
-        "administration.html"
+        adminPages.includes(
+            currentPage
+        )
     ) {
 
-        button.classList.add(
+        administrationButton.classList.add(
             "active"
         );
     }
 
 
-    /*
-     * On ajoute Administration
-     * après Signalements.
-     */
+
+    /* =====================================================
+       AJOUT EN FIN DU MENU PRINCIPAL
+    ====================================================== */
+
     sideMenu.appendChild(
-        button
+        administrationButton
     );
 }
 
 
 
 /* =========================================================
-   INITIALISATION MENU GLOBAL
+   INITIALISATION
 ========================================================= */
 
 document.addEventListener(
