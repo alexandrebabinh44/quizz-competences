@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <script>
+    const savedTheme =
+      localStorage.getItem("nickel_master_theme") || "light";
+
+    document.documentElement.setAttribute(
+      "data-theme",
+      savedTheme
+    );
+  </script>
+
+  <title>Flash Xtrem - Nickel Master</title>
+
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
+
+</head>
+
+
+<body class="dashboard-body">
+
+<div class="dashboard-layout">
+
+
+  <aside class="sidebar">
+
+    <div class="logo">
+
+      <img
+        src="images/logo-nickel.png"
+        alt="Nickel"
+        class="sidebar-logo-img"
+      >
+
+      <span>
+        NICKEL<br>MASTER
+      </span>
+
+    </div>
+
+
+    <nav class="side-menu">
+
+      <button onclick="window.location.href='home.html'">
+        🏠 Accueil
+      </button>
+
+      <button
+        class="active"
+        onclick="window.location.href='training.html'"
+      >
+        🎯 Entraînement
+      </button>
+
+      <button>🏆 Challenges</button>
+
+      <button onclick="window.location.href='ranking.html'">
+        📊 Classements
+      </button>
+
+      <button>⚔️ Battle</button>
+
+      <button>🎮 Kahoot</button>
+
+      <button onclick="window.location.href='profile.html'">
+        📈 Mes stats
+      </button>
+
+      <button onclick="window.location.href='badges.html'">
+        🏅 Badges
+      </button>
+
+      <button>💡 Boîte à idées</button>
+
+      <button>🚩 Signalements</button>
+
+    </nav>
+
+
+    <div class="sidebar-bottom">
+
+      <button onclick="window.location.href='settings.html'">
+        ⚙️ Paramètres
+      </button>
+
+      <button
+        id="themeToggle"
+        onclick="toggleTheme()"
+      >
+        🌙 Mode sombre
+      </button>
+
+      <button onclick="logout()">
+        🚪 Déconnexion
+      </button>
+
+    </div>
+
+  </aside>
+
+
+  <main class="dashboard-main">
+
+    <section class="training-selection-page">
+
+
+      <div class="training-selection-header">
+
+        <h1>
+          🔥 Flash Xtrem
+        </h1>
+
+        <p>
+          Lance une session de 10 questions aléatoires parmi toutes tes catégories autorisées.
+        </p>
+
+      </div>
+
+
+      <div class="training-info-box">
+
+        ℹ️
+
+        <span>
+          Seules les catégories liées à tes formations actives peuvent être utilisées.
+        </span>
+
+      </div>
+
+
+      <div class="xtrem-main-card">
+
+        <div class="xtrem-logo">
+          ⚡
+        </div>
+
+
+        <div class="xtrem-description">
+
+          <span class="xtrem-badge">
+            🔥 MODE INTENSE
+          </span>
+
+          <h2>
+            Flash <strong>Xtrem</strong>
+          </h2>
+
+          <h3>
+            Vitesse. Challenge. Aléatoire.
+          </h3>
+
+          <p>
+            Réponds à 10 questions tirées au hasard dans un maximum de catégories auxquelles tu es formé.
+          </p>
+
+        </div>
+
+
+        <div class="xtrem-features">
+
+          <div>
+            ❓
+            <strong>10 questions</strong>
+            <small>Aléatoires</small>
+          </div>
+
+          <div>
+            🔀
+            <strong>Catégories mélangées</strong>
+            <small>Tes catégories autorisées</small>
+          </div>
+
+          <div>
+            🎲
+            <strong>Session aléatoire</strong>
+            <small>Chaque session est unique</small>
+          </div>
+
+          <div>
+            ⚡
+            <strong>Mode intense</strong>
+            <small>Concentration maximum</small>
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="training-launch-row">
+
+        <button
+          class="btn-secondary"
+          onclick="window.location.href='training.html'"
+        >
+          ← Retour aux entraînements
+        </button>
+
+
+        <button
+          id="launchXtremButton"
+          class="training-large-launch"
+        >
+          ⚡ Lancer le Flash Xtrem
+        </button>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</div>
+
+
+<script src="app.js"></script>
+<script src="theme.js"></script>
+
+
+<script>
+
+document.addEventListener(
+  "DOMContentLoaded",
+  async function () {
+
+    if (
+      typeof initializeXtremTrainingPage ===
+      "function"
+    ) {
+      await initializeXtremTrainingPage();
+    }
+
+  }
+);
+
+</script>
+
+</body>
+
+</html>
