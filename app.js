@@ -10778,7 +10778,26 @@ function normalizeTrainingName(value) {
 
 
 /* =========================================================
+   NORMALISATION DES NOMS
+========================================================= */
+
+function normalizeTrainingName(value) {
+
+    return String(value || "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(
+            /[\u0300-\u036f]/g,
+            ""
+        );
+}
+
+
+
+/* =========================================================
    CATÉGORIES AUTORISÉES POUR LE COLLABORATEUR
+   1 formation acquise = 1 catégorie du même nom
 ========================================================= */
 
 async function getTrainingEligibleCategories() {
@@ -10802,7 +10821,7 @@ async function getTrainingEligibleCategories() {
     try {
 
         /* =================================================
-           1. FORMATIONS ATTRIBUÉES AU COLLABORATEUR
+           1. RÉCUPÉRATION DES FORMATIONS ATTRIBUÉES
         ================================================= */
 
         const userTrainingsResponse =
@@ -10828,7 +10847,7 @@ async function getTrainingEligibleCategories() {
 
 
         console.log(
-            "🎓 Formations attribuées dans user_trainings :",
+            "🎓 user_trainings :",
             userTrainings
         );
 
@@ -10851,7 +10870,7 @@ async function getTrainingEligibleCategories() {
 
 
         console.log(
-            "🎓 IDs des formations autorisées :",
+            "🎓 IDs formations attribuées :",
             trainingIds
         );
 
@@ -10859,7 +10878,7 @@ async function getTrainingEligibleCategories() {
         if (!trainingIds.length) {
 
             console.log(
-                "⚠️ Aucune formation attribuée au collaborateur."
+                "⚠️ Aucune formation attribuée."
             );
 
             return [];
@@ -10868,7 +10887,7 @@ async function getTrainingEligibleCategories() {
 
 
         /* =================================================
-           2. RÉCUPÉRATION DES FORMATIONS
+           2. RÉCUPÉRATION DES NOMS DES FORMATIONS
         ================================================= */
 
         const trainingsResponse =
@@ -10902,150 +10921,52 @@ async function getTrainingEligibleCategories() {
             );
 
 
-        const allowedTrainings =
-            trainings.filter(
-                training =>
-                    allowedTrainingIds.has(
-                        String(
-                            training.id
-                        )
-                    )
-            );
-
-
-        console.log(
-            "✅ Formations du collaborateur :",
-            allowedTrainings
-        );
-
-
-
-        /* =================================================
-           3. RÉCUPÉRATION DES CATÉGORIES
-        ================================================= */
-
-        const categoriesResponse =
-            await fetch(
-                `${SUPABASE_URL}/rest/v1/categories?select=id,name,training_id`,
-                {
-                    headers:
-                        supabaseHeaders()
-                }
-            );
-
-
-        if (!categoriesResponse.ok) {
-
-            throw new Error(
-                await categoriesResponse.text()
-            );
-        }
-
-
-        const categories =
-            await categoriesResponse.json();
-
-
-        console.log(
-            "📚 Catégories disponibles dans Supabase :",
-            categories
-        );
-
-
-
-        /* =================================================
-           4. NOMS DES FORMATIONS AUTORISÉES
-        ================================================= */
-
-        const allowedTrainingNames =
-            new Set(
-                allowedTrainings.map(
+        const eligibleCategories =
+            trainings
+                .filter(
                     training =>
-                        normalizeTrainingName(
-                            training.name
+                        allowedTrainingIds.has(
+                            String(
+                                training.id
+                            )
                         )
                 )
-            );
+                .map(
+                    training => ({
+                        id:
+                            training.id,
 
-
-
-        /* =================================================
-           5. FILTRAGE DES CATÉGORIES AUTORISÉES
-        ================================================= */
-
-        const eligibleCategories =
-            categories.filter(
-                category => {
-
-                    /*
-                     * MÉTHODE PRINCIPALE
-                     *
-                     * Si la catégorie possède un training_id,
-                     * celui-ci doit faire partie des formations
-                     * attribuées au collaborateur.
-                     */
-
-                    if (
-                        category.training_id !== null &&
-                        category.training_id !== undefined
-                    ) {
-
-                        return allowedTrainingIds.has(
-                            String(
-                                category.training_id
+                        name:
+                            training.name
+                    })
+                )
+                .sort(
+                    (a, b) =>
+                        String(a.name || "")
+                            .localeCompare(
+                                String(b.name || ""),
+                                "fr",
+                                {
+                                    sensitivity:
+                                        "base"
+                                }
                             )
-                        );
-                    }
-
-
-                    /*
-                     * FALLBACK
-                     *
-                     * Pour les anciennes catégories qui n'ont
-                     * pas encore de training_id :
-                     *
-                     * Compte Pro -> Compte Pro
-                     * Wero -> Wero
-                     * Attestations -> Attestations
-                     */
-
-                    return allowedTrainingNames.has(
-                        normalizeTrainingName(
-                            category.name
-                        )
-                    );
-                }
-            );
+                );
 
 
         console.log(
-            "✅ Catégories accessibles au collaborateur :",
+            "✅ Catégories autorisées selon les formations :",
             eligibleCategories
         );
 
 
-        /* =================================================
-           6. TRI ALPHABÉTIQUE
-        ================================================= */
-
-        return eligibleCategories.sort(
-            (a, b) =>
-                String(a.name || "")
-                    .localeCompare(
-                        String(b.name || ""),
-                        "fr",
-                        {
-                            sensitivity:
-                                "base"
-                        }
-                    )
-        );
+        return eligibleCategories;
 
 
     } catch (error) {
 
         console.error(
-            "❌ Erreur récupération formations / catégories :",
+            "❌ Erreur récupération formations autorisées :",
             error
         );
 
@@ -11064,7 +10985,7 @@ async function getTrainingEligibleQuestions() {
     try {
 
         /* =================================================
-           1. CATÉGORIES AUTORISÉES
+           1. FORMATIONS / CATÉGORIES AUTORISÉES
         ================================================= */
 
         const categories =
@@ -11084,7 +11005,9 @@ async function getTrainingEligibleQuestions() {
 
         console.log(
             "📚 Catégories utilisées pour filtrer les questions :",
-            [...allowedCategories]
+            [
+                ...allowedCategories
+            ]
         );
 
 
@@ -11133,27 +11056,30 @@ async function getTrainingEligibleQuestions() {
 
 
         /* =================================================
-           3. FILTRAGE
+           3. FILTRAGE DES QUESTIONS
         ================================================= */
 
         const eligibleQuestions =
             questions.filter(
                 question => {
 
-                    const category =
+                    const questionCategory =
                         normalizeTrainingName(
                             question.category
                         );
 
 
+                    const categoryAllowed =
+                        allowedCategories.has(
+                            questionCategory
+                        );
+
+
                     /*
-                     * Pour les entraînements actuels :
+                     * Seuls les types utilisés dans
+                     * les entraînements sont autorisés.
                      *
-                     * true_false
-                     * simple_choice
-                     * multiple_choice
-                     *
-                     * Les questions open restent réservées
+                     * Les questions OPEN restent réservées
                      * au futur bilan de compétences.
                      */
 
@@ -11173,18 +11099,15 @@ async function getTrainingEligibleQuestions() {
 
 
                     /*
-                     * Une question est considérée active
-                     * sauf si is_active vaut explicitement false.
+                     * Si is_active n'existe pas ou vaut true :
+                     * question utilisable.
+                     *
+                     * Si is_active = false :
+                     * question exclue.
                      */
 
                     const active =
                         question.is_active !== false;
-
-
-                    const categoryAllowed =
-                        allowedCategories.has(
-                            category
-                        );
 
 
                     return (
@@ -11216,13 +11139,13 @@ async function getTrainingEligibleQuestions() {
     }
 }
 
+
+
 /* =========================================================
-   MÉLANGE
+   MÉLANGE DES QUESTIONS
 ========================================================= */
 
-function shuffleTrainingQuestions(
-    array
-) {
+function shuffleTrainingQuestions(array) {
 
     const copy =
         [...array];
@@ -11258,7 +11181,7 @@ function shuffleTrainingQuestions(
 
 
 /* =========================================================
-   ENTRAÎNEMENT CIBLÉ
+   INITIALISATION ENTRAÎNEMENT CIBLÉ
 ========================================================= */
 
 async function initializeTargetedTrainingPage() {
@@ -11272,6 +11195,13 @@ async function initializeTargetedTrainingPage() {
     if (!container) {
         return;
     }
+
+
+    container.innerHTML = `
+        <div class="training-loading">
+            Chargement de tes catégories...
+        </div>
+    `;
 
 
     try {
@@ -11296,60 +11226,113 @@ async function initializeTargetedTrainingPage() {
         }
 
 
-        container.innerHTML =
+
+        /* =================================================
+           ON GARDE UNIQUEMENT LES FORMATIONS
+           QUI POSSÈDENT AU MOINS UNE QUESTION
+        ================================================= */
+
+        const categoriesWithQuestions =
             categories
                 .map(
                     category => {
 
-                        const count =
+                        const normalizedCategory =
+                            normalizeTrainingName(
+                                category.name
+                            );
+
+
+                        const categoryQuestions =
                             questions.filter(
                                 question =>
-                                    String(
+                                    normalizeTrainingName(
                                         question.category
-                                    )
-                                    .trim()
-                                    .toLowerCase() ===
-                                    String(
-                                        category.name
-                                    )
-                                    .trim()
-                                    .toLowerCase()
-                            ).length;
+                                    ) ===
+                                    normalizedCategory
+                            );
 
 
-                        if (!count) {
-                            return "";
-                        }
+                        return {
+                            ...category,
 
-
-                        return `
-                            <article class="training-category-card">
-
-                                <div class="training-category-icon">
-                                    ${getTrainingCategoryIcon(category.name)}
-                                </div>
-
-                                <h3>
-                                    ${escapeHtml(category.name)}
-                                </h3>
-
-                                <p>
-                                    Questions disponibles
-                                </p>
-
-                                <strong>
-                                    ${count}
-                                </strong>
-
-                                <button
-                                    onclick="startTargetedTraining('${encodeURIComponent(category.name)}')"
-                                >
-                                    Choisir
-                                </button>
-
-                            </article>
-                        `;
+                            questionCount:
+                                categoryQuestions.length
+                        };
                     }
+                )
+                .filter(
+                    category =>
+                        category.questionCount > 0
+                );
+
+
+        console.log(
+            "🎯 Catégories affichées en ciblé :",
+            categoriesWithQuestions
+        );
+
+
+        if (!categoriesWithQuestions.length) {
+
+            container.innerHTML = `
+                <div class="training-empty-state">
+                    Tes formations sont bien reconnues,
+                    mais aucune question d'entraînement
+                    n'est encore disponible dans ces catégories.
+                </div>
+            `;
+
+            return;
+        }
+
+
+
+        /* =================================================
+           AFFICHAGE
+        ================================================= */
+
+        container.innerHTML =
+            categoriesWithQuestions
+                .map(
+                    category => `
+
+                        <article class="training-category-card">
+
+                            <div class="training-category-icon">
+                                ${getTrainingCategoryIcon(
+                                    category.name
+                                )}
+                            </div>
+
+
+                            <h3>
+                                ${escapeHtml(
+                                    category.name
+                                )}
+                            </h3>
+
+
+                            <p>
+                                Questions disponibles
+                            </p>
+
+
+                            <strong>
+                                ${category.questionCount}
+                            </strong>
+
+
+                            <button
+                                type="button"
+                                onclick="startTargetedTraining('${encodeURIComponent(category.name)}')"
+                            >
+                                Choisir
+                            </button>
+
+                        </article>
+
+                    `
                 )
                 .join("");
 
@@ -11357,7 +11340,7 @@ async function initializeTargetedTrainingPage() {
     } catch (error) {
 
         console.error(
-            "Erreur catégories ciblées :",
+            "❌ Erreur affichage entraînement ciblé :",
             error
         );
 
@@ -11369,9 +11352,6 @@ async function initializeTargetedTrainingPage() {
         `;
     }
 }
-
-
-
 /* =========================================================
    DÉMARRER CIBLÉ
 ========================================================= */
