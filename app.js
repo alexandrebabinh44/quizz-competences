@@ -18114,8 +18114,7 @@ function renderOrganizationPositions() {
 
     let positions =
         [
-            ...organizationAdminState
-                .positions
+            ...organizationAdminState.positions
         ];
 
 
@@ -18150,17 +18149,13 @@ function renderOrganizationPositions() {
         positions =
             positions.filter(
                 position =>
-                    String(
-                        position.name || ""
-                    )
-                    .toLowerCase()
-                    .includes(search)
+                    String(position.name || "")
+                        .toLowerCase()
+                        .includes(search)
                     ||
-                    String(
-                        position.code || ""
-                    )
-                    .toLowerCase()
-                    .includes(search)
+                    String(position.code || "")
+                        .toLowerCase()
+                        .includes(search)
             );
     }
 
@@ -18171,8 +18166,7 @@ function renderOrganizationPositions() {
             positions.filter(
                 position =>
                     String(
-                        position.service_id ||
-                        ""
+                        position.service_id || ""
                     ) ===
                     serviceFilter
             );
@@ -18219,92 +18213,128 @@ function renderOrganizationPositions() {
     }
 
 
-    container.innerHTML =
-        positions
-            .map(
-                position => {
+    container.innerHTML = `
 
-                    const role =
-                        roleMap.get(
-                            String(
-                                position.role_id ||
-                                ""
-                            )
-                        );
+        <div class="organization-table-header organization-positions-header">
+
+            <div>
+                Nom de la fonction
+            </div>
+
+            <div>
+                Code
+            </div>
+
+            <div>
+                Rôle associé
+            </div>
+
+            <div>
+                Service
+            </div>
+
+            <div>
+                Statut
+            </div>
+
+            <div>
+                Actions
+            </div>
+
+        </div>
 
 
-                    const service =
-                        serviceMap.get(
-                            String(
-                                position.service_id ||
-                                ""
-                            )
-                        );
+        ${
+            positions
+                .map(
+                    position => {
+
+                        const role =
+                            roleMap.get(
+                                String(
+                                    position.role_id || ""
+                                )
+                            );
 
 
-                    return `
+                        const service =
+                            serviceMap.get(
+                                String(
+                                    position.service_id || ""
+                                )
+                            );
 
-                        <div class="organization-list-row">
 
-                            <div class="organization-list-main">
+                        return `
 
-                                <strong>
-                                    ${escapeHtml(position.name)}
-                                </strong>
+                            <div class="organization-list-row organization-position-row">
 
-                                <small>
+                                <div class="organization-list-main">
+
+                                    <strong>
+                                        ${escapeHtml(position.name)}
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="organization-list-code">
+
                                     ${escapeHtml(
-                                        position.description ||
-                                        ""
+                                        position.code || "—"
                                     )}
-                                </small>
 
-                            </div>
-
-
-                            <div>
-                                ${
-                                    role
-                                        ? escapeHtml(role.name)
-                                        : "Aucun rôle"
-                                }
-                            </div>
+                                </div>
 
 
-                            <div>
-                                ${
-                                    service
-                                        ? escapeHtml(service.name)
-                                        : "Tous / Aucun"
-                                }
-                            </div>
-
-
-                            <div class="organization-status-actions">
-
-                                <span class="${
-                                    position.is_active !==
-                                    false
-                                        ? "organization-status-active"
-                                        : "organization-status-inactive"
-                                }">
+                                <div>
 
                                     ${
-                                        position.is_active !==
-                                        false
-                                            ? "Active"
-                                            : "Désactivée"
+                                        role
+                                            ? escapeHtml(role.name)
+                                            : "Aucun rôle"
                                     }
 
-                                </span>
+                                </div>
+
+
+                                <div>
+
+                                    ${
+                                        service
+                                            ? escapeHtml(service.name)
+                                            : "Tous les services"
+                                    }
+
+                                </div>
+
+
+                                <div>
+
+                                    <span class="${
+                                        position.is_active !== false
+                                            ? "organization-status-active"
+                                            : "organization-status-inactive"
+                                    }">
+
+                                        ${
+                                            position.is_active !== false
+                                                ? "Actif"
+                                                : "Désactivé"
+                                        }
+
+                                    </span>
+
+                                </div>
 
 
                                 <div class="organization-row-actions">
 
                                     <button
                                         type="button"
-                                        class="btn-secondary"
+                                        class="organization-action-button organization-action-edit"
                                         onclick="openOrganizationPositionModal('${position.id}')"
+                                        title="Modifier"
                                     >
                                         ✏️
                                     </button>
@@ -18312,36 +18342,58 @@ function renderOrganizationPositions() {
 
                                     <button
                                         type="button"
-                                        class="btn-secondary"
+                                        class="organization-action-button"
                                         onclick="toggleOrganizationPositionStatus('${position.id}')"
+                                        title="${
+                                            position.is_active !== false
+                                                ? "Désactiver"
+                                                : "Réactiver"
+                                        }"
                                     >
                                         ${
-                                            position.is_active !==
-                                            false
-                                                ? "⏸️"
-                                                : "▶️"
+                                            position.is_active !== false
+                                                ? "⏸"
+                                                : "▶"
                                         }
                                     </button>
 
 
                                     <button
                                         type="button"
-                                        class="btn-secondary organization-delete-button"
+                                        class="organization-action-button organization-action-delete"
                                         onclick="deleteOrganizationPosition('${position.id}')"
+                                        title="Supprimer"
                                     >
-                                        🗑️
+                                        🗑
                                     </button>
 
                                 </div>
 
                             </div>
+                        `;
+                    }
+                )
+                .join("")
+        }
 
-                        </div>
-                    `;
-                }
-            )
-            .join("");
+
+        <div class="organization-table-footer">
+
+            Total :
+            <strong>
+                ${positions.length}
+            </strong>
+
+            fonction${
+                positions.length > 1
+                    ? "s"
+                    : ""
+            }
+
+        </div>
+    `;
 }
+
 
 
 
