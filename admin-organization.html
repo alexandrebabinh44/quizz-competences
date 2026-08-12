@@ -62,18 +62,15 @@
         🏠 Accueil
       </button>
 
-
       <button
         onclick="window.location.href='training.html'"
       >
         🎯 Entraînement
       </button>
 
-
       <button>
         🏆 Challenges
       </button>
-
 
       <button
         onclick="window.location.href='ranking.html'"
@@ -81,16 +78,13 @@
         📊 Classements
       </button>
 
-
       <button>
         ⚔️ Battle
       </button>
 
-
       <button>
         🎮 Kahoot
       </button>
-
 
       <button
         onclick="window.location.href='profile.html'"
@@ -98,11 +92,17 @@
         📈 Mes stats
       </button>
 
-
       <button
         onclick="window.location.href='badges.html'"
       >
         🏅 Badges
+      </button>
+
+      <button
+        class="active"
+        onclick="window.location.href='administration.html'"
+      >
+        🛡️ Administration
       </button>
 
     </nav>
@@ -116,7 +116,6 @@
         ⚙️ Paramètres
       </button>
 
-
       <button
         id="themeToggle"
         class="sidebar-link theme-button"
@@ -124,7 +123,6 @@
       >
         🌙 Mode sombre
       </button>
-
 
       <button
         class="sidebar-link"
@@ -159,7 +157,7 @@
         </h1>
 
         <p>
-          Gère les services, équipes, fonctions et accès de Nickel Master.
+          Gère les services, équipes, fonctions, rôles et accès de Nickel Master.
         </p>
 
       </div>
@@ -174,7 +172,7 @@
 
 
     <!-- ===================================================
-         CARTES DE NAVIGATION
+         NAVIGATION
     ==================================================== -->
 
     <section class="organization-admin-tabs">
@@ -250,16 +248,12 @@
       <div class="organization-panel-header">
 
         <div>
-
-          <h2>
-            Services
-          </h2>
+          <h2>Services</h2>
 
           <p>
             Les services sont disponibles automatiquement dans les équipes
             et la gestion des utilisateurs.
           </p>
-
         </div>
 
 
@@ -330,15 +324,11 @@
       <div class="organization-panel-header">
 
         <div>
-
-          <h2>
-            Équipes
-          </h2>
+          <h2>Équipes</h2>
 
           <p>
             Chaque équipe peut être rattachée à un service et à un manager.
           </p>
-
         </div>
 
 
@@ -362,7 +352,6 @@
           placeholder="Rechercher une équipe..."
         >
 
-
         <select id="organizationTeamServiceFilter">
 
           <option value="">
@@ -370,7 +359,6 @@
           </option>
 
         </select>
-
 
         <select id="organizationTeamStatusFilter">
 
@@ -435,6 +423,7 @@
           type="button"
           class="btn-primary"
           id="organizationAddPositionButton"
+          onclick="openOrganizationPositionModal()"
         >
           + Ajouter une fonction
         </button>
@@ -450,7 +439,6 @@
           placeholder="Rechercher une fonction..."
         >
 
-
         <select id="organizationPositionServiceFilter">
 
           <option value="">
@@ -458,7 +446,6 @@
           </option>
 
         </select>
-
 
         <select id="organizationPositionStatusFilter">
 
@@ -513,10 +500,20 @@
           </h2>
 
           <p>
-            Configure ce que chaque rôle ou fonction peut voir et faire.
+            Configure les droits, permissions et catégories accessibles.
           </p>
 
         </div>
+
+
+        <button
+          type="button"
+          class="btn-primary"
+          id="organizationAddRoleButton"
+          onclick="openOrganizationRoleModal()"
+        >
+          + Ajouter un rôle
+        </button>
 
       </div>
 
@@ -524,11 +521,25 @@
       <div class="organization-permission-layout">
 
 
+        <!-- ===============================================
+             LISTE DES RÔLES
+        ================================================ -->
+
         <aside class="organization-role-list-card">
 
-          <h3>
-            Rôles
-          </h3>
+          <div class="organization-role-list-header">
+
+            <h3>
+              Rôles
+            </h3>
+
+            <input
+              id="organizationRoleSearch"
+              type="text"
+              placeholder="Rechercher..."
+            >
+
+          </div>
 
 
           <div
@@ -541,6 +552,10 @@
         </aside>
 
 
+
+        <!-- ===============================================
+             CONFIGURATION DU RÔLE
+        ================================================ -->
 
         <div class="organization-permission-card">
 
@@ -558,8 +573,24 @@
 
             </div>
 
+
+            <button
+              type="button"
+              class="btn-primary"
+              id="organizationSaveRolePermissionsButton"
+              onclick="saveOrganizationRolePermissions()"
+              style="display:none;"
+            >
+              💾 Enregistrer les accès
+            </button>
+
           </div>
 
+
+
+          <!-- =============================================
+               PERMISSIONS
+          ============================================== -->
 
           <div
             id="organizationPermissionContent"
@@ -568,6 +599,43 @@
 
             <div class="question-management-empty">
               Aucun rôle sélectionné.
+            </div>
+
+          </div>
+
+
+
+          <!-- =============================================
+               CATÉGORIES
+          ============================================== -->
+
+          <div
+            id="organizationRoleCategoriesSection"
+            class="organization-role-categories-section"
+            style="display:none;"
+          >
+
+            <div class="organization-section-title">
+
+              <div>
+
+                <h3>
+                  📚 Catégories accessibles
+                </h3>
+
+                <p>
+                  Sélectionne les catégories de quiz accessibles à ce rôle.
+                </p>
+
+              </div>
+
+            </div>
+
+
+            <div
+              id="organizationRoleCategories"
+              class="organization-role-categories"
+            >
             </div>
 
           </div>
@@ -665,12 +733,10 @@
       <button
         type="button"
         class="btn-secondary"
-        id="organizationCancelService"
         onclick="closeOrganizationServiceModal()"
       >
         Annuler
       </button>
-
 
       <button
         type="button"
@@ -709,7 +775,6 @@
 
       <button
         type="button"
-        id="organizationCloseTeamModal"
         onclick="closeOrganizationTeamModal()"
         aria-label="Fermer"
       >
@@ -773,12 +838,10 @@
       <button
         type="button"
         class="btn-secondary"
-        id="organizationCancelTeam"
         onclick="closeOrganizationTeamModal()"
       >
         Annuler
       </button>
-
 
       <button
         type="button"
@@ -817,7 +880,8 @@
 
       <button
         type="button"
-        id="organizationClosePositionModal"
+        onclick="closeOrganizationPositionModal()"
+        aria-label="Fermer"
       >
         ✕
       </button>
@@ -908,18 +972,120 @@
       <button
         type="button"
         class="btn-secondary"
-        id="organizationCancelPosition"
+        onclick="closeOrganizationPositionModal()"
       >
         Annuler
       </button>
-
 
       <button
         type="button"
         class="btn-primary"
         id="organizationSavePosition"
+        onclick="saveOrganizationPosition()"
       >
         💾 Enregistrer
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     MODALE RÔLE
+====================================================== -->
+
+<div
+  id="organizationRoleModal"
+  class="question-edit-modal"
+  style="display:none;"
+>
+
+  <div class="question-edit-modal-card">
+
+    <div class="question-edit-modal-header">
+
+      <h2>
+        Ajouter un rôle
+      </h2>
+
+      <button
+        type="button"
+        onclick="closeOrganizationRoleModal()"
+        aria-label="Fermer"
+      >
+        ✕
+      </button>
+
+    </div>
+
+
+    <div class="question-field">
+
+      <label for="organizationRoleName">
+        Nom du rôle
+      </label>
+
+      <input
+        id="organizationRoleName"
+        type="text"
+        placeholder="Ex. Formateur"
+      >
+
+    </div>
+
+
+    <div class="question-field">
+
+      <label for="organizationRoleCode">
+        Code technique
+      </label>
+
+      <input
+        id="organizationRoleCode"
+        type="text"
+        placeholder="trainer"
+      >
+
+    </div>
+
+
+    <div class="question-field">
+
+      <label for="organizationRoleHierarchy">
+        Niveau hiérarchique
+      </label>
+
+      <input
+        id="organizationRoleHierarchy"
+        type="number"
+        min="1"
+        value="1"
+      >
+
+    </div>
+
+
+    <div class="question-edit-actions">
+
+      <button
+        type="button"
+        class="btn-secondary"
+        onclick="closeOrganizationRoleModal()"
+      >
+        Annuler
+      </button>
+
+      <button
+        type="button"
+        class="btn-primary"
+        id="organizationSaveRoleButton"
+        onclick="saveOrganizationRole()"
+      >
+        💾 Créer le rôle
       </button>
 
     </div>
@@ -944,11 +1110,6 @@
     "DOMContentLoaded",
     async function () {
 
-
-      /* ===============================================
-         SÉCURITÉ ADMIN
-      ================================================ */
-
       const role =
         String(
           localStorage.getItem("role") || ""
@@ -970,11 +1131,6 @@
       }
 
 
-
-      /* ===============================================
-         NOM UTILISATEUR
-      ================================================ */
-
       const name =
         localStorage.getItem("full_name") ||
         "Administrateur";
@@ -992,11 +1148,6 @@
           name;
       }
 
-
-
-      /* ===============================================
-         INITIALISATION
-      ================================================ */
 
       if (
         typeof initializeOrganizationAdminPage ===
