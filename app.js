@@ -15594,11 +15594,10 @@ async function initializeOrganizationAdminPage() {
         await loadOrganizationAdminData();
 
         bindOrganizationAdminTabs();
-
+        bindOrganizationServiceEvents();
         renderOrganizationServices();
         renderOrganizationTeams();
         renderOrganizationPositions();
-
         populateOrganizationSelects();
 
     } catch (error) {
