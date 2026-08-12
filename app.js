@@ -16515,18 +16515,15 @@ async function saveOrganizationService() {
             "organizationServiceName"
         );
 
-
     const codeInput =
         document.getElementById(
             "organizationServiceCode"
         );
 
-
     const descriptionInput =
         document.getElementById(
             "organizationServiceDescription"
         );
-
 
     const saveButton =
         document.getElementById(
@@ -16556,7 +16553,7 @@ async function saveOrganizationService() {
 
 
     /* =====================================================
-       1. VALIDATION
+       1. CONTRÔLES
     ====================================================== */
 
     if (!name) {
@@ -16578,7 +16575,6 @@ async function saveOrganizationService() {
                 name
             );
 
-
         if (codeInput) {
 
             codeInput.value =
@@ -16590,36 +16586,52 @@ async function saveOrganizationService() {
     if (!code) {
 
         alert(
-            "Impossible de générer le code du service."
+            "Le code du service est invalide."
         );
 
         return;
     }
 
 
-
     /* =====================================================
-       2. CONTRÔLE LOCAL DES DOUBLONS
+       2. VÉRIFICATION DOUBLON
     ====================================================== */
+
+    const normalizedName =
+        name.toLowerCase();
+
+    const normalizedCode =
+        code.toLowerCase();
+
 
     const duplicate =
         organizationAdminState
             .services
             .some(
-                service =>
-                    String(
-                        service.name || ""
-                    )
-                    .trim()
-                    .toLowerCase() ===
-                    name.toLowerCase()
-                    ||
-                    String(
-                        service.code || ""
-                    )
-                    .trim()
-                    .toLowerCase() ===
-                    code.toLowerCase()
+                service => {
+
+                    const serviceName =
+                        String(
+                            service.name || ""
+                        )
+                        .trim()
+                        .toLowerCase();
+
+                    const serviceCode =
+                        String(
+                            service.code || ""
+                        )
+                        .trim()
+                        .toLowerCase();
+
+                    return (
+                        serviceName ===
+                            normalizedName
+                        ||
+                        serviceCode ===
+                            normalizedCode
+                    );
+                }
             );
 
 
@@ -16633,9 +16645,8 @@ async function saveOrganizationService() {
     }
 
 
-
     /* =====================================================
-       3. VERROUILLAGE DU BOUTON
+       3. BOUTON EN CHARGEMENT
     ====================================================== */
 
     if (saveButton) {
@@ -16648,8 +16659,17 @@ async function saveOrganizationService() {
     }
 
 
-
     try {
+
+        console.log(
+            "🏢 Création service :",
+            {
+                name,
+                code,
+                description
+            }
+        );
+
 
         /* =================================================
            4. INSERT SUPABASE
@@ -16693,17 +16713,29 @@ async function saveOrganizationService() {
             );
 
 
+        const responseText =
+            await response.text();
+
+
         if (!response.ok) {
 
-            const errorText =
-                await response.text();
-
+            console.error(
+                "❌ Réponse Supabase :",
+                response.status,
+                responseText
+            );
 
             throw new Error(
-                errorText
+                responseText ||
+                `Erreur HTTP ${response.status}`
             );
         }
 
+
+        console.log(
+            "✅ Service créé :",
+            responseText
+        );
 
 
         /* =================================================
@@ -16714,7 +16746,7 @@ async function saveOrganizationService() {
 
 
         /* =================================================
-           6. RAFRAÎCHISSEMENT DE L'INTERFACE
+           6. RAFRAÎCHISSEMENT
         ================================================= */
 
         renderOrganizationServices();
@@ -16727,7 +16759,7 @@ async function saveOrganizationService() {
 
 
         /* =================================================
-           7. FERMETURE
+           7. FERMETURE MODALE
         ================================================= */
 
         closeOrganizationServiceModal();
@@ -16747,7 +16779,7 @@ async function saveOrganizationService() {
 
 
         alert(
-            "Impossible de créer le service."
+            "Impossible de créer le service. Regarde la console pour le détail."
         );
 
     } finally {
@@ -16762,7 +16794,6 @@ async function saveOrganizationService() {
         }
     }
 }
-
 
 
 /* =========================================================
