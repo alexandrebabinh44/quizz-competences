@@ -8761,4 +8761,146 @@ html[data-theme="light"]
         min-height: auto;
     }
 }
+/* =========================================================
+   RÔLES & ACCÈS
+   FORCER LES 3 COLONNES SUR PC
+========================================================= */
 
+#organizationPermissionsPanel
+.organization-permissions-final-layout {
+
+    display: grid !important;
+
+    grid-template-columns:
+        220px
+        minmax(0, 1fr)
+        280px
+        !important;
+
+    gap: 14px !important;
+
+    align-items: stretch !important;
+
+    width: 100% !important;
+}
+
+
+/* =========================================================
+   EMPÊCHE LES BLOCS DE DÉBORDER
+========================================================= */
+
+#organizationPermissionsPanel
+.organization-role-list-card,
+
+#organizationPermissionsPanel
+.organization-permission-card,
+
+#organizationPermissionsPanel
+.organization-category-card {
+
+    min-width: 0 !important;
+
+    width: auto !important;
+
+    grid-column: auto !important;
+
+    box-sizing: border-box !important;
+}
+
+
+/* =========================================================
+   COLONNE RÔLES
+========================================================= */
+
+#organizationPermissionsPanel
+.organization-role-list-card {
+
+    width: 220px !important;
+
+    min-height: 520px !important;
+}
+
+
+/* =========================================================
+   COLONNE PERMISSIONS
+========================================================= */
+
+#organizationPermissionsPanel
+.organization-permission-card {
+
+    width: 100% !important;
+
+    min-height: 520px !important;
+}
+
+
+/* =========================================================
+   COLONNE CATÉGORIES
+========================================================= */
+
+#organizationPermissionsPanel
+.organization-category-card {
+
+    width: 280px !important;
+
+    min-height: 520px !important;
+
+    display: block !important;
+}
+
+
+/* =========================================================
+   IMPORTANT :
+   ANNULE L'ANCIEN RESPONSIVE 1250px
+========================================================= */
+
+@media (min-width: 851px) {
+
+    #organizationPermissionsPanel
+    .organization-permissions-final-layout {
+
+        grid-template-columns:
+            220px
+            minmax(0, 1fr)
+            280px
+            !important;
+    }
+
+
+    #organizationPermissionsPanel
+    .organization-category-card {
+
+        grid-column: auto !important;
+    }
+}
+
+
+/* =========================================================
+   PETITS ÉCRANS UNIQUEMENT
+========================================================= */
+
+@media (max-width: 850px) {
+
+    #organizationPermissionsPanel
+    .organization-permissions-final-layout {
+
+        grid-template-columns:
+            1fr
+            !important;
+    }
+
+
+    #organizationPermissionsPanel
+    .organization-role-list-card,
+
+    #organizationPermissionsPanel
+    .organization-permission-card,
+
+    #organizationPermissionsPanel
+    .organization-category-card {
+
+        width: 100% !important;
+
+        grid-column: auto !important;
+    }
+}
