@@ -15569,3 +15569,776 @@ if (
         revealNickelMasterPage
     );
 }
+/* =========================================================
+   ADMIN ORGANISATION
+========================================================= */
+
+const organizationAdminState = {
+    services: [],
+    teams: [],
+    positions: [],
+    roles: [],
+    profiles: [],
+    currentTab: "services"
+};
+
+
+/* =========================================================
+   INITIALISATION PAGE
+========================================================= */
+
+async function initializeOrganizationAdminPage() {
+
+    try {
+
+        await loadOrganizationAdminData();
+
+        bindOrganizationAdminTabs();
+
+        renderOrganizationServices();
+        renderOrganizationTeams();
+        renderOrganizationPositions();
+
+        populateOrganizationSelects();
+
+    } catch (error) {
+
+        console.error(
+            "❌ Erreur initialisation organisation :",
+            error
+        );
+    }
+}
+
+
+/* =========================================================
+   CHARGEMENT DES DONNÉES
+========================================================= */
+
+async function loadOrganizationAdminData() {
+
+    const [
+        servicesResponse,
+        teamsResponse,
+        positionsResponse,
+        rolesResponse,
+        profilesResponse
+    ] = await Promise.all([
+
+        fetch(
+            `${SUPABASE_URL}/rest/v1/services?select=*&order=name.asc`,
+            {
+                headers: supabaseHeaders()
+            }
+        ),
+
+        fetch(
+            `${SUPABASE_URL}/rest/v1/teams?select=*&order=name.asc`,
+            {
+                headers: supabaseHeaders()
+            }
+        ),
+
+        fetch(
+            `${SUPABASE_URL}/rest/v1/positions?select=*&order=name.asc`,
+            {
+                headers: supabaseHeaders()
+            }
+        ),
+
+        fetch(
+            `${SUPABASE_URL}/rest/v1/roles?select=*&order=hierarchy_level.asc`,
+            {
+                headers: supabaseHeaders()
+            }
+        ),
+
+        fetch(
+            `${SUPABASE_URL}/rest/v1/profiles?select=id,full_name,username,role,team_id,service_id,position_id,account_status&order=full_name.asc`,
+            {
+                headers: supabaseHeaders()
+            }
+        )
+
+    ]);
+
+
+    const responses = [
+        servicesResponse,
+        teamsResponse,
+        positionsResponse,
+        rolesResponse,
+        profilesResponse
+    ];
+
+
+    for (const response of responses) {
+
+        if (!response.ok) {
+
+            throw new Error(
+                await response.text()
+            );
+        }
+    }
+
+
+    organizationAdminState.services =
+        await servicesResponse.json();
+
+    organizationAdminState.teams =
+        await teamsResponse.json();
+
+    organizationAdminState.positions =
+        await positionsResponse.json();
+
+    organizationAdminState.roles =
+        await rolesResponse.json();
+
+    organizationAdminState.profiles =
+        await profilesResponse.json();
+
+
+    console.log(
+        "🏢 Organisation chargée :",
+        organizationAdminState
+    );
+}
+
+
+/* =========================================================
+   ONGLET SERVICES / ÉQUIPES / FONCTIONS / ACCÈS
+========================================================= */
+
+function bindOrganizationAdminTabs() {
+
+    document
+        .querySelectorAll(
+            "[data-organization-tab]"
+        )
+        .forEach(
+            button => {
+
+                button.addEventListener(
+                    "click",
+                    function () {
+
+                        const tab =
+                            button.dataset
+                                .organizationTab;
+
+                        showOrganizationTab(
+                            tab
+                        );
+                    }
+                );
+            }
+        );
+}
+
+
+function showOrganizationTab(tab) {
+
+    organizationAdminState.currentTab =
+        tab;
+
+
+    document
+        .querySelectorAll(
+            "[data-organization-tab]"
+        )
+        .forEach(
+            button => {
+
+                button.classList.toggle(
+                    "active",
+                    button.dataset
+                        .organizationTab === tab
+                );
+            }
+        );
+
+
+    const panels = {
+        services:
+            "organizationServicesPanel",
+
+        teams:
+            "organizationTeamsPanel",
+
+        positions:
+            "organizationPositionsPanel",
+
+        permissions:
+            "organizationPermissionsPanel"
+    };
+
+
+    Object
+        .entries(panels)
+        .forEach(
+            ([key, id]) => {
+
+                const element =
+                    document.getElementById(id);
+
+                if (!element) {
+                    return;
+                }
+
+                element.style.display =
+                    key === tab
+                        ? ""
+                        : "none";
+            }
+        );
+}
+
+
+/* =========================================================
+   SERVICES
+========================================================= */
+
+function renderOrganizationServices() {
+
+    const container =
+        document.getElementById(
+            "organizationServicesList"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    const services =
+        organizationAdminState.services;
+
+
+    if (!services.length) {
+
+        container.innerHTML = `
+            <div class="question-management-empty">
+                Aucun service.
+            </div>
+        `;
+
+        return;
+    }
+
+
+    container.innerHTML =
+        services
+            .map(
+                service => `
+
+                    <div class="organization-list-row">
+
+                        <div class="organization-list-main">
+
+                            <strong>
+                                ${escapeHtml(service.name)}
+                            </strong>
+
+                            <small>
+                                ${escapeHtml(
+                                    service.description || ""
+                                )}
+                            </small>
+
+                        </div>
+
+
+                        <div class="organization-list-code">
+                            ${escapeHtml(service.code)}
+                        </div>
+
+
+                        <div>
+
+                            <span class="${
+                                service.is_active
+                                    ? "organization-status-active"
+                                    : "organization-status-inactive"
+                            }">
+
+                                ${
+                                    service.is_active
+                                        ? "Actif"
+                                        : "Désactivé"
+                                }
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                `
+            )
+            .join("");
+}
+
+
+/* =========================================================
+   ÉQUIPES
+========================================================= */
+
+function renderOrganizationTeams() {
+
+    const container =
+        document.getElementById(
+            "organizationTeamsList"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    const serviceMap =
+        new Map(
+            organizationAdminState
+                .services
+                .map(
+                    service => [
+                        String(service.id),
+                        service
+                    ]
+                )
+        );
+
+
+    const profileMap =
+        new Map(
+            organizationAdminState
+                .profiles
+                .map(
+                    profile => [
+                        String(profile.id),
+                        profile
+                    ]
+                )
+        );
+
+
+    if (!organizationAdminState.teams.length) {
+
+        container.innerHTML = `
+            <div class="question-management-empty">
+                Aucune équipe.
+            </div>
+        `;
+
+        return;
+    }
+
+
+    container.innerHTML =
+        organizationAdminState
+            .teams
+            .map(
+                team => {
+
+                    const service =
+                        serviceMap.get(
+                            String(
+                                team.service_id || ""
+                            )
+                        );
+
+
+                    const manager =
+                        profileMap.get(
+                            String(
+                                team.manager_id || ""
+                            )
+                        );
+
+
+                    return `
+
+                        <div class="organization-list-row">
+
+                            <div class="organization-list-main">
+
+                                <strong>
+                                    ${escapeHtml(team.name)}
+                                </strong>
+
+                                <small>
+                                    ${
+                                        manager
+                                            ? `Manager : ${escapeHtml(manager.full_name)}`
+                                            : "Aucun manager"
+                                    }
+                                </small>
+
+                            </div>
+
+
+                            <div>
+                                ${
+                                    service
+                                        ? escapeHtml(service.name)
+                                        : "—"
+                                }
+                            </div>
+
+
+                            <div>
+
+                                <span class="${
+                                    team.is_active !== false
+                                        ? "organization-status-active"
+                                        : "organization-status-inactive"
+                                }">
+
+                                    ${
+                                        team.is_active !== false
+                                            ? "Active"
+                                            : "Désactivée"
+                                    }
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    `;
+                }
+            )
+            .join("");
+}
+
+
+/* =========================================================
+   FONCTIONS
+========================================================= */
+
+function renderOrganizationPositions() {
+
+    const container =
+        document.getElementById(
+            "organizationPositionsList"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    const roleMap =
+        new Map(
+            organizationAdminState
+                .roles
+                .map(
+                    role => [
+                        String(role.id),
+                        role
+                    ]
+                )
+        );
+
+
+    const serviceMap =
+        new Map(
+            organizationAdminState
+                .services
+                .map(
+                    service => [
+                        String(service.id),
+                        service
+                    ]
+                )
+        );
+
+
+    if (!organizationAdminState.positions.length) {
+
+        container.innerHTML = `
+            <div class="question-management-empty">
+                Aucune fonction.
+            </div>
+        `;
+
+        return;
+    }
+
+
+    container.innerHTML =
+        organizationAdminState
+            .positions
+            .map(
+                position => {
+
+                    const role =
+                        roleMap.get(
+                            String(
+                                position.role_id || ""
+                            )
+                        );
+
+
+                    const service =
+                        serviceMap.get(
+                            String(
+                                position.service_id || ""
+                            )
+                        );
+
+
+                    return `
+
+                        <div class="organization-list-row">
+
+                            <div class="organization-list-main">
+
+                                <strong>
+                                    ${escapeHtml(position.name)}
+                                </strong>
+
+                                <small>
+                                    ${escapeHtml(
+                                        position.description || ""
+                                    )}
+                                </small>
+
+                            </div>
+
+
+                            <div>
+                                ${
+                                    role
+                                        ? escapeHtml(role.name)
+                                        : "Aucun rôle"
+                                }
+                            </div>
+
+
+                            <div>
+                                ${
+                                    service
+                                        ? escapeHtml(service.name)
+                                        : "Tous / Aucun"
+                                }
+                            </div>
+
+
+                            <div>
+
+                                <span class="${
+                                    position.is_active
+                                        ? "organization-status-active"
+                                        : "organization-status-inactive"
+                                }">
+
+                                    ${
+                                        position.is_active
+                                            ? "Active"
+                                            : "Désactivée"
+                                    }
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    `;
+                }
+            )
+            .join("");
+}
+
+
+/* =========================================================
+   SELECTS
+========================================================= */
+
+function populateOrganizationSelects() {
+
+    populateOrganizationServiceSelects();
+    populateOrganizationRoleSelect();
+    populateOrganizationManagerSelect();
+}
+
+
+/* =========================================================
+   SERVICES DANS LES SELECTS
+========================================================= */
+
+function populateOrganizationServiceSelects() {
+
+    const services =
+        organizationAdminState.services
+            .filter(
+                service =>
+                    service.is_active !== false
+            );
+
+
+    const selects = [
+
+        document.getElementById(
+            "organizationTeamService"
+        ),
+
+        document.getElementById(
+            "organizationPositionService"
+        ),
+
+        document.getElementById(
+            "organizationTeamServiceFilter"
+        ),
+
+        document.getElementById(
+            "organizationPositionServiceFilter"
+        )
+    ];
+
+
+    selects.forEach(
+        select => {
+
+            if (!select) {
+                return;
+            }
+
+
+            const firstOption =
+                select.options[0]
+                    ? select.options[0].outerHTML
+                    : `<option value="">Tous</option>`;
+
+
+            select.innerHTML =
+                firstOption +
+                services
+                    .map(
+                        service => `
+                            <option value="${service.id}">
+                                ${escapeHtml(service.name)}
+                            </option>
+                        `
+                    )
+                    .join("");
+        }
+    );
+}
+
+
+/* =========================================================
+   RÔLES DANS LE SELECT
+========================================================= */
+
+function populateOrganizationRoleSelect() {
+
+    const select =
+        document.getElementById(
+            "organizationPositionRole"
+        );
+
+
+    if (!select) {
+        return;
+    }
+
+
+    select.innerHTML = `
+        <option value="">
+            Aucun rôle
+        </option>
+    `;
+
+
+    organizationAdminState
+        .roles
+        .forEach(
+            role => {
+
+                select.insertAdjacentHTML(
+                    "beforeend",
+                    `
+                        <option value="${role.id}">
+                            ${escapeHtml(role.name)}
+                        </option>
+                    `
+                );
+            }
+        );
+}
+
+
+/* =========================================================
+   MANAGERS POTENTIELS
+========================================================= */
+
+function populateOrganizationManagerSelect() {
+
+    const select =
+        document.getElementById(
+            "organizationTeamManager"
+        );
+
+
+    if (!select) {
+        return;
+    }
+
+
+    const managerRoles =
+        new Set([
+            "team_leader",
+            "manager",
+            "responsable",
+            "direction",
+            "admin"
+        ]);
+
+
+    const profiles =
+        organizationAdminState
+            .profiles
+            .filter(
+                profile =>
+                    managerRoles.has(
+                        String(
+                            profile.role || ""
+                        )
+                        .trim()
+                        .toLowerCase()
+                    ) &&
+                    String(
+                        profile.account_status || "active"
+                    )
+                    .toLowerCase() !==
+                    "inactive"
+            );
+
+
+    select.innerHTML = `
+        <option value="">
+            Aucun manager
+        </option>
+    `;
+
+
+    profiles.forEach(
+        profile => {
+
+            select.insertAdjacentHTML(
+                "beforeend",
+                `
+                    <option value="${profile.id}">
+                        ${escapeHtml(profile.full_name)}
+                    </option>
+                `
+            );
+        }
+    );
+}
