@@ -19662,6 +19662,20 @@ function renderOrganizationPermissionCheckboxes(
         );
 
 
+    if (
+        !Object.keys(groups).length
+    ) {
+
+        container.innerHTML = `
+            <div class="question-management-empty">
+                Aucune permission disponible.
+            </div>
+        `;
+
+        return;
+    }
+
+
     container.innerHTML =
         Object
             .entries(groups)
@@ -19679,7 +19693,7 @@ function renderOrganizationPermissionCheckboxes(
                         </h4>
 
 
-                        <div class="organization-permission-grid">
+                        <div class="organization-permission-options">
 
                             ${
                                 permissions
@@ -19688,22 +19702,12 @@ function renderOrganizationPermissionCheckboxes(
 
                                             <label class="organization-permission-option">
 
-                                                <input
-                                                    type="checkbox"
-                                                    data-role-permission="${permission.id}"
-                                                    ${
-                                                        allowed.has(
-                                                            String(permission.id)
-                                                        )
-                                                            ? "checked"
-                                                            : ""
-                                                    }
-                                                >
-
-                                                <div>
+                                                <div class="organization-permission-option-text">
 
                                                     <strong>
-                                                        ${escapeHtml(permission.name)}
+                                                        ${escapeHtml(
+                                                            permission.name
+                                                        )}
                                                     </strong>
 
                                                     <small>
@@ -19715,7 +19719,23 @@ function renderOrganizationPermissionCheckboxes(
 
                                                 </div>
 
+
+                                                <input
+                                                    type="checkbox"
+                                                    data-role-permission="${permission.id}"
+                                                    ${
+                                                        allowed.has(
+                                                            String(
+                                                                permission.id
+                                                            )
+                                                        )
+                                                            ? "checked"
+                                                            : ""
+                                                    }
+                                                >
+
                                             </label>
+
                                         `
                                     )
                                     .join("")
@@ -19724,11 +19744,11 @@ function renderOrganizationPermissionCheckboxes(
                         </div>
 
                     </div>
+
                 `
             )
             .join("");
 }
-
 
 
 function renderOrganizationCategoryCheckboxes(
