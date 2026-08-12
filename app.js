@@ -16354,6 +16354,11 @@ function populateOrganizationManagerSelect() {
 
 function openOrganizationServiceModal() {
 
+    console.log(
+        "🏢 Ouverture modale service"
+    );
+
+
     const modal =
         document.getElementById(
             "organizationServiceModal"
@@ -16361,6 +16366,15 @@ function openOrganizationServiceModal() {
 
 
     if (!modal) {
+
+        console.error(
+            "❌ organizationServiceModal introuvable"
+        );
+
+        alert(
+            "Erreur : la fenêtre d'ajout du service est introuvable."
+        );
+
         return;
     }
 
@@ -16401,7 +16415,11 @@ function openOrganizationServiceModal() {
 
 
     if (codeInput) {
+
         codeInput.value = "";
+
+        codeInput.dataset.manualEdit =
+            "false";
     }
 
 
@@ -16413,18 +16431,28 @@ function openOrganizationServiceModal() {
     modal.style.display =
         "flex";
 
+    modal.style.alignItems =
+        "center";
+
+    modal.style.justifyContent =
+        "center";
+
+
+    console.log(
+        "✅ Modale service affichée"
+    );
+
 
     setTimeout(
         function () {
 
-            if (nameInput) {
-                nameInput.focus();
-            }
+            nameInput?.focus();
 
         },
-        50
+        100
     );
 }
+
 
 
 
