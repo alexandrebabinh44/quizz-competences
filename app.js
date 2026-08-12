@@ -16342,3 +16342,589 @@ function populateOrganizationManagerSelect() {
         }
     );
 }
+/* =========================================================
+   ADMIN ORGANISATION
+   GESTION DES SERVICES
+========================================================= */
+
+
+/* =========================================================
+   OUVERTURE / FERMETURE MODALE SERVICE
+========================================================= */
+
+function openOrganizationServiceModal() {
+
+    const modal =
+        document.getElementById(
+            "organizationServiceModal"
+        );
+
+
+    if (!modal) {
+        return;
+    }
+
+
+    const title =
+        document.getElementById(
+            "organizationServiceModalTitle"
+        );
+
+
+    const nameInput =
+        document.getElementById(
+            "organizationServiceName"
+        );
+
+
+    const codeInput =
+        document.getElementById(
+            "organizationServiceCode"
+        );
+
+
+    const descriptionInput =
+        document.getElementById(
+            "organizationServiceDescription"
+        );
+
+
+    if (title) {
+        title.textContent =
+            "Ajouter un service";
+    }
+
+
+    if (nameInput) {
+        nameInput.value = "";
+    }
+
+
+    if (codeInput) {
+        codeInput.value = "";
+    }
+
+
+    if (descriptionInput) {
+        descriptionInput.value = "";
+    }
+
+
+    modal.style.display =
+        "flex";
+
+
+    setTimeout(
+        function () {
+
+            if (nameInput) {
+                nameInput.focus();
+            }
+
+        },
+        50
+    );
+}
+
+
+
+function closeOrganizationServiceModal() {
+
+    const modal =
+        document.getElementById(
+            "organizationServiceModal"
+        );
+
+
+    if (!modal) {
+        return;
+    }
+
+
+    modal.style.display =
+        "none";
+}
+
+
+
+/* =========================================================
+   GÉNÉRATION AUTOMATIQUE DU CODE
+========================================================= */
+
+function generateOrganizationCode(
+    value
+) {
+
+    return String(
+        value || ""
+    )
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(
+        /[\u0300-\u036f]/g,
+        ""
+    )
+    .replace(
+        /[^a-z0-9]+/g,
+        "_"
+    )
+    .replace(
+        /^_+|_+$/g,
+        ""
+    );
+}
+
+
+
+/* =========================================================
+   CRÉATION DU SERVICE
+========================================================= */
+
+async function saveOrganizationService() {
+
+    const nameInput =
+        document.getElementById(
+            "organizationServiceName"
+        );
+
+
+    const codeInput =
+        document.getElementById(
+            "organizationServiceCode"
+        );
+
+
+    const descriptionInput =
+        document.getElementById(
+            "organizationServiceDescription"
+        );
+
+
+    const saveButton =
+        document.getElementById(
+            "organizationSaveService"
+        );
+
+
+    const name =
+        String(
+            nameInput?.value || ""
+        )
+        .trim();
+
+
+    let code =
+        String(
+            codeInput?.value || ""
+        )
+        .trim();
+
+
+    const description =
+        String(
+            descriptionInput?.value || ""
+        )
+        .trim();
+
+
+    /* =====================================================
+       1. VALIDATION
+    ====================================================== */
+
+    if (!name) {
+
+        alert(
+            "Renseigne le nom du service."
+        );
+
+        nameInput?.focus();
+
+        return;
+    }
+
+
+    if (!code) {
+
+        code =
+            generateOrganizationCode(
+                name
+            );
+
+
+        if (codeInput) {
+
+            codeInput.value =
+                code;
+        }
+    }
+
+
+    if (!code) {
+
+        alert(
+            "Impossible de générer le code du service."
+        );
+
+        return;
+    }
+
+
+
+    /* =====================================================
+       2. CONTRÔLE LOCAL DES DOUBLONS
+    ====================================================== */
+
+    const duplicate =
+        organizationAdminState
+            .services
+            .some(
+                service =>
+                    String(
+                        service.name || ""
+                    )
+                    .trim()
+                    .toLowerCase() ===
+                    name.toLowerCase()
+                    ||
+                    String(
+                        service.code || ""
+                    )
+                    .trim()
+                    .toLowerCase() ===
+                    code.toLowerCase()
+            );
+
+
+    if (duplicate) {
+
+        alert(
+            "Un service avec ce nom ou ce code existe déjà."
+        );
+
+        return;
+    }
+
+
+
+    /* =====================================================
+       3. VERROUILLAGE DU BOUTON
+    ====================================================== */
+
+    if (saveButton) {
+
+        saveButton.disabled =
+            true;
+
+        saveButton.textContent =
+            "Enregistrement...";
+    }
+
+
+
+    try {
+
+        /* =================================================
+           4. INSERT SUPABASE
+        ================================================= */
+
+        const response =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/services`,
+                {
+                    method:
+                        "POST",
+
+                    headers: {
+                        ...supabaseHeaders(),
+
+                        "Content-Type":
+                            "application/json",
+
+                        "Prefer":
+                            "return=representation"
+                    },
+
+                    body:
+                        JSON.stringify(
+                            {
+                                name:
+                                    name,
+
+                                code:
+                                    code,
+
+                                description:
+                                    description ||
+                                    null,
+
+                                is_active:
+                                    true
+                            }
+                        )
+                }
+            );
+
+
+        if (!response.ok) {
+
+            const errorText =
+                await response.text();
+
+
+            throw new Error(
+                errorText
+            );
+        }
+
+
+
+        /* =================================================
+           5. RECHARGEMENT DES DONNÉES
+        ================================================= */
+
+        await loadOrganizationAdminData();
+
+
+        /* =================================================
+           6. RAFRAÎCHISSEMENT DE L'INTERFACE
+        ================================================= */
+
+        renderOrganizationServices();
+
+        renderOrganizationTeams();
+
+        renderOrganizationPositions();
+
+        populateOrganizationSelects();
+
+
+        /* =================================================
+           7. FERMETURE
+        ================================================= */
+
+        closeOrganizationServiceModal();
+
+
+        alert(
+            `Le service "${name}" a bien été créé.`
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "❌ Erreur création service :",
+            error
+        );
+
+
+        alert(
+            "Impossible de créer le service."
+        );
+
+    } finally {
+
+        if (saveButton) {
+
+            saveButton.disabled =
+                false;
+
+            saveButton.textContent =
+                "💾 Enregistrer";
+        }
+    }
+}
+
+
+
+/* =========================================================
+   ÉVÉNEMENTS SERVICE
+========================================================= */
+
+function bindOrganizationServiceEvents() {
+
+    const addButton =
+        document.getElementById(
+            "organizationAddServiceButton"
+        );
+
+
+    const closeButton =
+        document.getElementById(
+            "organizationCloseServiceModal"
+        );
+
+
+    const cancelButton =
+        document.getElementById(
+            "organizationCancelService"
+        );
+
+
+    const saveButton =
+        document.getElementById(
+            "organizationSaveService"
+        );
+
+
+    const nameInput =
+        document.getElementById(
+            "organizationServiceName"
+        );
+
+
+    const codeInput =
+        document.getElementById(
+            "organizationServiceCode"
+        );
+
+
+    const modal =
+        document.getElementById(
+            "organizationServiceModal"
+        );
+
+
+
+    /* =====================================================
+       AJOUT
+    ====================================================== */
+
+    if (addButton) {
+
+        addButton.addEventListener(
+            "click",
+            openOrganizationServiceModal
+        );
+    }
+
+
+
+    /* =====================================================
+       FERMETURE
+    ====================================================== */
+
+    if (closeButton) {
+
+        closeButton.addEventListener(
+            "click",
+            closeOrganizationServiceModal
+        );
+    }
+
+
+    if (cancelButton) {
+
+        cancelButton.addEventListener(
+            "click",
+            closeOrganizationServiceModal
+        );
+    }
+
+
+
+    /* =====================================================
+       ENREGISTREMENT
+    ====================================================== */
+
+    if (saveButton) {
+
+        saveButton.addEventListener(
+            "click",
+            saveOrganizationService
+        );
+    }
+
+
+
+    /* =====================================================
+       CODE AUTO DEPUIS LE NOM
+    ====================================================== */
+
+    if (
+        nameInput &&
+        codeInput
+    ) {
+
+        nameInput.addEventListener(
+            "input",
+            function () {
+
+                if (
+                    codeInput.dataset
+                        .manualEdit ===
+                    "true"
+                ) {
+                    return;
+                }
+
+
+                codeInput.value =
+                    generateOrganizationCode(
+                        nameInput.value
+                    );
+            }
+        );
+
+
+        codeInput.addEventListener(
+            "input",
+            function () {
+
+                codeInput.dataset
+                    .manualEdit =
+                    codeInput.value
+                        .trim()
+                        ? "true"
+                        : "false";
+            }
+        );
+    }
+
+
+
+    /* =====================================================
+       CLIC HORS MODALE
+    ====================================================== */
+
+    if (modal) {
+
+        modal.addEventListener(
+            "click",
+            function (event) {
+
+                if (
+                    event.target ===
+                    modal
+                ) {
+
+                    closeOrganizationServiceModal();
+                }
+            }
+        );
+    }
+
+
+
+    /* =====================================================
+       TOUCHE ÉCHAP
+    ====================================================== */
+
+    document.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (
+                event.key ===
+                "Escape" &&
+                modal &&
+                modal.style.display !==
+                "none"
+            ) {
+
+                closeOrganizationServiceModal();
+            }
+        }
+    );
+}
