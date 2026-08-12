@@ -8309,4 +8309,257 @@ html[data-theme="light"]
         align-items: stretch;
     }
 }
+/* =========================================================
+   ORGANISATION
+   CORRECTION ALIGNEMENT FINAL DES TABLEAUX
+========================================================= */
+
+
+/* =========================================================
+   SERVICES
+========================================================= */
+
+#organizationServicesList
+.organization-table-header.organization-services-header,
+
+#organizationServicesList
+.organization-list-row.organization-service-row {
+
+    display: grid !important;
+
+    grid-template-columns:
+        minmax(180px, 1.20fr)
+        minmax(150px, .85fr)
+        minmax(220px, 1.45fr)
+        90px
+        120px
+        !important;
+
+    align-items: center !important;
+
+    gap: 18px !important;
+}
+
+
+/* =========================================================
+   ÉQUIPES
+========================================================= */
+
+#organizationTeamsList
+.organization-table-header.organization-teams-header,
+
+#organizationTeamsList
+.organization-list-row.organization-team-row {
+
+    display: grid !important;
+
+    grid-template-columns:
+        minmax(180px, 1.20fr)
+        minmax(150px, .85fr)
+        minmax(190px, 1.10fr)
+        90px
+        120px
+        !important;
+
+    align-items: center !important;
+
+    gap: 18px !important;
+}
+
+
+/* =========================================================
+   FONCTIONS
+========================================================= */
+
+#organizationPositionsList
+.organization-table-header.organization-positions-header,
+
+#organizationPositionsList
+.organization-list-row.organization-position-row {
+
+    display: grid !important;
+
+    grid-template-columns:
+        minmax(170px, 1.05fr)
+        minmax(135px, .75fr)
+        minmax(160px, .95fr)
+        minmax(160px, .95fr)
+        90px
+        120px
+        !important;
+
+    align-items: center !important;
+
+    gap: 18px !important;
+}
+
+
+/* =========================================================
+   EMPÊCHE LES CELLULES DE SE DÉCALER
+========================================================= */
+
+.organization-service-row > div,
+.organization-team-row > div,
+.organization-position-row > div,
+
+.organization-services-header > div,
+.organization-teams-header > div,
+.organization-positions-header > div {
+
+    min-width: 0 !important;
+
+    margin: 0 !important;
+
+    position: static !important;
+
+    transform: none !important;
+}
+
+
+/* =========================================================
+   ACTIONS TOUJOURS À DROITE
+========================================================= */
+
+#organizationServicesList
+.organization-row-actions,
+
+#organizationTeamsList
+.organization-row-actions,
+
+#organizationPositionsList
+.organization-row-actions {
+
+    display: flex !important;
+
+    flex-direction: row !important;
+
+    align-items: center !important;
+
+    justify-content: flex-end !important;
+
+    gap: 6px !important;
+
+    width: auto !important;
+
+    margin: 0 !important;
+}
+
+
+/* =========================================================
+   BOUTONS ACTION
+========================================================= */
+
+#organizationServicesList
+.organization-action-button,
+
+#organizationTeamsList
+.organization-action-button,
+
+#organizationPositionsList
+.organization-action-button {
+
+    width: 32px !important;
+    height: 32px !important;
+
+    min-width: 32px !important;
+
+    padding: 0 !important;
+
+    display: inline-flex !important;
+
+    align-items: center !important;
+
+    justify-content: center !important;
+}
+
+
+/* =========================================================
+   STATUT
+========================================================= */
+
+#organizationServicesList
+.organization-status-active,
+
+#organizationServicesList
+.organization-status-inactive,
+
+#organizationTeamsList
+.organization-status-active,
+
+#organizationTeamsList
+.organization-status-inactive,
+
+#organizationPositionsList
+.organization-status-active,
+
+#organizationPositionsList
+.organization-status-inactive {
+
+    margin: 0 !important;
+
+    white-space: nowrap !important;
+}
+
+
+/* =========================================================
+   CODE
+========================================================= */
+
+#organizationServicesList
+.organization-list-code,
+
+#organizationPositionsList
+.organization-list-code {
+
+    overflow: hidden !important;
+
+    white-space: nowrap !important;
+
+    text-overflow: ellipsis !important;
+}
+
+
+/* =========================================================
+   DESCRIPTION SERVICE
+========================================================= */
+
+#organizationServicesList
+.organization-description-cell {
+
+    overflow: hidden !important;
+
+    white-space: nowrap !important;
+
+    text-overflow: ellipsis !important;
+}
+
+
+/* =========================================================
+   MANAGER ÉQUIPE
+========================================================= */
+
+#organizationTeamsList
+.organization-manager-cell {
+
+    display: flex !important;
+
+    flex-direction: row !important;
+
+    align-items: center !important;
+
+    gap: 8px !important;
+
+    min-width: 0 !important;
+}
+
+
+#organizationTeamsList
+.organization-manager-cell span {
+
+    overflow: hidden !important;
+
+    white-space: nowrap !important;
+
+    text-overflow: ellipsis !important;
+}
 
