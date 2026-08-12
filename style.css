@@ -5565,3 +5565,396 @@ html[data-theme="dark"] .login-card {
         flex-direction: column;
     }
 }
+/* =========================================================
+   ADMIN ORGANISATION
+========================================================= */
+
+.organization-admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.organization-admin-header h1 {
+  margin: 0 0 6px;
+  font-size: 2rem;
+}
+
+.organization-admin-header p {
+  margin: 0;
+  opacity: 0.72;
+}
+
+
+/* =========================================================
+   ONGLETS
+========================================================= */
+
+.organization-admin-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.organization-tab {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  min-height: 88px;
+  padding: 18px 20px;
+
+  border-radius: 16px;
+  border: 1px solid var(--border-color, rgba(128, 128, 128, 0.2));
+
+  background: var(--card-bg, #ffffff);
+  color: inherit;
+
+  text-align: left;
+  cursor: pointer;
+
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease;
+}
+
+.organization-tab:hover {
+  transform: translateY(-2px);
+}
+
+.organization-tab.active {
+  border-color: #ff6b1a;
+  box-shadow: 0 0 0 1px rgba(255, 107, 26, 0.15);
+}
+
+.organization-tab > span {
+  font-size: 1.7rem;
+}
+
+.organization-tab div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.organization-tab strong {
+  font-size: 1rem;
+}
+
+.organization-tab small {
+  opacity: 0.65;
+  font-size: 0.83rem;
+}
+
+
+/* =========================================================
+   PANELS
+========================================================= */
+
+.organization-panel {
+  padding: 24px;
+
+  border-radius: 20px;
+  border: 1px solid var(--border-color, rgba(128, 128, 128, 0.2));
+
+  background: var(--card-bg, #ffffff);
+}
+
+.organization-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+
+  margin-bottom: 20px;
+}
+
+.organization-panel-header h2 {
+  margin: 0 0 6px;
+}
+
+.organization-panel-header p {
+  margin: 0;
+  opacity: 0.68;
+  max-width: 760px;
+}
+
+
+/* =========================================================
+   TOOLBAR
+========================================================= */
+
+.organization-toolbar {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) 220px 220px;
+  gap: 14px;
+
+  margin-bottom: 18px;
+}
+
+.organization-toolbar input,
+.organization-toolbar select {
+  width: 100%;
+  min-height: 46px;
+
+  padding: 0 14px;
+
+  border-radius: 12px;
+  border: 1px solid var(--border-color, rgba(128, 128, 128, 0.22));
+
+  background: var(--input-bg, transparent);
+  color: inherit;
+
+  outline: none;
+}
+
+.organization-toolbar input:focus,
+.organization-toolbar select:focus {
+  border-color: #ff6b1a;
+  box-shadow: 0 0 0 3px rgba(255, 107, 26, 0.12);
+}
+
+
+/* =========================================================
+   LISTE
+========================================================= */
+
+.organization-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.organization-list-row {
+  display: grid;
+  grid-template-columns:
+    minmax(260px, 2fr)
+    minmax(150px, 1fr)
+    minmax(130px, auto);
+
+  align-items: center;
+  gap: 18px;
+
+  min-height: 72px;
+
+  padding: 14px 18px;
+
+  border-radius: 14px;
+  border: 1px solid var(--border-color, rgba(128, 128, 128, 0.18));
+
+  background: var(--soft-card-bg, rgba(128, 128, 128, 0.04));
+}
+
+.organization-list-main {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.organization-list-main strong {
+  font-size: 1rem;
+}
+
+.organization-list-main small {
+  opacity: 0.62;
+}
+
+.organization-list-code {
+  font-family: monospace;
+  font-size: 0.9rem;
+  opacity: 0.75;
+}
+
+
+/* =========================================================
+   STATUTS
+========================================================= */
+
+.organization-status-active,
+.organization-status-inactive {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 6px 10px;
+  border-radius: 999px;
+
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.organization-status-active {
+  background: rgba(34, 197, 94, 0.13);
+  color: #22a447;
+}
+
+.organization-status-inactive {
+  background: rgba(239, 68, 68, 0.13);
+  color: #dc4040;
+}
+
+
+/* =========================================================
+   RÔLES & ACCÈS
+========================================================= */
+
+.organization-permission-layout {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 18px;
+}
+
+.organization-role-list-card,
+.organization-permission-card {
+  border-radius: 16px;
+  border: 1px solid var(--border-color, rgba(128, 128, 128, 0.2));
+
+  background: var(--soft-card-bg, rgba(128, 128, 128, 0.04));
+
+  padding: 18px;
+}
+
+.organization-role-list-card h3 {
+  margin-top: 0;
+}
+
+.organization-role-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.organization-permission-heading {
+  margin-bottom: 18px;
+}
+
+.organization-permission-heading h3 {
+  margin: 0 0 5px;
+}
+
+.organization-permission-heading p {
+  margin: 0;
+  opacity: 0.65;
+}
+
+
+/* =========================================================
+   MODALES ORGANISATION
+========================================================= */
+
+#organizationServiceModal .question-edit-modal-card,
+#organizationTeamModal .question-edit-modal-card,
+#organizationPositionModal .question-edit-modal-card {
+  max-width: 620px;
+}
+
+#organizationServiceModal textarea,
+#organizationPositionModal textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+
+/* =========================================================
+   MODE SOMBRE
+========================================================= */
+
+html[data-theme="dark"] .organization-tab,
+html[data-theme="dark"] .organization-panel,
+html[data-theme="dark"] .organization-role-list-card,
+html[data-theme="dark"] .organization-permission-card {
+  background: #121c28;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+html[data-theme="dark"] .organization-list-row {
+  background: #162230;
+  border-color: rgba(255, 255, 255, 0.07);
+}
+
+html[data-theme="dark"] .organization-toolbar input,
+html[data-theme="dark"] .organization-toolbar select {
+  background: #162230;
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+html[data-theme="dark"] .organization-toolbar select option {
+  background: #162230;
+  color: #ffffff;
+}
+
+
+/* =========================================================
+   MODE CLAIR
+========================================================= */
+
+html[data-theme="light"] .organization-tab,
+html[data-theme="light"] .organization-panel,
+html[data-theme="light"] .organization-role-list-card,
+html[data-theme="light"] .organization-permission-card {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+html[data-theme="light"] .organization-list-row {
+  background: #fafafa;
+  border-color: rgba(0, 0, 0, 0.07);
+}
+
+html[data-theme="light"] .organization-toolbar input,
+html[data-theme="light"] .organization-toolbar select {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #202020;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1100px) {
+
+  .organization-admin-tabs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .organization-toolbar {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .organization-list-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .organization-permission-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+@media (max-width: 700px) {
+
+  .organization-admin-header,
+  .organization-panel-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .organization-admin-tabs {
+    grid-template-columns: 1fr;
+  }
+
+  .organization-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .organization-list-row {
+    grid-template-columns: 1fr;
+  }
+}
