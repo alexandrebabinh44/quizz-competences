@@ -15569,19 +15569,6 @@ if (
         revealNickelMasterPage
     );
 }
-/* =========================================================
-   ADMIN ORGANISATION
-========================================================= */
-
-const organizationAdminState = {
-    services: [],
-    teams: [],
-    positions: [],
-    roles: [],
-    profiles: [],
-    currentTab: "services"
-};
-
 
 /* =========================================================
    ÉTAT ADMIN ORGANISATION
