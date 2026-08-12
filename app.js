@@ -15584,6 +15584,37 @@ const organizationAdminState = {
 
 
 /* =========================================================
+   ÉTAT ADMIN ORGANISATION
+========================================================= */
+
+const organizationAdminState = {
+
+    services: [],
+
+    teams: [],
+
+    positions: [],
+
+    roles: [],
+
+    profiles: [],
+
+    permissions: [],
+
+    categories: [],
+
+    rolePermissions: [],
+
+    roleCategoryAccess: [],
+
+    currentTab: "services",
+
+    selectedRoleId: null
+};
+
+
+
+/* =========================================================
    INITIALISATION PAGE
 ========================================================= */
 
@@ -15593,12 +15624,27 @@ async function initializeOrganizationAdminPage() {
 
         await loadOrganizationAdminData();
 
+
         bindOrganizationAdminTabs();
+
         bindOrganizationServiceEvents();
+
+        bindOrganizationPositionEvents();
+
+        bindOrganizationRoleEvents();
+
+
         renderOrganizationServices();
+
         renderOrganizationTeams();
+
         renderOrganizationPositions();
+
+        renderOrganizationRoles();
+
+
         populateOrganizationSelects();
+
 
     } catch (error) {
 
@@ -15608,6 +15654,7 @@ async function initializeOrganizationAdminPage() {
         );
     }
 }
+
 
 
 /* =========================================================
@@ -15621,41 +15668,91 @@ async function loadOrganizationAdminData() {
         teamsResponse,
         positionsResponse,
         rolesResponse,
-        profilesResponse
+        profilesResponse,
+        permissionsResponse,
+        categoriesResponse,
+        rolePermissionsResponse,
+        roleCategoryAccessResponse
     ] = await Promise.all([
+
 
         fetch(
             `${SUPABASE_URL}/rest/v1/services?select=*&order=name.asc`,
             {
-                headers: supabaseHeaders()
+                headers:
+                    supabaseHeaders()
             }
         ),
+
 
         fetch(
             `${SUPABASE_URL}/rest/v1/teams?select=*&order=name.asc`,
             {
-                headers: supabaseHeaders()
+                headers:
+                    supabaseHeaders()
             }
         ),
+
 
         fetch(
             `${SUPABASE_URL}/rest/v1/positions?select=*&order=name.asc`,
             {
-                headers: supabaseHeaders()
+                headers:
+                    supabaseHeaders()
             }
         ),
+
 
         fetch(
             `${SUPABASE_URL}/rest/v1/roles?select=*&order=hierarchy_level.asc`,
             {
-                headers: supabaseHeaders()
+                headers:
+                    supabaseHeaders()
             }
         ),
+
 
         fetch(
             `${SUPABASE_URL}/rest/v1/profiles?select=id,full_name,username,role,team_id,service_id,position_id,account_status&order=full_name.asc`,
             {
-                headers: supabaseHeaders()
+                headers:
+                    supabaseHeaders()
+            }
+        ),
+
+
+        fetch(
+            `${SUPABASE_URL}/rest/v1/permissions?select=*&order=category.asc,name.asc`,
+            {
+                headers:
+                    supabaseHeaders()
+            }
+        ),
+
+
+        fetch(
+            `${SUPABASE_URL}/rest/v1/categories?select=id,name&order=name.asc`,
+            {
+                headers:
+                    supabaseHeaders()
+            }
+        ),
+
+
+        fetch(
+            `${SUPABASE_URL}/rest/v1/role_permissions?select=*`,
+            {
+                headers:
+                    supabaseHeaders()
+            }
+        ),
+
+
+        fetch(
+            `${SUPABASE_URL}/rest/v1/role_category_access?select=*`,
+            {
+                headers:
+                    supabaseHeaders()
             }
         )
 
@@ -15663,15 +15760,22 @@ async function loadOrganizationAdminData() {
 
 
     const responses = [
+
         servicesResponse,
         teamsResponse,
         positionsResponse,
         rolesResponse,
-        profilesResponse
+        profilesResponse,
+        permissionsResponse,
+        categoriesResponse,
+        rolePermissionsResponse,
+        roleCategoryAccessResponse
     ];
 
 
-    for (const response of responses) {
+    for (
+        const response of responses
+    ) {
 
         if (!response.ok) {
 
@@ -15685,17 +15789,37 @@ async function loadOrganizationAdminData() {
     organizationAdminState.services =
         await servicesResponse.json();
 
+
     organizationAdminState.teams =
         await teamsResponse.json();
+
 
     organizationAdminState.positions =
         await positionsResponse.json();
 
+
     organizationAdminState.roles =
         await rolesResponse.json();
 
+
     organizationAdminState.profiles =
         await profilesResponse.json();
+
+
+    organizationAdminState.permissions =
+        await permissionsResponse.json();
+
+
+    organizationAdminState.categories =
+        await categoriesResponse.json();
+
+
+    organizationAdminState.rolePermissions =
+        await rolePermissionsResponse.json();
+
+
+    organizationAdminState.roleCategoryAccess =
+        await roleCategoryAccessResponse.json();
 
 
     console.log(
@@ -15703,6 +15827,7 @@ async function loadOrganizationAdminData() {
         organizationAdminState
     );
 }
+
 
 
 /* =========================================================
@@ -15718,6 +15843,18 @@ function bindOrganizationAdminTabs() {
         .forEach(
             button => {
 
+                if (
+                    button.dataset.bound ===
+                    "true"
+                ) {
+                    return;
+                }
+
+
+                button.dataset.bound =
+                    "true";
+
+
                 button.addEventListener(
                     "click",
                     function () {
@@ -15725,6 +15862,7 @@ function bindOrganizationAdminTabs() {
                         const tab =
                             button.dataset
                                 .organizationTab;
+
 
                         showOrganizationTab(
                             tab
@@ -15736,7 +15874,10 @@ function bindOrganizationAdminTabs() {
 }
 
 
-function showOrganizationTab(tab) {
+
+function showOrganizationTab(
+    tab
+) {
 
     organizationAdminState.currentTab =
         tab;
@@ -15759,6 +15900,7 @@ function showOrganizationTab(tab) {
 
 
     const panels = {
+
         services:
             "organizationServicesPanel",
 
@@ -15774,16 +15916,22 @@ function showOrganizationTab(tab) {
 
 
     Object
-        .entries(panels)
+        .entries(
+            panels
+        )
         .forEach(
             ([key, id]) => {
 
                 const element =
-                    document.getElementById(id);
+                    document.getElementById(
+                        id
+                    );
+
 
                 if (!element) {
                     return;
                 }
+
 
                 element.style.display =
                     key === tab
@@ -15791,7 +15939,29 @@ function showOrganizationTab(tab) {
                         : "none";
             }
         );
+
+
+    if (
+        tab ===
+        "permissions"
+    ) {
+
+        renderOrganizationRoles();
+
+
+        if (
+            organizationAdminState
+                .selectedRoleId
+        ) {
+
+            renderOrganizationRoleConfiguration(
+                organizationAdminState
+                    .selectedRoleId
+            );
+        }
+    }
 }
+
 
 
 /* =========================================================
@@ -15811,8 +15981,83 @@ function renderOrganizationServices() {
     }
 
 
-    const services =
-        organizationAdminState.services;
+    let services =
+        [
+            ...organizationAdminState
+                .services
+        ];
+
+
+    const search =
+        String(
+            document.getElementById(
+                "organizationServiceSearch"
+            )?.value || ""
+        )
+        .trim()
+        .toLowerCase();
+
+
+    const statusFilter =
+        String(
+            document.getElementById(
+                "organizationServiceStatusFilter"
+            )?.value || ""
+        );
+
+
+    if (search) {
+
+        services =
+            services.filter(
+                service =>
+                    String(
+                        service.name || ""
+                    )
+                    .toLowerCase()
+                    .includes(search)
+                    ||
+                    String(
+                        service.code || ""
+                    )
+                    .toLowerCase()
+                    .includes(search)
+                    ||
+                    String(
+                        service.description || ""
+                    )
+                    .toLowerCase()
+                    .includes(search)
+            );
+    }
+
+
+    if (
+        statusFilter ===
+        "active"
+    ) {
+
+        services =
+            services.filter(
+                service =>
+                    service.is_active !==
+                    false
+            );
+    }
+
+
+    if (
+        statusFilter ===
+        "inactive"
+    ) {
+
+        services =
+            services.filter(
+                service =>
+                    service.is_active ===
+                    false
+            );
+    }
 
 
     if (!services.length) {
@@ -15842,7 +16087,8 @@ function renderOrganizationServices() {
 
                             <small>
                                 ${escapeHtml(
-                                    service.description || ""
+                                    service.description ||
+                                    ""
                                 )}
                             </small>
 
@@ -15857,13 +16103,15 @@ function renderOrganizationServices() {
                         <div>
 
                             <span class="${
-                                service.is_active
+                                service.is_active !==
+                                false
                                     ? "organization-status-active"
                                     : "organization-status-inactive"
                             }">
 
                                 ${
-                                    service.is_active
+                                    service.is_active !==
+                                    false
                                         ? "Actif"
                                         : "Désactivé"
                                 }
@@ -15873,11 +16121,11 @@ function renderOrganizationServices() {
                         </div>
 
                     </div>
-
                 `
             )
             .join("");
 }
+
 
 
 /* =========================================================
@@ -15903,7 +16151,9 @@ function renderOrganizationTeams() {
                 .services
                 .map(
                     service => [
-                        String(service.id),
+                        String(
+                            service.id
+                        ),
                         service
                     ]
                 )
@@ -15916,14 +16166,105 @@ function renderOrganizationTeams() {
                 .profiles
                 .map(
                     profile => [
-                        String(profile.id),
+                        String(
+                            profile.id
+                        ),
                         profile
                     ]
                 )
         );
 
 
-    if (!organizationAdminState.teams.length) {
+    let teams =
+        [
+            ...organizationAdminState
+                .teams
+        ];
+
+
+    const search =
+        String(
+            document.getElementById(
+                "organizationTeamSearch"
+            )?.value || ""
+        )
+        .trim()
+        .toLowerCase();
+
+
+    const serviceFilter =
+        String(
+            document.getElementById(
+                "organizationTeamServiceFilter"
+            )?.value || ""
+        );
+
+
+    const statusFilter =
+        String(
+            document.getElementById(
+                "organizationTeamStatusFilter"
+            )?.value || ""
+        );
+
+
+    if (search) {
+
+        teams =
+            teams.filter(
+                team =>
+                    String(
+                        team.name || ""
+                    )
+                    .toLowerCase()
+                    .includes(search)
+            );
+    }
+
+
+    if (serviceFilter) {
+
+        teams =
+            teams.filter(
+                team =>
+                    String(
+                        team.service_id ||
+                        ""
+                    ) ===
+                    serviceFilter
+            );
+    }
+
+
+    if (
+        statusFilter ===
+        "active"
+    ) {
+
+        teams =
+            teams.filter(
+                team =>
+                    team.is_active !==
+                    false
+            );
+    }
+
+
+    if (
+        statusFilter ===
+        "inactive"
+    ) {
+
+        teams =
+            teams.filter(
+                team =>
+                    team.is_active ===
+                    false
+            );
+    }
+
+
+    if (!teams.length) {
 
         container.innerHTML = `
             <div class="question-management-empty">
@@ -15936,15 +16277,15 @@ function renderOrganizationTeams() {
 
 
     container.innerHTML =
-        organizationAdminState
-            .teams
+        teams
             .map(
                 team => {
 
                     const service =
                         serviceMap.get(
                             String(
-                                team.service_id || ""
+                                team.service_id ||
+                                ""
                             )
                         );
 
@@ -15952,7 +16293,8 @@ function renderOrganizationTeams() {
                     const manager =
                         profileMap.get(
                             String(
-                                team.manager_id || ""
+                                team.manager_id ||
+                                ""
                             )
                         );
 
@@ -15970,7 +16312,9 @@ function renderOrganizationTeams() {
                                 <small>
                                     ${
                                         manager
-                                            ? `Manager : ${escapeHtml(manager.full_name)}`
+                                            ? `Manager : ${escapeHtml(
+                                                manager.full_name
+                                            )}`
                                             : "Aucun manager"
                                     }
                                 </small>
@@ -15979,24 +16323,30 @@ function renderOrganizationTeams() {
 
 
                             <div>
+
                                 ${
                                     service
-                                        ? escapeHtml(service.name)
+                                        ? escapeHtml(
+                                            service.name
+                                        )
                                         : "—"
                                 }
+
                             </div>
 
 
                             <div>
 
                                 <span class="${
-                                    team.is_active !== false
+                                    team.is_active !==
+                                    false
                                         ? "organization-status-active"
                                         : "organization-status-inactive"
                                 }">
 
                                     ${
-                                        team.is_active !== false
+                                        team.is_active !==
+                                        false
                                             ? "Active"
                                             : "Désactivée"
                                     }
@@ -16006,12 +16356,12 @@ function renderOrganizationTeams() {
                             </div>
 
                         </div>
-
                     `;
                 }
             )
             .join("");
 }
+
 
 
 /* =========================================================
@@ -16037,7 +16387,9 @@ function renderOrganizationPositions() {
                 .roles
                 .map(
                     role => [
-                        String(role.id),
+                        String(
+                            role.id
+                        ),
                         role
                     ]
                 )
@@ -16050,14 +16402,111 @@ function renderOrganizationPositions() {
                 .services
                 .map(
                     service => [
-                        String(service.id),
+                        String(
+                            service.id
+                        ),
                         service
                     ]
                 )
         );
 
 
-    if (!organizationAdminState.positions.length) {
+    let positions =
+        [
+            ...organizationAdminState
+                .positions
+        ];
+
+
+    const search =
+        String(
+            document.getElementById(
+                "organizationPositionSearch"
+            )?.value || ""
+        )
+        .trim()
+        .toLowerCase();
+
+
+    const serviceFilter =
+        String(
+            document.getElementById(
+                "organizationPositionServiceFilter"
+            )?.value || ""
+        );
+
+
+    const statusFilter =
+        String(
+            document.getElementById(
+                "organizationPositionStatusFilter"
+            )?.value || ""
+        );
+
+
+    if (search) {
+
+        positions =
+            positions.filter(
+                position =>
+                    String(
+                        position.name || ""
+                    )
+                    .toLowerCase()
+                    .includes(search)
+                    ||
+                    String(
+                        position.code || ""
+                    )
+                    .toLowerCase()
+                    .includes(search)
+            );
+    }
+
+
+    if (serviceFilter) {
+
+        positions =
+            positions.filter(
+                position =>
+                    String(
+                        position.service_id ||
+                        ""
+                    ) ===
+                    serviceFilter
+            );
+    }
+
+
+    if (
+        statusFilter ===
+        "active"
+    ) {
+
+        positions =
+            positions.filter(
+                position =>
+                    position.is_active !==
+                    false
+            );
+    }
+
+
+    if (
+        statusFilter ===
+        "inactive"
+    ) {
+
+        positions =
+            positions.filter(
+                position =>
+                    position.is_active ===
+                    false
+            );
+    }
+
+
+    if (!positions.length) {
 
         container.innerHTML = `
             <div class="question-management-empty">
@@ -16070,15 +16519,15 @@ function renderOrganizationPositions() {
 
 
     container.innerHTML =
-        organizationAdminState
-            .positions
+        positions
             .map(
                 position => {
 
                     const role =
                         roleMap.get(
                             String(
-                                position.role_id || ""
+                                position.role_id ||
+                                ""
                             )
                         );
 
@@ -16086,7 +16535,8 @@ function renderOrganizationPositions() {
                     const service =
                         serviceMap.get(
                             String(
-                                position.service_id || ""
+                                position.service_id ||
+                                ""
                             )
                         );
 
@@ -16103,7 +16553,8 @@ function renderOrganizationPositions() {
 
                                 <small>
                                     ${escapeHtml(
-                                        position.description || ""
+                                        position.description ||
+                                        ""
                                     )}
                                 </small>
 
@@ -16111,33 +16562,43 @@ function renderOrganizationPositions() {
 
 
                             <div>
+
                                 ${
                                     role
-                                        ? escapeHtml(role.name)
+                                        ? escapeHtml(
+                                            role.name
+                                        )
                                         : "Aucun rôle"
                                 }
+
                             </div>
 
 
                             <div>
+
                                 ${
                                     service
-                                        ? escapeHtml(service.name)
+                                        ? escapeHtml(
+                                            service.name
+                                        )
                                         : "Tous / Aucun"
                                 }
+
                             </div>
 
 
                             <div>
 
                                 <span class="${
-                                    position.is_active
+                                    position.is_active !==
+                                    false
                                         ? "organization-status-active"
                                         : "organization-status-inactive"
                                 }">
 
                                     ${
-                                        position.is_active
+                                        position.is_active !==
+                                        false
                                             ? "Active"
                                             : "Désactivée"
                                     }
@@ -16147,12 +16608,12 @@ function renderOrganizationPositions() {
                             </div>
 
                         </div>
-
                     `;
                 }
             )
             .join("");
 }
+
 
 
 /* =========================================================
@@ -16162,9 +16623,12 @@ function renderOrganizationPositions() {
 function populateOrganizationSelects() {
 
     populateOrganizationServiceSelects();
+
     populateOrganizationRoleSelect();
+
     populateOrganizationManagerSelect();
 }
+
 
 
 /* =========================================================
@@ -16174,61 +16638,109 @@ function populateOrganizationSelects() {
 function populateOrganizationServiceSelects() {
 
     const services =
-        organizationAdminState.services
+        organizationAdminState
+            .services
             .filter(
                 service =>
-                    service.is_active !== false
+                    service.is_active !==
+                    false
             );
 
 
-    const selects = [
+    const selectConfigs = [
 
-        document.getElementById(
-            "organizationTeamService"
-        ),
+        {
+            id:
+                "organizationTeamService",
 
-        document.getElementById(
-            "organizationPositionService"
-        ),
+            first:
+                "Aucun service"
+        },
 
-        document.getElementById(
-            "organizationTeamServiceFilter"
-        ),
+        {
+            id:
+                "organizationPositionService",
 
-        document.getElementById(
-            "organizationPositionServiceFilter"
-        )
+            first:
+                "Tous les services / Aucun"
+        },
+
+        {
+            id:
+                "organizationTeamServiceFilter",
+
+            first:
+                "Tous les services"
+        },
+
+        {
+            id:
+                "organizationPositionServiceFilter",
+
+            first:
+                "Tous les services"
+        }
     ];
 
 
-    selects.forEach(
-        select => {
+    selectConfigs.forEach(
+        config => {
+
+            const select =
+                document.getElementById(
+                    config.id
+                );
+
 
             if (!select) {
                 return;
             }
 
 
-            const firstOption =
-                select.options[0]
-                    ? select.options[0].outerHTML
-                    : `<option value="">Tous</option>`;
+            const currentValue =
+                select.value;
 
 
-            select.innerHTML =
-                firstOption +
-                services
-                    .map(
-                        service => `
-                            <option value="${service.id}">
-                                ${escapeHtml(service.name)}
-                            </option>
-                        `
-                    )
-                    .join("");
+            select.innerHTML = `
+
+                <option value="">
+                    ${config.first}
+                </option>
+
+                ${
+                    services
+                        .map(
+                            service => `
+
+                                <option value="${service.id}">
+                                    ${escapeHtml(service.name)}
+                                </option>
+
+                            `
+                        )
+                        .join("")
+                }
+            `;
+
+
+            if (
+                [
+                    ...select.options
+                ]
+                .some(
+                    option =>
+                        option.value ===
+                        currentValue
+                )
+            ) {
+
+                select.value =
+                    currentValue;
+            }
         }
     );
 }
+
 
 
 /* =========================================================
@@ -16248,29 +16760,49 @@ function populateOrganizationRoleSelect() {
     }
 
 
+    const currentValue =
+        select.value;
+
+
     select.innerHTML = `
+
         <option value="">
             Aucun rôle
         </option>
-    `;
 
+        ${
+            organizationAdminState
+                .roles
+                .map(
+                    role => `
 
-    organizationAdminState
-        .roles
-        .forEach(
-            role => {
-
-                select.insertAdjacentHTML(
-                    "beforeend",
-                    `
                         <option value="${role.id}">
                             ${escapeHtml(role.name)}
                         </option>
+
                     `
-                );
-            }
-        );
+                )
+                .join("")
+        }
+    `;
+
+
+    if (
+        [
+            ...select.options
+        ]
+        .some(
+            option =>
+                option.value ===
+                currentValue
+        )
+    ) {
+
+        select.value =
+            currentValue;
+    }
 }
+
 
 
 /* =========================================================
@@ -16311,9 +16843,11 @@ function populateOrganizationManagerSelect() {
                         )
                         .trim()
                         .toLowerCase()
-                    ) &&
+                    )
+                    &&
                     String(
-                        profile.account_status || "active"
+                        profile.account_status ||
+                        "active"
                     )
                     .toLowerCase() !==
                     "inactive"
@@ -16321,161 +16855,35 @@ function populateOrganizationManagerSelect() {
 
 
     select.innerHTML = `
+
         <option value="">
             Aucun manager
         </option>
-    `;
 
+        ${
+            profiles
+                .map(
+                    profile => `
 
-    profiles.forEach(
-        profile => {
+                        <option value="${profile.id}">
+                            ${escapeHtml(
+                                profile.full_name ||
+                                profile.username ||
+                                "Utilisateur"
+                            )}
+                        </option>
 
-            select.insertAdjacentHTML(
-                "beforeend",
-                `
-                    <option value="${profile.id}">
-                        ${escapeHtml(profile.full_name)}
-                    </option>
-                `
-            );
+                    `
+                )
+                .join("")
         }
-    );
-}
-/* =========================================================
-   ADMIN ORGANISATION
-   GESTION DES SERVICES
-========================================================= */
-
-
-/* =========================================================
-   OUVERTURE / FERMETURE MODALE SERVICE
-========================================================= */
-
-function openOrganizationServiceModal() {
-
-    console.log(
-        "🏢 Ouverture modale service"
-    );
-
-
-    const modal =
-        document.getElementById(
-            "organizationServiceModal"
-        );
-
-
-    if (!modal) {
-
-        console.error(
-            "❌ organizationServiceModal introuvable"
-        );
-
-        alert(
-            "Erreur : la fenêtre d'ajout du service est introuvable."
-        );
-
-        return;
-    }
-
-
-    const title =
-        document.getElementById(
-            "organizationServiceModalTitle"
-        );
-
-
-    const nameInput =
-        document.getElementById(
-            "organizationServiceName"
-        );
-
-
-    const codeInput =
-        document.getElementById(
-            "organizationServiceCode"
-        );
-
-
-    const descriptionInput =
-        document.getElementById(
-            "organizationServiceDescription"
-        );
-
-
-    if (title) {
-        title.textContent =
-            "Ajouter un service";
-    }
-
-
-    if (nameInput) {
-        nameInput.value = "";
-    }
-
-
-    if (codeInput) {
-
-        codeInput.value = "";
-
-        codeInput.dataset.manualEdit =
-            "false";
-    }
-
-
-    if (descriptionInput) {
-        descriptionInput.value = "";
-    }
-
-
-    modal.style.display =
-        "flex";
-
-    modal.style.alignItems =
-        "center";
-
-    modal.style.justifyContent =
-        "center";
-
-
-    console.log(
-        "✅ Modale service affichée"
-    );
-
-
-    setTimeout(
-        function () {
-
-            nameInput?.focus();
-
-        },
-        100
-    );
-}
-
-
-
-
-function closeOrganizationServiceModal() {
-
-    const modal =
-        document.getElementById(
-            "organizationServiceModal"
-        );
-
-
-    if (!modal) {
-        return;
-    }
-
-
-    modal.style.display =
-        "none";
+    `;
 }
 
 
 
 /* =========================================================
-   GÉNÉRATION AUTOMATIQUE DU CODE
+   OUTIL CODE AUTOMATIQUE
 ========================================================= */
 
 function generateOrganizationCode(
@@ -16505,8 +16913,156 @@ function generateOrganizationCode(
 
 
 /* =========================================================
-   CRÉATION DU SERVICE
+   RAFRAÎCHISSEMENT COMPLET
 ========================================================= */
+
+async function refreshOrganizationAdminInterface() {
+
+    await loadOrganizationAdminData();
+
+
+    renderOrganizationServices();
+
+    renderOrganizationTeams();
+
+    renderOrganizationPositions();
+
+    renderOrganizationRoles();
+
+    populateOrganizationSelects();
+
+
+    if (
+        organizationAdminState
+            .selectedRoleId
+    ) {
+
+        const roleExists =
+            organizationAdminState
+                .roles
+                .some(
+                    role =>
+                        String(
+                            role.id
+                        ) ===
+                        String(
+                            organizationAdminState
+                                .selectedRoleId
+                        )
+                );
+
+
+        if (roleExists) {
+
+            renderOrganizationRoleConfiguration(
+                organizationAdminState
+                    .selectedRoleId
+            );
+
+        } else {
+
+            organizationAdminState
+                .selectedRoleId =
+                null;
+        }
+    }
+}
+
+
+
+/* =========================================================
+   =========================================================
+   SERVICES
+   =========================================================
+========================================================= */
+
+function openOrganizationServiceModal() {
+
+    const modal =
+        document.getElementById(
+            "organizationServiceModal"
+        );
+
+
+    if (!modal) {
+        return;
+    }
+
+
+    const nameInput =
+        document.getElementById(
+            "organizationServiceName"
+        );
+
+
+    const codeInput =
+        document.getElementById(
+            "organizationServiceCode"
+        );
+
+
+    const descriptionInput =
+        document.getElementById(
+            "organizationServiceDescription"
+        );
+
+
+    if (nameInput) {
+        nameInput.value = "";
+    }
+
+
+    if (codeInput) {
+
+        codeInput.value = "";
+
+        codeInput.dataset.manualEdit =
+            "false";
+    }
+
+
+    if (descriptionInput) {
+        descriptionInput.value = "";
+    }
+
+
+    modal.style.display =
+        "flex";
+
+
+    modal.style.alignItems =
+        "center";
+
+
+    modal.style.justifyContent =
+        "center";
+
+
+    setTimeout(
+        () =>
+            nameInput?.focus(),
+        100
+    );
+}
+
+
+
+function closeOrganizationServiceModal() {
+
+    const modal =
+        document.getElementById(
+            "organizationServiceModal"
+        );
+
+
+    if (modal) {
+
+        modal.style.display =
+            "none";
+    }
+}
+
+
 
 async function saveOrganizationService() {
 
@@ -16515,15 +17071,18 @@ async function saveOrganizationService() {
             "organizationServiceName"
         );
 
+
     const codeInput =
         document.getElementById(
             "organizationServiceCode"
         );
 
+
     const descriptionInput =
         document.getElementById(
             "organizationServiceDescription"
         );
+
 
     const saveButton =
         document.getElementById(
@@ -16547,14 +17106,11 @@ async function saveOrganizationService() {
 
     const description =
         String(
-            descriptionInput?.value || ""
+            descriptionInput?.value ||
+            ""
         )
         .trim();
 
-
-    /* =====================================================
-       1. CONTRÔLES
-    ====================================================== */
 
     if (!name) {
 
@@ -16574,64 +17130,27 @@ async function saveOrganizationService() {
             generateOrganizationCode(
                 name
             );
-
-        if (codeInput) {
-
-            codeInput.value =
-                code;
-        }
     }
-
-
-    if (!code) {
-
-        alert(
-            "Le code du service est invalide."
-        );
-
-        return;
-    }
-
-
-    /* =====================================================
-       2. VÉRIFICATION DOUBLON
-    ====================================================== */
-
-    const normalizedName =
-        name.toLowerCase();
-
-    const normalizedCode =
-        code.toLowerCase();
 
 
     const duplicate =
         organizationAdminState
             .services
             .some(
-                service => {
-
-                    const serviceName =
-                        String(
-                            service.name || ""
-                        )
-                        .trim()
-                        .toLowerCase();
-
-                    const serviceCode =
-                        String(
-                            service.code || ""
-                        )
-                        .trim()
-                        .toLowerCase();
-
-                    return (
-                        serviceName ===
-                            normalizedName
-                        ||
-                        serviceCode ===
-                            normalizedCode
-                    );
-                }
+                service =>
+                    String(
+                        service.name || ""
+                    )
+                    .trim()
+                    .toLowerCase() ===
+                    name.toLowerCase()
+                    ||
+                    String(
+                        service.code || ""
+                    )
+                    .trim()
+                    .toLowerCase() ===
+                    code.toLowerCase()
             );
 
 
@@ -16645,10 +17164,6 @@ async function saveOrganizationService() {
     }
 
 
-    /* =====================================================
-       3. BOUTON EN CHARGEMENT
-    ====================================================== */
-
     if (saveButton) {
 
         saveButton.disabled =
@@ -16661,20 +17176,6 @@ async function saveOrganizationService() {
 
     try {
 
-        console.log(
-            "🏢 Création service :",
-            {
-                name,
-                code,
-                description
-            }
-        );
-
-
-        /* =================================================
-           4. INSERT SUPABASE
-        ================================================= */
-
         const response =
             await fetch(
                 `${SUPABASE_URL}/rest/v1/services`,
@@ -16683,23 +17184,21 @@ async function saveOrganizationService() {
                         "POST",
 
                     headers: {
+
                         ...supabaseHeaders(),
 
                         "Content-Type":
                             "application/json",
 
-                        "Prefer":
+                        Prefer:
                             "return=representation"
                     },
 
                     body:
                         JSON.stringify(
                             {
-                                name:
-                                    name,
-
-                                code:
-                                    code,
+                                name,
+                                code,
 
                                 description:
                                     description ||
@@ -16713,54 +17212,20 @@ async function saveOrganizationService() {
             );
 
 
-        const responseText =
+        const text =
             await response.text();
 
 
         if (!response.ok) {
 
-            console.error(
-                "❌ Réponse Supabase :",
-                response.status,
-                responseText
-            );
-
             throw new Error(
-                responseText ||
-                `Erreur HTTP ${response.status}`
+                text
             );
         }
 
 
-        console.log(
-            "✅ Service créé :",
-            responseText
-        );
+        await refreshOrganizationAdminInterface();
 
-
-        /* =================================================
-           5. RECHARGEMENT DES DONNÉES
-        ================================================= */
-
-        await loadOrganizationAdminData();
-
-
-        /* =================================================
-           6. RAFRAÎCHISSEMENT
-        ================================================= */
-
-        renderOrganizationServices();
-
-        renderOrganizationTeams();
-
-        renderOrganizationPositions();
-
-        populateOrganizationSelects();
-
-
-        /* =================================================
-           7. FERMETURE MODALE
-        ================================================= */
 
         closeOrganizationServiceModal();
 
@@ -16779,8 +17244,9 @@ async function saveOrganizationService() {
 
 
         alert(
-            "Impossible de créer le service. Regarde la console pour le détail."
+            "Impossible de créer le service."
         );
+
 
     } finally {
 
@@ -16796,33 +17262,22 @@ async function saveOrganizationService() {
 }
 
 
+
 /* =========================================================
-   ÉVÉNEMENTS SERVICE
+   EVENTS SERVICES
 ========================================================= */
 
 function bindOrganizationServiceEvents() {
 
-    const addButton =
+    const search =
         document.getElementById(
-            "organizationAddServiceButton"
+            "organizationServiceSearch"
         );
 
 
-    const closeButton =
+    const status =
         document.getElementById(
-            "organizationCloseServiceModal"
-        );
-
-
-    const cancelButton =
-        document.getElementById(
-            "organizationCancelService"
-        );
-
-
-    const saveButton =
-        document.getElementById(
-            "organizationSaveService"
+            "organizationServiceStatusFilter"
         );
 
 
@@ -16838,72 +17293,51 @@ function bindOrganizationServiceEvents() {
         );
 
 
-    const modal =
-        document.getElementById(
-            "organizationServiceModal"
-        );
+    if (
+        search &&
+        search.dataset.bound !==
+        "true"
+    ) {
+
+        search.dataset.bound =
+            "true";
 
 
-
-    /* =====================================================
-       AJOUT
-    ====================================================== */
-
-    if (addButton) {
-
-        addButton.addEventListener(
-            "click",
-            openOrganizationServiceModal
+        search.addEventListener(
+            "input",
+            renderOrganizationServices
         );
     }
 
 
+    if (
+        status &&
+        status.dataset.bound !==
+        "true"
+    ) {
 
-    /* =====================================================
-       FERMETURE
-    ====================================================== */
+        status.dataset.bound =
+            "true";
 
-    if (closeButton) {
 
-        closeButton.addEventListener(
-            "click",
-            closeOrganizationServiceModal
+        status.addEventListener(
+            "change",
+            renderOrganizationServices
         );
     }
 
-
-    if (cancelButton) {
-
-        cancelButton.addEventListener(
-            "click",
-            closeOrganizationServiceModal
-        );
-    }
-
-
-
-    /* =====================================================
-       ENREGISTREMENT
-    ====================================================== */
-
-    if (saveButton) {
-
-        saveButton.addEventListener(
-            "click",
-            saveOrganizationService
-        );
-    }
-
-
-
-    /* =====================================================
-       CODE AUTO DEPUIS LE NOM
-    ====================================================== */
 
     if (
         nameInput &&
-        codeInput
+        codeInput &&
+        nameInput.dataset
+            .codeBound !==
+        "true"
     ) {
+
+        nameInput.dataset.codeBound =
+            "true";
+
 
         nameInput.addEventListener(
             "input",
@@ -16932,8 +17366,7 @@ function bindOrganizationServiceEvents() {
 
                 codeInput.dataset
                     .manualEdit =
-                    codeInput.value
-                        .trim()
+                    codeInput.value.trim()
                         ? "true"
                         : "false";
             }
@@ -16942,58 +17375,59 @@ function bindOrganizationServiceEvents() {
 
 
 
-    /* =====================================================
-       CLIC HORS MODALE
-    ====================================================== */
-
-    if (modal) {
-
-        modal.addEventListener(
-            "click",
-            function (event) {
-
-                if (
-                    event.target ===
-                    modal
-                ) {
-
-                    closeOrganizationServiceModal();
-                }
-            }
+    const teamSearch =
+        document.getElementById(
+            "organizationTeamSearch"
         );
-    }
 
 
+    const teamService =
+        document.getElementById(
+            "organizationTeamServiceFilter"
+        );
 
-    /* =====================================================
-       TOUCHE ÉCHAP
-    ====================================================== */
 
-    document.addEventListener(
-        "keydown",
-        function (event) {
+    const teamStatus =
+        document.getElementById(
+            "organizationTeamStatusFilter"
+        );
+
+
+    [
+        [teamSearch, "input"],
+        [teamService, "change"],
+        [teamStatus, "change"]
+    ]
+    .forEach(
+        ([element, eventName]) => {
 
             if (
-                event.key ===
-                "Escape" &&
-                modal &&
-                modal.style.display !==
-                "none"
+                !element ||
+                element.dataset.bound ===
+                "true"
             ) {
-
-                closeOrganizationServiceModal();
+                return;
             }
+
+
+            element.dataset.bound =
+                "true";
+
+
+            element.addEventListener(
+                eventName,
+                renderOrganizationTeams
+            );
         }
     );
 }
-/* =========================================================
-   ADMIN ORGANISATION
-   GESTION DES ÉQUIPES
-========================================================= */
+
 
 
 /* =========================================================
-   OUVERTURE / FERMETURE MODALE ÉQUIPE
+   =========================================================
+   ÉQUIPES
+   =========================================================
 ========================================================= */
 
 function openOrganizationTeamModal() {
@@ -17003,30 +17437,23 @@ function openOrganizationTeamModal() {
             "organizationTeamModal"
         );
 
+
     if (!modal) {
-
-        console.error(
-            "❌ organizationTeamModal introuvable"
-        );
-
         return;
     }
 
-
-    const title =
-        document.getElementById(
-            "organizationTeamModalTitle"
-        );
 
     const nameInput =
         document.getElementById(
             "organizationTeamName"
         );
 
+
     const serviceSelect =
         document.getElementById(
             "organizationTeamService"
         );
+
 
     const managerSelect =
         document.getElementById(
@@ -17034,18 +17461,15 @@ function openOrganizationTeamModal() {
         );
 
 
-    if (title) {
-        title.textContent =
-            "Ajouter une équipe";
-    }
-
     if (nameInput) {
         nameInput.value = "";
     }
 
+
     if (serviceSelect) {
         serviceSelect.value = "";
     }
+
 
     if (managerSelect) {
         managerSelect.value = "";
@@ -17055,22 +17479,22 @@ function openOrganizationTeamModal() {
     modal.style.display =
         "flex";
 
+
     modal.style.alignItems =
         "center";
+
 
     modal.style.justifyContent =
         "center";
 
 
     setTimeout(
-        function () {
-
-            nameInput?.focus();
-
-        },
+        () =>
+            nameInput?.focus(),
         100
     );
 }
+
 
 
 function closeOrganizationTeamModal() {
@@ -17080,18 +17504,15 @@ function closeOrganizationTeamModal() {
             "organizationTeamModal"
         );
 
-    if (!modal) {
-        return;
-    }
 
-    modal.style.display =
-        "none";
+    if (modal) {
+
+        modal.style.display =
+            "none";
+    }
 }
 
 
-/* =========================================================
-   CRÉATION ÉQUIPE
-========================================================= */
 
 async function saveOrganizationTeam() {
 
@@ -17100,15 +17521,18 @@ async function saveOrganizationTeam() {
             "organizationTeamName"
         );
 
+
     const serviceSelect =
         document.getElementById(
             "organizationTeamService"
         );
 
+
     const managerSelect =
         document.getElementById(
             "organizationTeamManager"
         );
+
 
     const saveButton =
         document.getElementById(
@@ -17137,25 +17561,15 @@ async function saveOrganizationTeam() {
         .trim();
 
 
-    /* =====================================================
-       1. VALIDATION
-    ====================================================== */
-
     if (!name) {
 
         alert(
             "Renseigne le nom de l'équipe."
         );
 
-        nameInput?.focus();
-
         return;
     }
 
-
-    /* =====================================================
-       2. CONTRÔLE DOUBLON
-    ====================================================== */
 
     const duplicate =
         organizationAdminState
@@ -17181,9 +17595,17 @@ async function saveOrganizationTeam() {
     }
 
 
-    /* =====================================================
-       3. BOUTON CHARGEMENT
-    ====================================================== */
+    const selectedService =
+        organizationAdminState
+            .services
+            .find(
+                service =>
+                    String(
+                        service.id
+                    ) ===
+                    serviceId
+            );
+
 
     if (saveButton) {
 
@@ -17197,16 +17619,6 @@ async function saveOrganizationTeam() {
 
     try {
 
-        const selectedService =
-            organizationAdminState
-                .services
-                .find(
-                    service =>
-                        String(service.id) ===
-                        serviceId
-                );
-
-
         const response =
             await fetch(
                 `${SUPABASE_URL}/rest/v1/teams`,
@@ -17215,20 +17627,20 @@ async function saveOrganizationTeam() {
                         "POST",
 
                     headers: {
+
                         ...supabaseHeaders(),
 
                         "Content-Type":
                             "application/json",
 
-                        "Prefer":
+                        Prefer:
                             "return=representation"
                     },
 
                     body:
                         JSON.stringify(
                             {
-                                name:
-                                    name,
+                                name,
 
                                 service_id:
                                     serviceId ||
@@ -17236,8 +17648,8 @@ async function saveOrganizationTeam() {
 
                                 service:
                                     selectedService
-                                        ? selectedService.name
-                                        : null,
+                                        ?.name ||
+                                    null,
 
                                 manager_id:
                                     managerId ||
@@ -17251,34 +17663,20 @@ async function saveOrganizationTeam() {
             );
 
 
-        const responseText =
+        const text =
             await response.text();
 
 
         if (!response.ok) {
 
-            console.error(
-                "❌ Erreur Supabase équipe :",
-                response.status,
-                responseText
-            );
-
             throw new Error(
-                responseText ||
-                `Erreur HTTP ${response.status}`
+                text
             );
         }
 
 
-        await loadOrganizationAdminData();
+        await refreshOrganizationAdminInterface();
 
-        renderOrganizationTeams();
-
-        renderOrganizationServices();
-
-        renderOrganizationPositions();
-
-        populateOrganizationSelects();
 
         closeOrganizationTeamModal();
 
@@ -17295,9 +17693,11 @@ async function saveOrganizationTeam() {
             error
         );
 
+
         alert(
             "Impossible de créer l'équipe."
         );
+
 
     } finally {
 
@@ -17310,4 +17710,1534 @@ async function saveOrganizationTeam() {
                 "💾 Enregistrer";
         }
     }
+}
+
+
+
+/* =========================================================
+   =========================================================
+   FONCTIONS
+   =========================================================
+========================================================= */
+
+function bindOrganizationPositionEvents() {
+
+    const nameInput =
+        document.getElementById(
+            "organizationPositionName"
+        );
+
+
+    const codeInput =
+        document.getElementById(
+            "organizationPositionCode"
+        );
+
+
+    const search =
+        document.getElementById(
+            "organizationPositionSearch"
+        );
+
+
+    const serviceFilter =
+        document.getElementById(
+            "organizationPositionServiceFilter"
+        );
+
+
+    const statusFilter =
+        document.getElementById(
+            "organizationPositionStatusFilter"
+        );
+
+
+    if (
+        nameInput &&
+        codeInput &&
+        nameInput.dataset.bound !==
+        "true"
+    ) {
+
+        nameInput.dataset.bound =
+            "true";
+
+
+        nameInput.addEventListener(
+            "input",
+            function () {
+
+                if (
+                    codeInput.dataset
+                        .manualEdit ===
+                    "true"
+                ) {
+                    return;
+                }
+
+
+                codeInput.value =
+                    generateOrganizationCode(
+                        nameInput.value
+                    );
+            }
+        );
+
+
+        codeInput.addEventListener(
+            "input",
+            function () {
+
+                codeInput.dataset
+                    .manualEdit =
+                    codeInput.value.trim()
+                        ? "true"
+                        : "false";
+            }
+        );
+    }
+
+
+    [
+        [search, "input"],
+        [serviceFilter, "change"],
+        [statusFilter, "change"]
+    ]
+    .forEach(
+        ([element, eventName]) => {
+
+            if (
+                !element ||
+                element.dataset.filterBound ===
+                "true"
+            ) {
+                return;
+            }
+
+
+            element.dataset.filterBound =
+                "true";
+
+
+            element.addEventListener(
+                eventName,
+                renderOrganizationPositions
+            );
+        }
+    );
+}
+
+
+
+function openOrganizationPositionModal() {
+
+    const modal =
+        document.getElementById(
+            "organizationPositionModal"
+        );
+
+
+    if (!modal) {
+        return;
+    }
+
+
+    const nameInput =
+        document.getElementById(
+            "organizationPositionName"
+        );
+
+
+    const codeInput =
+        document.getElementById(
+            "organizationPositionCode"
+        );
+
+
+    const roleSelect =
+        document.getElementById(
+            "organizationPositionRole"
+        );
+
+
+    const serviceSelect =
+        document.getElementById(
+            "organizationPositionService"
+        );
+
+
+    const descriptionInput =
+        document.getElementById(
+            "organizationPositionDescription"
+        );
+
+
+    if (nameInput) {
+        nameInput.value = "";
+    }
+
+
+    if (codeInput) {
+
+        codeInput.value = "";
+
+        codeInput.dataset.manualEdit =
+            "false";
+    }
+
+
+    if (roleSelect) {
+        roleSelect.value = "";
+    }
+
+
+    if (serviceSelect) {
+        serviceSelect.value = "";
+    }
+
+
+    if (descriptionInput) {
+        descriptionInput.value = "";
+    }
+
+
+    modal.style.display =
+        "flex";
+
+
+    modal.style.alignItems =
+        "center";
+
+
+    modal.style.justifyContent =
+        "center";
+
+
+    setTimeout(
+        () =>
+            nameInput?.focus(),
+        100
+    );
+}
+
+
+
+function closeOrganizationPositionModal() {
+
+    const modal =
+        document.getElementById(
+            "organizationPositionModal"
+        );
+
+
+    if (modal) {
+
+        modal.style.display =
+            "none";
+    }
+}
+
+
+
+async function saveOrganizationPosition() {
+
+    const name =
+        String(
+            document.getElementById(
+                "organizationPositionName"
+            )?.value || ""
+        )
+        .trim();
+
+
+    let code =
+        String(
+            document.getElementById(
+                "organizationPositionCode"
+            )?.value || ""
+        )
+        .trim();
+
+
+    const roleId =
+        String(
+            document.getElementById(
+                "organizationPositionRole"
+            )?.value || ""
+        )
+        .trim();
+
+
+    const serviceId =
+        String(
+            document.getElementById(
+                "organizationPositionService"
+            )?.value || ""
+        )
+        .trim();
+
+
+    const description =
+        String(
+            document.getElementById(
+                "organizationPositionDescription"
+            )?.value || ""
+        )
+        .trim();
+
+
+    const button =
+        document.getElementById(
+            "organizationSavePosition"
+        );
+
+
+    if (!name) {
+
+        alert(
+            "Renseigne le nom de la fonction."
+        );
+
+        return;
+    }
+
+
+    if (!code) {
+
+        code =
+            generateOrganizationCode(
+                name
+            );
+    }
+
+
+    if (!roleId) {
+
+        alert(
+            "Choisis un rôle associé."
+        );
+
+        return;
+    }
+
+
+    const duplicate =
+        organizationAdminState
+            .positions
+            .some(
+                position =>
+                    String(
+                        position.name || ""
+                    )
+                    .trim()
+                    .toLowerCase() ===
+                    name.toLowerCase()
+                    ||
+                    String(
+                        position.code || ""
+                    )
+                    .trim()
+                    .toLowerCase() ===
+                    code.toLowerCase()
+            );
+
+
+    if (duplicate) {
+
+        alert(
+            "Une fonction avec ce nom ou ce code existe déjà."
+        );
+
+        return;
+    }
+
+
+    if (button) {
+
+        button.disabled =
+            true;
+
+        button.textContent =
+            "Enregistrement...";
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/positions`,
+                {
+                    method:
+                        "POST",
+
+                    headers: {
+
+                        ...supabaseHeaders(),
+
+                        "Content-Type":
+                            "application/json",
+
+                        Prefer:
+                            "return=representation"
+                    },
+
+                    body:
+                        JSON.stringify(
+                            {
+                                name,
+                                code,
+
+                                role_id:
+                                    roleId,
+
+                                service_id:
+                                    serviceId ||
+                                    null,
+
+                                description:
+                                    description ||
+                                    null,
+
+                                is_active:
+                                    true
+                            }
+                        )
+                }
+            );
+
+
+        const text =
+            await response.text();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                text
+            );
+        }
+
+
+        await refreshOrganizationAdminInterface();
+
+
+        closeOrganizationPositionModal();
+
+
+        alert(
+            `La fonction "${name}" a bien été créée.`
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "❌ Erreur création fonction :",
+            error
+        );
+
+
+        alert(
+            "Impossible de créer la fonction."
+        );
+
+
+    } finally {
+
+        if (button) {
+
+            button.disabled =
+                false;
+
+            button.textContent =
+                "💾 Enregistrer";
+        }
+    }
+}
+
+
+
+/* =========================================================
+   =========================================================
+   RÔLES & ACCÈS
+   =========================================================
+========================================================= */
+
+function bindOrganizationRoleEvents() {
+
+    const search =
+        document.getElementById(
+            "organizationRoleSearch"
+        );
+
+
+    if (
+        search &&
+        search.dataset.bound !==
+        "true"
+    ) {
+
+        search.dataset.bound =
+            "true";
+
+
+        search.addEventListener(
+            "input",
+            renderOrganizationRoles
+        );
+    }
+}
+
+
+
+function openOrganizationRoleModal() {
+
+    const modal =
+        document.getElementById(
+            "organizationRoleModal"
+        );
+
+
+    if (!modal) {
+        return;
+    }
+
+
+    const nameInput =
+        document.getElementById(
+            "organizationRoleName"
+        );
+
+
+    const codeInput =
+        document.getElementById(
+            "organizationRoleCode"
+        );
+
+
+    const hierarchyInput =
+        document.getElementById(
+            "organizationRoleHierarchy"
+        );
+
+
+    if (nameInput) {
+        nameInput.value = "";
+    }
+
+
+    if (codeInput) {
+        codeInput.value = "";
+    }
+
+
+    if (hierarchyInput) {
+        hierarchyInput.value = "1";
+    }
+
+
+    modal.style.display =
+        "flex";
+
+
+    modal.style.alignItems =
+        "center";
+
+
+    modal.style.justifyContent =
+        "center";
+}
+
+
+
+function closeOrganizationRoleModal() {
+
+    const modal =
+        document.getElementById(
+            "organizationRoleModal"
+        );
+
+
+    if (modal) {
+
+        modal.style.display =
+            "none";
+    }
+}
+
+
+
+async function saveOrganizationRole() {
+
+    const name =
+        String(
+            document.getElementById(
+                "organizationRoleName"
+            )?.value || ""
+        )
+        .trim();
+
+
+    let code =
+        String(
+            document.getElementById(
+                "organizationRoleCode"
+            )?.value || ""
+        )
+        .trim();
+
+
+    const hierarchyLevel =
+        Math.max(
+            1,
+            Number(
+                document.getElementById(
+                    "organizationRoleHierarchy"
+                )?.value || 1
+            )
+        );
+
+
+    const button =
+        document.getElementById(
+            "organizationSaveRoleButton"
+        );
+
+
+    if (!name) {
+
+        alert(
+            "Renseigne le nom du rôle."
+        );
+
+        return;
+    }
+
+
+    if (!code) {
+
+        code =
+            generateOrganizationCode(
+                name
+            );
+    }
+
+
+    const duplicate =
+        organizationAdminState
+            .roles
+            .some(
+                role =>
+                    String(
+                        role.code || ""
+                    )
+                    .trim()
+                    .toLowerCase() ===
+                    code.toLowerCase()
+                    ||
+                    String(
+                        role.name || ""
+                    )
+                    .trim()
+                    .toLowerCase() ===
+                    name.toLowerCase()
+            );
+
+
+    if (duplicate) {
+
+        alert(
+            "Un rôle avec ce nom ou ce code existe déjà."
+        );
+
+        return;
+    }
+
+
+    if (button) {
+
+        button.disabled =
+            true;
+
+        button.textContent =
+            "Création...";
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/roles`,
+                {
+                    method:
+                        "POST",
+
+                    headers: {
+
+                        ...supabaseHeaders(),
+
+                        "Content-Type":
+                            "application/json",
+
+                        Prefer:
+                            "return=representation"
+                    },
+
+                    body:
+                        JSON.stringify(
+                            {
+                                code,
+                                name,
+
+                                hierarchy_level:
+                                    hierarchyLevel
+                            }
+                        )
+                }
+            );
+
+
+        const text =
+            await response.text();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                text
+            );
+        }
+
+
+        await refreshOrganizationAdminInterface();
+
+
+        closeOrganizationRoleModal();
+
+
+        alert(
+            `Le rôle "${name}" a bien été créé.`
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "❌ Erreur création rôle :",
+            error
+        );
+
+
+        alert(
+            "Impossible de créer le rôle."
+        );
+
+
+    } finally {
+
+        if (button) {
+
+            button.disabled =
+                false;
+
+            button.textContent =
+                "💾 Créer le rôle";
+        }
+    }
+}
+
+
+
+/* =========================================================
+   LISTE DES RÔLES
+========================================================= */
+
+function renderOrganizationRoles() {
+
+    const container =
+        document.getElementById(
+            "organizationRoleList"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    const search =
+        String(
+            document.getElementById(
+                "organizationRoleSearch"
+            )?.value || ""
+        )
+        .trim()
+        .toLowerCase();
+
+
+    let roles =
+        [
+            ...organizationAdminState
+                .roles
+        ];
+
+
+    if (search) {
+
+        roles =
+            roles.filter(
+                role =>
+                    String(
+                        role.name || ""
+                    )
+                    .toLowerCase()
+                    .includes(search)
+                    ||
+                    String(
+                        role.code || ""
+                    )
+                    .toLowerCase()
+                    .includes(search)
+            );
+    }
+
+
+    if (!roles.length) {
+
+        container.innerHTML = `
+            <div class="question-management-empty">
+                Aucun rôle.
+            </div>
+        `;
+
+        return;
+    }
+
+
+    container.innerHTML =
+        roles
+            .map(
+                role => {
+
+                    const active =
+                        String(
+                            organizationAdminState
+                                .selectedRoleId ||
+                            ""
+                        ) ===
+                        String(
+                            role.id
+                        );
+
+
+                    return `
+
+                        <button
+                            type="button"
+                            class="organization-role-item ${
+                                active
+                                    ? "active"
+                                    : ""
+                            }"
+                            onclick="selectOrganizationRole('${role.id}')"
+                        >
+
+                            <div>
+
+                                <strong>
+                                    ${escapeHtml(role.name)}
+                                </strong>
+
+                                <small>
+                                    ${escapeHtml(role.code)}
+                                </small>
+
+                            </div>
+
+                            <span>
+                                Niveau ${
+                                    role.hierarchy_level ??
+                                    "—"
+                                }
+                            </span>
+
+                        </button>
+                    `;
+                }
+            )
+            .join("");
+}
+
+
+
+function selectOrganizationRole(
+    roleId
+) {
+
+    organizationAdminState
+        .selectedRoleId =
+        roleId;
+
+
+    renderOrganizationRoles();
+
+
+    renderOrganizationRoleConfiguration(
+        roleId
+    );
+}
+
+
+
+/* =========================================================
+   CONFIGURATION RÔLE
+========================================================= */
+
+function renderOrganizationRoleConfiguration(
+    roleId
+) {
+
+    const role =
+        organizationAdminState
+            .roles
+            .find(
+                item =>
+                    String(
+                        item.id
+                    ) ===
+                    String(
+                        roleId
+                    )
+            );
+
+
+    if (!role) {
+        return;
+    }
+
+
+    const title =
+        document.getElementById(
+            "organizationPermissionTitle"
+        );
+
+
+    const subtitle =
+        document.getElementById(
+            "organizationPermissionSubtitle"
+        );
+
+
+    const saveButton =
+        document.getElementById(
+            "organizationSaveRolePermissionsButton"
+        );
+
+
+    const categorySection =
+        document.getElementById(
+            "organizationRoleCategoriesSection"
+        );
+
+
+    if (title) {
+
+        title.textContent =
+            role.name;
+    }
+
+
+    if (subtitle) {
+
+        subtitle.textContent =
+            `Code : ${role.code} • Niveau hiérarchique : ${role.hierarchy_level ?? "—"}`;
+    }
+
+
+    if (saveButton) {
+
+        saveButton.style.display =
+            "";
+    }
+
+
+    if (categorySection) {
+
+        categorySection.style.display =
+            "";
+    }
+
+
+    renderOrganizationPermissionCheckboxes(
+        roleId
+    );
+
+
+    renderOrganizationCategoryCheckboxes(
+        roleId
+    );
+}
+
+
+
+/* =========================================================
+   CHECKBOX PERMISSIONS
+========================================================= */
+
+function renderOrganizationPermissionCheckboxes(
+    roleId
+) {
+
+    const container =
+        document.getElementById(
+            "organizationPermissionContent"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    const allowed =
+        new Set(
+            organizationAdminState
+                .rolePermissions
+                .filter(
+                    item =>
+                        String(
+                            item.role_id
+                        ) ===
+                        String(
+                            roleId
+                        )
+                        &&
+                        item.is_allowed !==
+                        false
+                )
+                .map(
+                    item =>
+                        String(
+                            item.permission_id
+                        )
+                )
+        );
+
+
+    const groups = {};
+
+
+    organizationAdminState
+        .permissions
+        .filter(
+            permission =>
+                permission.is_active !==
+                false
+        )
+        .forEach(
+            permission => {
+
+                const group =
+                    String(
+                        permission.category ||
+                        "autres"
+                    );
+
+
+                if (!groups[group]) {
+
+                    groups[group] = [];
+                }
+
+
+                groups[group].push(
+                    permission
+                );
+            }
+        );
+
+
+    container.innerHTML =
+        Object
+            .entries(
+                groups
+            )
+            .map(
+                ([group, permissions]) => `
+
+                    <div class="organization-permission-group">
+
+                        <h4>
+                            ${escapeHtml(
+                                getOrganizationPermissionCategoryLabel(
+                                    group
+                                )
+                            )}
+                        </h4>
+
+
+                        <div class="organization-permission-grid">
+
+                            ${
+                                permissions
+                                    .map(
+                                        permission => `
+
+                                            <label class="organization-permission-option">
+
+                                                <input
+                                                    type="checkbox"
+                                                    data-role-permission="${permission.id}"
+                                                    ${
+                                                        allowed.has(
+                                                            String(
+                                                                permission.id
+                                                            )
+                                                        )
+                                                            ? "checked"
+                                                            : ""
+                                                    }
+                                                >
+
+                                                <div>
+
+                                                    <strong>
+                                                        ${escapeHtml(permission.name)}
+                                                    </strong>
+
+                                                    <small>
+                                                        ${escapeHtml(
+                                                            permission.description ||
+                                                            permission.code
+                                                        )}
+                                                    </small>
+
+                                                </div>
+
+                                            </label>
+                                        `
+                                    )
+                                    .join("")
+                            }
+
+                        </div>
+
+                    </div>
+                `
+            )
+            .join("");
+}
+
+
+
+/* =========================================================
+   CHECKBOX CATÉGORIES
+========================================================= */
+
+function renderOrganizationCategoryCheckboxes(
+    roleId
+) {
+
+    const container =
+        document.getElementById(
+            "organizationRoleCategories"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    const allowed =
+        new Set(
+            organizationAdminState
+                .roleCategoryAccess
+                .filter(
+                    item =>
+                        String(
+                            item.role_id
+                        ) ===
+                        String(
+                            roleId
+                        )
+                        &&
+                        item.is_allowed !==
+                        false
+                )
+                .map(
+                    item =>
+                        String(
+                            item.category_id
+                        )
+                )
+        );
+
+
+    if (
+        !organizationAdminState
+            .categories
+            .length
+    ) {
+
+        container.innerHTML = `
+            <div class="question-management-empty">
+                Aucune catégorie disponible.
+            </div>
+        `;
+
+        return;
+    }
+
+
+    container.innerHTML =
+        organizationAdminState
+            .categories
+            .map(
+                category => `
+
+                    <label class="organization-category-access-option">
+
+                        <input
+                            type="checkbox"
+                            data-role-category="${category.id}"
+                            ${
+                                allowed.has(
+                                    String(
+                                        category.id
+                                    )
+                                )
+                                    ? "checked"
+                                    : ""
+                            }
+                        >
+
+                        <span>
+                            ${escapeHtml(category.name)}
+                        </span>
+
+                    </label>
+                `
+            )
+            .join("");
+}
+
+
+
+/* =========================================================
+   SAUVEGARDE PERMISSIONS + CATÉGORIES
+========================================================= */
+
+async function saveOrganizationRolePermissions() {
+
+    const roleId =
+        organizationAdminState
+            .selectedRoleId;
+
+
+    if (!roleId) {
+
+        alert(
+            "Sélectionne d'abord un rôle."
+        );
+
+        return;
+    }
+
+
+    const button =
+        document.getElementById(
+            "organizationSaveRolePermissionsButton"
+        );
+
+
+    const permissionIds =
+        [
+            ...document
+                .querySelectorAll(
+                    "[data-role-permission]:checked"
+                )
+        ]
+        .map(
+            input =>
+                input.dataset
+                    .rolePermission
+        );
+
+
+    const categoryIds =
+        [
+            ...document
+                .querySelectorAll(
+                    "[data-role-category]:checked"
+                )
+        ]
+        .map(
+            input =>
+                input.dataset
+                    .roleCategory
+        );
+
+
+    if (button) {
+
+        button.disabled =
+            true;
+
+        button.textContent =
+            "Enregistrement...";
+    }
+
+
+    try {
+
+        /* -------------------------------------------------
+           SUPPRESSION ANCIENNES PERMISSIONS
+        ------------------------------------------------- */
+
+        let response =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/role_permissions?role_id=eq.${encodeURIComponent(roleId)}`,
+                {
+                    method:
+                        "DELETE",
+
+                    headers:
+                        supabaseHeaders()
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                await response.text()
+            );
+        }
+
+
+
+        /* -------------------------------------------------
+           NOUVELLES PERMISSIONS
+        ------------------------------------------------- */
+
+        if (
+            permissionIds.length
+        ) {
+
+            response =
+                await fetch(
+                    `${SUPABASE_URL}/rest/v1/role_permissions`,
+                    {
+                        method:
+                            "POST",
+
+                        headers: {
+
+                            ...supabaseHeaders(),
+
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify(
+                                permissionIds
+                                    .map(
+                                        permissionId => ({
+                                            role_id:
+                                                roleId,
+
+                                            permission_id:
+                                                permissionId,
+
+                                            is_allowed:
+                                                true
+                                        })
+                                    )
+                            )
+                    }
+                );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    await response.text()
+                );
+            }
+        }
+
+
+
+        /* -------------------------------------------------
+           SUPPRESSION ANCIENNES CATÉGORIES
+        ------------------------------------------------- */
+
+        response =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/role_category_access?role_id=eq.${encodeURIComponent(roleId)}`,
+                {
+                    method:
+                        "DELETE",
+
+                    headers:
+                        supabaseHeaders()
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                await response.text()
+            );
+        }
+
+
+
+        /* -------------------------------------------------
+           NOUVELLES CATÉGORIES
+        ------------------------------------------------- */
+
+        if (
+            categoryIds.length
+        ) {
+
+            response =
+                await fetch(
+                    `${SUPABASE_URL}/rest/v1/role_category_access`,
+                    {
+                        method:
+                            "POST",
+
+                        headers: {
+
+                            ...supabaseHeaders(),
+
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify(
+                                categoryIds
+                                    .map(
+                                        categoryId => ({
+                                            role_id:
+                                                roleId,
+
+                                            category_id:
+                                                categoryId,
+
+                                            is_allowed:
+                                                true
+                                        })
+                                    )
+                            )
+                    }
+                );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    await response.text()
+                );
+            }
+        }
+
+
+        await loadOrganizationAdminData();
+
+
+        renderOrganizationRoles();
+
+
+        renderOrganizationRoleConfiguration(
+            roleId
+        );
+
+
+        alert(
+            "✅ Les accès du rôle ont été enregistrés."
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "❌ Erreur sauvegarde accès rôle :",
+            error
+        );
+
+
+        alert(
+            "Impossible d'enregistrer les accès du rôle."
+        );
+
+
+    } finally {
+
+        if (button) {
+
+            button.disabled =
+                false;
+
+            button.textContent =
+                "💾 Enregistrer les accès";
+        }
+    }
+}
+
+
+
+/* =========================================================
+   LIBELLÉS PERMISSIONS
+========================================================= */
+
+function getOrganizationPermissionCategoryLabel(
+    category
+) {
+
+    const labels = {
+
+        training:
+            "🎯 Entraînements",
+
+        questions:
+            "❓ Questions & Quiz",
+
+        formations:
+            "🎓 Formations",
+
+        users:
+            "👥 Utilisateurs",
+
+        organization:
+            "🏢 Organisation",
+
+        stats:
+            "📊 Statistiques",
+
+        approvals:
+            "✅ Approbations",
+
+        reports:
+            "🚩 Signalements",
+
+        ideas:
+            "💡 Boîte à idées",
+
+        administration:
+            "🛡️ Administration"
+    };
+
+
+    return (
+        labels[category] ||
+        category
+    );
 }
