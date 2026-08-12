@@ -5958,3 +5958,66 @@ html[data-theme="light"] .organization-toolbar select {
     grid-template-columns: 1fr;
   }
 }
+/* =========================================================
+   MODALES ORGANISATION
+========================================================= */
+
+#organizationServiceModal,
+#organizationTeamModal,
+#organizationPositionModal {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 24px;
+
+  background: rgba(0, 0, 0, 0.58);
+  backdrop-filter: blur(4px);
+}
+
+#organizationServiceModal .question-edit-modal-card,
+#organizationTeamModal .question-edit-modal-card,
+#organizationPositionModal .question-edit-modal-card {
+  width: min(620px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+
+  border-radius: 20px;
+  padding: 24px;
+}
+
+html[data-theme="dark"]
+#organizationServiceModal
+.question-edit-modal-card,
+
+html[data-theme="dark"]
+#organizationTeamModal
+.question-edit-modal-card,
+
+html[data-theme="dark"]
+#organizationPositionModal
+.question-edit-modal-card {
+  background: #121c28;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+html[data-theme="light"]
+#organizationServiceModal
+.question-edit-modal-card,
+
+html[data-theme="light"]
+#organizationTeamModal
+.question-edit-modal-card,
+
+html[data-theme="light"]
+#organizationPositionModal
+.question-edit-modal-card {
+  background: #ffffff;
+  color: #202020;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
