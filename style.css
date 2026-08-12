@@ -8563,3 +8563,202 @@ html[data-theme="light"]
     text-overflow: ellipsis !important;
 }
 
+/* =========================================================
+   ADMIN ORGANISATION — FINITIONS VISUELLES
+========================================================= */
+
+
+/* =========================================================
+   PANNEAUX PLUS PROPRES
+========================================================= */
+
+.organization-panel {
+    box-shadow:
+        0 10px 30px rgba(0,0,0,.10);
+}
+
+
+/* =========================================================
+   LIGNES TABLEAUX
+========================================================= */
+
+.organization-list-row {
+    transition:
+        background .15s ease,
+        border-color .15s ease;
+}
+
+.organization-list-row:hover {
+    background:
+        rgba(249,115,22,.045) !important;
+
+    border-color:
+        rgba(249,115,22,.12);
+}
+
+
+/* =========================================================
+   ACTIONS PLUS VISIBLES
+========================================================= */
+
+.organization-row-actions {
+    gap: 8px !important;
+}
+
+.organization-action-button {
+    width: 30px !important;
+    height: 30px !important;
+
+    min-width: 30px !important;
+
+    border-radius: 7px !important;
+
+    font-size: 13px !important;
+
+    opacity: .92;
+}
+
+.organization-action-button:hover {
+    opacity: 1;
+
+    transform: translateY(-1px) scale(1.03);
+}
+
+.organization-action-edit {
+    background:
+        rgba(249,115,22,.08) !important;
+
+    border-color:
+        rgba(249,115,22,.22) !important;
+}
+
+.organization-action-delete {
+    background:
+        rgba(239,68,68,.08) !important;
+
+    border-color:
+        rgba(239,68,68,.22) !important;
+}
+
+
+/* =========================================================
+   STATUTS
+========================================================= */
+
+.organization-status-active,
+.organization-status-inactive {
+    min-width: 42px;
+
+    text-align: center;
+}
+
+
+/* =========================================================
+   RÔLES & ACCÈS
+========================================================= */
+
+.organization-permissions-final-layout {
+    grid-template-columns:
+        250px
+        minmax(420px, 1fr)
+        minmax(300px, .68fr) !important;
+
+    gap: 16px !important;
+}
+
+
+/* =========================================================
+   LISTE DES RÔLES
+========================================================= */
+
+.organization-role-list-card {
+    min-height: 520px;
+}
+
+.organization-role-item-wrapper {
+    gap: 6px;
+}
+
+.organization-role-item {
+    padding: 11px 12px !important;
+}
+
+.organization-role-item strong {
+    font-size: 12px;
+}
+
+.organization-role-item small {
+    font-size: 10px;
+}
+
+
+/* =========================================================
+   PERMISSIONS
+========================================================= */
+
+.organization-permission-card {
+    min-height: 520px;
+}
+
+.organization-permission-content {
+    max-height: 620px;
+
+    overflow-y: auto;
+
+    padding-right: 4px;
+}
+
+
+/* =========================================================
+   CATÉGORIES
+========================================================= */
+
+.organization-category-card {
+    min-height: 520px;
+}
+
+.organization-role-categories {
+    max-height: 520px;
+
+    overflow-y: auto;
+
+    padding-right: 4px;
+}
+
+
+/* =========================================================
+   SCROLLBAR DISCRÈTE
+========================================================= */
+
+.organization-permission-content::-webkit-scrollbar,
+.organization-role-categories::-webkit-scrollbar {
+    width: 6px;
+}
+
+.organization-permission-content::-webkit-scrollbar-thumb,
+.organization-role-categories::-webkit-scrollbar-thumb {
+    background:
+        rgba(255,255,255,.12);
+
+    border-radius: 20px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1250px) {
+
+    .organization-permissions-final-layout {
+        grid-template-columns:
+            235px
+            minmax(380px, 1fr) !important;
+    }
+
+    .organization-category-card {
+        grid-column: 1 / -1;
+        min-height: auto;
+    }
+}
+
