@@ -19787,6 +19787,22 @@ function renderOrganizationCategoryCheckboxes(
         );
 
 
+    if (
+        !organizationAdminState
+            .categories
+            .length
+    ) {
+
+        container.innerHTML = `
+            <div class="question-management-empty">
+                Aucune catégorie disponible.
+            </div>
+        `;
+
+        return;
+    }
+
+
     container.innerHTML =
         organizationAdminState
             .categories
@@ -19800,7 +19816,9 @@ function renderOrganizationCategoryCheckboxes(
                             data-role-category="${category.id}"
                             ${
                                 allowed.has(
-                                    String(category.id)
+                                    String(
+                                        category.id
+                                    )
                                 )
                                     ? "checked"
                                     : ""
@@ -19812,12 +19830,11 @@ function renderOrganizationCategoryCheckboxes(
                         </span>
 
                     </label>
+
                 `
             )
             .join("");
 }
-
-
 
 async function saveOrganizationRolePermissions() {
 
