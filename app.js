@@ -19528,15 +19528,21 @@ function renderOrganizationRoleConfiguration(
         );
 
 
-    const save =
+    const saveBar =
         document.getElementById(
-            "organizationSaveRolePermissionsButton"
+            "organizationRoleSaveBar"
         );
 
 
-    const categories =
+    const categorySection =
         document.getElementById(
             "organizationRoleCategoriesSection"
+        );
+
+
+    const emptyCategoryMessage =
+        document.getElementById(
+            "organizationCategoryEmptyMessage"
         );
 
 
@@ -19554,17 +19560,24 @@ function renderOrganizationRoleConfiguration(
     }
 
 
-    if (save) {
+    if (saveBar) {
 
-        save.style.display =
+        saveBar.style.display =
+            "flex";
+    }
+
+
+    if (categorySection) {
+
+        categorySection.style.display =
             "";
     }
 
 
-    if (categories) {
+    if (emptyCategoryMessage) {
 
-        categories.style.display =
-            "";
+        emptyCategoryMessage.style.display =
+            "none";
     }
 
 
