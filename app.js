@@ -17323,8 +17323,7 @@ function renderOrganizationTeams() {
 
     let teams =
         [
-            ...organizationAdminState
-                .teams
+            ...organizationAdminState.teams
         ];
 
 
@@ -17359,11 +17358,9 @@ function renderOrganizationTeams() {
         teams =
             teams.filter(
                 team =>
-                    String(
-                        team.name || ""
-                    )
-                    .toLowerCase()
-                    .includes(search)
+                    String(team.name || "")
+                        .toLowerCase()
+                        .includes(search)
             );
     }
 
@@ -17374,8 +17371,7 @@ function renderOrganizationTeams() {
             teams.filter(
                 team =>
                     String(
-                        team.service_id ||
-                        ""
+                        team.service_id || ""
                     ) ===
                     serviceFilter
             );
@@ -17422,84 +17418,134 @@ function renderOrganizationTeams() {
     }
 
 
-    container.innerHTML =
-        teams
-            .map(
-                team => {
+    container.innerHTML = `
 
-                    const service =
-                        serviceMap.get(
-                            String(
-                                team.service_id ||
-                                ""
-                            )
-                        );
+        <div class="organization-table-header organization-teams-header">
+
+            <div>
+                Nom de l'équipe
+            </div>
+
+            <div>
+                Service
+            </div>
+
+            <div>
+                Manager
+            </div>
+
+            <div>
+                Statut
+            </div>
+
+            <div>
+                Actions
+            </div>
+
+        </div>
 
 
-                    const manager =
-                        profileMap.get(
-                            String(
-                                team.manager_id ||
-                                ""
-                            )
-                        );
+        ${
+            teams
+                .map(
+                    team => {
+
+                        const service =
+                            serviceMap.get(
+                                String(
+                                    team.service_id || ""
+                                )
+                            );
 
 
-                    return `
+                        const manager =
+                            profileMap.get(
+                                String(
+                                    team.manager_id || ""
+                                )
+                            );
 
-                        <div class="organization-list-row">
 
-                            <div class="organization-list-main">
+                        return `
 
-                                <strong>
-                                    ${escapeHtml(team.name)}
-                                </strong>
+                            <div class="organization-list-row organization-team-row">
 
-                                <small>
+                                <div class="organization-list-main">
+
+                                    <strong>
+                                        ${escapeHtml(team.name)}
+                                    </strong>
+
+                                </div>
+
+
+                                <div>
+
+                                    ${
+                                        service
+                                            ? escapeHtml(service.name)
+                                            : "—"
+                                    }
+
+                                </div>
+
+
+                                <div class="organization-manager-cell">
+
                                     ${
                                         manager
-                                            ? `Manager : ${escapeHtml(manager.full_name)}`
-                                            : "Aucun manager"
-                                    }
-                                </small>
+                                            ? `
+                                                <div class="organization-mini-avatar">
 
-                            </div>
+                                                    ${escapeHtml(
+                                                        String(
+                                                            manager.full_name ||
+                                                            "?"
+                                                        )
+                                                        .charAt(0)
+                                                        .toUpperCase()
+                                                    )}
 
+                                                </div>
 
-                            <div>
-                                ${
-                                    service
-                                        ? escapeHtml(service.name)
-                                        : "—"
-                                }
-                            </div>
-
-
-                            <div class="organization-status-actions">
-
-                                <span class="${
-                                    team.is_active !==
-                                    false
-                                        ? "organization-status-active"
-                                        : "organization-status-inactive"
-                                }">
-
-                                    ${
-                                        team.is_active !==
-                                        false
-                                            ? "Active"
-                                            : "Désactivée"
+                                                <span>
+                                                    ${escapeHtml(
+                                                        manager.full_name
+                                                    )}
+                                                </span>
+                                            `
+                                            : "—"
                                     }
 
-                                </span>
+                                </div>
+
+
+                                <div>
+
+                                    <span class="${
+                                        team.is_active !== false
+                                            ? "organization-status-active"
+                                            : "organization-status-inactive"
+                                    }">
+
+                                        ${
+                                            team.is_active !== false
+                                                ? "Actif"
+                                                : "Désactivé"
+                                        }
+
+                                    </span>
+
+                                </div>
 
 
                                 <div class="organization-row-actions">
 
                                     <button
                                         type="button"
-                                        class="btn-secondary"
+                                        class="organization-action-button organization-action-edit"
                                         onclick="openOrganizationTeamModal('${team.id}')"
+                                        title="Modifier"
                                     >
                                         ✏️
                                     </button>
@@ -17507,37 +17553,57 @@ function renderOrganizationTeams() {
 
                                     <button
                                         type="button"
-                                        class="btn-secondary"
+                                        class="organization-action-button"
                                         onclick="toggleOrganizationTeamStatus('${team.id}')"
+                                        title="${
+                                            team.is_active !== false
+                                                ? "Désactiver"
+                                                : "Réactiver"
+                                        }"
                                     >
                                         ${
-                                            team.is_active !==
-                                            false
-                                                ? "⏸️"
-                                                : "▶️"
+                                            team.is_active !== false
+                                                ? "⏸"
+                                                : "▶"
                                         }
                                     </button>
 
 
                                     <button
                                         type="button"
-                                        class="btn-secondary organization-delete-button"
+                                        class="organization-action-button organization-action-delete"
                                         onclick="deleteOrganizationTeam('${team.id}')"
+                                        title="Supprimer"
                                     >
-                                        🗑️
+                                        🗑
                                     </button>
 
                                 </div>
 
                             </div>
+                        `;
+                    }
+                )
+                .join("")
+        }
 
-                        </div>
-                    `;
-                }
-            )
-            .join("");
+
+        <div class="organization-table-footer">
+
+            Total :
+            <strong>
+                ${teams.length}
+            </strong>
+
+            équipe${
+                teams.length > 1
+                    ? "s"
+                    : ""
+            }
+
+        </div>
+    `;
 }
-
 
 
 function openOrganizationTeamModal(
