@@ -16536,8 +16536,7 @@ function renderOrganizationServices() {
 
     let services =
         [
-            ...organizationAdminState
-                .services
+            ...organizationAdminState.services
         ];
 
 
@@ -16564,17 +16563,17 @@ function renderOrganizationServices() {
         services =
             services.filter(
                 service =>
-                    String(
-                        service.name || ""
-                    )
-                    .toLowerCase()
-                    .includes(search)
+                    String(service.name || "")
+                        .toLowerCase()
+                        .includes(search)
                     ||
-                    String(
-                        service.code || ""
-                    )
-                    .toLowerCase()
-                    .includes(search)
+                    String(service.code || "")
+                        .toLowerCase()
+                        .includes(search)
+                    ||
+                    String(service.description || "")
+                        .toLowerCase()
+                        .includes(search)
             );
     }
 
@@ -16619,58 +16618,91 @@ function renderOrganizationServices() {
     }
 
 
-    container.innerHTML =
-        services
-            .map(
-                service => `
+    container.innerHTML = `
 
-                    <div class="organization-list-row">
+        <div class="organization-table-header organization-services-header">
 
-                        <div class="organization-list-main">
+            <div>
+                Nom du service
+            </div>
 
-                            <strong>
-                                ${escapeHtml(service.name)}
-                            </strong>
+            <div>
+                Code
+            </div>
 
-                            <small>
+            <div>
+                Description
+            </div>
+
+            <div>
+                Statut
+            </div>
+
+            <div>
+                Actions
+            </div>
+
+        </div>
+
+
+        ${
+            services
+                .map(
+                    service => `
+
+                        <div class="organization-list-row organization-service-row">
+
+                            <div class="organization-list-main">
+
+                                <strong>
+                                    ${escapeHtml(service.name)}
+                                </strong>
+
+                            </div>
+
+
+                            <div class="organization-list-code">
+
                                 ${escapeHtml(
-                                    service.description ||
-                                    ""
+                                    service.code || "—"
                                 )}
-                            </small>
 
-                        </div>
-
-
-                        <div class="organization-list-code">
-                            ${escapeHtml(service.code)}
-                        </div>
+                            </div>
 
 
-                        <div class="organization-status-actions">
+                            <div class="organization-description-cell">
 
-                            <span class="${
-                                service.is_active !==
-                                false
-                                    ? "organization-status-active"
-                                    : "organization-status-inactive"
-                            }">
+                                ${escapeHtml(
+                                    service.description || "—"
+                                )}
 
-                                ${
-                                    service.is_active !==
-                                    false
-                                        ? "Actif"
-                                        : "Désactivé"
-                                }
+                            </div>
 
-                            </span>
+
+                            <div>
+
+                                <span class="${
+                                    service.is_active !== false
+                                        ? "organization-status-active"
+                                        : "organization-status-inactive"
+                                }">
+
+                                    ${
+                                        service.is_active !== false
+                                            ? "Actif"
+                                            : "Désactivé"
+                                    }
+
+                                </span>
+
+                            </div>
 
 
                             <div class="organization-row-actions">
 
                                 <button
                                     type="button"
-                                    class="btn-secondary"
+                                    class="organization-action-button organization-action-edit"
                                     onclick="openOrganizationServiceModal('${service.id}')"
                                     title="Modifier"
                                 >
@@ -16680,43 +16712,57 @@ function renderOrganizationServices() {
 
                                 <button
                                     type="button"
-                                    class="btn-secondary"
+                                    class="organization-action-button"
                                     onclick="toggleOrganizationServiceStatus('${service.id}')"
                                     title="${
-                                        service.is_active !==
-                                        false
+                                        service.is_active !== false
                                             ? "Désactiver"
                                             : "Réactiver"
                                     }"
                                 >
                                     ${
-                                        service.is_active !==
-                                        false
-                                            ? "⏸️"
-                                            : "▶️"
+                                        service.is_active !== false
+                                            ? "⏸"
+                                            : "▶"
                                     }
                                 </button>
 
 
                                 <button
                                     type="button"
-                                    class="btn-secondary organization-delete-button"
+                                    class="organization-action-button organization-action-delete"
                                     onclick="deleteOrganizationService('${service.id}')"
                                     title="Supprimer"
                                 >
-                                    🗑️
+                                    🗑
                                 </button>
 
                             </div>
 
                         </div>
 
-                    </div>
-                `
-            )
-            .join("");
-}
+                    `
+                )
+                .join("")
+        }
 
+
+        <div class="organization-table-footer">
+
+            Total :
+            <strong>
+                ${services.length}
+            </strong>
+
+            service${
+                services.length > 1
+                    ? "s"
+                    : ""
+            }
+
+        </div>
+    `;
+}
 
 
 function openOrganizationServiceModal(
