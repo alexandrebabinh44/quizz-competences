@@ -16986,3 +16986,328 @@ function bindOrganizationServiceEvents() {
         }
     );
 }
+/* =========================================================
+   ADMIN ORGANISATION
+   GESTION DES ÉQUIPES
+========================================================= */
+
+
+/* =========================================================
+   OUVERTURE / FERMETURE MODALE ÉQUIPE
+========================================================= */
+
+function openOrganizationTeamModal() {
+
+    const modal =
+        document.getElementById(
+            "organizationTeamModal"
+        );
+
+    if (!modal) {
+
+        console.error(
+            "❌ organizationTeamModal introuvable"
+        );
+
+        return;
+    }
+
+
+    const title =
+        document.getElementById(
+            "organizationTeamModalTitle"
+        );
+
+    const nameInput =
+        document.getElementById(
+            "organizationTeamName"
+        );
+
+    const serviceSelect =
+        document.getElementById(
+            "organizationTeamService"
+        );
+
+    const managerSelect =
+        document.getElementById(
+            "organizationTeamManager"
+        );
+
+
+    if (title) {
+        title.textContent =
+            "Ajouter une équipe";
+    }
+
+    if (nameInput) {
+        nameInput.value = "";
+    }
+
+    if (serviceSelect) {
+        serviceSelect.value = "";
+    }
+
+    if (managerSelect) {
+        managerSelect.value = "";
+    }
+
+
+    modal.style.display =
+        "flex";
+
+    modal.style.alignItems =
+        "center";
+
+    modal.style.justifyContent =
+        "center";
+
+
+    setTimeout(
+        function () {
+
+            nameInput?.focus();
+
+        },
+        100
+    );
+}
+
+
+function closeOrganizationTeamModal() {
+
+    const modal =
+        document.getElementById(
+            "organizationTeamModal"
+        );
+
+    if (!modal) {
+        return;
+    }
+
+    modal.style.display =
+        "none";
+}
+
+
+/* =========================================================
+   CRÉATION ÉQUIPE
+========================================================= */
+
+async function saveOrganizationTeam() {
+
+    const nameInput =
+        document.getElementById(
+            "organizationTeamName"
+        );
+
+    const serviceSelect =
+        document.getElementById(
+            "organizationTeamService"
+        );
+
+    const managerSelect =
+        document.getElementById(
+            "organizationTeamManager"
+        );
+
+    const saveButton =
+        document.getElementById(
+            "organizationSaveTeam"
+        );
+
+
+    const name =
+        String(
+            nameInput?.value || ""
+        )
+        .trim();
+
+
+    const serviceId =
+        String(
+            serviceSelect?.value || ""
+        )
+        .trim();
+
+
+    const managerId =
+        String(
+            managerSelect?.value || ""
+        )
+        .trim();
+
+
+    /* =====================================================
+       1. VALIDATION
+    ====================================================== */
+
+    if (!name) {
+
+        alert(
+            "Renseigne le nom de l'équipe."
+        );
+
+        nameInput?.focus();
+
+        return;
+    }
+
+
+    /* =====================================================
+       2. CONTRÔLE DOUBLON
+    ====================================================== */
+
+    const duplicate =
+        organizationAdminState
+            .teams
+            .some(
+                team =>
+                    String(
+                        team.name || ""
+                    )
+                    .trim()
+                    .toLowerCase() ===
+                    name.toLowerCase()
+            );
+
+
+    if (duplicate) {
+
+        alert(
+            "Une équipe avec ce nom existe déjà."
+        );
+
+        return;
+    }
+
+
+    /* =====================================================
+       3. BOUTON CHARGEMENT
+    ====================================================== */
+
+    if (saveButton) {
+
+        saveButton.disabled =
+            true;
+
+        saveButton.textContent =
+            "Enregistrement...";
+    }
+
+
+    try {
+
+        const selectedService =
+            organizationAdminState
+                .services
+                .find(
+                    service =>
+                        String(service.id) ===
+                        serviceId
+                );
+
+
+        const response =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/teams`,
+                {
+                    method:
+                        "POST",
+
+                    headers: {
+                        ...supabaseHeaders(),
+
+                        "Content-Type":
+                            "application/json",
+
+                        "Prefer":
+                            "return=representation"
+                    },
+
+                    body:
+                        JSON.stringify(
+                            {
+                                name:
+                                    name,
+
+                                service_id:
+                                    serviceId ||
+                                    null,
+
+                                service:
+                                    selectedService
+                                        ? selectedService.name
+                                        : null,
+
+                                manager_id:
+                                    managerId ||
+                                    null,
+
+                                is_active:
+                                    true
+                            }
+                        )
+                }
+            );
+
+
+        const responseText =
+            await response.text();
+
+
+        if (!response.ok) {
+
+            console.error(
+                "❌ Erreur Supabase équipe :",
+                response.status,
+                responseText
+            );
+
+            throw new Error(
+                responseText ||
+                `Erreur HTTP ${response.status}`
+            );
+        }
+
+
+        await loadOrganizationAdminData();
+
+        renderOrganizationTeams();
+
+        renderOrganizationServices();
+
+        renderOrganizationPositions();
+
+        populateOrganizationSelects();
+
+        closeOrganizationTeamModal();
+
+
+        alert(
+            `L'équipe "${name}" a bien été créée.`
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "❌ Erreur création équipe :",
+            error
+        );
+
+        alert(
+            "Impossible de créer l'équipe."
+        );
+
+    } finally {
+
+        if (saveButton) {
+
+            saveButton.disabled =
+                false;
+
+            saveButton.textContent =
+                "💾 Enregistrer";
+        }
+    }
+}
