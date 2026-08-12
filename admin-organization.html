@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <script>
+    const savedTheme =
+      localStorage.getItem("nickel_master_theme") || "light";
+
+    document.documentElement.setAttribute(
+      "data-theme",
+      savedTheme
+    );
+  </script>
+
+  <title>Gestion de l'organisation - Nickel Master</title>
+
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
+</head>
+
+
+<body class="dashboard-body">
+
+<div class="dashboard-layout">
+
+
+  <!-- =====================================================
+       SIDEBAR
+  ====================================================== -->
+
+  <aside class="sidebar">
+
+    <div class="logo">
+
+      <img
+        src="images/logo-nickel.png"
+        alt="Nickel"
+        class="sidebar-logo-img"
+      >
+
+      <span>
+        NICKEL<br>MASTER
+      </span>
+
+    </div>
+
+
+    <nav class="side-menu">
+
+      <button
+        onclick="window.location.href='home.html'"
+      >
+        🏠 Accueil
+      </button>
+
+
+      <button
+        onclick="window.location.href='training.html'"
+      >
+        🎯 Entraînement
+      </button>
+
+
+      <button>
+        🏆 Challenges
+      </button>
+
+
+      <button
+        onclick="window.location.href='ranking.html'"
+      >
+        📊 Classements
+      </button>
+
+
+      <button>
+        ⚔️ Battle
+      </button>
+
+
+      <button>
+        🎮 Kahoot
+      </button>
+
+
+      <button
+        onclick="window.location.href='profile.html'"
+      >
+        📈 Mes stats
+      </button>
+
+
+      <button
+        onclick="window.location.href='badges.html'"
+      >
+        🏅 Badges
+      </button>
+
+
+      <button
+        class="active"
+        onclick="window.location.href='administration.html'"
+      >
+        🛡️ Administration
+      </button>
+
+    </nav>
+
+
+    <div class="sidebar-bottom">
+
+      <button
+        onclick="window.location.href='settings.html'"
+      >
+        ⚙️ Paramètres
+      </button>
+
+
+      <button
+        id="themeToggle"
+        class="sidebar-link theme-button"
+        onclick="toggleTheme()"
+      >
+        🌙 Mode sombre
+      </button>
+
+
+      <button
+        class="sidebar-link"
+        onclick="logout()"
+      >
+        🚪 Déconnexion
+      </button>
+
+    </div>
+
+  </aside>
+
+
+
+  <!-- =====================================================
+       CONTENU PRINCIPAL
+  ====================================================== -->
+
+  <main class="dashboard-main">
+
+
+    <!-- ===================================================
+         HEADER
+    ==================================================== -->
+
+    <header class="organization-admin-header">
+
+      <div>
+
+        <h1>
+          🏢 Gestion de l'organisation
+        </h1>
+
+        <p>
+          Gère les services, équipes, fonctions et accès de Nickel Master.
+        </p>
+
+      </div>
+
+
+      <strong id="organizationAdminUser">
+        Administrateur
+      </strong>
+
+    </header>
+
+
+
+    <!-- ===================================================
+         CARTES DE NAVIGATION
+    ==================================================== -->
+
+    <section class="organization-admin-tabs">
+
+      <button
+        type="button"
+        class="organization-tab active"
+        data-organization-tab="services"
+      >
+        <span>🏢</span>
+
+        <div>
+          <strong>Services</strong>
+          <small>Créer et organiser les services</small>
+        </div>
+      </button>
+
+
+      <button
+        type="button"
+        class="organization-tab"
+        data-organization-tab="teams"
+      >
+        <span>👥</span>
+
+        <div>
+          <strong>Équipes</strong>
+          <small>Créer et gérer les équipes</small>
+        </div>
+      </button>
+
+
+      <button
+        type="button"
+        class="organization-tab"
+        data-organization-tab="positions"
+      >
+        <span>💼</span>
+
+        <div>
+          <strong>Fonctions</strong>
+          <small>Gérer les fonctions métier</small>
+        </div>
+      </button>
+
+
+      <button
+        type="button"
+        class="organization-tab"
+        data-organization-tab="permissions"
+      >
+        <span>🔐</span>
+
+        <div>
+          <strong>Rôles & accès</strong>
+          <small>Gérer les permissions et catégories</small>
+        </div>
+      </button>
+
+    </section>
+
+
+
+    <!-- ===================================================
+         SERVICES
+    ==================================================== -->
+
+    <section
+      id="organizationServicesPanel"
+      class="organization-panel"
+    >
+
+      <div class="organization-panel-header">
+
+        <div>
+
+          <h2>
+            Services
+          </h2>
+
+          <p>
+            Les services sont disponibles automatiquement dans les équipes
+            et la gestion des utilisateurs.
+          </p>
+
+        </div>
+
+
+        <button
+          type="button"
+          class="btn-primary"
+          id="organizationAddServiceButton"
+        >
+          + Ajouter un service
+        </button>
+
+      </div>
+
+
+      <div class="organization-toolbar">
+
+        <input
+          id="organizationServiceSearch"
+          type="text"
+          placeholder="Rechercher un service..."
+        >
+
+        <select id="organizationServiceStatusFilter">
+
+          <option value="">
+            Tous les statuts
+          </option>
+
+          <option value="active">
+            Actifs
+          </option>
+
+          <option value="inactive">
+            Désactivés
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div
+        id="organizationServicesList"
+        class="organization-list"
+      >
+
+        <div class="question-management-empty">
+          Chargement des services...
+        </div>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ===================================================
+         ÉQUIPES
+    ==================================================== -->
+
+    <section
+      id="organizationTeamsPanel"
+      class="organization-panel"
+      style="display:none;"
+    >
+
+      <div class="organization-panel-header">
+
+        <div>
+
+          <h2>
+            Équipes
+          </h2>
+
+          <p>
+            Chaque équipe peut être rattachée à un service et à un manager.
+          </p>
+
+        </div>
+
+
+        <button
+          type="button"
+          class="btn-primary"
+          id="organizationAddTeamButton"
+        >
+          + Ajouter une équipe
+        </button>
+
+      </div>
+
+
+      <div class="organization-toolbar">
+
+        <input
+          id="organizationTeamSearch"
+          type="text"
+          placeholder="Rechercher une équipe..."
+        >
+
+
+        <select id="organizationTeamServiceFilter">
+
+          <option value="">
+            Tous les services
+          </option>
+
+        </select>
+
+
+        <select id="organizationTeamStatusFilter">
+
+          <option value="">
+            Tous les statuts
+          </option>
+
+          <option value="active">
+            Actives
+          </option>
+
+          <option value="inactive">
+            Désactivées
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div
+        id="organizationTeamsList"
+        class="organization-list"
+      >
+
+        <div class="question-management-empty">
+          Chargement des équipes...
+        </div>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ===================================================
+         FONCTIONS
+    ==================================================== -->
+
+    <section
+      id="organizationPositionsPanel"
+      class="organization-panel"
+      style="display:none;"
+    >
+
+      <div class="organization-panel-header">
+
+        <div>
+
+          <h2>
+            Fonctions
+          </h2>
+
+          <p>
+            Crée les fonctions métier utilisées dans les profils utilisateurs.
+          </p>
+
+        </div>
+
+
+        <button
+          type="button"
+          class="btn-primary"
+          id="organizationAddPositionButton"
+        >
+          + Ajouter une fonction
+        </button>
+
+      </div>
+
+
+      <div class="organization-toolbar">
+
+        <input
+          id="organizationPositionSearch"
+          type="text"
+          placeholder="Rechercher une fonction..."
+        >
+
+
+        <select id="organizationPositionServiceFilter">
+
+          <option value="">
+            Tous les services
+          </option>
+
+        </select>
+
+
+        <select id="organizationPositionStatusFilter">
+
+          <option value="">
+            Tous les statuts
+          </option>
+
+          <option value="active">
+            Actives
+          </option>
+
+          <option value="inactive">
+            Désactivées
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div
+        id="organizationPositionsList"
+        class="organization-list"
+      >
+
+        <div class="question-management-empty">
+          Chargement des fonctions...
+        </div>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ===================================================
+         RÔLES & ACCÈS
+    ==================================================== -->
+
+    <section
+      id="organizationPermissionsPanel"
+      class="organization-panel"
+      style="display:none;"
+    >
+
+      <div class="organization-panel-header">
+
+        <div>
+
+          <h2>
+            Rôles & accès
+          </h2>
+
+          <p>
+            Configure ce que chaque rôle ou fonction peut voir et faire.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="organization-permission-layout">
+
+
+        <!-- COLONNE GAUCHE -->
+
+        <aside class="organization-role-list-card">
+
+          <h3>
+            Rôles
+          </h3>
+
+
+          <div
+            id="organizationRoleList"
+            class="organization-role-list"
+          >
+            Chargement...
+          </div>
+
+        </aside>
+
+
+
+        <!-- CONTENU -->
+
+        <div class="organization-permission-card">
+
+          <div class="organization-permission-heading">
+
+            <div>
+
+              <h3 id="organizationPermissionTitle">
+                Sélectionne un rôle
+              </h3>
+
+              <p id="organizationPermissionSubtitle">
+                Choisis un rôle pour afficher ses permissions.
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <div
+            id="organizationPermissionContent"
+            class="organization-permission-content"
+          >
+
+            <div class="question-management-empty">
+              Aucun rôle sélectionné.
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</div>
+
+
+
+<!-- =====================================================
+     MODALE SERVICE
+====================================================== -->
+
+<div
+  id="organizationServiceModal"
+  class="question-edit-modal"
+  style="display:none;"
+>
+
+  <div class="question-edit-modal-card">
+
+    <div class="question-edit-modal-header">
+
+      <h2 id="organizationServiceModalTitle">
+        Ajouter un service
+      </h2>
+
+      <button
+        type="button"
+        id="organizationCloseServiceModal"
+      >
+        ✕
+      </button>
+
+    </div>
+
+
+    <div class="question-field">
+
+      <label for="organizationServiceName">
+        Nom du service
+      </label>
+
+      <input
+        id="organizationServiceName"
+        type="text"
+        placeholder="Ex. Formation"
+      >
+
+    </div>
+
+
+    <div class="question-field">
+
+      <label for="organizationServiceCode">
+        Code
+      </label>
+
+      <input
+        id="organizationServiceCode"
+        type="text"
+        placeholder="formation"
+      >
+
+    </div>
+
+
+    <div class="question-field">
+
+      <label for="organizationServiceDescription">
+        Description
+      </label>
+
+      <textarea
+        id="organizationServiceDescription"
+        placeholder="Description du service..."
+      ></textarea>
+
+    </div>
+
+
+    <div class="question-edit-actions">
+
+      <button
+        type="button"
+        class="btn-secondary"
+        id="organizationCancelService"
+      >
+        Annuler
+      </button>
+
+
+      <button
+        type="button"
+        class="btn-primary"
+        id="organizationSaveService"
+      >
+        💾 Enregistrer
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     MODALE ÉQUIPE
+====================================================== -->
+
+<div
+  id="organizationTeamModal"
+  class="question-edit-modal"
+  style="display:none;"
+>
+
+  <div class="question-edit-modal-card">
+
+    <div class="question-edit-modal-header">
+
+      <h2 id="organizationTeamModalTitle">
+        Ajouter une équipe
+      </h2>
+
+      <button
+        type="button"
+        id="organizationCloseTeamModal"
+      >
+        ✕
+      </button>
+
+    </div>
+
+
+    <div class="question-field">
+
+      <label for="organizationTeamName">
+        Nom de l'équipe
+      </label>
+
+      <input
+        id="organizationTeamName"
+        type="text"
+        placeholder="Ex. Équipe Formation"
+      >
+
+    </div>
+
+
+    <div class="question-field">
+
+      <label for="organizationTeamService">
+        Service
+      </label>
+
+      <select id="organizationTeamService">
+
+        <option value="">
+          Aucun service
+        </option>
+
+      </select>
+
+    </div>
+
+
+    <div class="question-field">
+
+      <label for="organizationTeamManager">
+        Manager
+      </label>
+
+      <select id="organizationTeamManager">
+
+        <option value="">
+          Aucun manager
+        </option>
+
+      </select>
+
+    </div>
+
+
+    <div class="question-edit-actions">
+
+      <button
+        type="button"
+        class="btn-secondary"
+        id="organizationCancelTeam"
+      >
+        Annuler
+      </button>
+
+
+      <button
+        type="button"
+        class="btn-primary"
+        id="organizationSaveTeam"
+      >
+        💾 Enregistrer
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     MODALE FONCTION
+====================================================== -->
+
+<div
+  id="organizationPositionModal"
+  class="question-edit-modal"
+  style="display:none;"
+>
+
+  <div class="question-edit-modal-card">
+
+    <div class="question-edit-modal-header">
+
+      <h2 id="organizationPositionModalTitle">
+        Ajouter une fonction
+      </h2>
+
+      <button
+        type="button"
+        id="organizationClosePositionModal"
+      >
+        ✕
+      </button>
+
+    </div>
+
+
+    <div class="question-field">
+
+      <label for="organizationPositionName">
+        Nom de la fonction
+      </label>
+
+      <input
+        id="organizationPositionName"
+        type="text"
+        placeholder="Ex. Formateur"
+      >
+
+    </div>
+
+
+    <div class="question-field">
+
+      <label for="organizationPositionCode">
+        Code
+      </label>
+
+      <input
+        id="organizationPositionCode"
+        type="text"
+        placeholder="formateur"
+      >
+
+    </div>
+
+
+    <div class="question-field">
+
+      <label for="organizationPositionRole">
+        Rôle associé
+      </label>
+
+      <select id="organizationPositionRole">
+
+        <option value="">
+          Aucun rôle
+        </option>
+
+      </select>
+
+    </div>
+
+
+    <div class="question-field">
+
+      <label for="organizationPositionService">
+        Service
+      </label>
+
+      <select id="organizationPositionService">
+
+        <option value="">
+          Tous les services / Aucun
+        </option>
+
+      </select>
+
+    </div>
+
+
+    <div class="question-field">
+
+      <label for="organizationPositionDescription">
+        Description
+      </label>
+
+      <textarea
+        id="organizationPositionDescription"
+        placeholder="Description de la fonction..."
+      ></textarea>
+
+    </div>
+
+
+    <div class="question-edit-actions">
+
+      <button
+        type="button"
+        class="btn-secondary"
+        id="organizationCancelPosition"
+      >
+        Annuler
+      </button>
+
+
+      <button
+        type="button"
+        class="btn-primary"
+        id="organizationSavePosition"
+      >
+        💾 Enregistrer
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     SCRIPTS
+====================================================== -->
+
+<script src="app.js"></script>
+<script src="theme.js"></script>
+
+
+<script>
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    async function () {
+
+
+      /* ===============================================
+         SÉCURITÉ ADMIN
+      ================================================ */
+
+      const role =
+        String(
+          localStorage.getItem("role") || ""
+        )
+        .trim()
+        .toLowerCase();
+
+
+      if (role !== "admin") {
+
+        alert(
+          "Cette page est réservée à l'administrateur."
+        );
+
+        window.location.href =
+          "home.html";
+
+        return;
+      }
+
+
+
+      /* ===============================================
+         NOM UTILISATEUR
+      ================================================ */
+
+      const name =
+        localStorage.getItem("full_name") ||
+        "Administrateur";
+
+
+      const user =
+        document.getElementById(
+          "organizationAdminUser"
+        );
+
+
+      if (user) {
+
+        user.textContent =
+          name;
+      }
+
+
+
+      /* ===============================================
+         INITIALISATION
+      ================================================ */
+
+      if (
+        typeof initializeOrganizationAdminPage ===
+        "function"
+      ) {
+
+        await initializeOrganizationAdminPage();
+
+      } else {
+
+        console.error(
+          "initializeOrganizationAdminPage() est introuvable dans app.js"
+        );
+      }
+
+    }
+  );
+
+</script>
+
+</body>
+
+</html>
