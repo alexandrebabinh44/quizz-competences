@@ -105,14 +105,6 @@
         🏅 Badges
       </button>
 
-
-      <button
-        class="active"
-        onclick="window.location.href='administration.html'"
-      >
-        🛡️ Administration
-      </button>
-
     </nav>
 
 
@@ -531,8 +523,6 @@
       <div class="organization-permission-layout">
 
 
-        <!-- COLONNE GAUCHE -->
-
         <aside class="organization-role-list-card">
 
           <h3>
@@ -550,8 +540,6 @@
         </aside>
 
 
-
-        <!-- CONTENU -->
 
         <div class="organization-permission-card">
 
@@ -616,6 +604,8 @@
       <button
         type="button"
         id="organizationCloseServiceModal"
+        onclick="closeOrganizationServiceModal()"
+        aria-label="Fermer"
       >
         ✕
       </button>
@@ -633,6 +623,7 @@
         id="organizationServiceName"
         type="text"
         placeholder="Ex. Formation"
+        autocomplete="off"
       >
 
     </div>
@@ -648,6 +639,7 @@
         id="organizationServiceCode"
         type="text"
         placeholder="formation"
+        autocomplete="off"
       >
 
     </div>
@@ -673,6 +665,7 @@
         type="button"
         class="btn-secondary"
         id="organizationCancelService"
+        onclick="closeOrganizationServiceModal()"
       >
         Annuler
       </button>
@@ -682,6 +675,7 @@
         type="button"
         class="btn-primary"
         id="organizationSaveService"
+        onclick="saveOrganizationService()"
       >
         💾 Enregistrer
       </button>
