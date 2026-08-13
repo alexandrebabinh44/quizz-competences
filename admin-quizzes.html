@@ -32,11 +32,6 @@
 
 <div class="dashboard-layout">
 
-
-  <!-- =====================================================
-       SIDEBAR
-  ====================================================== -->
-
   <aside class="sidebar">
 
     <div class="logo">
@@ -56,15 +51,11 @@
 
     <nav class="side-menu">
 
-      <button
-        onclick="window.location.href='home.html'"
-      >
+      <button onclick="window.location.href='home.html'">
         🏠 Accueil
       </button>
 
-      <button
-        onclick="window.location.href='training.html'"
-      >
+      <button onclick="window.location.href='training.html'">
         🎯 Entraînement
       </button>
 
@@ -72,9 +63,7 @@
         🏆 Challenges
       </button>
 
-      <button
-        onclick="window.location.href='ranking.html'"
-      >
+      <button onclick="window.location.href='ranking.html'">
         📊 Classements
       </button>
 
@@ -86,15 +75,11 @@
         🎮 Kahoot
       </button>
 
-      <button
-        onclick="window.location.href='profile.html'"
-      >
+      <button onclick="window.location.href='profile.html'">
         📈 Mes stats
       </button>
 
-      <button
-        onclick="window.location.href='badges.html'"
-      >
+      <button onclick="window.location.href='badges.html'">
         🏅 Badges
       </button>
 
@@ -103,9 +88,7 @@
 
     <div class="sidebar-bottom">
 
-      <button
-        onclick="window.location.href='settings.html'"
-      >
+      <button onclick="window.location.href='settings.html'">
         ⚙️ Paramètres
       </button>
 
@@ -129,11 +112,6 @@
   </aside>
 
 
-
-  <!-- =====================================================
-       CONTENU
-  ====================================================== -->
-
   <main class="dashboard-main">
 
     <header class="topbar">
@@ -155,7 +133,6 @@
     </header>
 
 
-
     <section class="settings-page">
 
       <div class="settings-header">
@@ -171,11 +148,8 @@
       </div>
 
 
-
       <div class="settings-grid">
 
-
-        <!-- AJOUTER DES QUESTIONS -->
 
         <button
           class="settings-card"
@@ -205,8 +179,37 @@
         </button>
 
 
+        <!-- =================================================
+             GÉNÉRATEUR IA
+        ================================================== -->
 
-        <!-- GÉRER LES QUESTIONS -->
+        <button
+          class="settings-card ai-settings-card"
+          onclick="window.location.href='admin-ai-questions.html'"
+        >
+
+          <div class="settings-card-icon">
+            ✨
+          </div>
+
+          <div class="settings-card-content">
+
+            <h2>
+              Générer avec l'IA
+            </h2>
+
+            <p>
+              Transforme un texte ou des images en questions modifiables avant import.
+            </p>
+
+          </div>
+
+          <div class="settings-card-arrow">
+            ›
+          </div>
+
+        </button>
+
 
         <button
           class="settings-card"
@@ -236,9 +239,6 @@
         </button>
 
 
-
-        <!-- GÉRER LES CATÉGORIES -->
-
         <button
           class="settings-card"
           onclick="window.location.href='admin-categories.html'"
@@ -266,9 +266,6 @@
 
         </button>
 
-
-
-        <!-- RETOUR ADMINISTRATION -->
 
         <button
           class="settings-card"
@@ -304,7 +301,6 @@
   </main>
 
 </div>
-
 
 
 <script src="app.js"></script>
