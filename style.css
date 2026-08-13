@@ -10332,3 +10332,751 @@ html[data-theme="dark"] .nm-page select {
             1fr;
     }
 }
+/* =========================================================
+   NICKEL MASTER
+   COMPATIBILITÉ DES ANCIENNES PAGES AVEC LE DESIGN SYSTEM
+========================================================= */
+
+
+/* =========================================================
+   1. FOND GLOBAL DES PAGES
+========================================================= */
+
+.dashboard-main,
+.settings-page,
+.admin-users-page,
+.question-admin-panel,
+.question-management-page,
+.organization-panel {
+
+    color: var(--nm-text);
+}
+
+
+/* =========================================================
+   2. HEADERS
+========================================================= */
+
+.settings-header h1,
+.question-admin-header h1,
+.question-management-header h1,
+.organization-admin-header h1,
+.admin-users-header h1 {
+
+    color: var(--nm-text);
+}
+
+
+.settings-header p,
+.question-admin-header p,
+.question-management-header p,
+.organization-admin-header p,
+.admin-users-header p {
+
+    color: var(--nm-muted);
+}
+
+
+/* =========================================================
+   3. CARTES GÉNÉRALES
+========================================================= */
+
+.settings-card,
+
+.admin-users-stat-card,
+.admin-users-toolbar,
+.admin-users-table-card,
+
+.question-editor-card,
+.question-preview-card,
+.bulk-question-card,
+.question-management-card,
+.question-management-filters,
+.question-management-stats > div,
+.question-management-empty,
+
+.category-create-card,
+.category-search-card,
+.category-management-card,
+
+.organization-panel,
+.organization-tab,
+.organization-role-list-card,
+.organization-permission-card,
+
+.training-mode-card,
+.training-category-card,
+.training-empty-state,
+.training-loading {
+
+    background:
+        var(--nm-surface);
+
+    color:
+        var(--nm-text);
+
+    border-color:
+        var(--nm-border);
+
+    box-shadow:
+        var(--nm-shadow);
+}
+
+
+/* =========================================================
+   4. CARTES AU SURVOL
+========================================================= */
+
+.settings-card:hover,
+.organization-tab:hover,
+.training-mode-card:hover,
+.training-category-card:hover {
+
+    background:
+        var(--nm-surface-hover);
+
+    border-color:
+        rgba(255, 90, 0, .35);
+}
+
+
+/* =========================================================
+   5. CARTE ACTIVE
+========================================================= */
+
+.organization-tab.active,
+.question-mode-button.active {
+
+    border-color:
+        var(--nm-primary);
+
+    background:
+        var(--nm-primary-soft);
+}
+
+
+/* =========================================================
+   6. TEXTES SECONDAIRES
+========================================================= */
+
+.settings-card p,
+.settings-card small,
+
+.question-help,
+.question-preview-empty,
+
+.category-create-card p,
+
+.organization-panel p,
+.organization-tab small,
+.organization-permission-card p,
+
+.training-mode-card p,
+.training-category-card p,
+
+.admin-users-stat-card span,
+.admin-users-stat-card small {
+
+    color:
+        var(--nm-muted);
+}
+
+
+/* =========================================================
+   7. CHAMPS INPUT / SELECT / TEXTAREA
+========================================================= */
+
+.question-field input,
+.question-field select,
+.question-field textarea,
+
+.question-management-filters input,
+.question-management-filters select,
+
+.category-create-row input,
+.category-search-card input,
+
+.organization-toolbar input,
+.organization-toolbar select,
+
+.organization-role-list-header input,
+
+.admin-users-toolbar input,
+.admin-users-toolbar select,
+
+.admin-user-edit-form input,
+.admin-user-edit-form select,
+.admin-user-edit-form textarea,
+
+.bulk-question-input,
+.bulk-default-grid select {
+
+    background:
+        var(--nm-surface-soft);
+
+    color:
+        var(--nm-text);
+
+    border-color:
+        var(--nm-border);
+}
+
+
+/* =========================================================
+   8. FOCUS DES CHAMPS
+========================================================= */
+
+.question-field input:focus,
+.question-field select:focus,
+.question-field textarea:focus,
+
+.question-management-filters input:focus,
+.question-management-filters select:focus,
+
+.category-create-row input:focus,
+.category-search-card input:focus,
+
+.organization-toolbar input:focus,
+.organization-toolbar select:focus,
+
+.organization-role-list-header input:focus,
+
+.admin-users-toolbar input:focus,
+.admin-users-toolbar select:focus {
+
+    border-color:
+        var(--nm-primary);
+
+    outline: none;
+
+    box-shadow:
+        0
+        0
+        0
+        3px
+        rgba(255, 90, 0, .08);
+}
+
+
+/* =========================================================
+   9. OPTIONS DES SELECTS
+   CORRIGE LE PROBLÈME DES OPTIONS BLANCHES EN MODE SOMBRE
+========================================================= */
+
+html[data-theme="dark"] select {
+
+    color-scheme: dark;
+}
+
+
+html[data-theme="light"] select {
+
+    color-scheme: light;
+}
+
+
+select option {
+
+    background:
+        var(--nm-surface);
+
+    color:
+        var(--nm-text);
+}
+
+
+/* =========================================================
+   10. BOUTONS PRIMAIRES EXISTANTS
+========================================================= */
+
+.btn-primary,
+.admin-users-add-button {
+
+    background:
+        var(--nm-primary);
+
+    color: #ffffff;
+
+    border-color:
+        var(--nm-primary);
+}
+
+
+.btn-primary:hover,
+.admin-users-add-button:hover {
+
+    background:
+        var(--nm-primary-hover);
+}
+
+
+/* =========================================================
+   11. BOUTONS SECONDAIRES
+========================================================= */
+
+.btn-secondary {
+
+    background:
+        var(--nm-surface);
+
+    color:
+        var(--nm-text);
+
+    border-color:
+        var(--nm-border);
+}
+
+
+.btn-secondary:hover {
+
+    background:
+        var(--nm-surface-hover);
+
+    border-color:
+        var(--nm-primary);
+}
+
+
+/* =========================================================
+   12. TABLEAUX
+========================================================= */
+
+.admin-users-table,
+.organization-table {
+
+    color:
+        var(--nm-text);
+}
+
+
+.admin-users-table th,
+.admin-users-table td,
+
+.organization-table th,
+.organization-table td {
+
+    border-color:
+        var(--nm-border);
+}
+
+
+.admin-users-table th,
+.organization-table th {
+
+    color:
+        var(--nm-muted);
+}
+
+
+.admin-users-table tbody tr:hover,
+.organization-table tbody tr:hover {
+
+    background:
+        var(--nm-surface-soft);
+}
+
+
+/* =========================================================
+   13. LISTES ORGANISATION
+========================================================= */
+
+.organization-list-row {
+
+    background:
+        var(--nm-surface);
+
+    color:
+        var(--nm-text);
+
+    border-color:
+        var(--nm-border);
+}
+
+
+.organization-list-row:hover {
+
+    background:
+        var(--nm-surface-hover);
+}
+
+
+.organization-list-main small {
+
+    color:
+        var(--nm-muted);
+}
+
+
+/* =========================================================
+   14. RÔLES & ACCÈS
+========================================================= */
+
+.organization-role-item,
+.organization-role-list > button {
+
+    background:
+        var(--nm-surface-soft);
+
+    color:
+        var(--nm-text);
+
+    border-color:
+        var(--nm-border);
+}
+
+
+.organization-role-item:hover,
+.organization-role-list > button:hover {
+
+    background:
+        var(--nm-surface-hover);
+}
+
+
+.organization-role-item.active,
+.organization-role-list > button.active {
+
+    background:
+        var(--nm-primary-soft);
+
+    border-color:
+        var(--nm-primary);
+}
+
+
+/* =========================================================
+   15. QUESTIONS
+========================================================= */
+
+.question-section {
+
+    border-color:
+        var(--nm-border);
+}
+
+
+.question-section h2,
+.question-management-card h3 {
+
+    color:
+        var(--nm-text);
+}
+
+
+.question-management-empty {
+
+    color:
+        var(--nm-muted);
+}
+
+
+/* =========================================================
+   16. MODE AJOUT DE QUESTIONS
+========================================================= */
+
+.question-mode-button {
+
+    background:
+        var(--nm-surface);
+
+    color:
+        var(--nm-text);
+
+    border-color:
+        var(--nm-border);
+}
+
+
+.question-mode-button:hover {
+
+    background:
+        var(--nm-surface-hover);
+}
+
+
+/* =========================================================
+   17. APERÇU QUESTIONS
+========================================================= */
+
+.question-preview-card,
+.question-preview-card * {
+
+    border-color:
+        var(--nm-border);
+}
+
+
+/* =========================================================
+   18. BULK / IMPORT QUESTIONS
+========================================================= */
+
+.bulk-summary {
+
+    background:
+        var(--nm-info-soft);
+
+    border-color:
+        var(--nm-border);
+}
+
+
+.bulk-summary p {
+
+    color:
+        var(--nm-muted);
+}
+
+
+/* =========================================================
+   19. CATÉGORIES
+========================================================= */
+
+.category-management-card:hover {
+
+    background:
+        var(--nm-surface-hover);
+}
+
+
+/* =========================================================
+   20. MODALES EXISTANTES
+========================================================= */
+
+.question-edit-modal-card,
+.admin-user-modal-card {
+
+    background:
+        var(--nm-surface);
+
+    color:
+        var(--nm-text);
+
+    border-color:
+        var(--nm-border);
+}
+
+
+.question-edit-modal-header,
+.admin-user-modal-header,
+.admin-user-profile-summary,
+.admin-user-modal-actions {
+
+    border-color:
+        var(--nm-border);
+}
+
+
+.question-edit-modal-header button {
+
+    color:
+        var(--nm-text);
+}
+
+
+/* =========================================================
+   21. PROFIL DANS MODALE UTILISATEUR
+========================================================= */
+
+.admin-user-profile-info > div {
+
+    background:
+        var(--nm-surface-soft);
+
+    border-color:
+        var(--nm-border);
+}
+
+
+.admin-user-profile-info small {
+
+    color:
+        var(--nm-muted);
+}
+
+
+/* =========================================================
+   22. BOUTONS ACTION
+========================================================= */
+
+.admin-user-action-button,
+.organization-action-button {
+
+    background:
+        transparent;
+
+    color:
+        var(--nm-text);
+
+    border-color:
+        var(--nm-border);
+}
+
+
+.admin-user-action-button:hover,
+.organization-action-button:hover {
+
+    background:
+        var(--nm-surface-hover);
+
+    border-color:
+        var(--nm-primary);
+}
+
+
+/* =========================================================
+   23. STATUT ACTIF / INACTIF
+========================================================= */
+
+.organization-status-active,
+.admin-user-status-badge.active {
+
+    background:
+        var(--nm-success-soft);
+
+    color:
+        var(--nm-success);
+}
+
+
+.organization-status-inactive,
+.admin-user-status-badge.inactive {
+
+    background:
+        rgba(150, 160, 175, .13);
+
+    color:
+        var(--nm-muted);
+}
+
+
+/* =========================================================
+   24. NAVIGATION ADMINISTRATION
+========================================================= */
+
+.admin-panel {
+
+    background:
+        var(--nm-surface);
+
+    border-color:
+        rgba(255, 90, 0, .25);
+}
+
+
+.admin-panel-link {
+
+    color:
+        var(--nm-muted);
+}
+
+
+.admin-panel-link:hover {
+
+    background:
+        var(--nm-surface-hover);
+
+    color:
+        var(--nm-text);
+}
+
+
+.admin-panel-link.active {
+
+    background:
+        var(--nm-primary-soft);
+
+    color:
+        var(--nm-primary);
+}
+
+
+/* =========================================================
+   25. CARTES SETTINGS / ADMINISTRATION
+========================================================= */
+
+.settings-card-content h2 {
+
+    color:
+        var(--nm-text);
+}
+
+
+.settings-card-arrow {
+
+    color:
+        var(--nm-muted);
+}
+
+
+/* =========================================================
+   26. SIDEBAR
+   ON GARDE LA DA EXISTANTE MAIS ON SYNCHRONISE LES TEXTES
+========================================================= */
+
+.sidebar {
+
+    border-color:
+        var(--nm-border);
+}
+
+
+/* =========================================================
+   27. MODE SOMBRE - FOND PRINCIPAL
+========================================================= */
+
+html[data-theme="dark"] .dashboard-main {
+
+    background:
+        var(--nm-page-bg);
+}
+
+
+/* =========================================================
+   28. MODE CLAIR - FOND PRINCIPAL
+========================================================= */
+
+html[data-theme="light"] .dashboard-main {
+
+    background:
+        var(--nm-page-bg);
+}
+
+
+/* =========================================================
+   29. PLACEHOLDERS
+========================================================= */
+
+input::placeholder,
+textarea::placeholder {
+
+    color:
+        var(--nm-muted);
+
+    opacity: .8;
+}
+
+
+/* =========================================================
+   30. SCROLLBARS EN MODE SOMBRE
+========================================================= */
+
+html[data-theme="dark"] * {
+
+    scrollbar-color:
+        #3b4e60
+        #101c2a;
+}
+
+
+/* =========================================================
+   31. LIENS
+========================================================= */
+
+.nm-page a,
+.settings-page a,
+.admin-users-page a,
+.organization-panel a {
+
+    color:
+        var(--nm-primary);
+}
