@@ -112,41 +112,41 @@ function categoryIcon(category) {
     const name =
         String(category || "").toLowerCase();
 
-    if (name.includes("auth")) return "ðŸ”’";
+    if (name.includes("auth")) return "🔒";
 
     if (
-        name.includes("sÃ©cur") ||
+        name.includes("sécur") ||
         name.includes("secur")
-    ) return "ðŸ›¡ï¸ ";
+    ) return "🛡️";
 
-    if (name.includes("carte")) return "ðŸ’³";
+    if (name.includes("carte")) return "💳";
 
-    if (name.includes("produit")) return "ðŸ“¦";
+    if (name.includes("produit")) return "📦";
 
     if (
-        name.includes("rÃ©clam") ||
+        name.includes("réclam") ||
         name.includes("reclam")
-    ) return "ðŸ’¬";
+    ) return "💬";
 
-    if (name.includes("conform")) return "âœ…";
+    if (name.includes("conform")) return "✅";
 
-    if (name.includes("wero")) return "ðŸ’¸";
+    if (name.includes("wero")) return "💸";
 
-    if (name.includes("pro")) return "ðŸ’¼";
+    if (name.includes("pro")) return "💼";
 
-    return "ðŸ“š";
+    return "📚";
 }
 
 
 function getLevelLabel(level) {
     const value = Number(level || 1);
 
-    if (value >= 50) return "MaÃ®tre";
+    if (value >= 50) return "Maître";
     if (value >= 30) return "Expert";
-    if (value >= 15) return "ConfirmÃ©";
-    if (value >= 5) return "IntermÃ©diaire";
+    if (value >= 15) return "Confirmé";
+    if (value >= 5) return "Intermédiaire";
 
-    return "DÃ©butant";
+    return "Débutant";
 }
 
 
@@ -243,14 +243,14 @@ async function login() {
         console.error(error);
 
         alert(
-            "Erreur de connexion Ã  Supabase."
+            "Erreur de connexion à Supabase."
         );
     }
 }
 
 
 /* =========================================================
-   DÃ‰CONNEXION
+   DÉCONNEXION
 ========================================================= */
 
 function logout() {
@@ -330,7 +330,7 @@ async function changePassword() {
 
     if (newPassword.length < 6) {
         alert(
-            "Le mot de passe doit contenir au moins 6 caractÃ¨res."
+            "Le mot de passe doit contenir au moins 6 caractères."
         );
 
         return;
@@ -361,7 +361,7 @@ async function changePassword() {
 
     if (response.ok) {
         alert(
-            "Mot de passe mis Ã  jour."
+            "Mot de passe mis à jour."
         );
 
         window.location.href =
@@ -612,7 +612,7 @@ async function loadHomeProfile(
         document.getElementById(
             "welcome"
         ).innerText =
-            `Bonjour ${user.full_name || "Utilisateur"} ! ðŸ‘‹`;
+            `Bonjour ${user.full_name || "Utilisateur"} ! 👋`;
     }
 
     if (
@@ -827,7 +827,7 @@ async function loadHomeRecentBadges(
 
     try {
         /*
-         * On rÃ©cupÃ¨re d'abord les 3 derniÃ¨res
+         * On récupère d'abord les 3 dernières
          * attributions de badges.
          */
         const earnedResponse =
@@ -859,7 +859,7 @@ async function loadHomeRecentBadges(
         }
 
         /*
-         * Puis on rÃ©cupÃ¨re les informations
+         * Puis on récupère les informations
          * du catalogue badges.
          */
         const badgeIds =
@@ -910,8 +910,8 @@ async function loadHomeRecentBadges(
         const rarityLabels = {
             common: "Commun",
             rare: "Rare",
-            epic: "Ã‰pique",
-            legendary: "LÃ©gendaire"
+            epic: "Épique",
+            legendary: "Légendaire"
         };
 
         const rarityColors = {
@@ -956,7 +956,7 @@ async function loadHomeRecentBadges(
                                 >
                                     ${escapeHtml(
                                         badge.icon ||
-                                        "ðŸ …"
+                                        "🏅"
                                     )}
                                 </span>
 
@@ -1004,7 +1004,7 @@ async function loadHomeRecentBadges(
 
 
 /* =========================================================
-   CATÃ‰GORIES DASHBOARD
+   CATÉGORIES DASHBOARD
 ========================================================= */
 
 async function loadHomeCategories() {
@@ -1026,7 +1026,7 @@ async function loadHomeCategories() {
 
     if (!response.ok) {
         container.innerHTML =
-            "<div>Impossible de charger les catÃ©gories.</div>";
+            "<div>Impossible de charger les catégories.</div>";
 
         return;
     }
@@ -1071,7 +1071,7 @@ async function loadHomeCategories() {
 
     if (!categories.length) {
         container.innerHTML =
-            "<div>Aucune catÃ©gorie disponible.</div>";
+            "<div>Aucune catégorie disponible.</div>";
 
         return;
     }
@@ -1175,7 +1175,7 @@ async function loadHomeWeeklyRanking() {
 
     if (!topThree.length) {
         container.innerHTML =
-            "<p>Aucun XP gagnÃ© cette semaine.</p>";
+            "<p>Aucun XP gagné cette semaine.</p>";
 
         return;
     }
@@ -1207,7 +1207,7 @@ async function loadHomeWeeklyRanking() {
     );
 
     const medals =
-        ["ðŸ¥‡", "ðŸ¥ˆ", "ðŸ¥‰"];
+        ["🥇", "🥈", "🥉"];
 
     container.innerHTML =
         topThree
@@ -1313,7 +1313,7 @@ async function loadDailyMissions(
         "direction",
         "responsable",
         "manager",
-        "chef d'Ã©quipe",
+        "chef d'équipe",
         "chef_equipe",
         "conseiller senior",
         "senior"
@@ -1337,7 +1337,7 @@ async function loadDailyMissions(
 
 
 /* =========================================================
-   PRÃ‰SENCE
+   PRÉSENCE
 ========================================================= */
 
 async function updatePresence(
@@ -1370,7 +1370,7 @@ async function updatePresence(
 
     if (!response.ok) {
         console.warn(
-            "PrÃ©sence non mise Ã  jour :",
+            "Présence non mise à jour :",
             await response.text()
         );
     }
@@ -1405,7 +1405,7 @@ async function loadHomeOnlineCount() {
 
     if (!response.ok) {
         element.innerText =
-            "PrÃ©sence indisponible";
+            "Présence indisponible";
 
         return;
     }
@@ -1418,8 +1418,8 @@ async function loadHomeOnlineCount() {
 
     element.innerText =
         count === 1
-            ? "1 personne connectÃ©e"
-            : `${count} personnes connectÃ©es`;
+            ? "1 personne connectée"
+            : `${count} personnes connectées`;
 }
 
 
@@ -1463,7 +1463,7 @@ function startPresenceHeartbeat() {
 
 
 /* =========================================================
-   ACTIVITÃ‰ RÃ‰CENTE
+   ACTIVITÉ RÉCENTE
 ========================================================= */
 
 async function loadHomeRecentActivity() {
@@ -1486,7 +1486,7 @@ async function loadHomeRecentActivity() {
 
     if (!response.ok) {
         container.innerHTML =
-            "<p>Aucune activitÃ© disponible.</p>";
+            "<p>Aucune activité disponible.</p>";
 
         return;
     }
@@ -1496,7 +1496,7 @@ async function loadHomeRecentActivity() {
 
     if (!sessions.length) {
         container.innerHTML =
-            "<p>Aucune activitÃ© rÃ©cente.</p>";
+            "<p>Aucune activité récente.</p>";
 
         return;
     }
@@ -1545,7 +1545,7 @@ async function loadHomeRecentActivity() {
 
                     if (!trainingName) {
                         trainingName =
-                            "un entraÃ®nement";
+                            "un entraînement";
                     }
 
                     const time =
@@ -1572,7 +1572,7 @@ async function loadHomeRecentActivity() {
                                 "Utilisateur"
                             )}
 
-                            a terminÃ©
+                            a terminé
 
                             ${escapeHtml(
                                 trainingName
@@ -1590,7 +1590,7 @@ async function loadHomeRecentActivity() {
 
 
 /* =========================================================
-   ENTRAÃŽNEMENT
+   ENTRAÎNEMENT
 ========================================================= */
 
 function afficherChoixThemes() {
@@ -1688,7 +1688,7 @@ function lancerFlashXtrem() {
 
 
 /* =========================================================
-   CHARGEMENT ENTRAÃŽNEMENT
+   CHARGEMENT ENTRAÎNEMENT
 ========================================================= */
 
 async function loadTrainingQuiz() {
@@ -1712,7 +1712,7 @@ async function loadTrainingQuiz() {
         );
 
     let title =
-        "EntraÃ®nement";
+        "Entraînement";
 
 
     if (mode === "cible") {
@@ -1748,7 +1748,7 @@ async function loadTrainingQuiz() {
             );
 
         title =
-            `EntraÃ®nement - ${category}`;
+            `Entraînement - ${category}`;
     }
 
 
@@ -1764,7 +1764,7 @@ async function loadTrainingQuiz() {
 
         if (!categoriesResponse.ok) {
             alert(
-                "Impossible de charger les catÃ©gories."
+                "Impossible de charger les catégories."
             );
 
             return;
@@ -1786,7 +1786,7 @@ async function loadTrainingQuiz() {
 
         if (!categories.length) {
             alert(
-                "Aucune catÃ©gorie disponible."
+                "Aucune catégorie disponible."
             );
 
             return;
@@ -1953,7 +1953,7 @@ async function showTrainingQuestion() {
             <textarea
                 id="trainingAnswer"
                 rows="6"
-                placeholder="Ã‰cris ta rÃ©ponse ici..."
+                placeholder="Écris ta réponse ici..."
             ></textarea>
         `;
     }
@@ -2010,7 +2010,7 @@ async function showTrainingQuestion() {
     }
 }
 /* =========================================================
-   ENVOYER RÃ‰PONSE ENTRAÃŽNEMENT
+   ENVOYER RÉPONSE ENTRAÎNEMENT
 ========================================================= */
 
 async function submitTrainingAnswer() {
@@ -2077,7 +2077,7 @@ async function submitTrainingAnswer() {
 
     if (!answer) {
         alert(
-            "Merci de saisir une rÃ©ponse."
+            "Merci de saisir une réponse."
         );
 
         return;
@@ -2221,7 +2221,7 @@ async function submitTrainingAnswer() {
 
 
 /* =========================================================
-   SESSION D'ENTRAÃŽNEMENT
+   SESSION D'ENTRAÎNEMENT
 ========================================================= */
 
 async function saveTrainingSession() {
@@ -2232,7 +2232,7 @@ async function saveTrainingSession() {
 
     if (!profileId) {
         throw new Error(
-            "Profil connectÃ© introuvable."
+            "Profil connecté introuvable."
         );
     }
 
@@ -2307,7 +2307,7 @@ async function saveTrainingSession() {
 
 
 /* =========================================================
-   FIN ENTRAÃŽNEMENT
+   FIN ENTRAÎNEMENT
 ========================================================= */
 
 async function finishTraining() {
@@ -2334,7 +2334,7 @@ async function finishTraining() {
         console.error(error);
 
         alert(
-            "L'entraÃ®nement est terminÃ©, mais son enregistrement n'a pas pu Ãªtre finalisÃ© : " +
+            "L'entraînement est terminé, mais son enregistrement n'a pas pu être finalisé : " +
             error.message
         );
 
@@ -2373,7 +2373,7 @@ async function finishTraining() {
 
     container.innerHTML = `
         <h2>
-            EntraÃ®nement terminÃ© âœ…
+            Entraînement terminé ✅
         </h2>
 
         <p>
@@ -2391,14 +2391,14 @@ async function finishTraining() {
         </p>
 
         <p>
-            Bonnes rÃ©ponses :
+            Bonnes réponses :
             <strong>
                 ${correct}
             </strong>
         </p>
 
         <p>
-            Mauvaises rÃ©ponses :
+            Mauvaises réponses :
             <strong>
                 ${incorrect}
             </strong>
@@ -2406,7 +2406,7 @@ async function finishTraining() {
 
         <p>
             <strong>
-                +5 XP d'entraÃ®nement
+                +5 XP d'entraînement
             </strong>
         </p>
 
@@ -2419,7 +2419,7 @@ async function finishTraining() {
         <button
             onclick="window.location.href='training.html'"
         >
-            Retour aux entraÃ®nements
+            Retour aux entraînements
         </button>
 
         <button
@@ -2454,7 +2454,7 @@ async function getBadgeByCode(
 
     if (!response.ok) {
         throw new Error(
-            "Impossible de rÃ©cupÃ©rer le badge " +
+            "Impossible de récupérer le badge " +
             code +
             " : " +
             await response.text()
@@ -2486,7 +2486,7 @@ async function hasUserBadge(
 
     if (!response.ok) {
         throw new Error(
-            "Impossible de vÃ©rifier les badges obtenus : " +
+            "Impossible de vérifier les badges obtenus : " +
             await response.text()
         );
     }
@@ -2740,7 +2740,7 @@ function showNextBadgePopup() {
             >
                 ${escapeHtml(
                     badge.icon ||
-                    "ðŸ …"
+                    "🏅"
                 )}
             </div>
 
@@ -2756,7 +2756,7 @@ function showNextBadgePopup() {
                         margin-bottom:4px;
                     "
                 >
-                    âœ¨ Badge dÃ©bloquÃ©
+                    ✨ Badge débloqué
                 </div>
 
                 <div
@@ -2818,7 +2818,7 @@ function showNextBadgePopup() {
 
 
 /* =========================================================
-   VÃ‰RIFICATIONS BADGES
+   VÉRIFICATIONS BADGES
 ========================================================= */
 
 async function checkAndAwardBadge(
@@ -2862,7 +2862,7 @@ async function checkQuestionBadges(
 
     if (!response.ok) {
         console.warn(
-            "Impossible de vÃ©rifier les badges questions :",
+            "Impossible de vérifier les badges questions :",
             await response.text()
         );
 
@@ -2879,35 +2879,35 @@ async function checkQuestionBadges(
         profileId,
         "FIRST_ANSWER",
         count >= 1,
-        `${count} rÃ©ponse(s)`
+        `${count} réponse(s)`
     );
 
     await checkAndAwardBadge(
         profileId,
         "CURIOUS_25",
         count >= 25,
-        `${count} rÃ©ponse(s)`
+        `${count} réponse(s)`
     );
 
     await checkAndAwardBadge(
         profileId,
         "ASSIDU_100",
         count >= 100,
-        `${count} rÃ©ponse(s)`
+        `${count} réponse(s)`
     );
 
     await checkAndAwardBadge(
         profileId,
         "QUIZ_MACHINE_500",
         count >= 500,
-        `${count} rÃ©ponse(s)`
+        `${count} réponse(s)`
     );
 
     await checkAndAwardBadge(
         profileId,
         "ENCYCLOPEDIA_1000",
         count >= 1000,
-        `${count} rÃ©ponse(s)`
+        `${count} réponse(s)`
     );
 }
 
@@ -2926,7 +2926,7 @@ async function checkTrainingBadges(
 
     if (!response.ok) {
         console.warn(
-            "Impossible de vÃ©rifier les badges entraÃ®nement :",
+            "Impossible de vérifier les badges entraînement :",
             await response.text()
         );
 
@@ -2943,28 +2943,28 @@ async function checkTrainingBadges(
         profileId,
         "FIRST_TRAINING",
         totalTrainings >= 1,
-        `${totalTrainings} entraÃ®nement(s)`
+        `${totalTrainings} entraînement(s)`
     );
 
     await checkAndAwardBadge(
         profileId,
         "TRAININGS_10",
         totalTrainings >= 10,
-        `${totalTrainings} entraÃ®nement(s)`
+        `${totalTrainings} entraînement(s)`
     );
 
     await checkAndAwardBadge(
         profileId,
         "TRAININGS_25",
         totalTrainings >= 25,
-        `${totalTrainings} entraÃ®nement(s)`
+        `${totalTrainings} entraînement(s)`
     );
 
     await checkAndAwardBadge(
         profileId,
         "TRAININGS_100",
         totalTrainings >= 100,
-        `${totalTrainings} entraÃ®nement(s)`
+        `${totalTrainings} entraînement(s)`
     );
 
 
@@ -3039,14 +3039,14 @@ async function checkTrainingBadges(
         profileId,
         "PERFECT_STREAK_2",
         bestPerfectStreak >= 2,
-        `${bestPerfectStreak} perfect(s) consÃ©cutif(s)`
+        `${bestPerfectStreak} perfect(s) consécutif(s)`
     );
 
     await checkAndAwardBadge(
         profileId,
         "PERFECT_STREAK_3",
         bestPerfectStreak >= 3,
-        `${bestPerfectStreak} perfect(s) consÃ©cutif(s)`
+        `${bestPerfectStreak} perfect(s) consécutif(s)`
     );
 
 
@@ -3684,7 +3684,7 @@ function renderBadgesPage() {
     if (!filtered.length) {
         grid.innerHTML = `
             <div class="dash-card">
-                Aucun badge dans cette catÃ©gorie.
+                Aucun badge dans cette catégorie.
             </div>
         `;
 
@@ -3714,8 +3714,8 @@ function createBadgeCard(
     const rarityLabels = {
         common: "Commun",
         rare: "Rare",
-        epic: "Ã‰pique",
-        legendary: "LÃ©gendaire"
+        epic: "Épique",
+        legendary: "Légendaire"
     };
 
     const rarityClass =
@@ -3736,7 +3736,7 @@ function createBadgeCard(
             >
 
                 <div class="badge-gallery-icon">
-                    â “
+                    ❌
                 </div>
 
                 <div class="badge-gallery-rarity">
@@ -3749,11 +3749,11 @@ function createBadgeCard(
 
                 <p>
                     Continue d'explorer Nickel Master
-                    pour dÃ©couvrir ce badge.
+                    pour découvrir ce badge.
                 </p>
 
                 <div class="badge-gallery-status">
-                    ðŸ”’ Secret
+                    🔒 Secret
                 </div>
 
             </article>
@@ -3800,7 +3800,7 @@ function createBadgeCard(
                     badge-obtained
                 "
             >
-                âœ… Obtenu
+                ✅ Obtenu
             </div>
         `;
 
@@ -3833,7 +3833,7 @@ function createBadgeCard(
         if (progressSupported) {
             statusHtml = `
                 <div class="badge-progress-text">
-                    ðŸ”’
+                    🔒
                     ${Math.min(
                         progress,
                         target
@@ -3856,7 +3856,7 @@ function createBadgeCard(
         } else {
             statusHtml = `
                 <div class="badge-gallery-status">
-                    ðŸ”’ Non obtenu
+                    🔒 Non obtenu
                 </div>
             `;
         }
@@ -3875,7 +3875,7 @@ function createBadgeCard(
             <div class="badge-gallery-icon">
                 ${escapeHtml(
                     badge.icon ||
-                    "ðŸ …"
+                    "🏅"
                 )}
             </div>
 
@@ -3928,7 +3928,7 @@ async function addXp(
 
     if (!profileId) {
         throw new Error(
-            "Profil connectÃ© introuvable."
+            "Profil connecté introuvable."
         );
     }
 
@@ -3953,7 +3953,7 @@ async function addXp(
 
     if (!profileResponse.ok) {
         throw new Error(
-            "Erreur rÃ©cupÃ©ration XP : " +
+            "Erreur récupération XP : " +
             await profileResponse.text()
         );
     }
@@ -4016,7 +4016,7 @@ async function addXp(
 
     if (!updateResponse.ok) {
         throw new Error(
-            "Erreur mise Ã  jour XP : " +
+            "Erreur mise à jour XP : " +
             await updateResponse.text()
         );
     }
@@ -4122,7 +4122,7 @@ async function loadUsersAdmin() {
 
     if (role !== "admin") {
         alert(
-            "AccÃ¨s rÃ©servÃ© Ã  l'administrateur."
+            "Accès réservé à l'administrateur."
         );
 
         window.location.href =
@@ -4173,12 +4173,12 @@ async function loadUsersAdmin() {
                         ${escapeHtml(
                             user.position ||
                             user.job_title ||
-                            "Poste non renseignÃ©"
+                            "Poste non renseigné"
                         )}
                     </p>
 
                     <p>
-                        <strong>RÃ´le :</strong>
+                        <strong>Rôle :</strong>
 
                         ${escapeHtml(
                             user.role ||
@@ -4207,7 +4207,7 @@ function openUserProfile(
 
 
 /* =========================================================
-   MON Ã‰QUIPE
+   MON ÉQUIPE
 ========================================================= */
 
 async function loadMyTeam() {
@@ -4251,7 +4251,7 @@ async function loadMyTeam() {
 
         if (title) {
             title.innerText =
-                "Aucune Ã©quipe associÃ©e.";
+                "Aucune équipe associée.";
         }
 
         return;
@@ -4286,7 +4286,7 @@ async function loadMyTeam() {
         ).innerText =
             team
                 ? team.name
-                : "Mon Ã©quipe";
+                : "Mon équipe";
     }
 
 
@@ -4435,7 +4435,7 @@ async function loadRanking() {
 
 
 /* =========================================================
-   PRÃ‰SENCE AUTOMATIQUE
+   PRÉSENCE AUTOMATIQUE
 ========================================================= */
 
 document.addEventListener(
@@ -4455,7 +4455,7 @@ document.addEventListener(
          * la page lance ses propres fonctions.
          *
          * Sur les autres pages,
-         * on maintient simplement la prÃ©sence.
+         * on maintient simplement la présence.
          */
 
         if (
@@ -4472,7 +4472,7 @@ document.addEventListener(
     }
 );
 /* =========================================================
-   CRÃ‰ATION DE COMPTE
+   CRÉATION DE COMPTE
 ========================================================= */
 
 let registerData = {
@@ -4574,7 +4574,7 @@ async function checkRegisterIdentity() {
     const lastName = lastNameElement.value.trim();
 
     if (!firstName || !lastName) {
-        alert("Merci de renseigner ton prÃ©nom et ton nom.");
+        alert("Merci de renseigner ton prénom et ton nom.");
         return;
     }
 
@@ -4582,7 +4582,7 @@ async function checkRegisterIdentity() {
     const username = generateUsername(firstName, lastName);
 
     if (!username) {
-        alert("Impossible de gÃ©nÃ©rer l'identifiant.");
+        alert("Impossible de générer l'identifiant.");
         return;
     }
 
@@ -4655,8 +4655,8 @@ async function checkRegisterIdentity() {
         showRegisterStep("registerStep2");
 
     } catch (error) {
-        console.error("Erreur vÃ©rification compte :", error);
-        alert("Impossible de vÃ©rifier l'existence du compte.\n\n" + error.message);
+        console.error("Erreur vérification compte :", error);
+        alert("Impossible de vérifier l'existence du compte.\n\n" + error.message);
     }
 }
 
@@ -4701,7 +4701,7 @@ async function loadRegisterTeams(service) {
         const teams = await response.json();
 
         if (!teams.length) {
-            container.innerHTML = `<p>Aucune Ã©quipe disponible pour ce service.</p>`;
+            container.innerHTML = `<p>Aucune équipe disponible pour ce service.</p>`;
             return;
         }
 
@@ -4712,15 +4712,15 @@ async function loadRegisterTeams(service) {
                     class="register-choice"
                     onclick="selectRegisterTeam('${team.id}', this)"
                 >
-                    ðŸ‘¥
+                    👥
                     <strong>${escapeHtml(team.name)}</strong>
                 </button>
             `)
             .join("");
 
     } catch (error) {
-        console.error("Erreur chargement Ã©quipes :", error);
-        container.innerHTML = `<p>Impossible de charger les Ã©quipes.</p>`;
+        console.error("Erreur chargement équipes :", error);
+        container.innerHTML = `<p>Impossible de charger les équipes.</p>`;
     }
 }
 
@@ -4736,7 +4736,7 @@ function selectRegisterTeam(teamId, button) {
 
 function continueAfterTeam() {
     if (!registerData.teamId) {
-        alert("Merci de choisir ton Ã©quipe.");
+        alert("Merci de choisir ton équipe.");
         return;
     }
 
@@ -4755,12 +4755,12 @@ function selectRegisterRole(role, button) {
 
 async function finishAccountRegistration() {
     if (!registerData.role) {
-        alert("Merci de choisir ton rÃ´le.");
+        alert("Merci de choisir ton rôle.");
         return;
     }
 
     const sensitiveRoles = [
-        "Chef d'Ã©quipe",
+        "Chef d'équipe",
         "Manager",
         "Direction"
     ];
@@ -4837,8 +4837,8 @@ async function createImmediateAccount() {
         showRegisterStep("registerSuccess");
 
     } catch (error) {
-        console.error("Erreur crÃ©ation compte :", error);
-        alert("Impossible de crÃ©er le compte :\n\n" + error.message);
+        console.error("Erreur création compte :", error);
+        alert("Impossible de créer le compte :\n\n" + error.message);
     }
 }
 
@@ -4926,7 +4926,7 @@ function requireAdmin() {
     ).toLowerCase();
 
     if (role !== "admin") {
-        alert("Cette page est rÃ©servÃ©e Ã  l'administrateur.");
+        alert("Cette page est réservée à l'administrateur.");
         window.location.href = "home.html";
         return false;
     }
@@ -4985,7 +4985,7 @@ async function loadAccountApprovals() {
         if (!requests.length) {
             container.innerHTML = `
                 <div class="approval-empty">
-                    âœ… Aucune demande en attente.
+                    ✅ Aucune demande en attente.
                 </div>
             `;
             return;
@@ -5010,7 +5010,7 @@ async function loadAccountApprovals() {
             .map(request => {
                 const teamName =
                     teamNames[String(request.team_id)] ||
-                    "Non renseignÃ©e";
+                    "Non renseignée";
 
                 return `
                     <div class="approval-request-card">
@@ -5024,12 +5024,12 @@ async function loadAccountApprovals() {
                             </p>
 
                             <p>
-                                <strong>Ã‰quipe :</strong>
+                                <strong>Équipe :</strong>
                                 ${escapeHtml(teamName)}
                             </p>
 
                             <p>
-                                <strong>RÃ´le demandÃ© :</strong>
+                                <strong>Rôle demandé :</strong>
                                 ${escapeHtml(request.requested_role)}
                             </p>
                         </div>
@@ -5040,7 +5040,7 @@ async function loadAccountApprovals() {
                                 class="approval-accept"
                                 onclick="approveAccountRequest('${request.id}')"
                             >
-                                âœ“ Accepter
+                                ✓ Accepter
                             </button>
 
                             <button
@@ -5048,7 +5048,7 @@ async function loadAccountApprovals() {
                                 class="approval-reject"
                                 onclick="rejectAccountRequest('${request.id}')"
                             >
-                                âœ• Refuser
+                                ✕ Refuser
                             </button>
                         </div>
 
@@ -5072,7 +5072,7 @@ async function approveAccountRequest(requestId) {
     if (!requireAdmin()) return;
 
     const confirmation = confirm(
-        "Confirmer la crÃ©ation de ce compte ?"
+        "Confirmer la création de ce compte ?"
     );
 
     if (!confirmation) return;
@@ -5090,7 +5090,7 @@ async function approveAccountRequest(requestId) {
         const requests = await requestResponse.json();
 
         if (!requests.length) {
-            alert("Cette demande n'existe plus ou a dÃ©jÃ  Ã©tÃ© traitÃ©e.");
+            alert("Cette demande n'existe plus ou a déjà été traitée.");
             await loadAccountApprovals();
             return;
         }
@@ -5102,7 +5102,7 @@ async function approveAccountRequest(requestId) {
         );
 
         if (!username) {
-            throw new Error("Impossible de gÃ©nÃ©rer l'identifiant.");
+            throw new Error("Impossible de générer l'identifiant.");
         }
 
         const duplicateResponse = await fetch(
@@ -5118,7 +5118,7 @@ async function approveAccountRequest(requestId) {
 
         if (duplicates.length > 0) {
             alert(
-                "Impossible de crÃ©er le compte : cet utilisateur possÃ¨de dÃ©jÃ  un compte."
+                "Impossible de créer le compte : cet utilisateur possède déjà un compte."
             );
             return;
         }
@@ -5126,7 +5126,7 @@ async function approveAccountRequest(requestId) {
         const temporaryPassword = generateTemporaryPassword();
 
         const roleMap = {
-            "Chef d'Ã©quipe": "chef_equipe",
+            "Chef d'équipe": "chef_equipe",
             "Manager": "manager",
             "Direction": "direction"
         };
@@ -5188,8 +5188,8 @@ async function approveAccountRequest(requestId) {
         }
 
         alert(
-            "Compte approuvÃ© âœ…\n\n" +
-            "Le collaborateur pourra maintenant revenir dans Â« CrÃ©er mon compte Â» et renseigner son prÃ©nom et son nom pour rÃ©cupÃ©rer ses identifiants."
+            "Compte approuvé ✅\n\n" +
+            "Le collaborateur pourra maintenant revenir dans « Créer mon compte » et renseigner son prénom et son nom pour récupérer ses identifiants."
         );
 
         await loadAccountApprovals();
@@ -5208,7 +5208,7 @@ async function rejectAccountRequest(requestId) {
     if (!requireAdmin()) return;
 
     const confirmation = confirm(
-        "Confirmer le refus de cette demande de crÃ©ation de compte ?"
+        "Confirmer le refus de cette demande de création de compte ?"
     );
 
     if (!confirmation) return;
@@ -5234,8 +5234,8 @@ async function rejectAccountRequest(requestId) {
         }
 
         alert(
-            "Demande refusÃ©e â Œ\n\n" +
-            "Lorsque le collaborateur reviendra dans Â« CrÃ©er mon compte Â» avec son prÃ©nom et son nom, Nickel Master lui indiquera que sa demande a Ã©tÃ© refusÃ©e."
+            "Demande refusée ❌\n\n" +
+            "Lorsque le collaborateur reviendra dans « Créer mon compte » avec son prénom et son nom, Nickel Master lui indiquera que sa demande a été refusée."
         );
 
         await loadAccountApprovals();
@@ -5412,8 +5412,8 @@ async function loadMyTrainings() {
 
                                     ${
                                         isTrained
-                                            ? "âœ…"
-                                            : "ðŸ”’"
+                                            ? "✅"
+                                            : "🔒"
                                     }
 
                                 </div>
@@ -5431,7 +5431,7 @@ async function loadMyTrainings() {
                                         ${
                                             isTrained
                                                 ? "Formation acquise"
-                                                : "Non formÃ©"
+                                                : "Non formé"
                                         }
                                     </p>
 
@@ -5460,7 +5460,7 @@ async function loadMyTrainings() {
     }
 }
 /* =========================================================
-   MON Ã‰QUIPE - GESTION DES FORMATIONS
+   MON ÉQUIPE - GESTION DES FORMATIONS
 ========================================================= */
 
 let teamTrainingState = {
@@ -5500,7 +5500,7 @@ async function loadTeamSettingsPage() {
     try {
 
         /* =========================
-           1. PROFIL CONNECTÃ‰
+           1. PROFIL CONNECTÉ
         ========================= */
 
         const profileResponse =
@@ -5559,7 +5559,7 @@ async function loadTeamSettingsPage() {
         ) {
 
             alert(
-                "Tu n'as pas accÃ¨s Ã  cette page."
+                "Tu n'as pas accès à cette page."
             );
 
             window.location.href =
@@ -5570,7 +5570,7 @@ async function loadTeamSettingsPage() {
 
 
         /* =========================
-           2. INFOS EN-TÃŠTE
+           2. INFOS EN-TÊTE
         ========================= */
 
         const userName =
@@ -5617,7 +5617,7 @@ async function loadTeamSettingsPage() {
 
 
         /* =========================
-           3. Ã‰QUIPE
+           3. ÉQUIPE
         ========================= */
 
         let teamName =
@@ -5625,8 +5625,8 @@ async function loadTeamSettingsPage() {
 
 
         /*
-         * Pour un chef d'Ã©quipe :
-         * obligation d'avoir une Ã©quipe.
+         * Pour un chef d'équipe :
+         * obligation d'avoir une équipe.
          */
 
         if (
@@ -5635,7 +5635,7 @@ async function loadTeamSettingsPage() {
         ) {
 
             throw new Error(
-                "Aucune Ã©quipe n'est associÃ©e Ã  ce chef d'Ã©quipe."
+                "Aucune équipe n'est associée à ce chef d'équipe."
             );
         }
 
@@ -5655,7 +5655,7 @@ async function loadTeamSettingsPage() {
             teamNameElement.innerText =
                 teamName
                     ? teamName
-                    : "Toutes les Ã©quipes";
+                    : "Toutes les équipes";
         }
 
 
@@ -5674,7 +5674,7 @@ async function loadTeamSettingsPage() {
 
 
         /* =========================
-           6. PREMIÃˆRE FORMATION
+           6. PREMIÈRE FORMATION
         ========================= */
 
         if (
@@ -5705,13 +5705,13 @@ async function loadTeamSettingsPage() {
     } catch (error) {
 
         console.error(
-            "Erreur chargement Mon Ã©quipe :",
+            "Erreur chargement Mon équipe :",
             error
         );
 
 
         alert(
-            "Impossible de charger la gestion de l'Ã©quipe.\n\n" +
+            "Impossible de charger la gestion de l'équipe.\n\n" +
             error.message
         );
     }
@@ -5827,7 +5827,7 @@ async function loadTeamTrainings() {
 
 
 /* =========================================================
-   CHARGER LES MEMBRES DE L'Ã‰QUIPE
+   CHARGER LES MEMBRES DE L'ÉQUIPE
 ========================================================= */
 
 async function loadTeamMembers() {
@@ -5852,8 +5852,8 @@ async function loadTeamMembers() {
 
 
     /*
-     * Chef d'Ã©quipe :
-     * uniquement sa propre Ã©quipe.
+     * Chef d'équipe :
+     * uniquement sa propre équipe.
      */
 
     if (
@@ -5869,8 +5869,8 @@ async function loadTeamMembers() {
 
     /*
      * Manager :
-     * pour l'instant, s'il possÃ¨de une Ã©quipe,
-     * on limite Ã  cette Ã©quipe.
+     * pour l'instant, s'il possède une équipe,
+     * on limite à cette équipe.
      */
 
     if (
@@ -5930,11 +5930,11 @@ async function loadTeamMembers() {
 
                 /*
                  * On retire :
-                 * - le profil connectÃ© lui-mÃªme
+                 * - le profil connecté lui-même
                  * - admin
                  * - direction
                  * - manager
-                 * - autres chefs d'Ã©quipe
+                 * - autres chefs d'équipe
                  */
 
                 return (
@@ -5954,7 +5954,7 @@ async function loadTeamMembers() {
             (a, b) => {
 
                 /*
-                 * Ordre hiÃ©rarchique :
+                 * Ordre hiérarchique :
                  *
                  * 1 = Conseiller Senior
                  * 2 = Conseiller
@@ -5987,7 +5987,7 @@ async function loadTeamMembers() {
 
 
                 /*
-                 * D'abord la hiÃ©rarchie.
+                 * D'abord la hiérarchie.
                  */
 
                 if (rankA !== rankB) {
@@ -5996,7 +5996,7 @@ async function loadTeamMembers() {
 
 
                 /*
-                 * Puis ordre alphabÃ©tique
+                 * Puis ordre alphabétique
                  * dans chaque niveau.
                  */
 
@@ -6018,7 +6018,7 @@ async function loadTeamMembers() {
 
 
 /* =========================================================
-   CHARGER UNE FORMATION SÃ‰LECTIONNÃ‰E
+   CHARGER UNE FORMATION SÉLECTIONNÉE
 ========================================================= */
 
 async function loadSelectedTeamTraining() {
@@ -6072,7 +6072,7 @@ async function loadSelectedTeamTraining() {
         summaryName.innerText =
             training
                 ? training.name
-                : "â€”";
+                : "—";
     }
 
 
@@ -6091,7 +6091,7 @@ async function loadSelectedTeamTraining() {
         description.innerText =
             training
                 ? `Formation : ${training.name}`
-                : "SÃ©lectionne une formation.";
+                : "Sélectionne une formation.";
     }
 
 
@@ -6269,12 +6269,12 @@ function renderTeamTrainingMembers() {
                                     isAssigned
                                         ? `
                                             <span class="team-training-status team-training-status-trained">
-                                                âœ“ FormÃ©
+                                                ✓ Formé
                                             </span>
                                         `
                                         : `
                                             <span class="team-training-status team-training-status-untrained">
-                                                ðŸ”’ Non formÃ©
+                                                🔒 Non formé
                                             </span>
                                         `
                                 }
@@ -6293,7 +6293,7 @@ function renderTeamTrainingMembers() {
 
 
 /* =========================================================
-   COCHER / DÃ‰COCHER UN MEMBRE
+   COCHER / DÉCOCHER UN MEMBRE
 ========================================================= */
 
 function toggleTeamTrainingMember(
@@ -6330,7 +6330,7 @@ function toggleTeamTrainingMember(
 
 
 /* =========================================================
-   TOUT COCHER / DÃ‰COCHER
+   TOUT COCHER / DÉCOCHER
 ========================================================= */
 
 function toggleAllTeamTrainingMembers(
@@ -6371,7 +6371,7 @@ function toggleAllTeamTrainingMembers(
 
 
 /* =========================================================
-   RÃ‰CAPITULATIF
+   RÉCAPITULATIF
 ========================================================= */
 
 function updateTeamTrainingSummary() {
@@ -6433,8 +6433,8 @@ function updateTeamTrainingSummary() {
 
         selectedElement.innerText =
             trained <= 1
-                ? `${trained} sÃ©lectionnÃ©`
-                : `${trained} sÃ©lectionnÃ©s`;
+                ? `${trained} sélectionné`
+                : `${trained} sélectionnés`;
     }
 
 
@@ -6482,7 +6482,7 @@ async function saveTeamTrainingAssignments() {
     if (!trainingId) {
 
         alert(
-            "Merci de sÃ©lectionner une formation."
+            "Merci de sélectionner une formation."
         );
 
         return;
@@ -6518,7 +6518,7 @@ async function saveTeamTrainingAssignments() {
 
 
         /* =========================
-           Ã€ AJOUTER
+           À AJOUTER
         ========================= */
 
         const toAdd =
@@ -6532,7 +6532,7 @@ async function saveTeamTrainingAssignments() {
 
 
         /* =========================
-           Ã€ SUPPRIMER
+           À SUPPRIMER
         ========================= */
 
         const toRemove =
@@ -6628,7 +6628,7 @@ async function saveTeamTrainingAssignments() {
 
 
         /* =========================
-           ACTUALISER Ã‰TAT
+           ACTUALISER ÉTAT
         ========================= */
 
         teamTrainingState.originalAssignedIds =
@@ -6638,7 +6638,7 @@ async function saveTeamTrainingAssignments() {
 
 
         alert(
-            "Les formations ont bien Ã©tÃ© mises Ã  jour âœ…"
+            "Les formations ont bien été mises à jour ✅"
         );
 
 
@@ -6667,12 +6667,12 @@ async function saveTeamTrainingAssignments() {
                 false;
 
             button.innerText =
-                "ðŸ’¾ Enregistrer les modifications";
+                "💾 Enregistrer les modifications";
         }
     }
 }
 /* =========================================================
-   ADMIN - GESTION CRÃ‰ATION QUESTIONS
+   ADMIN - GESTION CRÉATION QUESTIONS
 ========================================================= */
 
 let questionAdminState = {
@@ -6704,7 +6704,7 @@ async function initializeQuestionAdmin() {
 
 
 /* =========================================================
-   Ã‰VÃ‰NEMENTS
+   ÉVÉNEMENTS
 ========================================================= */
 
 function setupQuestionAdminEvents() {
@@ -6991,7 +6991,7 @@ function showQuestionAdminMode(
 
 
 /* =========================================================
-   CHARGER LES CATÃ‰GORIES
+   CHARGER LES CATÉGORIES
 ========================================================= */
 
 async function loadQuestionAdminCategories() {
@@ -7044,7 +7044,7 @@ async function loadQuestionAdminCategories() {
     } catch (error) {
 
         console.error(
-            "Erreur catÃ©gories questions :",
+            "Erreur catégories questions :",
             error
         );
     }
@@ -7102,14 +7102,14 @@ function fillQuestionCategorySelects() {
 
 
 /* =========================================================
-   CRÃ‰ER UNE CATÃ‰GORIE
+   CRÉER UNE CATÉGORIE
 ========================================================= */
 
 async function createQuestionAdminCategory() {
 
     const value =
         prompt(
-            "Nom de la nouvelle catÃ©gorie :"
+            "Nom de la nouvelle catégorie :"
         );
 
 
@@ -7137,7 +7137,7 @@ async function createQuestionAdminCategory() {
     if (exists) {
 
         alert(
-            "Cette catÃ©gorie existe dÃ©jÃ ."
+            "Cette catégorie existe déjà."
         );
 
         return;
@@ -7186,19 +7186,19 @@ async function createQuestionAdminCategory() {
 
     /*
      * Important :
-     * la catÃ©gorie sera rÃ©ellement crÃ©Ã©e
-     * dans Supabase dÃ¨s que la premiÃ¨re
-     * question de cette catÃ©gorie sera enregistrÃ©e.
+     * la catégorie sera réellement créée
+     * dans Supabase dès que la première
+     * question de cette catégorie sera enregistrée.
      */
 
     alert(
-        `CatÃ©gorie "${category}" prÃªte âœ…`
+        `Catégorie "${category}" prête ✅`
     );
 }
 
 
 /* =========================================================
-   CHAMPS RÃ‰PONSES
+   CHAMPS RÉPONSES
 ========================================================= */
 
 function renderQuestionAnswerFields() {
@@ -7352,7 +7352,7 @@ function renderQuestionAnswerFields() {
 
 
 /* =========================================================
-   BONNES RÃ‰PONSES
+   BONNES RÉPONSES
 ========================================================= */
 
 function getQuestionCorrectAnswers() {
@@ -7501,7 +7501,7 @@ async function getNextQuestionOrderNumber(
 
 
 /* =========================================================
-   DONNÃ‰ES AUTOMATIQUES
+   DONNÉES AUTOMATIQUES
 ========================================================= */
 
 async function updateQuestionAutomaticData() {
@@ -7546,7 +7546,7 @@ async function updateQuestionAutomaticData() {
         keywordsElement.innerText =
             answers.length
                 ? answers.join(", ")
-                : "â€”";
+                : "—";
     }
 
 
@@ -7585,7 +7585,7 @@ async function updateQuestionAutomaticData() {
 
 
 /* =========================================================
-   APERÃ‡U
+   APERÇU
 ========================================================= */
 
 function updateQuestionPreview() {
@@ -7626,7 +7626,7 @@ function updateQuestionPreview() {
 
         preview.innerHTML = `
             <div class="question-preview-empty">
-                Commence Ã  rÃ©diger ta question.
+                Commence à rédiger ta question.
             </div>
         `;
 
@@ -7740,7 +7740,7 @@ function validateAdminQuestion() {
     if (!category) {
 
         alert(
-            "Merci de choisir une catÃ©gorie."
+            "Merci de choisir une catégorie."
         );
 
         return false;
@@ -7760,7 +7760,7 @@ function validateAdminQuestion() {
     if (!correct.length) {
 
         alert(
-            "Merci de sÃ©lectionner la bonne rÃ©ponse."
+            "Merci de sélectionner la bonne réponse."
         );
 
         return false;
@@ -7946,7 +7946,7 @@ async function saveAdminQuestion() {
 
 
         alert(
-            `Question ajoutÃ©e âœ…\n\n${category} #${orderNumber}`
+            `Question ajoutée ✅\n\n${category} #${orderNumber}`
         );
 
 
@@ -7977,7 +7977,7 @@ async function saveAdminQuestion() {
                 false;
 
             button.innerText =
-                "âž• Ajouter la question";
+                "➕ Ajouter la question";
         }
     }
 }
@@ -8073,7 +8073,7 @@ function analyseBulkQuestions() {
     if (!questions.length) {
 
         alert(
-            "Aucune question dÃ©tectÃ©e."
+            "Aucune question détectée."
         );
 
         return;
@@ -8136,7 +8136,7 @@ function analyseBulkQuestions() {
 
 
                     /*
-                     * Rien de sÃ©lectionnÃ© par dÃ©faut.
+                     * Rien de sélectionné par défaut.
                      * L'admin devra choisir Vrai ou Faux.
                      */
                     correct = [];
@@ -8161,8 +8161,8 @@ function analyseBulkQuestions() {
 
 
                     /*
-                     * Une seule rÃ©ponse correcte,
-                     * mais aucune par dÃ©faut.
+                     * Une seule réponse correcte,
+                     * mais aucune par défaut.
                      */
                     correct = [];
                 }
@@ -8186,8 +8186,8 @@ function analyseBulkQuestions() {
 
 
                     /*
-                     * Plusieurs rÃ©ponses possibles,
-                     * aucune cochÃ©e par dÃ©faut.
+                     * Plusieurs réponses possibles,
+                     * aucune cochée par défaut.
                      */
                     correct = [];
                 }
@@ -8240,7 +8240,7 @@ function analyseBulkQuestions() {
     if (detectedCount) {
 
         detectedCount.textContent =
-            `${questions.length} question${questions.length > 1 ? "s" : ""} dÃ©tectÃ©e${questions.length > 1 ? "s" : ""}`;
+            `${questions.length} question${questions.length > 1 ? "s" : ""} détectée${questions.length > 1 ? "s" : ""}`;
     }
 
 
@@ -8283,8 +8283,8 @@ function renderCurrentBulkQuestion() {
 
 
     /*
-     * On s'assure que les Ã©vÃ©nements
-     * de configuration par dÃ©faut sont installÃ©s.
+     * On s'assure que les événements
+     * de configuration par défaut sont installés.
      */
     setupBulkDefaultConfigurationListeners();
 
@@ -8315,7 +8315,7 @@ function renderCurrentBulkQuestion() {
 
 
     /* =====================================================
-       SÃ‰CURITÃ‰ STRUCTURE
+       SÉCURITÉ STRUCTURE
     ====================================================== */
 
     if (!item.choices) {
@@ -8359,7 +8359,7 @@ function renderCurrentBulkQuestion() {
 
 
         /*
-         * Une seule bonne rÃ©ponse
+         * Une seule bonne réponse
          * pour un Vrai / Faux.
          */
 
@@ -8382,7 +8382,7 @@ function renderCurrentBulkQuestion() {
     ) {
 
         /*
-         * Une seule bonne rÃ©ponse
+         * Une seule bonne réponse
          * pour un choix simple.
          */
 
@@ -8413,7 +8413,7 @@ function renderCurrentBulkQuestion() {
 
 
     /* =====================================================
-       PROPOSITIONS Ã€ AFFICHER
+       PROPOSITIONS À AFFICHER
     ====================================================== */
 
     const letters =
@@ -8474,7 +8474,7 @@ function renderCurrentBulkQuestion() {
                                 >
 
 
-                                    <!-- BONNE RÃ‰PONSE -->
+                                    <!-- BONNE RÉPONSE -->
 
                                     <input
                                         type="${inputType}"
@@ -8568,7 +8568,7 @@ function renderCurrentBulkQuestion() {
 
 
     /* =====================================================
-       MODIFICATION BONNE(S) RÃ‰PONSE(S)
+       MODIFICATION BONNE(S) RÉPONSE(S)
     ====================================================== */
 
     container
@@ -8615,7 +8615,7 @@ function renderCurrentBulkQuestion() {
 
 
 /* =========================================================
-   CONFIGURATION PAR DÃ‰FAUT DU BLOC
+   CONFIGURATION PAR DÉFAUT DU BLOC
 ========================================================= */
 
 function setupBulkDefaultConfigurationListeners() {
@@ -8639,8 +8639,8 @@ function setupBulkDefaultConfigurationListeners() {
 
 
     /*
-     * On Ã©vite d'installer plusieurs fois
-     * les mÃªmes Ã©vÃ©nements.
+     * On évite d'installer plusieurs fois
+     * les mêmes événements.
      */
 
     if (
@@ -8720,7 +8720,7 @@ function setupBulkDefaultConfigurationListeners() {
 
 
 /* =========================================================
-   APPLIQUER CATÃ‰GORIE + TYPE Ã€ TOUT LE BLOC
+   APPLIQUER CATÉGORIE + TYPE À TOUT LE BLOC
 ========================================================= */
 
 function applyBulkDefaultsToAllQuestions() {
@@ -8752,7 +8752,7 @@ function applyBulkDefaultsToAllQuestions() {
             item => {
 
                 /*
-                 * CatÃ©gorie
+                 * Catégorie
                  */
 
                 item.category =
@@ -8761,7 +8761,7 @@ function applyBulkDefaultsToAllQuestions() {
 
                 /*
                  * Si le type change,
-                 * on recrÃ©e proprement
+                 * on recrée proprement
                  * les propositions.
                  */
 
@@ -8821,8 +8821,8 @@ function applyBulkDefaultsToAllQuestions() {
 
 
     /*
-     * On reconstruit immÃ©diatement
-     * la question affichÃ©e.
+     * On reconstruit immédiatement
+     * la question affichée.
      */
 
     renderCurrentBulkQuestion();
@@ -8833,7 +8833,7 @@ function applyBulkDefaultsToAllQuestions() {
 
 
 /* =========================================================
-   SAUVER Ã‰TAT QUESTION COURANTE
+   SAUVER ÉTAT QUESTION COURANTE
 ========================================================= */
 
 function saveCurrentBulkEditorState() {
@@ -8927,7 +8927,7 @@ function saveCurrentBulkEditorState() {
 
 
     /* =====================================================
-       3. BONNE(S) RÃ‰PONSE(S)
+       3. BONNE(S) RÉPONSE(S)
     ====================================================== */
 
     const checkedAnswers =
@@ -9073,7 +9073,7 @@ function changeBulkQuestion(
 
 
 /* =========================================================
-   RÃ‰CAPITULATIF DU BLOC
+   RÉCAPITULATIF DU BLOC
 ========================================================= */
 
 function updateBulkSummary() {
@@ -9132,7 +9132,7 @@ function updateBulkSummary() {
                        CHOIX SIMPLE / MULTIPLE
 
                        Les 4 propositions
-                       doivent Ãªtre renseignÃ©es.
+                       doivent être renseignées.
                     ========================= */
 
                     if (
@@ -9177,7 +9177,7 @@ function updateBulkSummary() {
     if (element) {
 
         element.innerText =
-            `${ready} question(s) prÃªte(s) sur ${total}.`;
+            `${ready} question(s) prête(s) sur ${total}.`;
     }
 }
 /* =========================================================
@@ -9242,7 +9242,7 @@ async function importBulkQuestions() {
         ) {
 
             alert(
-                "Certaines questions n'ont pas encore de bonne rÃ©ponse."
+                "Certaines questions n'ont pas encore de bonne réponse."
             );
 
             return;
@@ -9269,8 +9269,8 @@ async function importBulkQuestions() {
 
 
         /*
-         * Regroupement par catÃ©gorie
-         * pour gÃ©rer les order_number.
+         * Regroupement par catégorie
+         * pour gérer les order_number.
          */
 
         const nextOrders = {};
@@ -9397,7 +9397,7 @@ async function importBulkQuestions() {
 
 
         alert(
-            `${payload.length} questions importÃ©es âœ…`
+            `${payload.length} questions importées ✅`
         );
 
 
@@ -9625,7 +9625,7 @@ async function loadQuestionManagementData() {
 
 
 /* =========================================================
-   CATÃ‰GORIES
+   CATÉGORIES
 ========================================================= */
 
 function fillQuestionManagementCategories() {
@@ -9670,7 +9670,7 @@ function fillQuestionManagementCategories() {
 
     select.innerHTML = `
         <option value="">
-            Toutes les catÃ©gories
+            Toutes les catégories
         </option>
 
         ${
@@ -9870,7 +9870,7 @@ function renderQuestionManagementList() {
 
         container.innerHTML = `
             <div class="question-management-empty">
-                Aucune question trouvÃ©e.
+                Aucune question trouvée.
             </div>
         `;
 
@@ -9901,7 +9901,7 @@ function renderQuestionManagementList() {
                                     </span>
 
                                     <span>
-                                        #${question.order_number ?? "â€”"}
+                                        #${question.order_number ?? "—"}
                                     </span>
 
                                     <span>
@@ -9925,7 +9925,7 @@ function renderQuestionManagementList() {
                                         ${
                                             active
                                                 ? "Active"
-                                                : "DÃ©sactivÃ©e"
+                                                : "Désactivée"
                                         }
                                     </span>
 
@@ -9957,7 +9957,7 @@ function renderQuestionManagementList() {
                                     class="btn-secondary"
                                     onclick="openQuestionManagementEdit('${question.id}')"
                                 >
-                                    âœ ï¸  Modifier
+                                    ✏️  Modifier
                                 </button>
 
 
@@ -9968,8 +9968,8 @@ function renderQuestionManagementList() {
                                 >
                                     ${
                                         active
-                                            ? "â ¸ DÃ©sactiver"
-                                            : "â–¶ï¸  RÃ©activer"
+                                            ? "⏸️ Désactiver"
+                                            : "▶️  Réactiver"
                                     }
                                 </button>
 
@@ -9979,7 +9979,7 @@ function renderQuestionManagementList() {
                                     class="question-delete-button"
                                     onclick="deleteQuestionManagementQuestion('${question.id}')"
                                 >
-                                    ðŸ—‘ Supprimer
+                                    🗑 Supprimer
                                 </button>
 
                             </div>
@@ -10016,12 +10016,12 @@ function getQuestionTypeLabel(
     };
 
 
-    return labels[type] || type || "â€”";
+    return labels[type] || type || "—";
 }
 
 
 /* =========================================================
-   APERÃ‡U RÃ‰PONSES
+   APERÇU RÉPONSES
 ========================================================= */
 
 function renderQuestionManagementChoices(
@@ -10197,7 +10197,7 @@ function renderQuestionManagementEditAnswers() {
             <div class="question-field">
 
                 <label>
-                    Bonne rÃ©ponse
+                    Bonne réponse
                 </label>
 
                 <label class="question-answer-option">
@@ -10373,7 +10373,7 @@ async function saveQuestionManagementEdit() {
     ) {
 
         alert(
-            "Merci de complÃ©ter la question et sa bonne rÃ©ponse."
+            "Merci de compléter la question et sa bonne réponse."
         );
 
         return;
@@ -10521,7 +10521,7 @@ async function saveQuestionManagementEdit() {
 
 
         alert(
-            "Question modifiÃ©e âœ…"
+            "Question modifiée ✅"
         );
 
 
@@ -10542,7 +10542,7 @@ async function saveQuestionManagementEdit() {
 
 
 /* =========================================================
-   ACTIVER / DÃ‰SACTIVER
+   ACTIVER / DÉSACTIVER
 ========================================================= */
 
 async function toggleQuestionManagementActive(
@@ -10635,7 +10635,7 @@ async function deleteQuestionManagementQuestion(
 
     const confirmation =
         confirm(
-            "Supprimer dÃ©finitivement cette question ?"
+            "Supprimer définitivement cette question ?"
         );
 
 
@@ -10674,7 +10674,7 @@ async function deleteQuestionManagementQuestion(
 
 
         alert(
-            "Question supprimÃ©e."
+            "Question supprimée."
         );
 
 
@@ -10693,7 +10693,7 @@ async function deleteQuestionManagementQuestion(
     }
 }
 /* =========================================================
-   ADMIN - GESTION DES CATÃ‰GORIES
+   ADMIN - GESTION DES CATÉGORIES
 ========================================================= */
 
 let categoryManagementState = {
@@ -10814,7 +10814,7 @@ async function loadCategoryManagementData() {
 
         container.innerHTML = `
             <div class="question-management-empty">
-                Chargement des catÃ©gories...
+                Chargement des catégories...
             </div>
         `;
     }
@@ -10903,7 +10903,7 @@ async function loadCategoryManagementData() {
     } catch (error) {
 
         console.error(
-            "Erreur chargement catÃ©gories :",
+            "Erreur chargement catégories :",
             error
         );
 
@@ -10912,7 +10912,7 @@ async function loadCategoryManagementData() {
 
             container.innerHTML = `
                 <div class="question-management-empty">
-                    Impossible de charger les catÃ©gories.
+                    Impossible de charger les catégories.
                 </div>
             `;
         }
@@ -11031,7 +11031,7 @@ function renderCategoryManagementList() {
 
         container.innerHTML = `
             <div class="question-management-empty">
-                Aucune catÃ©gorie trouvÃ©e.
+                Aucune catégorie trouvée.
             </div>
         `;
 
@@ -11049,7 +11049,7 @@ function renderCategoryManagementList() {
                         <div class="category-management-main">
 
                             <div class="category-icon">
-                                ðŸ—‚ï¸
+                                🗂️
                             </div>
 
 
@@ -11078,7 +11078,7 @@ function renderCategoryManagementList() {
                                 class="btn-secondary"
                                 onclick="openCategoryEditModal('${encodeURIComponent(item.name)}')"
                             >
-                                âœ ï¸  Renommer
+                                ✏️  Renommer
                             </button>
 
 
@@ -11087,7 +11087,7 @@ function renderCategoryManagementList() {
                                 class="question-delete-button"
                                 onclick="deleteManagedCategory('${encodeURIComponent(item.name)}')"
                             >
-                                ðŸ—‘ Supprimer
+                                🗑 Supprimer
                             </button>
 
                         </div>
@@ -11101,7 +11101,7 @@ function renderCategoryManagementList() {
 
 
 /* =========================================================
-   CRÃ‰ATION
+   CRÉATION
 ========================================================= */
 
 async function createManagedCategory() {
@@ -11146,7 +11146,7 @@ async function createManagedCategory() {
     if (exists) {
 
         alert(
-            "Cette catÃ©gorie existe dÃ©jÃ ."
+            "Cette catégorie existe déjà."
         );
 
         return;
@@ -11155,12 +11155,12 @@ async function createManagedCategory() {
 
     /*
      * Avec la structure actuelle,
-     * une catÃ©gorie est matÃ©rialisÃ©e
+     * une catégorie est matérialisée
      * lorsqu'une question utilise ce nom.
      */
 
     alert(
-        `CatÃ©gorie "${name}" prÃªte âœ…\n\nElle apparaÃ®tra dÃ¨s qu'une premiÃ¨re question sera ajoutÃ©e dans cette catÃ©gorie.`
+        `Catégorie "${name}" prête ✅\n\nElle apparaîtra dès qu'une première question sera ajoutée dans cette catégorie.`
     );
 
 
@@ -11310,7 +11310,7 @@ async function saveCategoryRename() {
     if (duplicate) {
 
         alert(
-            "Une catÃ©gorie porte dÃ©jÃ  ce nom."
+            "Une catégorie porte déjà ce nom."
         );
 
         return;
@@ -11319,7 +11319,7 @@ async function saveCategoryRename() {
 
     const confirmation =
         confirm(
-            `Renommer "${current.name}" en "${newName}" ?\n\nToutes les questions de cette catÃ©gorie seront mises Ã  jour.`
+            `Renommer "${current.name}" en "${newName}" ?\n\nToutes les questions de cette catégorie seront mises à jour.`
         );
 
 
@@ -11375,20 +11375,20 @@ async function saveCategoryRename() {
 
 
         alert(
-            "CatÃ©gorie renommÃ©e âœ…"
+            "Catégorie renommée ✅"
         );
 
 
     } catch (error) {
 
         console.error(
-            "Erreur renommage catÃ©gorie :",
+            "Erreur renommage catégorie :",
             error
         );
 
 
         alert(
-            "Impossible de renommer la catÃ©gorie.\n\n" +
+            "Impossible de renommer la catégorie.\n\n" +
             error.message
         );
     }
@@ -11428,7 +11428,7 @@ async function deleteManagedCategory(
     ) {
 
         alert(
-            `Impossible de supprimer "${name}".\n\nCette catÃ©gorie contient encore ${category.questionCount} question(s).\n\nDÃ©place ou supprime d'abord les questions concernÃ©es.`
+            `Impossible de supprimer "${name}".\n\nCette catégorie contient encore ${category.questionCount} question(s).\n\nDéplace ou supprime d'abord les questions concernées.`
         );
 
         return;
@@ -11436,35 +11436,17 @@ async function deleteManagedCategory(
 
 
     alert(
-        "Cette catÃ©gorie ne contient aucune question."
+        "Cette catégorie ne contient aucune question."
     );
 }
 /* =========================================================
    NICKEL MASTER
-   FORMATIONS -> CATÃ‰GORIES AUTORISÃ‰ES
+   FORMATIONS -> CATÉGORIES AUTORISÉES
 ========================================================= */
 
 /* =========================================================
-   FORMATIONS -> CATÃ‰GORIES AUTORISÃ‰ES
+   FORMATIONS -> CATÉGORIES AUTORISÉES
 ========================================================= */
-
-
-/* =========================================================
-   NORMALISATION DES NOMS
-========================================================= */
-
-function normalizeTrainingName(value) {
-
-    return String(value || "")
-        .trim()
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(
-            /[\u0300-\u036f]/g,
-            ""
-        );
-}
-
 
 
 /* =========================================================
@@ -11486,8 +11468,26 @@ function normalizeTrainingName(value) {
 
 
 /* =========================================================
-   CATÃ‰GORIES AUTORISÃ‰ES POUR LE COLLABORATEUR
-   1 formation acquise = 1 catÃ©gorie du mÃªme nom
+   NORMALISATION DES NOMS
+========================================================= */
+
+function normalizeTrainingName(value) {
+
+    return String(value || "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(
+            /[\u0300-\u036f]/g,
+            ""
+        );
+}
+
+
+
+/* =========================================================
+   CATÉGORIES AUTORISÉES POUR LE COLLABORATEUR
+   1 formation acquise = 1 catégorie du même nom
 ========================================================= */
 
 async function getTrainingEligibleCategories() {
@@ -11501,7 +11501,7 @@ async function getTrainingEligibleCategories() {
     if (!profileId) {
 
         console.error(
-            "â Œ profile_id introuvable dans le localStorage"
+            "❌ profile_id introuvable dans le localStorage"
         );
 
         return [];
@@ -11511,7 +11511,7 @@ async function getTrainingEligibleCategories() {
     try {
 
         /* =================================================
-           1. RÃ‰CUPÃ‰RATION DES FORMATIONS ATTRIBUÃ‰ES
+           1. RÉCUPÉRATION DES FORMATIONS ATTRIBUÉES
         ================================================= */
 
         const userTrainingsResponse =
@@ -11537,7 +11537,7 @@ async function getTrainingEligibleCategories() {
 
 
         console.log(
-            "ðŸŽ“ user_trainings :",
+            "🎓 user_trainings :",
             userTrainings
         );
 
@@ -11560,7 +11560,7 @@ async function getTrainingEligibleCategories() {
 
 
         console.log(
-            "ðŸŽ“ IDs formations attribuÃ©es :",
+            "🎓 IDs formations attribuées :",
             trainingIds
         );
 
@@ -11568,7 +11568,7 @@ async function getTrainingEligibleCategories() {
         if (!trainingIds.length) {
 
             console.log(
-                "âš ï¸  Aucune formation attribuÃ©e."
+                "⚠️  Aucune formation attribuée."
             );
 
             return [];
@@ -11577,7 +11577,7 @@ async function getTrainingEligibleCategories() {
 
 
         /* =================================================
-           2. RÃ‰CUPÃ‰RATION DES NOMS DES FORMATIONS
+           2. RÉCUPÉRATION DES NOMS DES FORMATIONS
         ================================================= */
 
         const trainingsResponse =
@@ -11645,7 +11645,7 @@ async function getTrainingEligibleCategories() {
 
 
         console.log(
-            "âœ… CatÃ©gories autorisÃ©es selon les formations :",
+            "✅ Catégories autorisées selon les formations :",
             eligibleCategories
         );
 
@@ -11656,7 +11656,7 @@ async function getTrainingEligibleCategories() {
     } catch (error) {
 
         console.error(
-            "â Œ Erreur rÃ©cupÃ©ration formations autorisÃ©es :",
+            "❌ Erreur récupération formations autorisées :",
             error
         );
 
@@ -11667,7 +11667,7 @@ async function getTrainingEligibleCategories() {
 
 
 /* =========================================================
-   QUESTIONS AUTORISÃ‰ES POUR LE COLLABORATEUR
+   QUESTIONS AUTORISÉES POUR LE COLLABORATEUR
 ========================================================= */
 
 async function getTrainingEligibleQuestions() {
@@ -11675,7 +11675,7 @@ async function getTrainingEligibleQuestions() {
     try {
 
         /* =================================================
-           1. FORMATIONS / CATÃ‰GORIES AUTORISÃ‰ES
+           1. FORMATIONS / CATÉGORIES AUTORISÉES
         ================================================= */
 
         const categories =
@@ -11694,7 +11694,7 @@ async function getTrainingEligibleQuestions() {
 
 
         console.log(
-            "ðŸ“š CatÃ©gories utilisÃ©es pour filtrer les questions :",
+            "📚 Catégories utilisées pour filtrer les questions :",
             [
                 ...allowedCategories
             ]
@@ -11704,7 +11704,7 @@ async function getTrainingEligibleQuestions() {
         if (!allowedCategories.size) {
 
             console.log(
-                "âš ï¸  Aucune catÃ©gorie autorisÃ©e."
+                "⚠️  Aucune catégorie autorisée."
             );
 
             return [];
@@ -11713,7 +11713,7 @@ async function getTrainingEligibleQuestions() {
 
 
         /* =================================================
-           2. RÃ‰CUPÃ‰RATION DES QUESTIONS
+           2. RÉCUPÉRATION DES QUESTIONS
         ================================================= */
 
         const response =
@@ -11739,7 +11739,7 @@ async function getTrainingEligibleQuestions() {
 
 
         console.log(
-            "â “ Questions rÃ©cupÃ©rÃ©es :",
+            "❌ Questions récupérées :",
             questions.length
         );
 
@@ -11766,11 +11766,11 @@ async function getTrainingEligibleQuestions() {
 
 
                     /*
-                     * Seuls les types utilisÃ©s dans
-                     * les entraÃ®nements sont autorisÃ©s.
+                     * Seuls les types utilisés dans
+                     * les entraînements sont autorisés.
                      *
-                     * Les questions OPEN restent rÃ©servÃ©es
-                     * au futur bilan de compÃ©tences.
+                     * Les questions OPEN restent réservées
+                     * au futur bilan de compétences.
                      */
 
                     const allowedType =
@@ -11810,7 +11810,7 @@ async function getTrainingEligibleQuestions() {
 
 
         console.log(
-            "âœ… Questions autorisÃ©es pour ce collaborateur :",
+            "✅ Questions autorisées pour ce collaborateur :",
             eligibleQuestions.length
         );
 
@@ -11821,7 +11821,7 @@ async function getTrainingEligibleQuestions() {
     } catch (error) {
 
         console.error(
-            "â Œ Erreur rÃ©cupÃ©ration questions autorisÃ©es :",
+            "❌ Erreur récupération questions autorisées :",
             error
         );
 
@@ -11832,7 +11832,7 @@ async function getTrainingEligibleQuestions() {
 
 
 /* =========================================================
-   MÃ‰LANGE DES QUESTIONS
+   MÉLANGE DES QUESTIONS
 ========================================================= */
 
 function shuffleTrainingQuestions(array) {
@@ -11871,7 +11871,7 @@ function shuffleTrainingQuestions(array) {
 
 
 /* =========================================================
-   INITIALISATION ENTRAÃŽNEMENT CIBLÃ‰
+   INITIALISATION ENTRAÎNEMENT CIBLÉ
 ========================================================= */
 
 async function initializeTargetedTrainingPage() {
@@ -11889,7 +11889,7 @@ async function initializeTargetedTrainingPage() {
 
     container.innerHTML = `
         <div class="training-loading">
-            Chargement de tes catÃ©gories...
+            Chargement de tes catégories...
         </div>
     `;
 
@@ -11908,7 +11908,7 @@ async function initializeTargetedTrainingPage() {
 
             container.innerHTML = `
                 <div class="training-empty-state">
-                    Aucune catÃ©gorie disponible pour le moment.
+                    Aucune catégorie disponible pour le moment.
                 </div>
             `;
 
@@ -11919,7 +11919,7 @@ async function initializeTargetedTrainingPage() {
 
         /* =================================================
            ON GARDE UNIQUEMENT LES FORMATIONS
-           QUI POSSÃˆDENT AU MOINS UNE QUESTION
+           QUI POSSÈDENT AU MOINS UNE QUESTION
         ================================================= */
 
         const categoriesWithQuestions =
@@ -11958,7 +11958,7 @@ async function initializeTargetedTrainingPage() {
 
 
         console.log(
-            "ðŸŽ¯ CatÃ©gories affichÃ©es en ciblÃ© :",
+            "🎯 Catégories affichées en ciblé :",
             categoriesWithQuestions
         );
 
@@ -11968,8 +11968,8 @@ async function initializeTargetedTrainingPage() {
             container.innerHTML = `
                 <div class="training-empty-state">
                     Tes formations sont bien reconnues,
-                    mais aucune question d'entraÃ®nement
-                    n'est encore disponible dans ces catÃ©gories.
+                    mais aucune question d'entraînement
+                    n'est encore disponible dans ces catégories.
                 </div>
             `;
 
@@ -12030,20 +12030,20 @@ async function initializeTargetedTrainingPage() {
     } catch (error) {
 
         console.error(
-            "â Œ Erreur affichage entraÃ®nement ciblÃ© :",
+            "❌ Erreur affichage entraînement ciblé :",
             error
         );
 
 
         container.innerHTML = `
             <div class="training-empty-state">
-                Impossible de charger les catÃ©gories.
+                Impossible de charger les catégories.
             </div>
         `;
     }
 }
 /* =========================================================
-   DÃ‰MARRER CIBLÃ‰
+   DÉMARRER CIBLÉ
 ========================================================= */
 
 async function startTargetedTraining(
@@ -12058,8 +12058,8 @@ async function startTargetedTraining(
 
     /*
      * IMPORTANT :
-     * on revÃ©rifie les droits,
-     * mÃªme si la catÃ©gorie Ã©tait affichÃ©e.
+     * on revérifie les droits,
+     * même si la catégorie était affichée.
      */
 
     const allowedCategories =
@@ -12081,7 +12081,7 @@ async function startTargetedTraining(
     if (!authorized) {
 
         alert(
-            "Cette catÃ©gorie n'est pas disponible pour ton profil."
+            "Cette catégorie n'est pas disponible pour ton profil."
         );
 
         return;
@@ -12119,7 +12119,7 @@ async function startTargetedTraining(
     if (!selected.length) {
 
         alert(
-            "Aucune question disponible dans cette catÃ©gorie."
+            "Aucune question disponible dans cette catégorie."
         );
 
         return;
@@ -12168,7 +12168,7 @@ async function initializeFlashTrainingPage() {
 
             container.innerHTML = `
                 <div class="training-empty-state">
-                    Aucune catÃ©gorie disponible.
+                    Aucune catégorie disponible.
                 </div>
             `;
 
@@ -12194,7 +12194,7 @@ async function initializeFlashTrainingPage() {
                             </strong>
 
                             <b>
-                                âœ“
+                                ✓
                             </b>
 
                         </div>
@@ -12241,7 +12241,7 @@ async function startFlashTraining() {
     if (!categories.length) {
 
         alert(
-            "Aucune catÃ©gorie disponible."
+            "Aucune catégorie disponible."
         );
 
         return;
@@ -12392,7 +12392,7 @@ function saveTrainingLaunch(
 
 
 /* =========================================================
-   ICÃ”NES CATÃ‰GORIES
+   ICÔNES CATÉGORIES
 ========================================================= */
 
 function getTrainingCategoryIcon(
@@ -12414,40 +12414,40 @@ function getTrainingCategoryIcon(
     if (
         value.includes("pro")
     ) {
-        return "ðŸ‘¤";
+        return "👤";
     }
 
 
     if (
         value.includes("auth")
     ) {
-        return "ðŸ” ";
+        return "🔒";
     }
 
 
     if (
         value.includes("carte")
     ) {
-        return "ðŸ’³";
+        return "💳";
     }
 
 
     if (
-        value.includes("sÃ©cur") ||
+        value.includes("sécur") ||
         value.includes("secur")
     ) {
-        return "ðŸ›¡ï¸ ";
+        return "🛡️";
     }
 
 
     if (
         value.includes("acquisition")
     ) {
-        return "ðŸ‘¥";
+        return "👥";
     }
 
 
-    return "ðŸ“š";
+    return "📚";
 }
 /* =========================================================
    SIDEBAR ADMIN GLOBALE
@@ -12498,7 +12498,7 @@ function ensureAdministrationMenu() {
 
     /* =====================================================
        ADMIN :
-       ON RETIRE LES ENTRÃ‰ES QUI DOIVENT ÃŠTRE
+       ON RETIRE LES ENTRÉES QUI DOIVENT ÊTRE
        UNIQUEMENT DANS ADMINISTRATION
     ====================================================== */
 
@@ -12526,10 +12526,10 @@ function ensureAdministrationMenu() {
                     "approbation"
                 ) ||
                 text.includes(
-                    "boÃ®te Ã  idÃ©es"
+                    "boîte à idées"
                 ) ||
                 text.includes(
-                    "boite Ã  idÃ©es"
+                    "boite à idées"
                 ) ||
                 text.includes(
                     "signalement"
@@ -12544,7 +12544,7 @@ function ensureAdministrationMenu() {
 
 
     /* =====================================================
-       SUPPRESSION D'Ã‰VENTUELS DOUBLONS ADMINISTRATION
+       SUPPRESSION D'ÉVENTUELS DOUBLONS ADMINISTRATION
     ====================================================== */
 
     const existingAdminButtons =
@@ -12578,7 +12578,7 @@ function ensureAdministrationMenu() {
 
 
     /* =====================================================
-       CRÃ‰ATION DU BOUTON ADMINISTRATION
+       CRÉATION DU BOUTON ADMINISTRATION
     ====================================================== */
 
     const administrationButton =
@@ -12596,7 +12596,7 @@ function ensureAdministrationMenu() {
 
 
     administrationButton.innerHTML =
-        "ðŸ›¡ï¸  Administration";
+        "🛡️ Administration";
 
 
     administrationButton.onclick =
@@ -12609,7 +12609,7 @@ function ensureAdministrationMenu() {
 
 
     /* =====================================================
-       Ã‰TAT ACTIF
+       ÉTAT ACTIF
     ====================================================== */
 
     const currentPage =
@@ -12679,7 +12679,7 @@ document.addEventListener(
 
 
 /* =========================================================
-   Ã‰TAT GLOBAL
+   ÉTAT GLOBAL
 ========================================================= */
 
 const adminUsersState = {
@@ -12716,7 +12716,7 @@ const adminUsersState = {
 async function initializeAdminUsersPage() {
 
     console.log(
-        "ðŸ‘¥ Initialisation gestion utilisateurs"
+        "👥 Initialisation gestion utilisateurs"
     );
 
 
@@ -12745,14 +12745,14 @@ async function initializeAdminUsersPage() {
 
 
         console.log(
-            "âœ… Gestion utilisateurs initialisÃ©e"
+            "✅ Gestion utilisateurs initialisée"
         );
 
 
     } catch (error) {
 
         console.error(
-            "â Œ Erreur initialisation gestion utilisateurs :",
+            "❌ Erreur initialisation gestion utilisateurs :",
             error
         );
 
@@ -12782,7 +12782,7 @@ async function initializeAdminUsersPage() {
 
 
 /* =========================================================
-   CHARGEMENT DES RÃ”LES
+   CHARGEMENT DES RÔLES
 ========================================================= */
 
 async function loadAdminUsersRoles() {
@@ -12810,7 +12810,7 @@ async function loadAdminUsersRoles() {
 
 
     console.log(
-        "ðŸ›¡ï¸  RÃ´les :",
+        "🛡️ Rôles :",
         adminUsersState.roles
     );
 }
@@ -12818,7 +12818,7 @@ async function loadAdminUsersRoles() {
 
 
 /* =========================================================
-   CHARGEMENT DES Ã‰QUIPES
+   CHARGEMENT DES ÉQUIPES
 ========================================================= */
 
 async function loadAdminUsersTeams() {
@@ -12846,7 +12846,7 @@ async function loadAdminUsersTeams() {
 
 
     console.log(
-        "ðŸ‘¥ Ã‰quipes :",
+        "👥 Équipes :",
         adminUsersState.teams
     );
 }
@@ -12910,7 +12910,7 @@ async function loadAdminUsersProfiles() {
 
 
     console.log(
-        "ðŸ‘¤ Profils :",
+        "👤 Profils :",
         adminUsersState.users
     );
 }
@@ -12918,7 +12918,7 @@ async function loadAdminUsersProfiles() {
 
 
 /* =========================================================
-   Ã‰VÃ‰NEMENTS
+   ÉVÉNEMENTS
 ========================================================= */
 
 function bindAdminUsersEvents() {
@@ -13157,7 +13157,7 @@ function bindAdminUsersEvents() {
 
 
     /* =====================================================
-       CHANGEMENT DE FONCTION / RÃ”LE
+       CHANGEMENT DE FONCTION / RÔLE
     ====================================================== */
 
     document
@@ -13172,7 +13172,7 @@ function bindAdminUsersEvents() {
 
 
     /* =====================================================
-       CHANGEMENT D'Ã‰QUIPE
+       CHANGEMENT D'ÉQUIPE
     ====================================================== */
 
     document
@@ -13216,7 +13216,7 @@ function bindAdminUsersEvents() {
 
     /* =====================================================
        AJOUT UTILISATEUR
-       POUR LE MOMENT ON GARDE LE BOUTON MAIS SANS CRÃ‰ATION
+       POUR LE MOMENT ON GARDE LE BOUTON MAIS SANS CRÉATION
     ====================================================== */
 
     document
@@ -13228,7 +13228,7 @@ function bindAdminUsersEvents() {
             function () {
 
                 alert(
-                    "La crÃ©ation d'utilisateur sera reliÃ©e Ã  l'Ã©tape suivante."
+                    "La création d'utilisateur sera reliée à l'étape suivante."
                 );
             }
         );
@@ -13237,7 +13237,7 @@ function bindAdminUsersEvents() {
 
 
 /* =========================================================
-   OPTIONS RÃ”LES
+   OPTIONS RÔLES
 ========================================================= */
 
 function populateAdminUsersRoleOptions() {
@@ -13259,7 +13259,7 @@ function populateAdminUsersRoleOptions() {
         filter.innerHTML =
             `
                 <option value="">
-                    Tous les rÃ´les
+                    Tous les rôles
                 </option>
             ` +
             adminUsersState.roles
@@ -13292,7 +13292,7 @@ function populateAdminUsersRoleOptions() {
 
 
 /* =========================================================
-   OPTIONS Ã‰QUIPES
+   OPTIONS ÉQUIPES
 ========================================================= */
 
 function populateAdminUsersTeamOptions() {
@@ -13326,7 +13326,7 @@ function populateAdminUsersTeamOptions() {
         filter.innerHTML =
             `
                 <option value="">
-                    Toutes les Ã©quipes
+                    Toutes les équipes
                 </option>
             ` +
             options;
@@ -13338,7 +13338,7 @@ function populateAdminUsersTeamOptions() {
         edit.innerHTML =
             `
                 <option value="">
-                    Aucune Ã©quipe
+                    Aucune équipe
                 </option>
             ` +
             options;
@@ -13711,7 +13711,7 @@ function renderAdminUsersTable() {
                     colspan="7"
                     class="admin-users-loading"
                 >
-                    Aucun utilisateur trouvÃ©.
+                    Aucun utilisateur trouvé.
                 </td>
             </tr>
         `;
@@ -13771,7 +13771,7 @@ function renderAdminUsersTable() {
                                     escapeHtml(
                                         team?.name ||
                                         user.team ||
-                                        "â€”"
+                                        "—"
                                     )
                                 }
                             </td>
@@ -13782,7 +13782,7 @@ function renderAdminUsersTable() {
                                     escapeHtml(
                                         user.service ||
                                         team?.service ||
-                                        "â€”"
+                                        "—"
                                     )
                                 }
                             </td>
@@ -13816,7 +13816,7 @@ function renderAdminUsersTable() {
                                         onclick="openAdminUserEditModal('${escapeHtml(user.id)}')"
                                         title="Modifier"
                                     >
-                                        âœ ï¸
+                                        ✏️
                                     </button>
 
                                 </div>
@@ -13836,7 +13836,7 @@ function renderAdminUsersTable() {
 
 
 /* =========================================================
-   IDENTITÃ‰
+   IDENTITÉ
 ========================================================= */
 
 function renderAdminUserIdentity(
@@ -13941,7 +13941,7 @@ function renderAdminUsersPagination() {
     if (info) {
 
         info.innerText =
-            `Affichage ${start} Ã  ${end} sur ${total} utilisateur(s)`;
+            `Affichage ${start} à ${end} sur ${total} utilisateur(s)`;
     }
 
 
@@ -14057,7 +14057,7 @@ function buildAdminUsersPageButtons(
                                 padding:0 5px;
                             "
                         >
-                            â€¦
+                            …
                         </span>
                     `;
                 }
@@ -14146,7 +14146,7 @@ function openAdminUserEditModal(
 
 
     /* =====================================================
-       IDENTITÃ‰
+       IDENTITÉ
     ====================================================== */
 
     setAdminUsersText(
@@ -14161,13 +14161,13 @@ function openAdminUserEditModal(
         "adminUserEditUsername",
         user.username
             ? `@${user.username}`
-            : "â€”"
+            : "—"
     );
 
 
     setAdminUsersText(
         "adminUserEditId",
-        user.id || "â€”"
+        user.id || "—"
     );
 
 
@@ -14337,7 +14337,7 @@ function closeAdminUserEditModal() {
 
 
 /* =========================================================
-   APERÃ‡U RÃ”LE
+   APERÇU RÔLE
 ========================================================= */
 
 function syncAdminUserRolePreview() {
@@ -14369,7 +14369,7 @@ function syncAdminUserRolePreview() {
 
 
 /* =========================================================
-   Ã‰QUIPE â†’ SERVICE + MANAGER
+   ÉQUIPE → SERVICE + MANAGER
 ========================================================= */
 
 function handleAdminUserTeamChange() {
@@ -14463,7 +14463,7 @@ async function saveAdminUserChanges() {
     if (!role) {
 
         alert(
-            "Le rÃ´le sÃ©lectionnÃ© est invalide."
+            "Le rôle sélectionné est invalide."
         );
 
         return;
@@ -14606,7 +14606,7 @@ async function saveAdminUserChanges() {
 
 
     console.log(
-        "ðŸ’¾ Modification utilisateur :",
+        "💾 Modification utilisateur :",
         payload
     );
 
@@ -14689,7 +14689,7 @@ async function saveAdminUserChanges() {
 
         /*
          * Si on modifie son propre profil,
-         * on met Ã©galement le localStorage Ã  jour.
+         * on met également le localStorage à jour.
          */
 
         const loggedProfileId =
@@ -14731,14 +14731,14 @@ async function saveAdminUserChanges() {
 
 
         alert(
-            "âœ… Les modifications ont Ã©tÃ© enregistrÃ©es."
+            "✅ Les modifications ont été enregistrées."
         );
 
 
     } catch (error) {
 
         console.error(
-            "â Œ Erreur modification utilisateur :",
+            "❌ Erreur modification utilisateur :",
             error
         );
 
@@ -14758,7 +14758,7 @@ async function saveAdminUserChanges() {
 
             button.innerHTML =
                 oldText ||
-                "ðŸ’¾ Enregistrer les modifications";
+                "💾 Enregistrer les modifications";
         }
     }
 }
@@ -14766,7 +14766,7 @@ async function saveAdminUserChanges() {
 
 
 /* =========================================================
-   DÃ‰SACTIVER / RÃ‰ACTIVER
+   DÉSACTIVER / RÉACTIVER
 ========================================================= */
 
 async function toggleAdminUserAccountStatus() {
@@ -14799,8 +14799,8 @@ async function toggleAdminUserAccountStatus() {
 
     const confirmation =
         activating
-            ? "RÃ©activer ce compte ?"
-            : "DÃ©sactiver ce compte ? Le profil et son historique seront conservÃ©s.";
+            ? "Réactiver ce compte ?"
+            : "Désactiver ce compte ? Le profil et son historique seront conservés.";
 
 
     if (
@@ -14826,7 +14826,7 @@ async function toggleAdminUserAccountStatus() {
 
 
     /*
-     * Si on dÃ©sactive sans date de dÃ©part,
+     * Si on désactive sans date de départ,
      * on peut automatiquement utiliser aujourd'hui.
      */
 
@@ -14906,15 +14906,15 @@ async function toggleAdminUserAccountStatus() {
         alert(
             newStatus ===
             "active"
-                ? "âœ… Le compte a Ã©tÃ© rÃ©activÃ©."
-                : "âœ… Le compte a Ã©tÃ© dÃ©sactivÃ©."
+                ? "✅ Le compte a été réactivé."
+                : "✅ Le compte a été désactivé."
         );
 
 
     } catch (error) {
 
         console.error(
-            "â Œ Erreur changement statut :",
+            "❌ Erreur changement statut :",
             error
         );
 
@@ -14928,7 +14928,7 @@ async function toggleAdminUserAccountStatus() {
 
 
 /* =========================================================
-   BOUTON DÃ‰SACTIVATION
+   BOUTON DÉSACTIVATION
 ========================================================= */
 
 function updateAdminDeactivateButton(
@@ -14958,7 +14958,7 @@ function updateAdminDeactivateButton(
     ) {
 
         button.innerText =
-            "DÃ©sactiver le compte";
+            "Désactiver le compte";
 
         button.classList.add(
             "admin-user-danger-button"
@@ -14967,7 +14967,7 @@ function updateAdminDeactivateButton(
     } else {
 
         button.innerText =
-            "RÃ©activer le compte";
+            "Réactiver le compte";
     }
 }
 
@@ -15246,7 +15246,7 @@ function formatAdminDate(
 ) {
 
     if (!value) {
-        return "â€”";
+        return "—";
     }
 
 
@@ -15317,7 +15317,7 @@ function formatAdminUserLastSeen(
         )
     ) {
 
-        return "â€”";
+        return "—";
     }
 
 
@@ -15342,7 +15342,7 @@ function formatAdminUserLastSeen(
         1
     ) {
 
-        return "Ã€ l'instant";
+        return "À l'instant";
     }
 
 
@@ -15526,7 +15526,7 @@ function setAdminUsersSelectValueAllowMissing(
 
 
 /* =========================================================
-   AFFICHAGE DE LA PAGE UNE FOIS PRÃŠTE
+   AFFICHAGE DE LA PAGE UNE FOIS PRÊTE
 ========================================================= */
 
 function revealNickelMasterPage() {
@@ -15573,7 +15573,7 @@ if (
 }
 
 /* =========================================================
-   Ã‰TAT ADMIN ORGANISATION
+   ÉTAT ADMIN ORGANISATION
 ========================================================= */
 
 const organizationAdminState = {
@@ -15601,7 +15601,7 @@ const organizationAdminState = {
 
 
 /* =========================================================
-   RÃ”LES SYSTÃˆME PROTÃ‰GÃ‰S
+   RÔLES SYSTÈME PROTÉGÉS
 ========================================================= */
 
 const ORGANIZATION_SYSTEM_ROLES =
@@ -15642,7 +15642,7 @@ async function initializeOrganizationAdminPage() {
     } catch (error) {
 
         console.error(
-            "â Œ Erreur initialisation organisation :",
+            "❌ Erreur initialisation organisation :",
             error
         );
     }
@@ -15651,7 +15651,7 @@ async function initializeOrganizationAdminPage() {
 
 
 /* =========================================================
-   CHARGEMENT DES DONNÃ‰ES
+   CHARGEMENT DES DONNÉES
 ========================================================= */
 
 async function loadOrganizationAdminData() {
@@ -15796,7 +15796,7 @@ async function loadOrganizationAdminData() {
 
 
     console.log(
-        "ðŸ ¢ Organisation chargÃ©e :",
+        "🏢 Organisation chargée :",
         organizationAdminState
     );
 }
@@ -15804,7 +15804,7 @@ async function loadOrganizationAdminData() {
 
 
 /* =========================================================
-   RAFRAÃŽCHISSEMENT COMPLET
+   RAFRAÎCHISSEMENT COMPLET
 ========================================================= */
 
 async function refreshOrganizationAdminInterface() {
@@ -15966,7 +15966,7 @@ function showOrganizationTab(tab) {
 
 
 /* =========================================================
-   GÃ‰NÃ‰RATION DES CODES
+   GÉNÉRATION DES CODES
 ========================================================= */
 
 function generateOrganizationCode(value) {
@@ -16406,7 +16406,7 @@ function populateOrganizationRoleSelect() {
     select.innerHTML = `
 
         <option value="">
-            Aucun rÃ´le
+            Aucun rôle
         </option>
 
         ${
@@ -16666,7 +16666,7 @@ function renderOrganizationServices() {
                             <div class="organization-list-code">
 
                                 ${escapeHtml(
-                                    service.code || "â€”"
+                                    service.code || "—"
                                 )}
 
                             </div>
@@ -16675,7 +16675,7 @@ function renderOrganizationServices() {
                             <div class="organization-description-cell">
 
                                 ${escapeHtml(
-                                    service.description || "â€”"
+                                    service.description || "—"
                                 )}
 
                             </div>
@@ -16692,7 +16692,7 @@ function renderOrganizationServices() {
                                     ${
                                         service.is_active !== false
                                             ? "Actif"
-                                            : "DÃ©sactivÃ©"
+                                            : "Désactivé"
                                     }
 
                                 </span>
@@ -16708,7 +16708,7 @@ function renderOrganizationServices() {
                                     onclick="openOrganizationServiceModal('${service.id}')"
                                     title="Modifier"
                                 >
-                                    âœ ï¸
+                                    ✏️
                                 </button>
 
 
@@ -16718,14 +16718,14 @@ function renderOrganizationServices() {
                                     onclick="toggleOrganizationServiceStatus('${service.id}')"
                                     title="${
                                         service.is_active !== false
-                                            ? "DÃ©sactiver"
-                                            : "RÃ©activer"
+                                            ? "Désactiver"
+                                            : "Réactiver"
                                     }"
                                 >
                                     ${
                                         service.is_active !== false
-                                            ? "â ¸"
-                                            : "â–¶"
+                                            ? "⏸️"
+                                            : "▶"
                                     }
                                 </button>
 
@@ -16736,7 +16736,7 @@ function renderOrganizationServices() {
                                     onclick="deleteOrganizationService('${service.id}')"
                                     title="Supprimer"
                                 >
-                                    ðŸ—‘
+                                    🗑
                                 </button>
 
                             </div>
@@ -17010,7 +17010,7 @@ async function saveOrganizationService() {
     if (duplicate) {
 
         alert(
-            "Un service avec ce nom ou ce code existe dÃ©jÃ ."
+            "Un service avec ce nom ou ce code existe déjà."
         );
 
         return;
@@ -17094,15 +17094,15 @@ async function saveOrganizationService() {
 
         alert(
             editingId
-                ? `Le service "${name}" a bien Ã©tÃ© modifiÃ©.`
-                : `Le service "${name}" a bien Ã©tÃ© crÃ©Ã©.`
+                ? `Le service "${name}" a bien été modifié.`
+                : `Le service "${name}" a bien été créé.`
         );
 
 
     } catch (error) {
 
         console.error(
-            "â Œ Erreur service :",
+            "❌ Erreur service :",
             error
         );
 
@@ -17120,7 +17120,7 @@ async function saveOrganizationService() {
                 false;
 
             button.textContent =
-                "ðŸ’¾ Enregistrer";
+                "💾 Enregistrer";
         }
     }
 }
@@ -17155,8 +17155,8 @@ async function toggleOrganizationServiceStatus(
         !confirm(
             `${
                 newStatus
-                    ? "RÃ©activer"
-                    : "DÃ©sactiver"
+                    ? "Réactiver"
+                    : "Désactiver"
             } le service "${service.name}" ?`
         )
     ) {
@@ -17248,10 +17248,10 @@ async function deleteOrganizationService(
 
         alert(
             `Impossible de supprimer "${service.name}".\n\n` +
-            `Ã‰quipes liÃ©es : ${teamsCount}\n` +
-            `Fonctions liÃ©es : ${positionsCount}\n` +
-            `Utilisateurs liÃ©s : ${profilesCount}\n\n` +
-            `Tu peux le dÃ©sactiver Ã  la place.`
+            `Équipes liées : ${teamsCount}\n` +
+            `Fonctions liées : ${positionsCount}\n` +
+            `Utilisateurs liés : ${profilesCount}\n\n` +
+            `Tu peux le désactiver à la place.`
         );
 
         return;
@@ -17260,7 +17260,7 @@ async function deleteOrganizationService(
 
     if (
         !confirm(
-            `Supprimer dÃ©finitivement le service "${service.name}" ?`
+            `Supprimer définitivement le service "${service.name}" ?`
         )
     ) {
         return;
@@ -17280,7 +17280,7 @@ async function deleteOrganizationService(
 
 /* =========================================================
    =========================================================
-   Ã‰QUIPES
+   ÉQUIPES
    =========================================================
 ========================================================= */
 
@@ -17412,7 +17412,7 @@ function renderOrganizationTeams() {
 
         container.innerHTML = `
             <div class="question-management-empty">
-                Aucune Ã©quipe.
+                Aucune équipe.
             </div>
         `;
 
@@ -17425,7 +17425,7 @@ function renderOrganizationTeams() {
         <div class="organization-table-header organization-teams-header">
 
             <div>
-                Nom de l'Ã©quipe
+                Nom de l'équipe
             </div>
 
             <div>
@@ -17486,7 +17486,7 @@ function renderOrganizationTeams() {
                                     ${
                                         service
                                             ? escapeHtml(service.name)
-                                            : "â€”"
+                                            : "—"
                                     }
 
                                 </div>
@@ -17516,7 +17516,7 @@ function renderOrganizationTeams() {
                                                     )}
                                                 </span>
                                             `
-                                            : "â€”"
+                                            : "—"
                                     }
 
                                 </div>
@@ -17533,7 +17533,7 @@ function renderOrganizationTeams() {
                                         ${
                                             team.is_active !== false
                                                 ? "Actif"
-                                                : "DÃ©sactivÃ©"
+                                                : "Désactivé"
                                         }
 
                                     </span>
@@ -17549,7 +17549,7 @@ function renderOrganizationTeams() {
                                         onclick="openOrganizationTeamModal('${team.id}')"
                                         title="Modifier"
                                     >
-                                        âœ ï¸
+                                        ✏️
                                     </button>
 
 
@@ -17559,14 +17559,14 @@ function renderOrganizationTeams() {
                                         onclick="toggleOrganizationTeamStatus('${team.id}')"
                                         title="${
                                             team.is_active !== false
-                                                ? "DÃ©sactiver"
-                                                : "RÃ©activer"
+                                                ? "Désactiver"
+                                                : "Réactiver"
                                         }"
                                     >
                                         ${
                                             team.is_active !== false
-                                                ? "â ¸"
-                                                : "â–¶"
+                                                ? "⏸️"
+                                                : "▶"
                                         }
                                     </button>
 
@@ -17577,7 +17577,7 @@ function renderOrganizationTeams() {
                                         onclick="deleteOrganizationTeam('${team.id}')"
                                         title="Supprimer"
                                     >
-                                        ðŸ—‘
+                                        🗑
                                     </button>
 
                                 </div>
@@ -17597,7 +17597,7 @@ function renderOrganizationTeams() {
                 ${teams.length}
             </strong>
 
-            Ã©quipe${
+            équipe${
                 teams.length > 1
                     ? "s"
                     : ""
@@ -17669,7 +17669,7 @@ function openOrganizationTeamModal(
         if (title) {
 
             title.textContent =
-                "Modifier l'Ã©quipe";
+                "Modifier l'équipe";
         }
 
 
@@ -17700,7 +17700,7 @@ function openOrganizationTeamModal(
         if (title) {
 
             title.textContent =
-                "Ajouter une Ã©quipe";
+                "Ajouter une équipe";
         }
 
 
@@ -17794,7 +17794,7 @@ async function saveOrganizationTeam() {
     if (!name) {
 
         alert(
-            "Renseigne le nom de l'Ã©quipe."
+            "Renseigne le nom de l'équipe."
         );
 
         return;
@@ -17821,7 +17821,7 @@ async function saveOrganizationTeam() {
     if (duplicate) {
 
         alert(
-            "Une Ã©quipe avec ce nom existe dÃ©jÃ ."
+            "Une équipe avec ce nom existe déjà."
         );
 
         return;
@@ -17919,21 +17919,21 @@ async function saveOrganizationTeam() {
 
         alert(
             editingId
-                ? `L'Ã©quipe "${name}" a Ã©tÃ© modifiÃ©e.`
-                : `L'Ã©quipe "${name}" a Ã©tÃ© crÃ©Ã©e.`
+                ? `L'équipe "${name}" a été modifiée.`
+                : `L'équipe "${name}" a été créée.`
         );
 
 
     } catch (error) {
 
         console.error(
-            "â Œ Erreur Ã©quipe :",
+            "❌ Erreur équipe :",
             error
         );
 
 
         alert(
-            "Impossible d'enregistrer l'Ã©quipe."
+            "Impossible d'enregistrer l'équipe."
         );
 
 
@@ -17945,7 +17945,7 @@ async function saveOrganizationTeam() {
                 false;
 
             button.textContent =
-                "ðŸ’¾ Enregistrer";
+                "💾 Enregistrer";
         }
     }
 }
@@ -17980,9 +17980,9 @@ async function toggleOrganizationTeamStatus(
         !confirm(
             `${
                 newStatus
-                    ? "RÃ©activer"
-                    : "DÃ©sactiver"
-            } l'Ã©quipe "${team.name}" ?`
+                    ? "Réactiver"
+                    : "Désactiver"
+            } l'équipe "${team.name}" ?`
         )
     ) {
         return;
@@ -18041,8 +18041,8 @@ async function deleteOrganizationTeam(
 
         alert(
             `Impossible de supprimer "${team.name}".\n\n` +
-            `${users} utilisateur(s) sont encore rattachÃ©s Ã  cette Ã©quipe.\n\n` +
-            `DÃ©place-les d'abord ou dÃ©sactive l'Ã©quipe.`
+            `${users} utilisateur(s) sont encore rattachés à cette équipe.\n\n` +
+            `Déplace-les d'abord ou désactive l'équipe.`
         );
 
         return;
@@ -18051,7 +18051,7 @@ async function deleteOrganizationTeam(
 
     if (
         !confirm(
-            `Supprimer dÃ©finitivement l'Ã©quipe "${team.name}" ?`
+            `Supprimer définitivement l'équipe "${team.name}" ?`
         )
     ) {
         return;
@@ -18228,7 +18228,7 @@ function renderOrganizationPositions() {
             </div>
 
             <div>
-                RÃ´le associÃ©
+                Rôle associé
             </div>
 
             <div>
@@ -18283,7 +18283,7 @@ function renderOrganizationPositions() {
                                 <div class="organization-list-code">
 
                                     ${escapeHtml(
-                                        position.code || "â€”"
+                                        position.code || "—"
                                     )}
 
                                 </div>
@@ -18294,7 +18294,7 @@ function renderOrganizationPositions() {
                                     ${
                                         role
                                             ? escapeHtml(role.name)
-                                            : "Aucun rÃ´le"
+                                            : "Aucun rôle"
                                     }
 
                                 </div>
@@ -18322,7 +18322,7 @@ function renderOrganizationPositions() {
                                         ${
                                             position.is_active !== false
                                                 ? "Actif"
-                                                : "DÃ©sactivÃ©"
+                                                : "Désactivé"
                                         }
 
                                     </span>
@@ -18338,7 +18338,7 @@ function renderOrganizationPositions() {
                                         onclick="openOrganizationPositionModal('${position.id}')"
                                         title="Modifier"
                                     >
-                                        âœ ï¸
+                                        ✏️
                                     </button>
 
 
@@ -18348,14 +18348,14 @@ function renderOrganizationPositions() {
                                         onclick="toggleOrganizationPositionStatus('${position.id}')"
                                         title="${
                                             position.is_active !== false
-                                                ? "DÃ©sactiver"
-                                                : "RÃ©activer"
+                                                ? "Désactiver"
+                                                : "Réactiver"
                                         }"
                                     >
                                         ${
                                             position.is_active !== false
-                                                ? "â ¸"
-                                                : "â–¶"
+                                                ? "⏸️"
+                                                : "▶"
                                         }
                                     </button>
 
@@ -18366,7 +18366,7 @@ function renderOrganizationPositions() {
                                         onclick="deleteOrganizationPosition('${position.id}')"
                                         title="Supprimer"
                                     >
-                                        ðŸ—‘
+                                        🗑
                                     </button>
 
                                 </div>
@@ -18623,7 +18623,7 @@ async function saveOrganizationPosition() {
     if (!roleId) {
 
         alert(
-            "Choisis un rÃ´le associÃ©."
+            "Choisis un rôle associé."
         );
 
         return;
@@ -18659,7 +18659,7 @@ async function saveOrganizationPosition() {
     if (duplicate) {
 
         alert(
-            "Une fonction avec ce nom ou ce code existe dÃ©jÃ ."
+            "Une fonction avec ce nom ou ce code existe déjà."
         );
 
         return;
@@ -18746,15 +18746,15 @@ async function saveOrganizationPosition() {
 
         alert(
             editingId
-                ? `La fonction "${name}" a Ã©tÃ© modifiÃ©e.`
-                : `La fonction "${name}" a Ã©tÃ© crÃ©Ã©e.`
+                ? `La fonction "${name}" a été modifiée.`
+                : `La fonction "${name}" a été créée.`
         );
 
 
     } catch (error) {
 
         console.error(
-            "â Œ Erreur fonction :",
+            "❌ Erreur fonction :",
             error
         );
 
@@ -18772,7 +18772,7 @@ async function saveOrganizationPosition() {
                 false;
 
             button.textContent =
-                "ðŸ’¾ Enregistrer";
+                "💾 Enregistrer";
         }
     }
 }
@@ -18807,8 +18807,8 @@ async function toggleOrganizationPositionStatus(
         !confirm(
             `${
                 newStatus
-                    ? "RÃ©activer"
-                    : "DÃ©sactiver"
+                    ? "Réactiver"
+                    : "Désactiver"
             } la fonction "${position.name}" ?`
         )
     ) {
@@ -18869,7 +18869,7 @@ async function deleteOrganizationPosition(
         alert(
             `Impossible de supprimer "${position.name}".\n\n` +
             `${users} utilisateur(s) utilisent encore cette fonction.\n\n` +
-            `DÃ©sactive-la ou modifie les profils concernÃ©s.`
+            `Désactive-la ou modifie les profils concernés.`
         );
 
         return;
@@ -18878,7 +18878,7 @@ async function deleteOrganizationPosition(
 
     if (
         !confirm(
-            `Supprimer dÃ©finitivement la fonction "${position.name}" ?`
+            `Supprimer définitivement la fonction "${position.name}" ?`
         )
     ) {
         return;
@@ -18898,7 +18898,7 @@ async function deleteOrganizationPosition(
 
 /* =========================================================
    =========================================================
-   RÃ”LES & ACCÃˆS
+   RÔLES & ACCÈS
    =========================================================
 ========================================================= */
 
@@ -19006,7 +19006,7 @@ function renderOrganizationRoles() {
                                 <span>
                                     Niveau ${
                                         role.hierarchy_level ??
-                                        "â€”"
+                                        "—"
                                     }
                                 </span>
 
@@ -19024,7 +19024,7 @@ function renderOrganizationRoles() {
                                                 onclick="openOrganizationRoleModal('${role.id}')"
                                                 title="Modifier"
                                             >
-                                                âœ ï¸
+                                                ✏️
                                             </button>
 
                                             <button
@@ -19032,7 +19032,7 @@ function renderOrganizationRoles() {
                                                 onclick="deleteOrganizationRole('${role.id}')"
                                                 title="Supprimer"
                                             >
-                                                ðŸ—‘ï¸
+                                                🗑️
                                             </button>
 
                                         </div>
@@ -19109,7 +19109,7 @@ function openOrganizationRoleModal(
     if (role) {
 
         title.textContent =
-            "Modifier le rÃ´le";
+            "Modifier le rôle";
 
         name.value =
             role.name || "";
@@ -19127,7 +19127,7 @@ function openOrganizationRoleModal(
     } else {
 
         title.textContent =
-            "Ajouter un rÃ´le";
+            "Ajouter un rôle";
 
         name.value = "";
         code.value = "";
@@ -19213,7 +19213,7 @@ async function saveOrganizationRole() {
     if (!name) {
 
         alert(
-            "Renseigne le nom du rÃ´le."
+            "Renseigne le nom du rôle."
         );
 
         return;
@@ -19258,7 +19258,7 @@ async function saveOrganizationRole() {
     if (duplicate) {
 
         alert(
-            "Un rÃ´le avec ce nom ou ce code existe dÃ©jÃ ."
+            "Un rôle avec ce nom ou ce code existe déjà."
         );
 
         return;
@@ -19328,21 +19328,21 @@ async function saveOrganizationRole() {
 
         alert(
             editingId
-                ? `Le rÃ´le "${name}" a Ã©tÃ© modifiÃ©.`
-                : `Le rÃ´le "${name}" a Ã©tÃ© crÃ©Ã©.`
+                ? `Le rôle "${name}" a été modifié.`
+                : `Le rôle "${name}" a été créé.`
         );
 
 
     } catch (error) {
 
         console.error(
-            "â Œ Erreur rÃ´le :",
+            "❌ Erreur rôle :",
             error
         );
 
 
         alert(
-            "Impossible d'enregistrer le rÃ´le."
+            "Impossible d'enregistrer le rôle."
         );
 
 
@@ -19354,7 +19354,7 @@ async function saveOrganizationRole() {
                 false;
 
             button.textContent =
-                "ðŸ’¾ CrÃ©er le rÃ´le";
+                "💾 Créer le rôle";
         }
     }
 }
@@ -19391,7 +19391,7 @@ async function deleteOrganizationRole(
     ) {
 
         alert(
-            "Ce rÃ´le systÃ¨me est protÃ©gÃ© et ne peut pas Ãªtre supprimÃ©."
+            "Ce rôle système est protégé et ne peut pas être supprimé."
         );
 
         return;
@@ -19438,8 +19438,8 @@ async function deleteOrganizationRole(
 
         alert(
             `Impossible de supprimer "${role.name}".\n\n` +
-            `Fonctions liÃ©es : ${positions}\n` +
-            `Utilisateurs liÃ©s : ${profiles}`
+            `Fonctions liées : ${positions}\n` +
+            `Utilisateurs liés : ${profiles}`
         );
 
         return;
@@ -19448,7 +19448,7 @@ async function deleteOrganizationRole(
 
     if (
         !confirm(
-            `Supprimer dÃ©finitivement le rÃ´le "${role.name}" ?`
+            `Supprimer définitivement le rôle "${role.name}" ?`
         )
     ) {
         return;
@@ -19558,7 +19558,7 @@ function renderOrganizationRoleConfiguration(
     if (subtitle) {
 
         subtitle.textContent =
-            `Code : ${role.code} â€¢ Niveau hiÃ©rarchique : ${role.hierarchy_level ?? "â€”"}`;
+            `Code : ${role.code} • Niveau hiérarchique : ${role.hierarchy_level ?? "—"}`;
     }
 
 
@@ -19797,7 +19797,7 @@ function renderOrganizationCategoryCheckboxes(
 
         container.innerHTML = `
             <div class="question-management-empty">
-                Aucune catÃ©gorie disponible.
+                Aucune catégorie disponible.
             </div>
         `;
 
@@ -19848,7 +19848,7 @@ async function saveOrganizationRolePermissions() {
     if (!roleId) {
 
         alert(
-            "SÃ©lectionne d'abord un rÃ´le."
+            "Sélectionne d'abord un rôle."
         );
 
         return;
@@ -20049,20 +20049,20 @@ async function saveOrganizationRolePermissions() {
 
 
         alert(
-            "âœ… Les accÃ¨s du rÃ´le ont Ã©tÃ© enregistrÃ©s."
+            "✅ Les accès du rôle ont été enregistrés."
         );
 
 
     } catch (error) {
 
         console.error(
-            "â Œ Sauvegarde accÃ¨s rÃ´le :",
+            "❌ Sauvegarde accès rôle :",
             error
         );
 
 
         alert(
-            "Impossible d'enregistrer les accÃ¨s."
+            "Impossible d'enregistrer les accès."
         );
 
 
@@ -20074,7 +20074,7 @@ async function saveOrganizationRolePermissions() {
                 false;
 
             button.textContent =
-                "ðŸ’¾ Enregistrer les accÃ¨s";
+                "💾 Enregistrer les accès";
         }
     }
 }
@@ -20125,7 +20125,7 @@ async function updateOrganizationSimpleField(
     } catch (error) {
 
         console.error(
-            `â Œ Modification ${table} :`,
+            `❌ Modification ${table} :`,
             error
         );
 
@@ -20173,13 +20173,13 @@ async function deleteOrganizationRecord(
     } catch (error) {
 
         console.error(
-            `â Œ Suppression ${table} :`,
+            `❌ Suppression ${table} :`,
             error
         );
 
 
         alert(
-            "Impossible de supprimer cet Ã©lÃ©ment."
+            "Impossible de supprimer cet élément."
         );
 
 
@@ -20190,7 +20190,7 @@ async function deleteOrganizationRecord(
 
 
 /* =========================================================
-   LIBELLÃ‰S PERMISSIONS
+   LIBELLÉS PERMISSIONS
 ========================================================= */
 
 function getOrganizationPermissionCategoryLabel(
@@ -20200,34 +20200,34 @@ function getOrganizationPermissionCategoryLabel(
     const labels = {
 
         training:
-            "ðŸŽ¯ EntraÃ®nements",
+            "🎯 Entraînements",
 
         questions:
-            "â “ Questions & Quiz",
+            "❌ Questions & Quiz",
 
         formations:
-            "ðŸŽ“ Formations",
+            "🎓 Formations",
 
         users:
-            "ðŸ‘¥ Utilisateurs",
+            "👥 Utilisateurs",
 
         organization:
-            "ðŸ ¢ Organisation",
+            "🏢 Organisation",
 
         stats:
-            "ðŸ“Š Statistiques",
+            "📊 Statistiques",
 
         approvals:
-            "âœ… Approbations",
+            "✅ Approbations",
 
         reports:
-            "ðŸš© Signalements",
+            "🚩 Signalements",
 
         ideas:
-            "ðŸ’¡ BoÃ®te Ã  idÃ©es",
+            "💡 Boîte à idées",
 
         administration:
-            "ðŸ›¡ï¸  Administration"
+            "🛡️ Administration"
     };
 
 
@@ -20239,15 +20239,15 @@ function getOrganizationPermissionCategoryLabel(
 
 
 /* =========================================================
-   NICKEL MASTER - GÃ‰NÃ‰RATEUR DE QUESTIONS PAR IA
+   NICKEL MASTER - GÉNÉRATEUR DE QUESTIONS PAR IA
 
-   Ce bloc prÃ©pare le front-end du gÃ©nÃ©rateur IA.
-   Il n'expose aucune clÃ© OpenAI dans le navigateur.
+   Ce bloc prépare le front-end du générateur IA.
+   Il n'expose aucune clé OpenAI dans le navigateur.
 
-   La gÃ©nÃ©ration passe obligatoirement par :
+   La génération passe obligatoirement par :
        POST /api/generate-questions
 
-   La route serveur sera crÃ©Ã©e sÃ©parÃ©ment cÃ´tÃ© Vercel.
+   La route serveur sera créée séparément côté Vercel.
 ========================================================= */
 
 let aiQuestionGeneratorState = {
@@ -20290,7 +20290,7 @@ async function initializeAIQuestionGeneratorPage() {
     if (role !== "admin") {
 
         alert(
-            "Cette page est rÃ©servÃ©e Ã  l'administrateur."
+            "Cette page est réservée à l'administrateur."
         );
 
         window.location.href =
@@ -20313,7 +20313,7 @@ async function initializeAIQuestionGeneratorPage() {
 
 
 /* =========================================================
-   CATÃ‰GORIES
+   CATÉGORIES
 ========================================================= */
 
 async function loadAIQuestionCategories() {
@@ -20381,7 +20381,7 @@ async function loadAIQuestionCategories() {
 
         select.innerHTML = `
             <option value="">
-                Choisir une catÃ©gorie
+                Choisir une catégorie
             </option>
             ${
                 categories
@@ -20400,7 +20400,7 @@ async function loadAIQuestionCategories() {
     } catch (error) {
 
         console.error(
-            "Erreur chargement catÃ©gories IA :",
+            "Erreur chargement catégories IA :",
             error
         );
 
@@ -20409,7 +20409,7 @@ async function loadAIQuestionCategories() {
 
             select.innerHTML = `
                 <option value="">
-                    CatÃ©gories indisponibles
+                    Catégories indisponibles
                 </option>
             `;
         }
@@ -20418,7 +20418,7 @@ async function loadAIQuestionCategories() {
 
 
 /* =========================================================
-   Ã‰VÃ‰NEMENTS
+   ÉVÉNEMENTS
 ========================================================= */
 
 function setupAIQuestionGeneratorEvents() {
@@ -20542,7 +20542,7 @@ async function handleAIQuestionImageSelection(
     if (!remainingSlots) {
 
         alert(
-            "Tu peux importer au maximum 8 images par gÃ©nÃ©ration."
+            "Tu peux importer au maximum 8 images par génération."
         );
 
         event.target.value = "";
@@ -20591,7 +20591,7 @@ async function handleAIQuestionImageSelection(
         ) {
 
             alert(
-                `L'image "${file.name}" dÃ©passe 8 Mo.`
+                `L'image "${file.name}" dépasse 8 Mo.`
             );
 
             continue;
@@ -20708,7 +20708,7 @@ function renderAIQuestionImagePreview() {
 
         container.innerHTML = `
             <div class="ai-question-image-empty">
-                Aucune image ajoutÃ©e.
+                Aucune image ajoutée.
             </div>
         `;
 
@@ -20746,7 +20746,7 @@ function renderAIQuestionImagePreview() {
                             onclick="removeAIQuestionImage('${image.id}')"
                             title="Retirer cette image"
                         >
-                            âœ•
+                            ✕
                         </button>
 
                     </div>
@@ -20792,7 +20792,7 @@ function formatAIQuestionFileSize(
 
 
 /* =========================================================
-   OPTIONS DE GÃ‰NÃ‰RATION
+   OPTIONS DE GÉNÉRATION
 ========================================================= */
 
 function getSelectedAIQuestionTypes() {
@@ -20950,7 +20950,7 @@ function validateAIQuestionGeneratorOptions(
     if (!options.category) {
 
         alert(
-            "Choisis la catÃ©gorie dans laquelle les questions seront ajoutÃ©es."
+            "Choisis la catégorie dans laquelle les questions seront ajoutées."
         );
 
         return false;
@@ -21055,7 +21055,7 @@ async function generateQuestionsWithAI() {
             button.textContent;
 
         button.textContent =
-            "âœ¨ GÃ©nÃ©ration en cours...";
+            "✨ Génération en cours...";
     }
 
 
@@ -21066,8 +21066,8 @@ async function generateQuestionsWithAI() {
 
         status.textContent =
             options.images.length
-                ? "Analyse du texte et des images, puis crÃ©ation des questions..."
-                : "Analyse du texte et crÃ©ation des questions...";
+                ? "Analyse du texte et des images, puis création des questions..."
+                : "Analyse du texte et création des questions...";
     }
 
 
@@ -21140,7 +21140,7 @@ async function generateQuestionsWithAI() {
         } catch (parseError) {
 
             console.warn(
-                "RÃ©ponse IA non JSON :",
+                "Réponse IA non JSON :",
                 responseText,
                 parseError
             );
@@ -21175,7 +21175,7 @@ async function generateQuestionsWithAI() {
         if (!rawQuestions.length) {
 
             throw new Error(
-                "L'IA n'a retournÃ© aucune question exploitable."
+                "L'IA n'a retourné aucune question exploitable."
             );
         }
 
@@ -21200,7 +21200,7 @@ async function generateQuestionsWithAI() {
         ) {
 
             throw new Error(
-                "Les questions retournÃ©es par l'IA sont invalides."
+                "Les questions retournées par l'IA sont invalides."
             );
         }
 
@@ -21211,7 +21211,7 @@ async function generateQuestionsWithAI() {
         if (status) {
 
             status.textContent =
-                `${aiQuestionGeneratorState.generatedQuestions.length} question(s) gÃ©nÃ©rÃ©e(s). Relis-les avant de les enregistrer.`;
+                `${aiQuestionGeneratorState.generatedQuestions.length} question(s) générée(s). Relis-les avant de les enregistrer.`;
         }
 
 
@@ -21238,7 +21238,7 @@ async function generateQuestionsWithAI() {
     } catch (error) {
 
         console.error(
-            "Erreur gÃ©nÃ©ration IA :",
+            "Erreur génération IA :",
             error
         );
 
@@ -21246,12 +21246,12 @@ async function generateQuestionsWithAI() {
         if (status) {
 
             status.textContent =
-                "La gÃ©nÃ©ration a Ã©chouÃ©.";
+                "La génération a échoué.";
         }
 
 
         alert(
-            "Impossible de gÃ©nÃ©rer les questions.\n\n" +
+            "Impossible de générer les questions.\n\n" +
             error.message
         );
 
@@ -21266,7 +21266,7 @@ async function generateQuestionsWithAI() {
 
             button.textContent =
                 button.dataset.originalText ||
-                "âœ¨ GÃ©nÃ©rer les questions";
+                "✨ Générer les questions";
         }
 
 
@@ -21671,7 +21671,7 @@ function normalizeAIGeneratedQuestion(
 
 
 /* =========================================================
-   RENDU DES QUESTIONS GÃ‰NÃ‰RÃ‰ES
+   RENDU DES QUESTIONS GÉNÉRÉES
 ========================================================= */
 
 function renderAIGeneratedQuestions() {
@@ -21706,7 +21706,7 @@ function renderAIGeneratedQuestions() {
 
         container.innerHTML = `
             <div class="question-management-empty">
-                Aucune question gÃ©nÃ©rÃ©e pour le moment.
+                Aucune question générée pour le moment.
             </div>
         `;
 
@@ -21755,7 +21755,7 @@ function renderAIGeneratedQuestions() {
             selectedCount === 0;
 
         saveButton.textContent =
-            `ðŸ’¾ Enregistrer ${selectedCount} question${selectedCount > 1 ? "s" : ""}`;
+            `💾 Enregistrer ${selectedCount} question${selectedCount > 1 ? "s" : ""}`;
     }
 
 
@@ -21799,7 +21799,7 @@ function renderAIGeneratedQuestionCard(
             ? `
                 <div class="question-field">
                     <label>
-                        RÃ©ponse attendue
+                        Réponse attendue
                     </label>
 
                     <textarea
@@ -21903,7 +21903,7 @@ function renderAIGeneratedQuestionCard(
                     data-ai-remove="true"
                     title="Supprimer cette proposition"
                 >
-                    ðŸ—‘
+                    🗑
                 </button>
 
             </div>
@@ -21948,7 +21948,7 @@ function renderAIGeneratedQuestionCard(
                 <div class="question-field ai-generated-question-category">
 
                     <label>
-                        CatÃ©gorie
+                        Catégorie
                     </label>
 
                     <select data-ai-field="category">
@@ -22316,7 +22316,7 @@ function updateAIGeneratedQuestionsSelectionSummary() {
             selectedCount === 0;
 
         saveButton.textContent =
-            `ðŸ’¾ Enregistrer ${selectedCount} question${selectedCount > 1 ? "s" : ""}`;
+            `💾 Enregistrer ${selectedCount} question${selectedCount > 1 ? "s" : ""}`;
     }
 
 
@@ -22368,7 +22368,7 @@ function validateAIGeneratedQuestion(
 
     if (!item.category) {
 
-        return `${prefix} : catÃ©gorie manquante.`;
+        return `${prefix} : catégorie manquante.`;
     }
 
 
@@ -22387,7 +22387,7 @@ function validateAIGeneratedQuestion(
             !item.expectedAnswer?.trim()
         ) {
 
-            return `${prefix} : rÃ©ponse attendue manquante.`;
+            return `${prefix} : réponse attendue manquante.`;
         }
 
 
@@ -22436,7 +22436,7 @@ function validateAIGeneratedQuestion(
             item.correct.length < 2
         ) {
 
-            return `${prefix} : sÃ©lectionne au moins deux bonnes rÃ©ponses pour un choix multiple.`;
+            return `${prefix} : sélectionne au moins deux bonnes réponses pour un choix multiple.`;
         }
 
 
@@ -22444,7 +22444,7 @@ function validateAIGeneratedQuestion(
         item.correct.length !== 1
     ) {
 
-        return `${prefix} : sÃ©lectionne exactement une bonne rÃ©ponse.`;
+        return `${prefix} : sélectionne exactement une bonne réponse.`;
     }
 
 
@@ -22453,7 +22453,7 @@ function validateAIGeneratedQuestion(
 
 
 /* =========================================================
-   TRANSFORMATION VERS LE SCHÃ‰MA QUESTIONS EXISTANT
+   TRANSFORMATION VERS LE SCHÉMA QUESTIONS EXISTANT
 ========================================================= */
 
 function buildAIGeneratedQuestionPayload(
@@ -22575,7 +22575,7 @@ async function saveSelectedAIGeneratedQuestions() {
     if (!selectedQuestions.length) {
 
         alert(
-            "SÃ©lectionne au moins une question Ã  enregistrer."
+            "Sélectionne au moins une question à enregistrer."
         );
 
         return;
@@ -22738,7 +22738,7 @@ async function saveSelectedAIGeneratedQuestions() {
 
 
         alert(
-            `${payload.length} question(s) ajoutÃ©e(s) Ã  Nickel Master âœ…`
+            `${payload.length} question(s) ajoutée(s) à Nickel Master ✅`
         );
 
 
@@ -22751,7 +22751,7 @@ async function saveSelectedAIGeneratedQuestions() {
 
 
         alert(
-            "Impossible d'enregistrer les questions gÃ©nÃ©rÃ©es.\n\n" +
+            "Impossible d'enregistrer les questions générées.\n\n" +
             error.message
         );
 
@@ -22782,7 +22782,7 @@ document.addEventListener(
                     error => {
 
                         console.error(
-                            "Erreur initialisation gÃ©nÃ©rateur IA :",
+                            "Erreur initialisation générateur IA :",
                             error
                         );
                     }
