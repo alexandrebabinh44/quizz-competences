@@ -8904,3 +8904,43 @@ html[data-theme="light"]
         grid-column: auto !important;
     }
 }
+/* =========================================================
+   CORRECTION SELECT / OPTIONS - ADMIN ORGANISATION
+   ========================================================= */
+
+/* Champs déroulants */
+.organization-panel select,
+.question-edit-modal select {
+  background: #26364a;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color-scheme: dark;
+}
+
+/* Options à l'intérieur des listes */
+.organization-panel select option,
+.question-edit-modal select option {
+  background-color: #26364a;
+  color: #ffffff;
+}
+
+/* Option sélectionnée */
+.organization-panel select option:checked,
+.question-edit-modal select option:checked {
+  background-color: #3b4f68;
+  color: #ffffff;
+}
+
+/* Mode clair */
+html[data-theme="light"] .organization-panel select,
+html[data-theme="light"] .question-edit-modal select {
+  background: #ffffff;
+  color: #1f2937;
+  color-scheme: light;
+}
+
+html[data-theme="light"] .organization-panel select option,
+html[data-theme="light"] .question-edit-modal select option {
+  background-color: #ffffff;
+  color: #1f2937;
+}
