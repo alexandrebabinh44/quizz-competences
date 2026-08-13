@@ -37,11 +37,11 @@ function supabaseHeaders(extra = {}) {
 
 function escapeHtml(value) {
     return String(value ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
+        .replaceAll("&", "&")
+        .replaceAll("<", "<")
+        .replaceAll(">", ">")
+        .replaceAll('"', """)
+        .replaceAll("'", "'");
 }
 
 
@@ -110,41 +110,41 @@ function categoryIcon(category) {
     const name =
         String(category || "").toLowerCase();
 
-    if (name.includes("auth")) return "🔒";
+    if (name.includes("auth")) return "ðŸ”’";
 
     if (
-        name.includes("sécur") ||
+        name.includes("sÃ©cur") ||
         name.includes("secur")
-    ) return "🛡️";
+    ) return "ðŸ›¡ï¸ ";
 
-    if (name.includes("carte")) return "💳";
+    if (name.includes("carte")) return "ðŸ’³";
 
-    if (name.includes("produit")) return "📦";
+    if (name.includes("produit")) return "ðŸ“¦";
 
     if (
-        name.includes("réclam") ||
+        name.includes("rÃ©clam") ||
         name.includes("reclam")
-    ) return "💬";
+    ) return "ðŸ’¬";
 
-    if (name.includes("conform")) return "✅";
+    if (name.includes("conform")) return "âœ…";
 
-    if (name.includes("wero")) return "💸";
+    if (name.includes("wero")) return "ðŸ’¸";
 
-    if (name.includes("pro")) return "💼";
+    if (name.includes("pro")) return "ðŸ’¼";
 
-    return "📚";
+    return "ðŸ“š";
 }
 
 
 function getLevelLabel(level) {
     const value = Number(level || 1);
 
-    if (value >= 50) return "Maître";
+    if (value >= 50) return "MaÃ®tre";
     if (value >= 30) return "Expert";
-    if (value >= 15) return "Confirmé";
-    if (value >= 5) return "Intermédiaire";
+    if (value >= 15) return "ConfirmÃ©";
+    if (value >= 5) return "IntermÃ©diaire";
 
-    return "Débutant";
+    return "DÃ©butant";
 }
 
 
@@ -241,14 +241,14 @@ async function login() {
         console.error(error);
 
         alert(
-            "Erreur de connexion à Supabase."
+            "Erreur de connexion Ã  Supabase."
         );
     }
 }
 
 
 /* =========================================================
-   DÉCONNEXION
+   DÃ‰CONNEXION
 ========================================================= */
 
 function logout() {
@@ -328,7 +328,7 @@ async function changePassword() {
 
     if (newPassword.length < 6) {
         alert(
-            "Le mot de passe doit contenir au moins 6 caractères."
+            "Le mot de passe doit contenir au moins 6 caractÃ¨res."
         );
 
         return;
@@ -359,7 +359,7 @@ async function changePassword() {
 
     if (response.ok) {
         alert(
-            "Mot de passe mis à jour."
+            "Mot de passe mis Ã  jour."
         );
 
         window.location.href =
@@ -610,7 +610,7 @@ async function loadHomeProfile(
         document.getElementById(
             "welcome"
         ).innerText =
-            `Bonjour ${user.full_name || "Utilisateur"} ! 👋`;
+            `Bonjour ${user.full_name || "Utilisateur"} ! ðŸ‘‹`;
     }
 
     if (
@@ -825,7 +825,7 @@ async function loadHomeRecentBadges(
 
     try {
         /*
-         * On récupère d'abord les 3 dernières
+         * On rÃ©cupÃ¨re d'abord les 3 derniÃ¨res
          * attributions de badges.
          */
         const earnedResponse =
@@ -857,7 +857,7 @@ async function loadHomeRecentBadges(
         }
 
         /*
-         * Puis on récupère les informations
+         * Puis on rÃ©cupÃ¨re les informations
          * du catalogue badges.
          */
         const badgeIds =
@@ -908,8 +908,8 @@ async function loadHomeRecentBadges(
         const rarityLabels = {
             common: "Commun",
             rare: "Rare",
-            epic: "Épique",
-            legendary: "Légendaire"
+            epic: "Ã‰pique",
+            legendary: "LÃ©gendaire"
         };
 
         const rarityColors = {
@@ -954,7 +954,7 @@ async function loadHomeRecentBadges(
                                 >
                                     ${escapeHtml(
                                         badge.icon ||
-                                        "🏅"
+                                        "ðŸ …"
                                     )}
                                 </span>
 
@@ -1002,7 +1002,7 @@ async function loadHomeRecentBadges(
 
 
 /* =========================================================
-   CATÉGORIES DASHBOARD
+   CATÃ‰GORIES DASHBOARD
 ========================================================= */
 
 async function loadHomeCategories() {
@@ -1024,7 +1024,7 @@ async function loadHomeCategories() {
 
     if (!response.ok) {
         container.innerHTML =
-            "<div>Impossible de charger les catégories.</div>";
+            "<div>Impossible de charger les catÃ©gories.</div>";
 
         return;
     }
@@ -1069,7 +1069,7 @@ async function loadHomeCategories() {
 
     if (!categories.length) {
         container.innerHTML =
-            "<div>Aucune catégorie disponible.</div>";
+            "<div>Aucune catÃ©gorie disponible.</div>";
 
         return;
     }
@@ -1173,7 +1173,7 @@ async function loadHomeWeeklyRanking() {
 
     if (!topThree.length) {
         container.innerHTML =
-            "<p>Aucun XP gagné cette semaine.</p>";
+            "<p>Aucun XP gagnÃ© cette semaine.</p>";
 
         return;
     }
@@ -1205,7 +1205,7 @@ async function loadHomeWeeklyRanking() {
     );
 
     const medals =
-        ["🥇", "🥈", "🥉"];
+        ["ðŸ¥‡", "ðŸ¥ˆ", "ðŸ¥‰"];
 
     container.innerHTML =
         topThree
@@ -1311,7 +1311,7 @@ async function loadDailyMissions(
         "direction",
         "responsable",
         "manager",
-        "chef d'équipe",
+        "chef d'Ã©quipe",
         "chef_equipe",
         "conseiller senior",
         "senior"
@@ -1335,7 +1335,7 @@ async function loadDailyMissions(
 
 
 /* =========================================================
-   PRÉSENCE
+   PRÃ‰SENCE
 ========================================================= */
 
 async function updatePresence(
@@ -1368,7 +1368,7 @@ async function updatePresence(
 
     if (!response.ok) {
         console.warn(
-            "Présence non mise à jour :",
+            "PrÃ©sence non mise Ã  jour :",
             await response.text()
         );
     }
@@ -1403,7 +1403,7 @@ async function loadHomeOnlineCount() {
 
     if (!response.ok) {
         element.innerText =
-            "Présence indisponible";
+            "PrÃ©sence indisponible";
 
         return;
     }
@@ -1416,8 +1416,8 @@ async function loadHomeOnlineCount() {
 
     element.innerText =
         count === 1
-            ? "1 personne connectée"
-            : `${count} personnes connectées`;
+            ? "1 personne connectÃ©e"
+            : `${count} personnes connectÃ©es`;
 }
 
 
@@ -1461,7 +1461,7 @@ function startPresenceHeartbeat() {
 
 
 /* =========================================================
-   ACTIVITÉ RÉCENTE
+   ACTIVITÃ‰ RÃ‰CENTE
 ========================================================= */
 
 async function loadHomeRecentActivity() {
@@ -1484,7 +1484,7 @@ async function loadHomeRecentActivity() {
 
     if (!response.ok) {
         container.innerHTML =
-            "<p>Aucune activité disponible.</p>";
+            "<p>Aucune activitÃ© disponible.</p>";
 
         return;
     }
@@ -1494,7 +1494,7 @@ async function loadHomeRecentActivity() {
 
     if (!sessions.length) {
         container.innerHTML =
-            "<p>Aucune activité récente.</p>";
+            "<p>Aucune activitÃ© rÃ©cente.</p>";
 
         return;
     }
@@ -1543,7 +1543,7 @@ async function loadHomeRecentActivity() {
 
                     if (!trainingName) {
                         trainingName =
-                            "un entraînement";
+                            "un entraÃ®nement";
                     }
 
                     const time =
@@ -1570,7 +1570,7 @@ async function loadHomeRecentActivity() {
                                 "Utilisateur"
                             )}
 
-                            a terminé
+                            a terminÃ©
 
                             ${escapeHtml(
                                 trainingName
@@ -1588,7 +1588,7 @@ async function loadHomeRecentActivity() {
 
 
 /* =========================================================
-   ENTRAÎNEMENT
+   ENTRAÃŽNEMENT
 ========================================================= */
 
 function afficherChoixThemes() {
@@ -1686,7 +1686,7 @@ function lancerFlashXtrem() {
 
 
 /* =========================================================
-   CHARGEMENT ENTRAÎNEMENT
+   CHARGEMENT ENTRAÃŽNEMENT
 ========================================================= */
 
 async function loadTrainingQuiz() {
@@ -1710,7 +1710,7 @@ async function loadTrainingQuiz() {
         );
 
     let title =
-        "Entraînement";
+        "EntraÃ®nement";
 
 
     if (mode === "cible") {
@@ -1746,7 +1746,7 @@ async function loadTrainingQuiz() {
             );
 
         title =
-            `Entraînement - ${category}`;
+            `EntraÃ®nement - ${category}`;
     }
 
 
@@ -1762,7 +1762,7 @@ async function loadTrainingQuiz() {
 
         if (!categoriesResponse.ok) {
             alert(
-                "Impossible de charger les catégories."
+                "Impossible de charger les catÃ©gories."
             );
 
             return;
@@ -1784,7 +1784,7 @@ async function loadTrainingQuiz() {
 
         if (!categories.length) {
             alert(
-                "Aucune catégorie disponible."
+                "Aucune catÃ©gorie disponible."
             );
 
             return;
@@ -1951,7 +1951,7 @@ async function showTrainingQuestion() {
             <textarea
                 id="trainingAnswer"
                 rows="6"
-                placeholder="Écris ta réponse ici..."
+                placeholder="Ã‰cris ta rÃ©ponse ici..."
             ></textarea>
         `;
     }
@@ -2008,7 +2008,7 @@ async function showTrainingQuestion() {
     }
 }
 /* =========================================================
-   ENVOYER RÉPONSE ENTRAÎNEMENT
+   ENVOYER RÃ‰PONSE ENTRAÃŽNEMENT
 ========================================================= */
 
 async function submitTrainingAnswer() {
@@ -2075,7 +2075,7 @@ async function submitTrainingAnswer() {
 
     if (!answer) {
         alert(
-            "Merci de saisir une réponse."
+            "Merci de saisir une rÃ©ponse."
         );
 
         return;
@@ -2219,7 +2219,7 @@ async function submitTrainingAnswer() {
 
 
 /* =========================================================
-   SESSION D'ENTRAÎNEMENT
+   SESSION D'ENTRAÃŽNEMENT
 ========================================================= */
 
 async function saveTrainingSession() {
@@ -2230,7 +2230,7 @@ async function saveTrainingSession() {
 
     if (!profileId) {
         throw new Error(
-            "Profil connecté introuvable."
+            "Profil connectÃ© introuvable."
         );
     }
 
@@ -2305,7 +2305,7 @@ async function saveTrainingSession() {
 
 
 /* =========================================================
-   FIN ENTRAÎNEMENT
+   FIN ENTRAÃŽNEMENT
 ========================================================= */
 
 async function finishTraining() {
@@ -2332,7 +2332,7 @@ async function finishTraining() {
         console.error(error);
 
         alert(
-            "L'entraînement est terminé, mais son enregistrement n'a pas pu être finalisé : " +
+            "L'entraÃ®nement est terminÃ©, mais son enregistrement n'a pas pu Ãªtre finalisÃ© : " +
             error.message
         );
 
@@ -2371,7 +2371,7 @@ async function finishTraining() {
 
     container.innerHTML = `
         <h2>
-            Entraînement terminé ✅
+            EntraÃ®nement terminÃ© âœ…
         </h2>
 
         <p>
@@ -2389,14 +2389,14 @@ async function finishTraining() {
         </p>
 
         <p>
-            Bonnes réponses :
+            Bonnes rÃ©ponses :
             <strong>
                 ${correct}
             </strong>
         </p>
 
         <p>
-            Mauvaises réponses :
+            Mauvaises rÃ©ponses :
             <strong>
                 ${incorrect}
             </strong>
@@ -2404,7 +2404,7 @@ async function finishTraining() {
 
         <p>
             <strong>
-                +5 XP d'entraînement
+                +5 XP d'entraÃ®nement
             </strong>
         </p>
 
@@ -2417,7 +2417,7 @@ async function finishTraining() {
         <button
             onclick="window.location.href='training.html'"
         >
-            Retour aux entraînements
+            Retour aux entraÃ®nements
         </button>
 
         <button
@@ -2452,7 +2452,7 @@ async function getBadgeByCode(
 
     if (!response.ok) {
         throw new Error(
-            "Impossible de récupérer le badge " +
+            "Impossible de rÃ©cupÃ©rer le badge " +
             code +
             " : " +
             await response.text()
@@ -2484,7 +2484,7 @@ async function hasUserBadge(
 
     if (!response.ok) {
         throw new Error(
-            "Impossible de vérifier les badges obtenus : " +
+            "Impossible de vÃ©rifier les badges obtenus : " +
             await response.text()
         );
     }
@@ -2738,7 +2738,7 @@ function showNextBadgePopup() {
             >
                 ${escapeHtml(
                     badge.icon ||
-                    "🏅"
+                    "ðŸ …"
                 )}
             </div>
 
@@ -2754,7 +2754,7 @@ function showNextBadgePopup() {
                         margin-bottom:4px;
                     "
                 >
-                    ✨ Badge débloqué
+                    âœ¨ Badge dÃ©bloquÃ©
                 </div>
 
                 <div
@@ -2816,7 +2816,7 @@ function showNextBadgePopup() {
 
 
 /* =========================================================
-   VÉRIFICATIONS BADGES
+   VÃ‰RIFICATIONS BADGES
 ========================================================= */
 
 async function checkAndAwardBadge(
@@ -2860,7 +2860,7 @@ async function checkQuestionBadges(
 
     if (!response.ok) {
         console.warn(
-            "Impossible de vérifier les badges questions :",
+            "Impossible de vÃ©rifier les badges questions :",
             await response.text()
         );
 
@@ -2877,35 +2877,35 @@ async function checkQuestionBadges(
         profileId,
         "FIRST_ANSWER",
         count >= 1,
-        `${count} réponse(s)`
+        `${count} rÃ©ponse(s)`
     );
 
     await checkAndAwardBadge(
         profileId,
         "CURIOUS_25",
         count >= 25,
-        `${count} réponse(s)`
+        `${count} rÃ©ponse(s)`
     );
 
     await checkAndAwardBadge(
         profileId,
         "ASSIDU_100",
         count >= 100,
-        `${count} réponse(s)`
+        `${count} rÃ©ponse(s)`
     );
 
     await checkAndAwardBadge(
         profileId,
         "QUIZ_MACHINE_500",
         count >= 500,
-        `${count} réponse(s)`
+        `${count} rÃ©ponse(s)`
     );
 
     await checkAndAwardBadge(
         profileId,
         "ENCYCLOPEDIA_1000",
         count >= 1000,
-        `${count} réponse(s)`
+        `${count} rÃ©ponse(s)`
     );
 }
 
@@ -2924,7 +2924,7 @@ async function checkTrainingBadges(
 
     if (!response.ok) {
         console.warn(
-            "Impossible de vérifier les badges entraînement :",
+            "Impossible de vÃ©rifier les badges entraÃ®nement :",
             await response.text()
         );
 
@@ -2941,28 +2941,28 @@ async function checkTrainingBadges(
         profileId,
         "FIRST_TRAINING",
         totalTrainings >= 1,
-        `${totalTrainings} entraînement(s)`
+        `${totalTrainings} entraÃ®nement(s)`
     );
 
     await checkAndAwardBadge(
         profileId,
         "TRAININGS_10",
         totalTrainings >= 10,
-        `${totalTrainings} entraînement(s)`
+        `${totalTrainings} entraÃ®nement(s)`
     );
 
     await checkAndAwardBadge(
         profileId,
         "TRAININGS_25",
         totalTrainings >= 25,
-        `${totalTrainings} entraînement(s)`
+        `${totalTrainings} entraÃ®nement(s)`
     );
 
     await checkAndAwardBadge(
         profileId,
         "TRAININGS_100",
         totalTrainings >= 100,
-        `${totalTrainings} entraînement(s)`
+        `${totalTrainings} entraÃ®nement(s)`
     );
 
 
@@ -3037,14 +3037,14 @@ async function checkTrainingBadges(
         profileId,
         "PERFECT_STREAK_2",
         bestPerfectStreak >= 2,
-        `${bestPerfectStreak} perfect(s) consécutif(s)`
+        `${bestPerfectStreak} perfect(s) consÃ©cutif(s)`
     );
 
     await checkAndAwardBadge(
         profileId,
         "PERFECT_STREAK_3",
         bestPerfectStreak >= 3,
-        `${bestPerfectStreak} perfect(s) consécutif(s)`
+        `${bestPerfectStreak} perfect(s) consÃ©cutif(s)`
     );
 
 
@@ -3682,7 +3682,7 @@ function renderBadgesPage() {
     if (!filtered.length) {
         grid.innerHTML = `
             <div class="dash-card">
-                Aucun badge dans cette catégorie.
+                Aucun badge dans cette catÃ©gorie.
             </div>
         `;
 
@@ -3712,8 +3712,8 @@ function createBadgeCard(
     const rarityLabels = {
         common: "Commun",
         rare: "Rare",
-        epic: "Épique",
-        legendary: "Légendaire"
+        epic: "Ã‰pique",
+        legendary: "LÃ©gendaire"
     };
 
     const rarityClass =
@@ -3734,7 +3734,7 @@ function createBadgeCard(
             >
 
                 <div class="badge-gallery-icon">
-                    ❓
+                    â “
                 </div>
 
                 <div class="badge-gallery-rarity">
@@ -3747,11 +3747,11 @@ function createBadgeCard(
 
                 <p>
                     Continue d'explorer Nickel Master
-                    pour découvrir ce badge.
+                    pour dÃ©couvrir ce badge.
                 </p>
 
                 <div class="badge-gallery-status">
-                    🔒 Secret
+                    ðŸ”’ Secret
                 </div>
 
             </article>
@@ -3798,7 +3798,7 @@ function createBadgeCard(
                     badge-obtained
                 "
             >
-                ✅ Obtenu
+                âœ… Obtenu
             </div>
         `;
 
@@ -3831,7 +3831,7 @@ function createBadgeCard(
         if (progressSupported) {
             statusHtml = `
                 <div class="badge-progress-text">
-                    🔒
+                    ðŸ”’
                     ${Math.min(
                         progress,
                         target
@@ -3854,7 +3854,7 @@ function createBadgeCard(
         } else {
             statusHtml = `
                 <div class="badge-gallery-status">
-                    🔒 Non obtenu
+                    ðŸ”’ Non obtenu
                 </div>
             `;
         }
@@ -3873,7 +3873,7 @@ function createBadgeCard(
             <div class="badge-gallery-icon">
                 ${escapeHtml(
                     badge.icon ||
-                    "🏅"
+                    "ðŸ …"
                 )}
             </div>
 
@@ -3926,7 +3926,7 @@ async function addXp(
 
     if (!profileId) {
         throw new Error(
-            "Profil connecté introuvable."
+            "Profil connectÃ© introuvable."
         );
     }
 
@@ -3951,7 +3951,7 @@ async function addXp(
 
     if (!profileResponse.ok) {
         throw new Error(
-            "Erreur récupération XP : " +
+            "Erreur rÃ©cupÃ©ration XP : " +
             await profileResponse.text()
         );
     }
@@ -4014,7 +4014,7 @@ async function addXp(
 
     if (!updateResponse.ok) {
         throw new Error(
-            "Erreur mise à jour XP : " +
+            "Erreur mise Ã  jour XP : " +
             await updateResponse.text()
         );
     }
@@ -4120,7 +4120,7 @@ async function loadUsersAdmin() {
 
     if (role !== "admin") {
         alert(
-            "Accès réservé à l'administrateur."
+            "AccÃ¨s rÃ©servÃ© Ã  l'administrateur."
         );
 
         window.location.href =
@@ -4171,12 +4171,12 @@ async function loadUsersAdmin() {
                         ${escapeHtml(
                             user.position ||
                             user.job_title ||
-                            "Poste non renseigné"
+                            "Poste non renseignÃ©"
                         )}
                     </p>
 
                     <p>
-                        <strong>Rôle :</strong>
+                        <strong>RÃ´le :</strong>
 
                         ${escapeHtml(
                             user.role ||
@@ -4205,7 +4205,7 @@ function openUserProfile(
 
 
 /* =========================================================
-   MON ÉQUIPE
+   MON Ã‰QUIPE
 ========================================================= */
 
 async function loadMyTeam() {
@@ -4249,7 +4249,7 @@ async function loadMyTeam() {
 
         if (title) {
             title.innerText =
-                "Aucune équipe associée.";
+                "Aucune Ã©quipe associÃ©e.";
         }
 
         return;
@@ -4284,7 +4284,7 @@ async function loadMyTeam() {
         ).innerText =
             team
                 ? team.name
-                : "Mon équipe";
+                : "Mon Ã©quipe";
     }
 
 
@@ -4433,7 +4433,7 @@ async function loadRanking() {
 
 
 /* =========================================================
-   PRÉSENCE AUTOMATIQUE
+   PRÃ‰SENCE AUTOMATIQUE
 ========================================================= */
 
 document.addEventListener(
@@ -4453,7 +4453,7 @@ document.addEventListener(
          * la page lance ses propres fonctions.
          *
          * Sur les autres pages,
-         * on maintient simplement la présence.
+         * on maintient simplement la prÃ©sence.
          */
 
         if (
@@ -4470,7 +4470,7 @@ document.addEventListener(
     }
 );
 /* =========================================================
-   CRÉATION DE COMPTE
+   CRÃ‰ATION DE COMPTE
 ========================================================= */
 
 let registerData = {
@@ -4572,7 +4572,7 @@ async function checkRegisterIdentity() {
     const lastName = lastNameElement.value.trim();
 
     if (!firstName || !lastName) {
-        alert("Merci de renseigner ton prénom et ton nom.");
+        alert("Merci de renseigner ton prÃ©nom et ton nom.");
         return;
     }
 
@@ -4580,7 +4580,7 @@ async function checkRegisterIdentity() {
     const username = generateUsername(firstName, lastName);
 
     if (!username) {
-        alert("Impossible de générer l'identifiant.");
+        alert("Impossible de gÃ©nÃ©rer l'identifiant.");
         return;
     }
 
@@ -4653,8 +4653,8 @@ async function checkRegisterIdentity() {
         showRegisterStep("registerStep2");
 
     } catch (error) {
-        console.error("Erreur vérification compte :", error);
-        alert("Impossible de vérifier l'existence du compte.\n\n" + error.message);
+        console.error("Erreur vÃ©rification compte :", error);
+        alert("Impossible de vÃ©rifier l'existence du compte.\n\n" + error.message);
     }
 }
 
@@ -4699,7 +4699,7 @@ async function loadRegisterTeams(service) {
         const teams = await response.json();
 
         if (!teams.length) {
-            container.innerHTML = `<p>Aucune équipe disponible pour ce service.</p>`;
+            container.innerHTML = `<p>Aucune Ã©quipe disponible pour ce service.</p>`;
             return;
         }
 
@@ -4710,15 +4710,15 @@ async function loadRegisterTeams(service) {
                     class="register-choice"
                     onclick="selectRegisterTeam('${team.id}', this)"
                 >
-                    👥
+                    ðŸ‘¥
                     <strong>${escapeHtml(team.name)}</strong>
                 </button>
             `)
             .join("");
 
     } catch (error) {
-        console.error("Erreur chargement équipes :", error);
-        container.innerHTML = `<p>Impossible de charger les équipes.</p>`;
+        console.error("Erreur chargement Ã©quipes :", error);
+        container.innerHTML = `<p>Impossible de charger les Ã©quipes.</p>`;
     }
 }
 
@@ -4734,7 +4734,7 @@ function selectRegisterTeam(teamId, button) {
 
 function continueAfterTeam() {
     if (!registerData.teamId) {
-        alert("Merci de choisir ton équipe.");
+        alert("Merci de choisir ton Ã©quipe.");
         return;
     }
 
@@ -4753,12 +4753,12 @@ function selectRegisterRole(role, button) {
 
 async function finishAccountRegistration() {
     if (!registerData.role) {
-        alert("Merci de choisir ton rôle.");
+        alert("Merci de choisir ton rÃ´le.");
         return;
     }
 
     const sensitiveRoles = [
-        "Chef d'équipe",
+        "Chef d'Ã©quipe",
         "Manager",
         "Direction"
     ];
@@ -4835,8 +4835,8 @@ async function createImmediateAccount() {
         showRegisterStep("registerSuccess");
 
     } catch (error) {
-        console.error("Erreur création compte :", error);
-        alert("Impossible de créer le compte :\n\n" + error.message);
+        console.error("Erreur crÃ©ation compte :", error);
+        alert("Impossible de crÃ©er le compte :\n\n" + error.message);
     }
 }
 
@@ -4924,7 +4924,7 @@ function requireAdmin() {
     ).toLowerCase();
 
     if (role !== "admin") {
-        alert("Cette page est réservée à l'administrateur.");
+        alert("Cette page est rÃ©servÃ©e Ã  l'administrateur.");
         window.location.href = "home.html";
         return false;
     }
@@ -4983,7 +4983,7 @@ async function loadAccountApprovals() {
         if (!requests.length) {
             container.innerHTML = `
                 <div class="approval-empty">
-                    ✅ Aucune demande en attente.
+                    âœ… Aucune demande en attente.
                 </div>
             `;
             return;
@@ -5008,7 +5008,7 @@ async function loadAccountApprovals() {
             .map(request => {
                 const teamName =
                     teamNames[String(request.team_id)] ||
-                    "Non renseignée";
+                    "Non renseignÃ©e";
 
                 return `
                     <div class="approval-request-card">
@@ -5022,12 +5022,12 @@ async function loadAccountApprovals() {
                             </p>
 
                             <p>
-                                <strong>Équipe :</strong>
+                                <strong>Ã‰quipe :</strong>
                                 ${escapeHtml(teamName)}
                             </p>
 
                             <p>
-                                <strong>Rôle demandé :</strong>
+                                <strong>RÃ´le demandÃ© :</strong>
                                 ${escapeHtml(request.requested_role)}
                             </p>
                         </div>
@@ -5038,7 +5038,7 @@ async function loadAccountApprovals() {
                                 class="approval-accept"
                                 onclick="approveAccountRequest('${request.id}')"
                             >
-                                ✓ Accepter
+                                âœ“ Accepter
                             </button>
 
                             <button
@@ -5046,7 +5046,7 @@ async function loadAccountApprovals() {
                                 class="approval-reject"
                                 onclick="rejectAccountRequest('${request.id}')"
                             >
-                                ✕ Refuser
+                                âœ• Refuser
                             </button>
                         </div>
 
@@ -5070,7 +5070,7 @@ async function approveAccountRequest(requestId) {
     if (!requireAdmin()) return;
 
     const confirmation = confirm(
-        "Confirmer la création de ce compte ?"
+        "Confirmer la crÃ©ation de ce compte ?"
     );
 
     if (!confirmation) return;
@@ -5088,7 +5088,7 @@ async function approveAccountRequest(requestId) {
         const requests = await requestResponse.json();
 
         if (!requests.length) {
-            alert("Cette demande n'existe plus ou a déjà été traitée.");
+            alert("Cette demande n'existe plus ou a dÃ©jÃ  Ã©tÃ© traitÃ©e.");
             await loadAccountApprovals();
             return;
         }
@@ -5100,7 +5100,7 @@ async function approveAccountRequest(requestId) {
         );
 
         if (!username) {
-            throw new Error("Impossible de générer l'identifiant.");
+            throw new Error("Impossible de gÃ©nÃ©rer l'identifiant.");
         }
 
         const duplicateResponse = await fetch(
@@ -5116,7 +5116,7 @@ async function approveAccountRequest(requestId) {
 
         if (duplicates.length > 0) {
             alert(
-                "Impossible de créer le compte : cet utilisateur possède déjà un compte."
+                "Impossible de crÃ©er le compte : cet utilisateur possÃ¨de dÃ©jÃ  un compte."
             );
             return;
         }
@@ -5124,7 +5124,7 @@ async function approveAccountRequest(requestId) {
         const temporaryPassword = generateTemporaryPassword();
 
         const roleMap = {
-            "Chef d'équipe": "chef_equipe",
+            "Chef d'Ã©quipe": "chef_equipe",
             "Manager": "manager",
             "Direction": "direction"
         };
@@ -5186,8 +5186,8 @@ async function approveAccountRequest(requestId) {
         }
 
         alert(
-            "Compte approuvé ✅\n\n" +
-            "Le collaborateur pourra maintenant revenir dans « Créer mon compte » et renseigner son prénom et son nom pour récupérer ses identifiants."
+            "Compte approuvÃ© âœ…\n\n" +
+            "Le collaborateur pourra maintenant revenir dans Â« CrÃ©er mon compte Â» et renseigner son prÃ©nom et son nom pour rÃ©cupÃ©rer ses identifiants."
         );
 
         await loadAccountApprovals();
@@ -5206,7 +5206,7 @@ async function rejectAccountRequest(requestId) {
     if (!requireAdmin()) return;
 
     const confirmation = confirm(
-        "Confirmer le refus de cette demande de création de compte ?"
+        "Confirmer le refus de cette demande de crÃ©ation de compte ?"
     );
 
     if (!confirmation) return;
@@ -5232,8 +5232,8 @@ async function rejectAccountRequest(requestId) {
         }
 
         alert(
-            "Demande refusée ❌\n\n" +
-            "Lorsque le collaborateur reviendra dans « Créer mon compte » avec son prénom et son nom, Nickel Master lui indiquera que sa demande a été refusée."
+            "Demande refusÃ©e â Œ\n\n" +
+            "Lorsque le collaborateur reviendra dans Â« CrÃ©er mon compte Â» avec son prÃ©nom et son nom, Nickel Master lui indiquera que sa demande a Ã©tÃ© refusÃ©e."
         );
 
         await loadAccountApprovals();
@@ -5410,8 +5410,8 @@ async function loadMyTrainings() {
 
                                     ${
                                         isTrained
-                                            ? "✅"
-                                            : "🔒"
+                                            ? "âœ…"
+                                            : "ðŸ”’"
                                     }
 
                                 </div>
@@ -5429,7 +5429,7 @@ async function loadMyTrainings() {
                                         ${
                                             isTrained
                                                 ? "Formation acquise"
-                                                : "Non formé"
+                                                : "Non formÃ©"
                                         }
                                     </p>
 
@@ -5458,7 +5458,7 @@ async function loadMyTrainings() {
     }
 }
 /* =========================================================
-   MON ÉQUIPE - GESTION DES FORMATIONS
+   MON Ã‰QUIPE - GESTION DES FORMATIONS
 ========================================================= */
 
 let teamTrainingState = {
@@ -5498,7 +5498,7 @@ async function loadTeamSettingsPage() {
     try {
 
         /* =========================
-           1. PROFIL CONNECTÉ
+           1. PROFIL CONNECTÃ‰
         ========================= */
 
         const profileResponse =
@@ -5557,7 +5557,7 @@ async function loadTeamSettingsPage() {
         ) {
 
             alert(
-                "Tu n'as pas accès à cette page."
+                "Tu n'as pas accÃ¨s Ã  cette page."
             );
 
             window.location.href =
@@ -5568,7 +5568,7 @@ async function loadTeamSettingsPage() {
 
 
         /* =========================
-           2. INFOS EN-TÊTE
+           2. INFOS EN-TÃŠTE
         ========================= */
 
         const userName =
@@ -5615,7 +5615,7 @@ async function loadTeamSettingsPage() {
 
 
         /* =========================
-           3. ÉQUIPE
+           3. Ã‰QUIPE
         ========================= */
 
         let teamName =
@@ -5623,8 +5623,8 @@ async function loadTeamSettingsPage() {
 
 
         /*
-         * Pour un chef d'équipe :
-         * obligation d'avoir une équipe.
+         * Pour un chef d'Ã©quipe :
+         * obligation d'avoir une Ã©quipe.
          */
 
         if (
@@ -5633,7 +5633,7 @@ async function loadTeamSettingsPage() {
         ) {
 
             throw new Error(
-                "Aucune équipe n'est associée à ce chef d'équipe."
+                "Aucune Ã©quipe n'est associÃ©e Ã  ce chef d'Ã©quipe."
             );
         }
 
@@ -5653,7 +5653,7 @@ async function loadTeamSettingsPage() {
             teamNameElement.innerText =
                 teamName
                     ? teamName
-                    : "Toutes les équipes";
+                    : "Toutes les Ã©quipes";
         }
 
 
@@ -5672,7 +5672,7 @@ async function loadTeamSettingsPage() {
 
 
         /* =========================
-           6. PREMIÈRE FORMATION
+           6. PREMIÃˆRE FORMATION
         ========================= */
 
         if (
@@ -5703,13 +5703,13 @@ async function loadTeamSettingsPage() {
     } catch (error) {
 
         console.error(
-            "Erreur chargement Mon équipe :",
+            "Erreur chargement Mon Ã©quipe :",
             error
         );
 
 
         alert(
-            "Impossible de charger la gestion de l'équipe.\n\n" +
+            "Impossible de charger la gestion de l'Ã©quipe.\n\n" +
             error.message
         );
     }
@@ -5825,7 +5825,7 @@ async function loadTeamTrainings() {
 
 
 /* =========================================================
-   CHARGER LES MEMBRES DE L'ÉQUIPE
+   CHARGER LES MEMBRES DE L'Ã‰QUIPE
 ========================================================= */
 
 async function loadTeamMembers() {
@@ -5850,8 +5850,8 @@ async function loadTeamMembers() {
 
 
     /*
-     * Chef d'équipe :
-     * uniquement sa propre équipe.
+     * Chef d'Ã©quipe :
+     * uniquement sa propre Ã©quipe.
      */
 
     if (
@@ -5867,8 +5867,8 @@ async function loadTeamMembers() {
 
     /*
      * Manager :
-     * pour l'instant, s'il possède une équipe,
-     * on limite à cette équipe.
+     * pour l'instant, s'il possÃ¨de une Ã©quipe,
+     * on limite Ã  cette Ã©quipe.
      */
 
     if (
@@ -5928,11 +5928,11 @@ async function loadTeamMembers() {
 
                 /*
                  * On retire :
-                 * - le profil connecté lui-même
+                 * - le profil connectÃ© lui-mÃªme
                  * - admin
                  * - direction
                  * - manager
-                 * - autres chefs d'équipe
+                 * - autres chefs d'Ã©quipe
                  */
 
                 return (
@@ -5952,7 +5952,7 @@ async function loadTeamMembers() {
             (a, b) => {
 
                 /*
-                 * Ordre hiérarchique :
+                 * Ordre hiÃ©rarchique :
                  *
                  * 1 = Conseiller Senior
                  * 2 = Conseiller
@@ -5985,7 +5985,7 @@ async function loadTeamMembers() {
 
 
                 /*
-                 * D'abord la hiérarchie.
+                 * D'abord la hiÃ©rarchie.
                  */
 
                 if (rankA !== rankB) {
@@ -5994,7 +5994,7 @@ async function loadTeamMembers() {
 
 
                 /*
-                 * Puis ordre alphabétique
+                 * Puis ordre alphabÃ©tique
                  * dans chaque niveau.
                  */
 
@@ -6016,7 +6016,7 @@ async function loadTeamMembers() {
 
 
 /* =========================================================
-   CHARGER UNE FORMATION SÉLECTIONNÉE
+   CHARGER UNE FORMATION SÃ‰LECTIONNÃ‰E
 ========================================================= */
 
 async function loadSelectedTeamTraining() {
@@ -6070,7 +6070,7 @@ async function loadSelectedTeamTraining() {
         summaryName.innerText =
             training
                 ? training.name
-                : "—";
+                : "â€”";
     }
 
 
@@ -6089,7 +6089,7 @@ async function loadSelectedTeamTraining() {
         description.innerText =
             training
                 ? `Formation : ${training.name}`
-                : "Sélectionne une formation.";
+                : "SÃ©lectionne une formation.";
     }
 
 
@@ -6267,12 +6267,12 @@ function renderTeamTrainingMembers() {
                                     isAssigned
                                         ? `
                                             <span class="team-training-status team-training-status-trained">
-                                                ✓ Formé
+                                                âœ“ FormÃ©
                                             </span>
                                         `
                                         : `
                                             <span class="team-training-status team-training-status-untrained">
-                                                🔒 Non formé
+                                                ðŸ”’ Non formÃ©
                                             </span>
                                         `
                                 }
@@ -6291,7 +6291,7 @@ function renderTeamTrainingMembers() {
 
 
 /* =========================================================
-   COCHER / DÉCOCHER UN MEMBRE
+   COCHER / DÃ‰COCHER UN MEMBRE
 ========================================================= */
 
 function toggleTeamTrainingMember(
@@ -6328,7 +6328,7 @@ function toggleTeamTrainingMember(
 
 
 /* =========================================================
-   TOUT COCHER / DÉCOCHER
+   TOUT COCHER / DÃ‰COCHER
 ========================================================= */
 
 function toggleAllTeamTrainingMembers(
@@ -6369,7 +6369,7 @@ function toggleAllTeamTrainingMembers(
 
 
 /* =========================================================
-   RÉCAPITULATIF
+   RÃ‰CAPITULATIF
 ========================================================= */
 
 function updateTeamTrainingSummary() {
@@ -6431,8 +6431,8 @@ function updateTeamTrainingSummary() {
 
         selectedElement.innerText =
             trained <= 1
-                ? `${trained} sélectionné`
-                : `${trained} sélectionnés`;
+                ? `${trained} sÃ©lectionnÃ©`
+                : `${trained} sÃ©lectionnÃ©s`;
     }
 
 
@@ -6480,7 +6480,7 @@ async function saveTeamTrainingAssignments() {
     if (!trainingId) {
 
         alert(
-            "Merci de sélectionner une formation."
+            "Merci de sÃ©lectionner une formation."
         );
 
         return;
@@ -6516,7 +6516,7 @@ async function saveTeamTrainingAssignments() {
 
 
         /* =========================
-           À AJOUTER
+           Ã€ AJOUTER
         ========================= */
 
         const toAdd =
@@ -6530,7 +6530,7 @@ async function saveTeamTrainingAssignments() {
 
 
         /* =========================
-           À SUPPRIMER
+           Ã€ SUPPRIMER
         ========================= */
 
         const toRemove =
@@ -6626,7 +6626,7 @@ async function saveTeamTrainingAssignments() {
 
 
         /* =========================
-           ACTUALISER ÉTAT
+           ACTUALISER Ã‰TAT
         ========================= */
 
         teamTrainingState.originalAssignedIds =
@@ -6636,7 +6636,7 @@ async function saveTeamTrainingAssignments() {
 
 
         alert(
-            "Les formations ont bien été mises à jour ✅"
+            "Les formations ont bien Ã©tÃ© mises Ã  jour âœ…"
         );
 
 
@@ -6665,12 +6665,12 @@ async function saveTeamTrainingAssignments() {
                 false;
 
             button.innerText =
-                "💾 Enregistrer les modifications";
+                "ðŸ’¾ Enregistrer les modifications";
         }
     }
 }
 /* =========================================================
-   ADMIN - GESTION CRÉATION QUESTIONS
+   ADMIN - GESTION CRÃ‰ATION QUESTIONS
 ========================================================= */
 
 let questionAdminState = {
@@ -6702,7 +6702,7 @@ async function initializeQuestionAdmin() {
 
 
 /* =========================================================
-   ÉVÉNEMENTS
+   Ã‰VÃ‰NEMENTS
 ========================================================= */
 
 function setupQuestionAdminEvents() {
@@ -6989,7 +6989,7 @@ function showQuestionAdminMode(
 
 
 /* =========================================================
-   CHARGER LES CATÉGORIES
+   CHARGER LES CATÃ‰GORIES
 ========================================================= */
 
 async function loadQuestionAdminCategories() {
@@ -7042,7 +7042,7 @@ async function loadQuestionAdminCategories() {
     } catch (error) {
 
         console.error(
-            "Erreur catégories questions :",
+            "Erreur catÃ©gories questions :",
             error
         );
     }
@@ -7100,14 +7100,14 @@ function fillQuestionCategorySelects() {
 
 
 /* =========================================================
-   CRÉER UNE CATÉGORIE
+   CRÃ‰ER UNE CATÃ‰GORIE
 ========================================================= */
 
 async function createQuestionAdminCategory() {
 
     const value =
         prompt(
-            "Nom de la nouvelle catégorie :"
+            "Nom de la nouvelle catÃ©gorie :"
         );
 
 
@@ -7135,7 +7135,7 @@ async function createQuestionAdminCategory() {
     if (exists) {
 
         alert(
-            "Cette catégorie existe déjà."
+            "Cette catÃ©gorie existe dÃ©jÃ ."
         );
 
         return;
@@ -7184,19 +7184,19 @@ async function createQuestionAdminCategory() {
 
     /*
      * Important :
-     * la catégorie sera réellement créée
-     * dans Supabase dès que la première
-     * question de cette catégorie sera enregistrée.
+     * la catÃ©gorie sera rÃ©ellement crÃ©Ã©e
+     * dans Supabase dÃ¨s que la premiÃ¨re
+     * question de cette catÃ©gorie sera enregistrÃ©e.
      */
 
     alert(
-        `Catégorie "${category}" prête ✅`
+        `CatÃ©gorie "${category}" prÃªte âœ…`
     );
 }
 
 
 /* =========================================================
-   CHAMPS RÉPONSES
+   CHAMPS RÃ‰PONSES
 ========================================================= */
 
 function renderQuestionAnswerFields() {
@@ -7350,7 +7350,7 @@ function renderQuestionAnswerFields() {
 
 
 /* =========================================================
-   BONNES RÉPONSES
+   BONNES RÃ‰PONSES
 ========================================================= */
 
 function getQuestionCorrectAnswers() {
@@ -7499,7 +7499,7 @@ async function getNextQuestionOrderNumber(
 
 
 /* =========================================================
-   DONNÉES AUTOMATIQUES
+   DONNÃ‰ES AUTOMATIQUES
 ========================================================= */
 
 async function updateQuestionAutomaticData() {
@@ -7544,7 +7544,7 @@ async function updateQuestionAutomaticData() {
         keywordsElement.innerText =
             answers.length
                 ? answers.join(", ")
-                : "—";
+                : "â€”";
     }
 
 
@@ -7583,7 +7583,7 @@ async function updateQuestionAutomaticData() {
 
 
 /* =========================================================
-   APERÇU
+   APERÃ‡U
 ========================================================= */
 
 function updateQuestionPreview() {
@@ -7624,7 +7624,7 @@ function updateQuestionPreview() {
 
         preview.innerHTML = `
             <div class="question-preview-empty">
-                Commence à rédiger ta question.
+                Commence Ã  rÃ©diger ta question.
             </div>
         `;
 
@@ -7738,7 +7738,7 @@ function validateAdminQuestion() {
     if (!category) {
 
         alert(
-            "Merci de choisir une catégorie."
+            "Merci de choisir une catÃ©gorie."
         );
 
         return false;
@@ -7758,7 +7758,7 @@ function validateAdminQuestion() {
     if (!correct.length) {
 
         alert(
-            "Merci de sélectionner la bonne réponse."
+            "Merci de sÃ©lectionner la bonne rÃ©ponse."
         );
 
         return false;
@@ -7944,7 +7944,7 @@ async function saveAdminQuestion() {
 
 
         alert(
-            `Question ajoutée ✅\n\n${category} #${orderNumber}`
+            `Question ajoutÃ©e âœ…\n\n${category} #${orderNumber}`
         );
 
 
@@ -7975,7 +7975,7 @@ async function saveAdminQuestion() {
                 false;
 
             button.innerText =
-                "➕ Ajouter la question";
+                "âž• Ajouter la question";
         }
     }
 }
@@ -8071,7 +8071,7 @@ function analyseBulkQuestions() {
     if (!questions.length) {
 
         alert(
-            "Aucune question détectée."
+            "Aucune question dÃ©tectÃ©e."
         );
 
         return;
@@ -8134,7 +8134,7 @@ function analyseBulkQuestions() {
 
 
                     /*
-                     * Rien de sélectionné par défaut.
+                     * Rien de sÃ©lectionnÃ© par dÃ©faut.
                      * L'admin devra choisir Vrai ou Faux.
                      */
                     correct = [];
@@ -8159,8 +8159,8 @@ function analyseBulkQuestions() {
 
 
                     /*
-                     * Une seule réponse correcte,
-                     * mais aucune par défaut.
+                     * Une seule rÃ©ponse correcte,
+                     * mais aucune par dÃ©faut.
                      */
                     correct = [];
                 }
@@ -8184,8 +8184,8 @@ function analyseBulkQuestions() {
 
 
                     /*
-                     * Plusieurs réponses possibles,
-                     * aucune cochée par défaut.
+                     * Plusieurs rÃ©ponses possibles,
+                     * aucune cochÃ©e par dÃ©faut.
                      */
                     correct = [];
                 }
@@ -8238,7 +8238,7 @@ function analyseBulkQuestions() {
     if (detectedCount) {
 
         detectedCount.textContent =
-            `${questions.length} question${questions.length > 1 ? "s" : ""} détectée${questions.length > 1 ? "s" : ""}`;
+            `${questions.length} question${questions.length > 1 ? "s" : ""} dÃ©tectÃ©e${questions.length > 1 ? "s" : ""}`;
     }
 
 
@@ -8281,8 +8281,8 @@ function renderCurrentBulkQuestion() {
 
 
     /*
-     * On s'assure que les événements
-     * de configuration par défaut sont installés.
+     * On s'assure que les Ã©vÃ©nements
+     * de configuration par dÃ©faut sont installÃ©s.
      */
     setupBulkDefaultConfigurationListeners();
 
@@ -8313,7 +8313,7 @@ function renderCurrentBulkQuestion() {
 
 
     /* =====================================================
-       SÉCURITÉ STRUCTURE
+       SÃ‰CURITÃ‰ STRUCTURE
     ====================================================== */
 
     if (!item.choices) {
@@ -8357,7 +8357,7 @@ function renderCurrentBulkQuestion() {
 
 
         /*
-         * Une seule bonne réponse
+         * Une seule bonne rÃ©ponse
          * pour un Vrai / Faux.
          */
 
@@ -8380,7 +8380,7 @@ function renderCurrentBulkQuestion() {
     ) {
 
         /*
-         * Une seule bonne réponse
+         * Une seule bonne rÃ©ponse
          * pour un choix simple.
          */
 
@@ -8411,7 +8411,7 @@ function renderCurrentBulkQuestion() {
 
 
     /* =====================================================
-       PROPOSITIONS À AFFICHER
+       PROPOSITIONS Ã€ AFFICHER
     ====================================================== */
 
     const letters =
@@ -8472,7 +8472,7 @@ function renderCurrentBulkQuestion() {
                                 >
 
 
-                                    <!-- BONNE RÉPONSE -->
+                                    <!-- BONNE RÃ‰PONSE -->
 
                                     <input
                                         type="${inputType}"
@@ -8566,7 +8566,7 @@ function renderCurrentBulkQuestion() {
 
 
     /* =====================================================
-       MODIFICATION BONNE(S) RÉPONSE(S)
+       MODIFICATION BONNE(S) RÃ‰PONSE(S)
     ====================================================== */
 
     container
@@ -8613,7 +8613,7 @@ function renderCurrentBulkQuestion() {
 
 
 /* =========================================================
-   CONFIGURATION PAR DÉFAUT DU BLOC
+   CONFIGURATION PAR DÃ‰FAUT DU BLOC
 ========================================================= */
 
 function setupBulkDefaultConfigurationListeners() {
@@ -8637,8 +8637,8 @@ function setupBulkDefaultConfigurationListeners() {
 
 
     /*
-     * On évite d'installer plusieurs fois
-     * les mêmes événements.
+     * On Ã©vite d'installer plusieurs fois
+     * les mÃªmes Ã©vÃ©nements.
      */
 
     if (
@@ -8718,7 +8718,7 @@ function setupBulkDefaultConfigurationListeners() {
 
 
 /* =========================================================
-   APPLIQUER CATÉGORIE + TYPE À TOUT LE BLOC
+   APPLIQUER CATÃ‰GORIE + TYPE Ã€ TOUT LE BLOC
 ========================================================= */
 
 function applyBulkDefaultsToAllQuestions() {
@@ -8750,7 +8750,7 @@ function applyBulkDefaultsToAllQuestions() {
             item => {
 
                 /*
-                 * Catégorie
+                 * CatÃ©gorie
                  */
 
                 item.category =
@@ -8759,7 +8759,7 @@ function applyBulkDefaultsToAllQuestions() {
 
                 /*
                  * Si le type change,
-                 * on recrée proprement
+                 * on recrÃ©e proprement
                  * les propositions.
                  */
 
@@ -8819,8 +8819,8 @@ function applyBulkDefaultsToAllQuestions() {
 
 
     /*
-     * On reconstruit immédiatement
-     * la question affichée.
+     * On reconstruit immÃ©diatement
+     * la question affichÃ©e.
      */
 
     renderCurrentBulkQuestion();
@@ -8831,7 +8831,7 @@ function applyBulkDefaultsToAllQuestions() {
 
 
 /* =========================================================
-   SAUVER ÉTAT QUESTION COURANTE
+   SAUVER Ã‰TAT QUESTION COURANTE
 ========================================================= */
 
 function saveCurrentBulkEditorState() {
@@ -8925,7 +8925,7 @@ function saveCurrentBulkEditorState() {
 
 
     /* =====================================================
-       3. BONNE(S) RÉPONSE(S)
+       3. BONNE(S) RÃ‰PONSE(S)
     ====================================================== */
 
     const checkedAnswers =
@@ -9071,7 +9071,7 @@ function changeBulkQuestion(
 
 
 /* =========================================================
-   RÉCAPITULATIF DU BLOC
+   RÃ‰CAPITULATIF DU BLOC
 ========================================================= */
 
 function updateBulkSummary() {
@@ -9130,7 +9130,7 @@ function updateBulkSummary() {
                        CHOIX SIMPLE / MULTIPLE
 
                        Les 4 propositions
-                       doivent être renseignées.
+                       doivent Ãªtre renseignÃ©es.
                     ========================= */
 
                     if (
@@ -9175,7 +9175,7 @@ function updateBulkSummary() {
     if (element) {
 
         element.innerText =
-            `${ready} question(s) prête(s) sur ${total}.`;
+            `${ready} question(s) prÃªte(s) sur ${total}.`;
     }
 }
 /* =========================================================
@@ -9240,7 +9240,7 @@ async function importBulkQuestions() {
         ) {
 
             alert(
-                "Certaines questions n'ont pas encore de bonne réponse."
+                "Certaines questions n'ont pas encore de bonne rÃ©ponse."
             );
 
             return;
@@ -9267,8 +9267,8 @@ async function importBulkQuestions() {
 
 
         /*
-         * Regroupement par catégorie
-         * pour gérer les order_number.
+         * Regroupement par catÃ©gorie
+         * pour gÃ©rer les order_number.
          */
 
         const nextOrders = {};
@@ -9395,7 +9395,7 @@ async function importBulkQuestions() {
 
 
         alert(
-            `${payload.length} questions importées ✅`
+            `${payload.length} questions importÃ©es âœ…`
         );
 
 
@@ -9623,7 +9623,7 @@ async function loadQuestionManagementData() {
 
 
 /* =========================================================
-   CATÉGORIES
+   CATÃ‰GORIES
 ========================================================= */
 
 function fillQuestionManagementCategories() {
@@ -9668,7 +9668,7 @@ function fillQuestionManagementCategories() {
 
     select.innerHTML = `
         <option value="">
-            Toutes les catégories
+            Toutes les catÃ©gories
         </option>
 
         ${
@@ -9868,7 +9868,7 @@ function renderQuestionManagementList() {
 
         container.innerHTML = `
             <div class="question-management-empty">
-                Aucune question trouvée.
+                Aucune question trouvÃ©e.
             </div>
         `;
 
@@ -9899,7 +9899,7 @@ function renderQuestionManagementList() {
                                     </span>
 
                                     <span>
-                                        #${question.order_number ?? "—"}
+                                        #${question.order_number ?? "â€”"}
                                     </span>
 
                                     <span>
@@ -9923,7 +9923,7 @@ function renderQuestionManagementList() {
                                         ${
                                             active
                                                 ? "Active"
-                                                : "Désactivée"
+                                                : "DÃ©sactivÃ©e"
                                         }
                                     </span>
 
@@ -9955,7 +9955,7 @@ function renderQuestionManagementList() {
                                     class="btn-secondary"
                                     onclick="openQuestionManagementEdit('${question.id}')"
                                 >
-                                    ✏️ Modifier
+                                    âœ ï¸  Modifier
                                 </button>
 
 
@@ -9966,8 +9966,8 @@ function renderQuestionManagementList() {
                                 >
                                     ${
                                         active
-                                            ? "⏸ Désactiver"
-                                            : "▶️ Réactiver"
+                                            ? "â ¸ DÃ©sactiver"
+                                            : "â–¶ï¸  RÃ©activer"
                                     }
                                 </button>
 
@@ -9977,7 +9977,7 @@ function renderQuestionManagementList() {
                                     class="question-delete-button"
                                     onclick="deleteQuestionManagementQuestion('${question.id}')"
                                 >
-                                    🗑 Supprimer
+                                    ðŸ—‘ Supprimer
                                 </button>
 
                             </div>
@@ -10014,12 +10014,12 @@ function getQuestionTypeLabel(
     };
 
 
-    return labels[type] || type || "—";
+    return labels[type] || type || "â€”";
 }
 
 
 /* =========================================================
-   APERÇU RÉPONSES
+   APERÃ‡U RÃ‰PONSES
 ========================================================= */
 
 function renderQuestionManagementChoices(
@@ -10195,7 +10195,7 @@ function renderQuestionManagementEditAnswers() {
             <div class="question-field">
 
                 <label>
-                    Bonne réponse
+                    Bonne rÃ©ponse
                 </label>
 
                 <label class="question-answer-option">
@@ -10371,7 +10371,7 @@ async function saveQuestionManagementEdit() {
     ) {
 
         alert(
-            "Merci de compléter la question et sa bonne réponse."
+            "Merci de complÃ©ter la question et sa bonne rÃ©ponse."
         );
 
         return;
@@ -10519,7 +10519,7 @@ async function saveQuestionManagementEdit() {
 
 
         alert(
-            "Question modifiée ✅"
+            "Question modifiÃ©e âœ…"
         );
 
 
@@ -10540,7 +10540,7 @@ async function saveQuestionManagementEdit() {
 
 
 /* =========================================================
-   ACTIVER / DÉSACTIVER
+   ACTIVER / DÃ‰SACTIVER
 ========================================================= */
 
 async function toggleQuestionManagementActive(
@@ -10633,7 +10633,7 @@ async function deleteQuestionManagementQuestion(
 
     const confirmation =
         confirm(
-            "Supprimer définitivement cette question ?"
+            "Supprimer dÃ©finitivement cette question ?"
         );
 
 
@@ -10672,7 +10672,7 @@ async function deleteQuestionManagementQuestion(
 
 
         alert(
-            "Question supprimée."
+            "Question supprimÃ©e."
         );
 
 
@@ -10691,7 +10691,7 @@ async function deleteQuestionManagementQuestion(
     }
 }
 /* =========================================================
-   ADMIN - GESTION DES CATÉGORIES
+   ADMIN - GESTION DES CATÃ‰GORIES
 ========================================================= */
 
 let categoryManagementState = {
@@ -10812,7 +10812,7 @@ async function loadCategoryManagementData() {
 
         container.innerHTML = `
             <div class="question-management-empty">
-                Chargement des catégories...
+                Chargement des catÃ©gories...
             </div>
         `;
     }
@@ -10901,7 +10901,7 @@ async function loadCategoryManagementData() {
     } catch (error) {
 
         console.error(
-            "Erreur chargement catégories :",
+            "Erreur chargement catÃ©gories :",
             error
         );
 
@@ -10910,7 +10910,7 @@ async function loadCategoryManagementData() {
 
             container.innerHTML = `
                 <div class="question-management-empty">
-                    Impossible de charger les catégories.
+                    Impossible de charger les catÃ©gories.
                 </div>
             `;
         }
@@ -11029,7 +11029,7 @@ function renderCategoryManagementList() {
 
         container.innerHTML = `
             <div class="question-management-empty">
-                Aucune catégorie trouvée.
+                Aucune catÃ©gorie trouvÃ©e.
             </div>
         `;
 
@@ -11047,7 +11047,7 @@ function renderCategoryManagementList() {
                         <div class="category-management-main">
 
                             <div class="category-icon">
-                                🗂️
+                                ðŸ—‚ï¸
                             </div>
 
 
@@ -11076,7 +11076,7 @@ function renderCategoryManagementList() {
                                 class="btn-secondary"
                                 onclick="openCategoryEditModal('${encodeURIComponent(item.name)}')"
                             >
-                                ✏️ Renommer
+                                âœ ï¸  Renommer
                             </button>
 
 
@@ -11085,7 +11085,7 @@ function renderCategoryManagementList() {
                                 class="question-delete-button"
                                 onclick="deleteManagedCategory('${encodeURIComponent(item.name)}')"
                             >
-                                🗑 Supprimer
+                                ðŸ—‘ Supprimer
                             </button>
 
                         </div>
@@ -11099,7 +11099,7 @@ function renderCategoryManagementList() {
 
 
 /* =========================================================
-   CRÉATION
+   CRÃ‰ATION
 ========================================================= */
 
 async function createManagedCategory() {
@@ -11144,7 +11144,7 @@ async function createManagedCategory() {
     if (exists) {
 
         alert(
-            "Cette catégorie existe déjà."
+            "Cette catÃ©gorie existe dÃ©jÃ ."
         );
 
         return;
@@ -11153,12 +11153,12 @@ async function createManagedCategory() {
 
     /*
      * Avec la structure actuelle,
-     * une catégorie est matérialisée
+     * une catÃ©gorie est matÃ©rialisÃ©e
      * lorsqu'une question utilise ce nom.
      */
 
     alert(
-        `Catégorie "${name}" prête ✅\n\nElle apparaîtra dès qu'une première question sera ajoutée dans cette catégorie.`
+        `CatÃ©gorie "${name}" prÃªte âœ…\n\nElle apparaÃ®tra dÃ¨s qu'une premiÃ¨re question sera ajoutÃ©e dans cette catÃ©gorie.`
     );
 
 
@@ -11308,7 +11308,7 @@ async function saveCategoryRename() {
     if (duplicate) {
 
         alert(
-            "Une catégorie porte déjà ce nom."
+            "Une catÃ©gorie porte dÃ©jÃ  ce nom."
         );
 
         return;
@@ -11317,7 +11317,7 @@ async function saveCategoryRename() {
 
     const confirmation =
         confirm(
-            `Renommer "${current.name}" en "${newName}" ?\n\nToutes les questions de cette catégorie seront mises à jour.`
+            `Renommer "${current.name}" en "${newName}" ?\n\nToutes les questions de cette catÃ©gorie seront mises Ã  jour.`
         );
 
 
@@ -11373,20 +11373,20 @@ async function saveCategoryRename() {
 
 
         alert(
-            "Catégorie renommée ✅"
+            "CatÃ©gorie renommÃ©e âœ…"
         );
 
 
     } catch (error) {
 
         console.error(
-            "Erreur renommage catégorie :",
+            "Erreur renommage catÃ©gorie :",
             error
         );
 
 
         alert(
-            "Impossible de renommer la catégorie.\n\n" +
+            "Impossible de renommer la catÃ©gorie.\n\n" +
             error.message
         );
     }
@@ -11426,7 +11426,7 @@ async function deleteManagedCategory(
     ) {
 
         alert(
-            `Impossible de supprimer "${name}".\n\nCette catégorie contient encore ${category.questionCount} question(s).\n\nDéplace ou supprime d'abord les questions concernées.`
+            `Impossible de supprimer "${name}".\n\nCette catÃ©gorie contient encore ${category.questionCount} question(s).\n\nDÃ©place ou supprime d'abord les questions concernÃ©es.`
         );
 
         return;
@@ -11434,35 +11434,17 @@ async function deleteManagedCategory(
 
 
     alert(
-        "Cette catégorie ne contient aucune question."
+        "Cette catÃ©gorie ne contient aucune question."
     );
 }
 /* =========================================================
    NICKEL MASTER
-   FORMATIONS -> CATÉGORIES AUTORISÉES
+   FORMATIONS -> CATÃ‰GORIES AUTORISÃ‰ES
 ========================================================= */
 
 /* =========================================================
-   FORMATIONS -> CATÉGORIES AUTORISÉES
+   FORMATIONS -> CATÃ‰GORIES AUTORISÃ‰ES
 ========================================================= */
-
-
-/* =========================================================
-   NORMALISATION DES NOMS
-========================================================= */
-
-function normalizeTrainingName(value) {
-
-    return String(value || "")
-        .trim()
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(
-            /[\u0300-\u036f]/g,
-            ""
-        );
-}
-
 
 
 /* =========================================================
@@ -11484,8 +11466,26 @@ function normalizeTrainingName(value) {
 
 
 /* =========================================================
-   CATÉGORIES AUTORISÉES POUR LE COLLABORATEUR
-   1 formation acquise = 1 catégorie du même nom
+   NORMALISATION DES NOMS
+========================================================= */
+
+function normalizeTrainingName(value) {
+
+    return String(value || "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(
+            /[\u0300-\u036f]/g,
+            ""
+        );
+}
+
+
+
+/* =========================================================
+   CATÃ‰GORIES AUTORISÃ‰ES POUR LE COLLABORATEUR
+   1 formation acquise = 1 catÃ©gorie du mÃªme nom
 ========================================================= */
 
 async function getTrainingEligibleCategories() {
@@ -11499,7 +11499,7 @@ async function getTrainingEligibleCategories() {
     if (!profileId) {
 
         console.error(
-            "❌ profile_id introuvable dans le localStorage"
+            "â Œ profile_id introuvable dans le localStorage"
         );
 
         return [];
@@ -11509,7 +11509,7 @@ async function getTrainingEligibleCategories() {
     try {
 
         /* =================================================
-           1. RÉCUPÉRATION DES FORMATIONS ATTRIBUÉES
+           1. RÃ‰CUPÃ‰RATION DES FORMATIONS ATTRIBUÃ‰ES
         ================================================= */
 
         const userTrainingsResponse =
@@ -11535,7 +11535,7 @@ async function getTrainingEligibleCategories() {
 
 
         console.log(
-            "🎓 user_trainings :",
+            "ðŸŽ“ user_trainings :",
             userTrainings
         );
 
@@ -11558,7 +11558,7 @@ async function getTrainingEligibleCategories() {
 
 
         console.log(
-            "🎓 IDs formations attribuées :",
+            "ðŸŽ“ IDs formations attribuÃ©es :",
             trainingIds
         );
 
@@ -11566,7 +11566,7 @@ async function getTrainingEligibleCategories() {
         if (!trainingIds.length) {
 
             console.log(
-                "⚠️ Aucune formation attribuée."
+                "âš ï¸  Aucune formation attribuÃ©e."
             );
 
             return [];
@@ -11575,7 +11575,7 @@ async function getTrainingEligibleCategories() {
 
 
         /* =================================================
-           2. RÉCUPÉRATION DES NOMS DES FORMATIONS
+           2. RÃ‰CUPÃ‰RATION DES NOMS DES FORMATIONS
         ================================================= */
 
         const trainingsResponse =
@@ -11643,7 +11643,7 @@ async function getTrainingEligibleCategories() {
 
 
         console.log(
-            "✅ Catégories autorisées selon les formations :",
+            "âœ… CatÃ©gories autorisÃ©es selon les formations :",
             eligibleCategories
         );
 
@@ -11654,7 +11654,7 @@ async function getTrainingEligibleCategories() {
     } catch (error) {
 
         console.error(
-            "❌ Erreur récupération formations autorisées :",
+            "â Œ Erreur rÃ©cupÃ©ration formations autorisÃ©es :",
             error
         );
 
@@ -11665,7 +11665,7 @@ async function getTrainingEligibleCategories() {
 
 
 /* =========================================================
-   QUESTIONS AUTORISÉES POUR LE COLLABORATEUR
+   QUESTIONS AUTORISÃ‰ES POUR LE COLLABORATEUR
 ========================================================= */
 
 async function getTrainingEligibleQuestions() {
@@ -11673,7 +11673,7 @@ async function getTrainingEligibleQuestions() {
     try {
 
         /* =================================================
-           1. FORMATIONS / CATÉGORIES AUTORISÉES
+           1. FORMATIONS / CATÃ‰GORIES AUTORISÃ‰ES
         ================================================= */
 
         const categories =
@@ -11692,7 +11692,7 @@ async function getTrainingEligibleQuestions() {
 
 
         console.log(
-            "📚 Catégories utilisées pour filtrer les questions :",
+            "ðŸ“š CatÃ©gories utilisÃ©es pour filtrer les questions :",
             [
                 ...allowedCategories
             ]
@@ -11702,7 +11702,7 @@ async function getTrainingEligibleQuestions() {
         if (!allowedCategories.size) {
 
             console.log(
-                "⚠️ Aucune catégorie autorisée."
+                "âš ï¸  Aucune catÃ©gorie autorisÃ©e."
             );
 
             return [];
@@ -11711,7 +11711,7 @@ async function getTrainingEligibleQuestions() {
 
 
         /* =================================================
-           2. RÉCUPÉRATION DES QUESTIONS
+           2. RÃ‰CUPÃ‰RATION DES QUESTIONS
         ================================================= */
 
         const response =
@@ -11737,7 +11737,7 @@ async function getTrainingEligibleQuestions() {
 
 
         console.log(
-            "❓ Questions récupérées :",
+            "â “ Questions rÃ©cupÃ©rÃ©es :",
             questions.length
         );
 
@@ -11764,11 +11764,11 @@ async function getTrainingEligibleQuestions() {
 
 
                     /*
-                     * Seuls les types utilisés dans
-                     * les entraînements sont autorisés.
+                     * Seuls les types utilisÃ©s dans
+                     * les entraÃ®nements sont autorisÃ©s.
                      *
-                     * Les questions OPEN restent réservées
-                     * au futur bilan de compétences.
+                     * Les questions OPEN restent rÃ©servÃ©es
+                     * au futur bilan de compÃ©tences.
                      */
 
                     const allowedType =
@@ -11808,7 +11808,7 @@ async function getTrainingEligibleQuestions() {
 
 
         console.log(
-            "✅ Questions autorisées pour ce collaborateur :",
+            "âœ… Questions autorisÃ©es pour ce collaborateur :",
             eligibleQuestions.length
         );
 
@@ -11819,7 +11819,7 @@ async function getTrainingEligibleQuestions() {
     } catch (error) {
 
         console.error(
-            "❌ Erreur récupération questions autorisées :",
+            "â Œ Erreur rÃ©cupÃ©ration questions autorisÃ©es :",
             error
         );
 
@@ -11830,7 +11830,7 @@ async function getTrainingEligibleQuestions() {
 
 
 /* =========================================================
-   MÉLANGE DES QUESTIONS
+   MÃ‰LANGE DES QUESTIONS
 ========================================================= */
 
 function shuffleTrainingQuestions(array) {
@@ -11869,7 +11869,7 @@ function shuffleTrainingQuestions(array) {
 
 
 /* =========================================================
-   INITIALISATION ENTRAÎNEMENT CIBLÉ
+   INITIALISATION ENTRAÃŽNEMENT CIBLÃ‰
 ========================================================= */
 
 async function initializeTargetedTrainingPage() {
@@ -11887,7 +11887,7 @@ async function initializeTargetedTrainingPage() {
 
     container.innerHTML = `
         <div class="training-loading">
-            Chargement de tes catégories...
+            Chargement de tes catÃ©gories...
         </div>
     `;
 
@@ -11906,7 +11906,7 @@ async function initializeTargetedTrainingPage() {
 
             container.innerHTML = `
                 <div class="training-empty-state">
-                    Aucune catégorie disponible pour le moment.
+                    Aucune catÃ©gorie disponible pour le moment.
                 </div>
             `;
 
@@ -11917,7 +11917,7 @@ async function initializeTargetedTrainingPage() {
 
         /* =================================================
            ON GARDE UNIQUEMENT LES FORMATIONS
-           QUI POSSÈDENT AU MOINS UNE QUESTION
+           QUI POSSÃˆDENT AU MOINS UNE QUESTION
         ================================================= */
 
         const categoriesWithQuestions =
@@ -11956,7 +11956,7 @@ async function initializeTargetedTrainingPage() {
 
 
         console.log(
-            "🎯 Catégories affichées en ciblé :",
+            "ðŸŽ¯ CatÃ©gories affichÃ©es en ciblÃ© :",
             categoriesWithQuestions
         );
 
@@ -11966,8 +11966,8 @@ async function initializeTargetedTrainingPage() {
             container.innerHTML = `
                 <div class="training-empty-state">
                     Tes formations sont bien reconnues,
-                    mais aucune question d'entraînement
-                    n'est encore disponible dans ces catégories.
+                    mais aucune question d'entraÃ®nement
+                    n'est encore disponible dans ces catÃ©gories.
                 </div>
             `;
 
@@ -12028,20 +12028,20 @@ async function initializeTargetedTrainingPage() {
     } catch (error) {
 
         console.error(
-            "❌ Erreur affichage entraînement ciblé :",
+            "â Œ Erreur affichage entraÃ®nement ciblÃ© :",
             error
         );
 
 
         container.innerHTML = `
             <div class="training-empty-state">
-                Impossible de charger les catégories.
+                Impossible de charger les catÃ©gories.
             </div>
         `;
     }
 }
 /* =========================================================
-   DÉMARRER CIBLÉ
+   DÃ‰MARRER CIBLÃ‰
 ========================================================= */
 
 async function startTargetedTraining(
@@ -12056,8 +12056,8 @@ async function startTargetedTraining(
 
     /*
      * IMPORTANT :
-     * on revérifie les droits,
-     * même si la catégorie était affichée.
+     * on revÃ©rifie les droits,
+     * mÃªme si la catÃ©gorie Ã©tait affichÃ©e.
      */
 
     const allowedCategories =
@@ -12079,7 +12079,7 @@ async function startTargetedTraining(
     if (!authorized) {
 
         alert(
-            "Cette catégorie n'est pas disponible pour ton profil."
+            "Cette catÃ©gorie n'est pas disponible pour ton profil."
         );
 
         return;
@@ -12117,7 +12117,7 @@ async function startTargetedTraining(
     if (!selected.length) {
 
         alert(
-            "Aucune question disponible dans cette catégorie."
+            "Aucune question disponible dans cette catÃ©gorie."
         );
 
         return;
@@ -12166,7 +12166,7 @@ async function initializeFlashTrainingPage() {
 
             container.innerHTML = `
                 <div class="training-empty-state">
-                    Aucune catégorie disponible.
+                    Aucune catÃ©gorie disponible.
                 </div>
             `;
 
@@ -12192,7 +12192,7 @@ async function initializeFlashTrainingPage() {
                             </strong>
 
                             <b>
-                                ✓
+                                âœ“
                             </b>
 
                         </div>
@@ -12239,7 +12239,7 @@ async function startFlashTraining() {
     if (!categories.length) {
 
         alert(
-            "Aucune catégorie disponible."
+            "Aucune catÃ©gorie disponible."
         );
 
         return;
@@ -12390,7 +12390,7 @@ function saveTrainingLaunch(
 
 
 /* =========================================================
-   ICÔNES CATÉGORIES
+   ICÃ”NES CATÃ‰GORIES
 ========================================================= */
 
 function getTrainingCategoryIcon(
@@ -12412,40 +12412,40 @@ function getTrainingCategoryIcon(
     if (
         value.includes("pro")
     ) {
-        return "👤";
+        return "ðŸ‘¤";
     }
 
 
     if (
         value.includes("auth")
     ) {
-        return "🔐";
+        return "ðŸ” ";
     }
 
 
     if (
         value.includes("carte")
     ) {
-        return "💳";
+        return "ðŸ’³";
     }
 
 
     if (
-        value.includes("sécur") ||
+        value.includes("sÃ©cur") ||
         value.includes("secur")
     ) {
-        return "🛡️";
+        return "ðŸ›¡ï¸ ";
     }
 
 
     if (
         value.includes("acquisition")
     ) {
-        return "👥";
+        return "ðŸ‘¥";
     }
 
 
-    return "📚";
+    return "ðŸ“š";
 }
 /* =========================================================
    SIDEBAR ADMIN GLOBALE
@@ -12496,7 +12496,7 @@ function ensureAdministrationMenu() {
 
     /* =====================================================
        ADMIN :
-       ON RETIRE LES ENTRÉES QUI DOIVENT ÊTRE
+       ON RETIRE LES ENTRÃ‰ES QUI DOIVENT ÃŠTRE
        UNIQUEMENT DANS ADMINISTRATION
     ====================================================== */
 
@@ -12524,10 +12524,10 @@ function ensureAdministrationMenu() {
                     "approbation"
                 ) ||
                 text.includes(
-                    "boîte à idées"
+                    "boÃ®te Ã  idÃ©es"
                 ) ||
                 text.includes(
-                    "boite à idées"
+                    "boite Ã  idÃ©es"
                 ) ||
                 text.includes(
                     "signalement"
@@ -12542,7 +12542,7 @@ function ensureAdministrationMenu() {
 
 
     /* =====================================================
-       SUPPRESSION D'ÉVENTUELS DOUBLONS ADMINISTRATION
+       SUPPRESSION D'Ã‰VENTUELS DOUBLONS ADMINISTRATION
     ====================================================== */
 
     const existingAdminButtons =
@@ -12576,7 +12576,7 @@ function ensureAdministrationMenu() {
 
 
     /* =====================================================
-       CRÉATION DU BOUTON ADMINISTRATION
+       CRÃ‰ATION DU BOUTON ADMINISTRATION
     ====================================================== */
 
     const administrationButton =
@@ -12594,7 +12594,7 @@ function ensureAdministrationMenu() {
 
 
     administrationButton.innerHTML =
-        "🛡️ Administration";
+        "ðŸ›¡ï¸  Administration";
 
 
     administrationButton.onclick =
@@ -12607,7 +12607,7 @@ function ensureAdministrationMenu() {
 
 
     /* =====================================================
-       ÉTAT ACTIF
+       Ã‰TAT ACTIF
     ====================================================== */
 
     const currentPage =
@@ -12677,7 +12677,7 @@ document.addEventListener(
 
 
 /* =========================================================
-   ÉTAT GLOBAL
+   Ã‰TAT GLOBAL
 ========================================================= */
 
 const adminUsersState = {
@@ -12714,7 +12714,7 @@ const adminUsersState = {
 async function initializeAdminUsersPage() {
 
     console.log(
-        "👥 Initialisation gestion utilisateurs"
+        "ðŸ‘¥ Initialisation gestion utilisateurs"
     );
 
 
@@ -12743,14 +12743,14 @@ async function initializeAdminUsersPage() {
 
 
         console.log(
-            "✅ Gestion utilisateurs initialisée"
+            "âœ… Gestion utilisateurs initialisÃ©e"
         );
 
 
     } catch (error) {
 
         console.error(
-            "❌ Erreur initialisation gestion utilisateurs :",
+            "â Œ Erreur initialisation gestion utilisateurs :",
             error
         );
 
@@ -12780,7 +12780,7 @@ async function initializeAdminUsersPage() {
 
 
 /* =========================================================
-   CHARGEMENT DES RÔLES
+   CHARGEMENT DES RÃ”LES
 ========================================================= */
 
 async function loadAdminUsersRoles() {
@@ -12808,7 +12808,7 @@ async function loadAdminUsersRoles() {
 
 
     console.log(
-        "🛡️ Rôles :",
+        "ðŸ›¡ï¸  RÃ´les :",
         adminUsersState.roles
     );
 }
@@ -12816,7 +12816,7 @@ async function loadAdminUsersRoles() {
 
 
 /* =========================================================
-   CHARGEMENT DES ÉQUIPES
+   CHARGEMENT DES Ã‰QUIPES
 ========================================================= */
 
 async function loadAdminUsersTeams() {
@@ -12844,7 +12844,7 @@ async function loadAdminUsersTeams() {
 
 
     console.log(
-        "👥 Équipes :",
+        "ðŸ‘¥ Ã‰quipes :",
         adminUsersState.teams
     );
 }
@@ -12908,7 +12908,7 @@ async function loadAdminUsersProfiles() {
 
 
     console.log(
-        "👤 Profils :",
+        "ðŸ‘¤ Profils :",
         adminUsersState.users
     );
 }
@@ -12916,7 +12916,7 @@ async function loadAdminUsersProfiles() {
 
 
 /* =========================================================
-   ÉVÉNEMENTS
+   Ã‰VÃ‰NEMENTS
 ========================================================= */
 
 function bindAdminUsersEvents() {
@@ -13155,7 +13155,7 @@ function bindAdminUsersEvents() {
 
 
     /* =====================================================
-       CHANGEMENT DE FONCTION / RÔLE
+       CHANGEMENT DE FONCTION / RÃ”LE
     ====================================================== */
 
     document
@@ -13170,7 +13170,7 @@ function bindAdminUsersEvents() {
 
 
     /* =====================================================
-       CHANGEMENT D'ÉQUIPE
+       CHANGEMENT D'Ã‰QUIPE
     ====================================================== */
 
     document
@@ -13214,7 +13214,7 @@ function bindAdminUsersEvents() {
 
     /* =====================================================
        AJOUT UTILISATEUR
-       POUR LE MOMENT ON GARDE LE BOUTON MAIS SANS CRÉATION
+       POUR LE MOMENT ON GARDE LE BOUTON MAIS SANS CRÃ‰ATION
     ====================================================== */
 
     document
@@ -13226,7 +13226,7 @@ function bindAdminUsersEvents() {
             function () {
 
                 alert(
-                    "La création d'utilisateur sera reliée à l'étape suivante."
+                    "La crÃ©ation d'utilisateur sera reliÃ©e Ã  l'Ã©tape suivante."
                 );
             }
         );
@@ -13235,7 +13235,7 @@ function bindAdminUsersEvents() {
 
 
 /* =========================================================
-   OPTIONS RÔLES
+   OPTIONS RÃ”LES
 ========================================================= */
 
 function populateAdminUsersRoleOptions() {
@@ -13257,7 +13257,7 @@ function populateAdminUsersRoleOptions() {
         filter.innerHTML =
             `
                 <option value="">
-                    Tous les rôles
+                    Tous les rÃ´les
                 </option>
             ` +
             adminUsersState.roles
@@ -13290,7 +13290,7 @@ function populateAdminUsersRoleOptions() {
 
 
 /* =========================================================
-   OPTIONS ÉQUIPES
+   OPTIONS Ã‰QUIPES
 ========================================================= */
 
 function populateAdminUsersTeamOptions() {
@@ -13324,7 +13324,7 @@ function populateAdminUsersTeamOptions() {
         filter.innerHTML =
             `
                 <option value="">
-                    Toutes les équipes
+                    Toutes les Ã©quipes
                 </option>
             ` +
             options;
@@ -13336,7 +13336,7 @@ function populateAdminUsersTeamOptions() {
         edit.innerHTML =
             `
                 <option value="">
-                    Aucune équipe
+                    Aucune Ã©quipe
                 </option>
             ` +
             options;
@@ -13709,7 +13709,7 @@ function renderAdminUsersTable() {
                     colspan="7"
                     class="admin-users-loading"
                 >
-                    Aucun utilisateur trouvé.
+                    Aucun utilisateur trouvÃ©.
                 </td>
             </tr>
         `;
@@ -13769,7 +13769,7 @@ function renderAdminUsersTable() {
                                     escapeHtml(
                                         team?.name ||
                                         user.team ||
-                                        "—"
+                                        "â€”"
                                     )
                                 }
                             </td>
@@ -13780,7 +13780,7 @@ function renderAdminUsersTable() {
                                     escapeHtml(
                                         user.service ||
                                         team?.service ||
-                                        "—"
+                                        "â€”"
                                     )
                                 }
                             </td>
@@ -13814,7 +13814,7 @@ function renderAdminUsersTable() {
                                         onclick="openAdminUserEditModal('${escapeHtml(user.id)}')"
                                         title="Modifier"
                                     >
-                                        ✏️
+                                        âœ ï¸
                                     </button>
 
                                 </div>
@@ -13834,7 +13834,7 @@ function renderAdminUsersTable() {
 
 
 /* =========================================================
-   IDENTITÉ
+   IDENTITÃ‰
 ========================================================= */
 
 function renderAdminUserIdentity(
@@ -13939,7 +13939,7 @@ function renderAdminUsersPagination() {
     if (info) {
 
         info.innerText =
-            `Affichage ${start} à ${end} sur ${total} utilisateur(s)`;
+            `Affichage ${start} Ã  ${end} sur ${total} utilisateur(s)`;
     }
 
 
@@ -14055,7 +14055,7 @@ function buildAdminUsersPageButtons(
                                 padding:0 5px;
                             "
                         >
-                            …
+                            â€¦
                         </span>
                     `;
                 }
@@ -14144,7 +14144,7 @@ function openAdminUserEditModal(
 
 
     /* =====================================================
-       IDENTITÉ
+       IDENTITÃ‰
     ====================================================== */
 
     setAdminUsersText(
@@ -14159,13 +14159,13 @@ function openAdminUserEditModal(
         "adminUserEditUsername",
         user.username
             ? `@${user.username}`
-            : "—"
+            : "â€”"
     );
 
 
     setAdminUsersText(
         "adminUserEditId",
-        user.id || "—"
+        user.id || "â€”"
     );
 
 
@@ -14335,7 +14335,7 @@ function closeAdminUserEditModal() {
 
 
 /* =========================================================
-   APERÇU RÔLE
+   APERÃ‡U RÃ”LE
 ========================================================= */
 
 function syncAdminUserRolePreview() {
@@ -14367,7 +14367,7 @@ function syncAdminUserRolePreview() {
 
 
 /* =========================================================
-   ÉQUIPE → SERVICE + MANAGER
+   Ã‰QUIPE â†’ SERVICE + MANAGER
 ========================================================= */
 
 function handleAdminUserTeamChange() {
@@ -14461,7 +14461,7 @@ async function saveAdminUserChanges() {
     if (!role) {
 
         alert(
-            "Le rôle sélectionné est invalide."
+            "Le rÃ´le sÃ©lectionnÃ© est invalide."
         );
 
         return;
@@ -14604,7 +14604,7 @@ async function saveAdminUserChanges() {
 
 
     console.log(
-        "💾 Modification utilisateur :",
+        "ðŸ’¾ Modification utilisateur :",
         payload
     );
 
@@ -14687,7 +14687,7 @@ async function saveAdminUserChanges() {
 
         /*
          * Si on modifie son propre profil,
-         * on met également le localStorage à jour.
+         * on met Ã©galement le localStorage Ã  jour.
          */
 
         const loggedProfileId =
@@ -14729,14 +14729,14 @@ async function saveAdminUserChanges() {
 
 
         alert(
-            "✅ Les modifications ont été enregistrées."
+            "âœ… Les modifications ont Ã©tÃ© enregistrÃ©es."
         );
 
 
     } catch (error) {
 
         console.error(
-            "❌ Erreur modification utilisateur :",
+            "â Œ Erreur modification utilisateur :",
             error
         );
 
@@ -14756,7 +14756,7 @@ async function saveAdminUserChanges() {
 
             button.innerHTML =
                 oldText ||
-                "💾 Enregistrer les modifications";
+                "ðŸ’¾ Enregistrer les modifications";
         }
     }
 }
@@ -14764,7 +14764,7 @@ async function saveAdminUserChanges() {
 
 
 /* =========================================================
-   DÉSACTIVER / RÉACTIVER
+   DÃ‰SACTIVER / RÃ‰ACTIVER
 ========================================================= */
 
 async function toggleAdminUserAccountStatus() {
@@ -14797,8 +14797,8 @@ async function toggleAdminUserAccountStatus() {
 
     const confirmation =
         activating
-            ? "Réactiver ce compte ?"
-            : "Désactiver ce compte ? Le profil et son historique seront conservés.";
+            ? "RÃ©activer ce compte ?"
+            : "DÃ©sactiver ce compte ? Le profil et son historique seront conservÃ©s.";
 
 
     if (
@@ -14824,7 +14824,7 @@ async function toggleAdminUserAccountStatus() {
 
 
     /*
-     * Si on désactive sans date de départ,
+     * Si on dÃ©sactive sans date de dÃ©part,
      * on peut automatiquement utiliser aujourd'hui.
      */
 
@@ -14904,15 +14904,15 @@ async function toggleAdminUserAccountStatus() {
         alert(
             newStatus ===
             "active"
-                ? "✅ Le compte a été réactivé."
-                : "✅ Le compte a été désactivé."
+                ? "âœ… Le compte a Ã©tÃ© rÃ©activÃ©."
+                : "âœ… Le compte a Ã©tÃ© dÃ©sactivÃ©."
         );
 
 
     } catch (error) {
 
         console.error(
-            "❌ Erreur changement statut :",
+            "â Œ Erreur changement statut :",
             error
         );
 
@@ -14926,7 +14926,7 @@ async function toggleAdminUserAccountStatus() {
 
 
 /* =========================================================
-   BOUTON DÉSACTIVATION
+   BOUTON DÃ‰SACTIVATION
 ========================================================= */
 
 function updateAdminDeactivateButton(
@@ -14956,7 +14956,7 @@ function updateAdminDeactivateButton(
     ) {
 
         button.innerText =
-            "Désactiver le compte";
+            "DÃ©sactiver le compte";
 
         button.classList.add(
             "admin-user-danger-button"
@@ -14965,7 +14965,7 @@ function updateAdminDeactivateButton(
     } else {
 
         button.innerText =
-            "Réactiver le compte";
+            "RÃ©activer le compte";
     }
 }
 
@@ -15244,7 +15244,7 @@ function formatAdminDate(
 ) {
 
     if (!value) {
-        return "—";
+        return "â€”";
     }
 
 
@@ -15315,7 +15315,7 @@ function formatAdminUserLastSeen(
         )
     ) {
 
-        return "—";
+        return "â€”";
     }
 
 
@@ -15340,7 +15340,7 @@ function formatAdminUserLastSeen(
         1
     ) {
 
-        return "À l'instant";
+        return "Ã€ l'instant";
     }
 
 
@@ -15524,7 +15524,7 @@ function setAdminUsersSelectValueAllowMissing(
 
 
 /* =========================================================
-   AFFICHAGE DE LA PAGE UNE FOIS PRÊTE
+   AFFICHAGE DE LA PAGE UNE FOIS PRÃŠTE
 ========================================================= */
 
 function revealNickelMasterPage() {
@@ -15571,7 +15571,7 @@ if (
 }
 
 /* =========================================================
-   ÉTAT ADMIN ORGANISATION
+   Ã‰TAT ADMIN ORGANISATION
 ========================================================= */
 
 const organizationAdminState = {
@@ -15599,7 +15599,7 @@ const organizationAdminState = {
 
 
 /* =========================================================
-   RÔLES SYSTÈME PROTÉGÉS
+   RÃ”LES SYSTÃˆME PROTÃ‰GÃ‰S
 ========================================================= */
 
 const ORGANIZATION_SYSTEM_ROLES =
@@ -15640,7 +15640,7 @@ async function initializeOrganizationAdminPage() {
     } catch (error) {
 
         console.error(
-            "❌ Erreur initialisation organisation :",
+            "â Œ Erreur initialisation organisation :",
             error
         );
     }
@@ -15649,7 +15649,7 @@ async function initializeOrganizationAdminPage() {
 
 
 /* =========================================================
-   CHARGEMENT DES DONNÉES
+   CHARGEMENT DES DONNÃ‰ES
 ========================================================= */
 
 async function loadOrganizationAdminData() {
@@ -15794,7 +15794,7 @@ async function loadOrganizationAdminData() {
 
 
     console.log(
-        "🏢 Organisation chargée :",
+        "ðŸ ¢ Organisation chargÃ©e :",
         organizationAdminState
     );
 }
@@ -15802,7 +15802,7 @@ async function loadOrganizationAdminData() {
 
 
 /* =========================================================
-   RAFRAÎCHISSEMENT COMPLET
+   RAFRAÃŽCHISSEMENT COMPLET
 ========================================================= */
 
 async function refreshOrganizationAdminInterface() {
@@ -15964,7 +15964,7 @@ function showOrganizationTab(tab) {
 
 
 /* =========================================================
-   GÉNÉRATION DES CODES
+   GÃ‰NÃ‰RATION DES CODES
 ========================================================= */
 
 function generateOrganizationCode(value) {
@@ -16404,7 +16404,7 @@ function populateOrganizationRoleSelect() {
     select.innerHTML = `
 
         <option value="">
-            Aucun rôle
+            Aucun rÃ´le
         </option>
 
         ${
@@ -16664,7 +16664,7 @@ function renderOrganizationServices() {
                             <div class="organization-list-code">
 
                                 ${escapeHtml(
-                                    service.code || "—"
+                                    service.code || "â€”"
                                 )}
 
                             </div>
@@ -16673,7 +16673,7 @@ function renderOrganizationServices() {
                             <div class="organization-description-cell">
 
                                 ${escapeHtml(
-                                    service.description || "—"
+                                    service.description || "â€”"
                                 )}
 
                             </div>
@@ -16690,7 +16690,7 @@ function renderOrganizationServices() {
                                     ${
                                         service.is_active !== false
                                             ? "Actif"
-                                            : "Désactivé"
+                                            : "DÃ©sactivÃ©"
                                     }
 
                                 </span>
@@ -16706,7 +16706,7 @@ function renderOrganizationServices() {
                                     onclick="openOrganizationServiceModal('${service.id}')"
                                     title="Modifier"
                                 >
-                                    ✏️
+                                    âœ ï¸
                                 </button>
 
 
@@ -16716,14 +16716,14 @@ function renderOrganizationServices() {
                                     onclick="toggleOrganizationServiceStatus('${service.id}')"
                                     title="${
                                         service.is_active !== false
-                                            ? "Désactiver"
-                                            : "Réactiver"
+                                            ? "DÃ©sactiver"
+                                            : "RÃ©activer"
                                     }"
                                 >
                                     ${
                                         service.is_active !== false
-                                            ? "⏸"
-                                            : "▶"
+                                            ? "â ¸"
+                                            : "â–¶"
                                     }
                                 </button>
 
@@ -16734,7 +16734,7 @@ function renderOrganizationServices() {
                                     onclick="deleteOrganizationService('${service.id}')"
                                     title="Supprimer"
                                 >
-                                    🗑
+                                    ðŸ—‘
                                 </button>
 
                             </div>
@@ -17008,7 +17008,7 @@ async function saveOrganizationService() {
     if (duplicate) {
 
         alert(
-            "Un service avec ce nom ou ce code existe déjà."
+            "Un service avec ce nom ou ce code existe dÃ©jÃ ."
         );
 
         return;
@@ -17092,15 +17092,15 @@ async function saveOrganizationService() {
 
         alert(
             editingId
-                ? `Le service "${name}" a bien été modifié.`
-                : `Le service "${name}" a bien été créé.`
+                ? `Le service "${name}" a bien Ã©tÃ© modifiÃ©.`
+                : `Le service "${name}" a bien Ã©tÃ© crÃ©Ã©.`
         );
 
 
     } catch (error) {
 
         console.error(
-            "❌ Erreur service :",
+            "â Œ Erreur service :",
             error
         );
 
@@ -17118,7 +17118,7 @@ async function saveOrganizationService() {
                 false;
 
             button.textContent =
-                "💾 Enregistrer";
+                "ðŸ’¾ Enregistrer";
         }
     }
 }
@@ -17153,8 +17153,8 @@ async function toggleOrganizationServiceStatus(
         !confirm(
             `${
                 newStatus
-                    ? "Réactiver"
-                    : "Désactiver"
+                    ? "RÃ©activer"
+                    : "DÃ©sactiver"
             } le service "${service.name}" ?`
         )
     ) {
@@ -17246,10 +17246,10 @@ async function deleteOrganizationService(
 
         alert(
             `Impossible de supprimer "${service.name}".\n\n` +
-            `Équipes liées : ${teamsCount}\n` +
-            `Fonctions liées : ${positionsCount}\n` +
-            `Utilisateurs liés : ${profilesCount}\n\n` +
-            `Tu peux le désactiver à la place.`
+            `Ã‰quipes liÃ©es : ${teamsCount}\n` +
+            `Fonctions liÃ©es : ${positionsCount}\n` +
+            `Utilisateurs liÃ©s : ${profilesCount}\n\n` +
+            `Tu peux le dÃ©sactiver Ã  la place.`
         );
 
         return;
@@ -17258,7 +17258,7 @@ async function deleteOrganizationService(
 
     if (
         !confirm(
-            `Supprimer définitivement le service "${service.name}" ?`
+            `Supprimer dÃ©finitivement le service "${service.name}" ?`
         )
     ) {
         return;
@@ -17278,7 +17278,7 @@ async function deleteOrganizationService(
 
 /* =========================================================
    =========================================================
-   ÉQUIPES
+   Ã‰QUIPES
    =========================================================
 ========================================================= */
 
@@ -17410,7 +17410,7 @@ function renderOrganizationTeams() {
 
         container.innerHTML = `
             <div class="question-management-empty">
-                Aucune équipe.
+                Aucune Ã©quipe.
             </div>
         `;
 
@@ -17423,7 +17423,7 @@ function renderOrganizationTeams() {
         <div class="organization-table-header organization-teams-header">
 
             <div>
-                Nom de l'équipe
+                Nom de l'Ã©quipe
             </div>
 
             <div>
@@ -17484,7 +17484,7 @@ function renderOrganizationTeams() {
                                     ${
                                         service
                                             ? escapeHtml(service.name)
-                                            : "—"
+                                            : "â€”"
                                     }
 
                                 </div>
@@ -17514,7 +17514,7 @@ function renderOrganizationTeams() {
                                                     )}
                                                 </span>
                                             `
-                                            : "—"
+                                            : "â€”"
                                     }
 
                                 </div>
@@ -17531,7 +17531,7 @@ function renderOrganizationTeams() {
                                         ${
                                             team.is_active !== false
                                                 ? "Actif"
-                                                : "Désactivé"
+                                                : "DÃ©sactivÃ©"
                                         }
 
                                     </span>
@@ -17547,7 +17547,7 @@ function renderOrganizationTeams() {
                                         onclick="openOrganizationTeamModal('${team.id}')"
                                         title="Modifier"
                                     >
-                                        ✏️
+                                        âœ ï¸
                                     </button>
 
 
@@ -17557,14 +17557,14 @@ function renderOrganizationTeams() {
                                         onclick="toggleOrganizationTeamStatus('${team.id}')"
                                         title="${
                                             team.is_active !== false
-                                                ? "Désactiver"
-                                                : "Réactiver"
+                                                ? "DÃ©sactiver"
+                                                : "RÃ©activer"
                                         }"
                                     >
                                         ${
                                             team.is_active !== false
-                                                ? "⏸"
-                                                : "▶"
+                                                ? "â ¸"
+                                                : "â–¶"
                                         }
                                     </button>
 
@@ -17575,7 +17575,7 @@ function renderOrganizationTeams() {
                                         onclick="deleteOrganizationTeam('${team.id}')"
                                         title="Supprimer"
                                     >
-                                        🗑
+                                        ðŸ—‘
                                     </button>
 
                                 </div>
@@ -17595,7 +17595,7 @@ function renderOrganizationTeams() {
                 ${teams.length}
             </strong>
 
-            équipe${
+            Ã©quipe${
                 teams.length > 1
                     ? "s"
                     : ""
@@ -17667,7 +17667,7 @@ function openOrganizationTeamModal(
         if (title) {
 
             title.textContent =
-                "Modifier l'équipe";
+                "Modifier l'Ã©quipe";
         }
 
 
@@ -17698,7 +17698,7 @@ function openOrganizationTeamModal(
         if (title) {
 
             title.textContent =
-                "Ajouter une équipe";
+                "Ajouter une Ã©quipe";
         }
 
 
@@ -17792,7 +17792,7 @@ async function saveOrganizationTeam() {
     if (!name) {
 
         alert(
-            "Renseigne le nom de l'équipe."
+            "Renseigne le nom de l'Ã©quipe."
         );
 
         return;
@@ -17819,7 +17819,7 @@ async function saveOrganizationTeam() {
     if (duplicate) {
 
         alert(
-            "Une équipe avec ce nom existe déjà."
+            "Une Ã©quipe avec ce nom existe dÃ©jÃ ."
         );
 
         return;
@@ -17917,21 +17917,21 @@ async function saveOrganizationTeam() {
 
         alert(
             editingId
-                ? `L'équipe "${name}" a été modifiée.`
-                : `L'équipe "${name}" a été créée.`
+                ? `L'Ã©quipe "${name}" a Ã©tÃ© modifiÃ©e.`
+                : `L'Ã©quipe "${name}" a Ã©tÃ© crÃ©Ã©e.`
         );
 
 
     } catch (error) {
 
         console.error(
-            "❌ Erreur équipe :",
+            "â Œ Erreur Ã©quipe :",
             error
         );
 
 
         alert(
-            "Impossible d'enregistrer l'équipe."
+            "Impossible d'enregistrer l'Ã©quipe."
         );
 
 
@@ -17943,7 +17943,7 @@ async function saveOrganizationTeam() {
                 false;
 
             button.textContent =
-                "💾 Enregistrer";
+                "ðŸ’¾ Enregistrer";
         }
     }
 }
@@ -17978,9 +17978,9 @@ async function toggleOrganizationTeamStatus(
         !confirm(
             `${
                 newStatus
-                    ? "Réactiver"
-                    : "Désactiver"
-            } l'équipe "${team.name}" ?`
+                    ? "RÃ©activer"
+                    : "DÃ©sactiver"
+            } l'Ã©quipe "${team.name}" ?`
         )
     ) {
         return;
@@ -18039,8 +18039,8 @@ async function deleteOrganizationTeam(
 
         alert(
             `Impossible de supprimer "${team.name}".\n\n` +
-            `${users} utilisateur(s) sont encore rattachés à cette équipe.\n\n` +
-            `Déplace-les d'abord ou désactive l'équipe.`
+            `${users} utilisateur(s) sont encore rattachÃ©s Ã  cette Ã©quipe.\n\n` +
+            `DÃ©place-les d'abord ou dÃ©sactive l'Ã©quipe.`
         );
 
         return;
@@ -18049,7 +18049,7 @@ async function deleteOrganizationTeam(
 
     if (
         !confirm(
-            `Supprimer définitivement l'équipe "${team.name}" ?`
+            `Supprimer dÃ©finitivement l'Ã©quipe "${team.name}" ?`
         )
     ) {
         return;
@@ -18226,7 +18226,7 @@ function renderOrganizationPositions() {
             </div>
 
             <div>
-                Rôle associé
+                RÃ´le associÃ©
             </div>
 
             <div>
@@ -18281,7 +18281,7 @@ function renderOrganizationPositions() {
                                 <div class="organization-list-code">
 
                                     ${escapeHtml(
-                                        position.code || "—"
+                                        position.code || "â€”"
                                     )}
 
                                 </div>
@@ -18292,7 +18292,7 @@ function renderOrganizationPositions() {
                                     ${
                                         role
                                             ? escapeHtml(role.name)
-                                            : "Aucun rôle"
+                                            : "Aucun rÃ´le"
                                     }
 
                                 </div>
@@ -18320,7 +18320,7 @@ function renderOrganizationPositions() {
                                         ${
                                             position.is_active !== false
                                                 ? "Actif"
-                                                : "Désactivé"
+                                                : "DÃ©sactivÃ©"
                                         }
 
                                     </span>
@@ -18336,7 +18336,7 @@ function renderOrganizationPositions() {
                                         onclick="openOrganizationPositionModal('${position.id}')"
                                         title="Modifier"
                                     >
-                                        ✏️
+                                        âœ ï¸
                                     </button>
 
 
@@ -18346,14 +18346,14 @@ function renderOrganizationPositions() {
                                         onclick="toggleOrganizationPositionStatus('${position.id}')"
                                         title="${
                                             position.is_active !== false
-                                                ? "Désactiver"
-                                                : "Réactiver"
+                                                ? "DÃ©sactiver"
+                                                : "RÃ©activer"
                                         }"
                                     >
                                         ${
                                             position.is_active !== false
-                                                ? "⏸"
-                                                : "▶"
+                                                ? "â ¸"
+                                                : "â–¶"
                                         }
                                     </button>
 
@@ -18364,7 +18364,7 @@ function renderOrganizationPositions() {
                                         onclick="deleteOrganizationPosition('${position.id}')"
                                         title="Supprimer"
                                     >
-                                        🗑
+                                        ðŸ—‘
                                     </button>
 
                                 </div>
@@ -18621,7 +18621,7 @@ async function saveOrganizationPosition() {
     if (!roleId) {
 
         alert(
-            "Choisis un rôle associé."
+            "Choisis un rÃ´le associÃ©."
         );
 
         return;
@@ -18657,7 +18657,7 @@ async function saveOrganizationPosition() {
     if (duplicate) {
 
         alert(
-            "Une fonction avec ce nom ou ce code existe déjà."
+            "Une fonction avec ce nom ou ce code existe dÃ©jÃ ."
         );
 
         return;
@@ -18744,15 +18744,15 @@ async function saveOrganizationPosition() {
 
         alert(
             editingId
-                ? `La fonction "${name}" a été modifiée.`
-                : `La fonction "${name}" a été créée.`
+                ? `La fonction "${name}" a Ã©tÃ© modifiÃ©e.`
+                : `La fonction "${name}" a Ã©tÃ© crÃ©Ã©e.`
         );
 
 
     } catch (error) {
 
         console.error(
-            "❌ Erreur fonction :",
+            "â Œ Erreur fonction :",
             error
         );
 
@@ -18770,7 +18770,7 @@ async function saveOrganizationPosition() {
                 false;
 
             button.textContent =
-                "💾 Enregistrer";
+                "ðŸ’¾ Enregistrer";
         }
     }
 }
@@ -18805,8 +18805,8 @@ async function toggleOrganizationPositionStatus(
         !confirm(
             `${
                 newStatus
-                    ? "Réactiver"
-                    : "Désactiver"
+                    ? "RÃ©activer"
+                    : "DÃ©sactiver"
             } la fonction "${position.name}" ?`
         )
     ) {
@@ -18867,7 +18867,7 @@ async function deleteOrganizationPosition(
         alert(
             `Impossible de supprimer "${position.name}".\n\n` +
             `${users} utilisateur(s) utilisent encore cette fonction.\n\n` +
-            `Désactive-la ou modifie les profils concernés.`
+            `DÃ©sactive-la ou modifie les profils concernÃ©s.`
         );
 
         return;
@@ -18876,7 +18876,7 @@ async function deleteOrganizationPosition(
 
     if (
         !confirm(
-            `Supprimer définitivement la fonction "${position.name}" ?`
+            `Supprimer dÃ©finitivement la fonction "${position.name}" ?`
         )
     ) {
         return;
@@ -18896,7 +18896,7 @@ async function deleteOrganizationPosition(
 
 /* =========================================================
    =========================================================
-   RÔLES & ACCÈS
+   RÃ”LES & ACCÃˆS
    =========================================================
 ========================================================= */
 
@@ -19004,7 +19004,7 @@ function renderOrganizationRoles() {
                                 <span>
                                     Niveau ${
                                         role.hierarchy_level ??
-                                        "—"
+                                        "â€”"
                                     }
                                 </span>
 
@@ -19022,7 +19022,7 @@ function renderOrganizationRoles() {
                                                 onclick="openOrganizationRoleModal('${role.id}')"
                                                 title="Modifier"
                                             >
-                                                ✏️
+                                                âœ ï¸
                                             </button>
 
                                             <button
@@ -19030,7 +19030,7 @@ function renderOrganizationRoles() {
                                                 onclick="deleteOrganizationRole('${role.id}')"
                                                 title="Supprimer"
                                             >
-                                                🗑️
+                                                ðŸ—‘ï¸
                                             </button>
 
                                         </div>
@@ -19107,7 +19107,7 @@ function openOrganizationRoleModal(
     if (role) {
 
         title.textContent =
-            "Modifier le rôle";
+            "Modifier le rÃ´le";
 
         name.value =
             role.name || "";
@@ -19125,7 +19125,7 @@ function openOrganizationRoleModal(
     } else {
 
         title.textContent =
-            "Ajouter un rôle";
+            "Ajouter un rÃ´le";
 
         name.value = "";
         code.value = "";
@@ -19211,7 +19211,7 @@ async function saveOrganizationRole() {
     if (!name) {
 
         alert(
-            "Renseigne le nom du rôle."
+            "Renseigne le nom du rÃ´le."
         );
 
         return;
@@ -19256,7 +19256,7 @@ async function saveOrganizationRole() {
     if (duplicate) {
 
         alert(
-            "Un rôle avec ce nom ou ce code existe déjà."
+            "Un rÃ´le avec ce nom ou ce code existe dÃ©jÃ ."
         );
 
         return;
@@ -19326,21 +19326,21 @@ async function saveOrganizationRole() {
 
         alert(
             editingId
-                ? `Le rôle "${name}" a été modifié.`
-                : `Le rôle "${name}" a été créé.`
+                ? `Le rÃ´le "${name}" a Ã©tÃ© modifiÃ©.`
+                : `Le rÃ´le "${name}" a Ã©tÃ© crÃ©Ã©.`
         );
 
 
     } catch (error) {
 
         console.error(
-            "❌ Erreur rôle :",
+            "â Œ Erreur rÃ´le :",
             error
         );
 
 
         alert(
-            "Impossible d'enregistrer le rôle."
+            "Impossible d'enregistrer le rÃ´le."
         );
 
 
@@ -19352,7 +19352,7 @@ async function saveOrganizationRole() {
                 false;
 
             button.textContent =
-                "💾 Créer le rôle";
+                "ðŸ’¾ CrÃ©er le rÃ´le";
         }
     }
 }
@@ -19389,7 +19389,7 @@ async function deleteOrganizationRole(
     ) {
 
         alert(
-            "Ce rôle système est protégé et ne peut pas être supprimé."
+            "Ce rÃ´le systÃ¨me est protÃ©gÃ© et ne peut pas Ãªtre supprimÃ©."
         );
 
         return;
@@ -19436,8 +19436,8 @@ async function deleteOrganizationRole(
 
         alert(
             `Impossible de supprimer "${role.name}".\n\n` +
-            `Fonctions liées : ${positions}\n` +
-            `Utilisateurs liés : ${profiles}`
+            `Fonctions liÃ©es : ${positions}\n` +
+            `Utilisateurs liÃ©s : ${profiles}`
         );
 
         return;
@@ -19446,7 +19446,7 @@ async function deleteOrganizationRole(
 
     if (
         !confirm(
-            `Supprimer définitivement le rôle "${role.name}" ?`
+            `Supprimer dÃ©finitivement le rÃ´le "${role.name}" ?`
         )
     ) {
         return;
@@ -19556,7 +19556,7 @@ function renderOrganizationRoleConfiguration(
     if (subtitle) {
 
         subtitle.textContent =
-            `Code : ${role.code} • Niveau hiérarchique : ${role.hierarchy_level ?? "—"}`;
+            `Code : ${role.code} â€¢ Niveau hiÃ©rarchique : ${role.hierarchy_level ?? "â€”"}`;
     }
 
 
@@ -19795,7 +19795,7 @@ function renderOrganizationCategoryCheckboxes(
 
         container.innerHTML = `
             <div class="question-management-empty">
-                Aucune catégorie disponible.
+                Aucune catÃ©gorie disponible.
             </div>
         `;
 
@@ -19846,7 +19846,7 @@ async function saveOrganizationRolePermissions() {
     if (!roleId) {
 
         alert(
-            "Sélectionne d'abord un rôle."
+            "SÃ©lectionne d'abord un rÃ´le."
         );
 
         return;
@@ -20047,20 +20047,20 @@ async function saveOrganizationRolePermissions() {
 
 
         alert(
-            "✅ Les accès du rôle ont été enregistrés."
+            "âœ… Les accÃ¨s du rÃ´le ont Ã©tÃ© enregistrÃ©s."
         );
 
 
     } catch (error) {
 
         console.error(
-            "❌ Sauvegarde accès rôle :",
+            "â Œ Sauvegarde accÃ¨s rÃ´le :",
             error
         );
 
 
         alert(
-            "Impossible d'enregistrer les accès."
+            "Impossible d'enregistrer les accÃ¨s."
         );
 
 
@@ -20072,7 +20072,7 @@ async function saveOrganizationRolePermissions() {
                 false;
 
             button.textContent =
-                "💾 Enregistrer les accès";
+                "ðŸ’¾ Enregistrer les accÃ¨s";
         }
     }
 }
@@ -20123,7 +20123,7 @@ async function updateOrganizationSimpleField(
     } catch (error) {
 
         console.error(
-            `❌ Modification ${table} :`,
+            `â Œ Modification ${table} :`,
             error
         );
 
@@ -20171,13 +20171,13 @@ async function deleteOrganizationRecord(
     } catch (error) {
 
         console.error(
-            `❌ Suppression ${table} :`,
+            `â Œ Suppression ${table} :`,
             error
         );
 
 
         alert(
-            "Impossible de supprimer cet élément."
+            "Impossible de supprimer cet Ã©lÃ©ment."
         );
 
 
@@ -20188,7 +20188,7 @@ async function deleteOrganizationRecord(
 
 
 /* =========================================================
-   LIBELLÉS PERMISSIONS
+   LIBELLÃ‰S PERMISSIONS
 ========================================================= */
 
 function getOrganizationPermissionCategoryLabel(
@@ -20198,34 +20198,34 @@ function getOrganizationPermissionCategoryLabel(
     const labels = {
 
         training:
-            "🎯 Entraînements",
+            "ðŸŽ¯ EntraÃ®nements",
 
         questions:
-            "❓ Questions & Quiz",
+            "â “ Questions & Quiz",
 
         formations:
-            "🎓 Formations",
+            "ðŸŽ“ Formations",
 
         users:
-            "👥 Utilisateurs",
+            "ðŸ‘¥ Utilisateurs",
 
         organization:
-            "🏢 Organisation",
+            "ðŸ ¢ Organisation",
 
         stats:
-            "📊 Statistiques",
+            "ðŸ“Š Statistiques",
 
         approvals:
-            "✅ Approbations",
+            "âœ… Approbations",
 
         reports:
-            "🚩 Signalements",
+            "ðŸš© Signalements",
 
         ideas:
-            "💡 Boîte à idées",
+            "ðŸ’¡ BoÃ®te Ã  idÃ©es",
 
         administration:
-            "🛡️ Administration"
+            "ðŸ›¡ï¸  Administration"
     };
 
 
@@ -20234,3 +20234,2557 @@ function getOrganizationPermissionCategoryLabel(
         category
     );
 }
+
+
+/* =========================================================
+   NICKEL MASTER - GÃ‰NÃ‰RATEUR DE QUESTIONS PAR IA
+
+   Ce bloc prÃ©pare le front-end du gÃ©nÃ©rateur IA.
+   Il n'expose aucune clÃ© OpenAI dans le navigateur.
+
+   La gÃ©nÃ©ration passe obligatoirement par :
+       POST /api/generate-questions
+
+   La route serveur sera crÃ©Ã©e sÃ©parÃ©ment cÃ´tÃ© Vercel.
+========================================================= */
+
+let aiQuestionGeneratorState = {
+
+    generatedQuestions: [],
+
+    images: [],
+
+    categories: [],
+
+    isGenerating: false
+};
+
+
+/* =========================================================
+   INITIALISATION PAGE IA
+========================================================= */
+
+async function initializeAIQuestionGeneratorPage() {
+
+    const root =
+        document.getElementById(
+            "aiQuestionGeneratorRoot"
+        );
+
+
+    if (!root) {
+        return;
+    }
+
+
+    const role =
+        String(
+            localStorage.getItem("role") || ""
+        )
+        .trim()
+        .toLowerCase();
+
+
+    if (role !== "admin") {
+
+        alert(
+            "Cette page est rÃ©servÃ©e Ã  l'administrateur."
+        );
+
+        window.location.href =
+            "home.html";
+
+        return;
+    }
+
+
+    await loadAIQuestionCategories();
+
+    setupAIQuestionGeneratorEvents();
+
+    renderAIQuestionImagePreview();
+
+    renderAIGeneratedQuestions();
+
+    updateAIQuestionGenerateButtonState();
+}
+
+
+/* =========================================================
+   CATÃ‰GORIES
+========================================================= */
+
+async function loadAIQuestionCategories() {
+
+    const select =
+        document.getElementById(
+            "aiQuestionCategory"
+        );
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/questions?select=category&order=category.asc`,
+                {
+                    headers:
+                        supabaseHeaders()
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                await response.text()
+            );
+        }
+
+
+        const rows =
+            await response.json();
+
+
+        const categories =
+            [
+                ...new Set(
+                    rows
+                        .map(
+                            item =>
+                                String(
+                                    item.category || ""
+                                ).trim()
+                        )
+                        .filter(Boolean)
+                )
+            ]
+            .sort(
+                (a, b) =>
+                    a.localeCompare(
+                        b,
+                        "fr"
+                    )
+            );
+
+
+        aiQuestionGeneratorState.categories =
+            categories;
+
+
+        if (!select) {
+            return;
+        }
+
+
+        select.innerHTML = `
+            <option value="">
+                Choisir une catÃ©gorie
+            </option>
+            ${
+                categories
+                    .map(
+                        category => `
+                            <option value="${escapeHtml(category)}">
+                                ${escapeHtml(category)}
+                            </option>
+                        `
+                    )
+                    .join("")
+            }
+        `;
+
+
+    } catch (error) {
+
+        console.error(
+            "Erreur chargement catÃ©gories IA :",
+            error
+        );
+
+
+        if (select) {
+
+            select.innerHTML = `
+                <option value="">
+                    CatÃ©gories indisponibles
+                </option>
+            `;
+        }
+    }
+}
+
+
+/* =========================================================
+   Ã‰VÃ‰NEMENTS
+========================================================= */
+
+function setupAIQuestionGeneratorEvents() {
+
+    const text =
+        document.getElementById(
+            "aiQuestionSourceText"
+        );
+
+    const imageInput =
+        document.getElementById(
+            "aiQuestionImageInput"
+        );
+
+    const generateButton =
+        document.getElementById(
+            "aiGenerateQuestionsButton"
+        );
+
+    const saveButton =
+        document.getElementById(
+            "aiSaveSelectedQuestionsButton"
+        );
+
+    const selectAll =
+        document.getElementById(
+            "aiSelectAllQuestions"
+        );
+
+
+    if (text) {
+
+        text.addEventListener(
+            "input",
+            updateAIQuestionGenerateButtonState
+        );
+    }
+
+
+    if (imageInput) {
+
+        imageInput.addEventListener(
+            "change",
+            handleAIQuestionImageSelection
+        );
+    }
+
+
+    if (generateButton) {
+
+        generateButton.addEventListener(
+            "click",
+            generateQuestionsWithAI
+        );
+    }
+
+
+    if (saveButton) {
+
+        saveButton.addEventListener(
+            "click",
+            saveSelectedAIGeneratedQuestions
+        );
+    }
+
+
+    if (selectAll) {
+
+        selectAll.addEventListener(
+            "change",
+            function () {
+
+                const checked =
+                    selectAll.checked;
+
+
+                aiQuestionGeneratorState
+                    .generatedQuestions
+                    .forEach(
+                        item => {
+                            item.selected =
+                                checked;
+                        }
+                    );
+
+
+                renderAIGeneratedQuestions();
+            }
+        );
+    }
+}
+
+
+/* =========================================================
+   IMAGES
+========================================================= */
+
+async function handleAIQuestionImageSelection(
+    event
+) {
+
+    const files =
+        Array.from(
+            event.target?.files || []
+        );
+
+
+    if (!files.length) {
+        return;
+    }
+
+
+    const remainingSlots =
+        Math.max(
+            0,
+            8 -
+            aiQuestionGeneratorState.images.length
+        );
+
+
+    if (!remainingSlots) {
+
+        alert(
+            "Tu peux importer au maximum 8 images par gÃ©nÃ©ration."
+        );
+
+        event.target.value = "";
+
+        return;
+    }
+
+
+    const acceptedFiles =
+        files.slice(
+            0,
+            remainingSlots
+        );
+
+
+    const allowedTypes =
+        new Set([
+            "image/jpeg",
+            "image/png",
+            "image/webp"
+        ]);
+
+
+    for (
+        const file
+        of acceptedFiles
+    ) {
+
+        if (
+            !allowedTypes.has(
+                file.type
+            )
+        ) {
+
+            alert(
+                `Le fichier "${file.name}" n'est pas au format JPG, PNG ou WebP.`
+            );
+
+            continue;
+        }
+
+
+        if (
+            file.size >
+            8 * 1024 * 1024
+        ) {
+
+            alert(
+                `L'image "${file.name}" dÃ©passe 8 Mo.`
+            );
+
+            continue;
+        }
+
+
+        const dataUrl =
+            await readAIQuestionFileAsDataUrl(
+                file
+            );
+
+
+        aiQuestionGeneratorState
+            .images
+            .push({
+
+                id:
+                    `${Date.now()}_${Math.random().toString(36).slice(2)}`,
+
+                name:
+                    file.name,
+
+                type:
+                    file.type,
+
+                size:
+                    file.size,
+
+                dataUrl:
+                    dataUrl
+            });
+    }
+
+
+    event.target.value = "";
+
+    renderAIQuestionImagePreview();
+
+    updateAIQuestionGenerateButtonState();
+}
+
+
+function readAIQuestionFileAsDataUrl(
+    file
+) {
+
+    return new Promise(
+        (resolve, reject) => {
+
+            const reader =
+                new FileReader();
+
+
+            reader.onload =
+                () => resolve(
+                    reader.result
+                );
+
+
+            reader.onerror =
+                () => reject(
+                    new Error(
+                        `Impossible de lire ${file.name}.`
+                    )
+                );
+
+
+            reader.readAsDataURL(
+                file
+            );
+        }
+    );
+}
+
+
+function removeAIQuestionImage(
+    imageId
+) {
+
+    aiQuestionGeneratorState.images =
+        aiQuestionGeneratorState
+            .images
+            .filter(
+                image =>
+                    String(image.id) !==
+                    String(imageId)
+            );
+
+
+    renderAIQuestionImagePreview();
+
+    updateAIQuestionGenerateButtonState();
+}
+
+
+function renderAIQuestionImagePreview() {
+
+    const container =
+        document.getElementById(
+            "aiQuestionImagePreview"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    const images =
+        aiQuestionGeneratorState.images;
+
+
+    if (!images.length) {
+
+        container.innerHTML = `
+            <div class="ai-question-image-empty">
+                Aucune image ajoutÃ©e.
+            </div>
+        `;
+
+        return;
+    }
+
+
+    container.innerHTML =
+        images
+            .map(
+                image => `
+
+                    <div class="ai-question-image-item">
+
+                        <img
+                            src="${image.dataUrl}"
+                            alt="${escapeHtml(image.name)}"
+                        >
+
+                        <div class="ai-question-image-meta">
+
+                            <strong>
+                                ${escapeHtml(image.name)}
+                            </strong>
+
+                            <small>
+                                ${formatAIQuestionFileSize(image.size)}
+                            </small>
+
+                        </div>
+
+                        <button
+                            type="button"
+                            class="ai-question-image-remove"
+                            onclick="removeAIQuestionImage('${image.id}')"
+                            title="Retirer cette image"
+                        >
+                            âœ•
+                        </button>
+
+                    </div>
+                `
+            )
+            .join("");
+}
+
+
+function formatAIQuestionFileSize(
+    bytes
+) {
+
+    const value =
+        Number(bytes || 0);
+
+
+    if (
+        value < 1024
+    ) {
+
+        return `${value} o`;
+    }
+
+
+    if (
+        value <
+        1024 * 1024
+    ) {
+
+        return `${(
+            value / 1024
+        ).toFixed(1)} Ko`;
+    }
+
+
+    return `${(
+        value /
+        1024 /
+        1024
+    ).toFixed(1)} Mo`;
+}
+
+
+/* =========================================================
+   OPTIONS DE GÃ‰NÃ‰RATION
+========================================================= */
+
+function getSelectedAIQuestionTypes() {
+
+    const definitions = [
+
+        [
+            "aiQuestionTypeTrueFalse",
+            "true_false"
+        ],
+
+        [
+            "aiQuestionTypeSimpleChoice",
+            "simple_choice"
+        ],
+
+        [
+            "aiQuestionTypeMultipleChoice",
+            "multiple_choice"
+        ],
+
+        [
+            "aiQuestionTypeOpen",
+            "open"
+        ]
+    ];
+
+
+    return definitions
+        .filter(
+            ([id]) =>
+                document.getElementById(id)
+                    ?.checked
+        )
+        .map(
+            ([, type]) =>
+                type
+        );
+}
+
+
+function collectAIQuestionGeneratorOptions() {
+
+    const text =
+        String(
+            document.getElementById(
+                "aiQuestionSourceText"
+            )?.value || ""
+        )
+        .trim();
+
+
+    const category =
+        String(
+            document.getElementById(
+                "aiQuestionCategory"
+            )?.value || ""
+        )
+        .trim();
+
+
+    const difficulty =
+        String(
+            document.getElementById(
+                "aiQuestionDifficulty"
+            )?.value ||
+            "mixed"
+        )
+        .trim();
+
+
+    const requestedCount =
+        Number(
+            document.getElementById(
+                "aiQuestionCount"
+            )?.value ||
+            10
+        );
+
+
+    const questionCount =
+        Math.min(
+            30,
+            Math.max(
+                1,
+                Number.isFinite(
+                    requestedCount
+                )
+                    ? Math.round(
+                        requestedCount
+                    )
+                    : 10
+            )
+        );
+
+
+    const types =
+        getSelectedAIQuestionTypes();
+
+
+    return {
+
+        text:
+            text,
+
+        category:
+            category,
+
+        difficulty:
+            difficulty,
+
+        questionCount:
+            questionCount,
+
+        types:
+            types,
+
+        images:
+            aiQuestionGeneratorState
+                .images
+                .map(
+                    image => ({
+
+                        name:
+                            image.name,
+
+                        type:
+                            image.type,
+
+                        dataUrl:
+                            image.dataUrl
+                    })
+                )
+    };
+}
+
+
+function validateAIQuestionGeneratorOptions(
+    options
+) {
+
+    if (
+        !options.text &&
+        !options.images.length
+    ) {
+
+        alert(
+            "Colle un texte ou ajoute au moins une image."
+        );
+
+        return false;
+    }
+
+
+    if (!options.category) {
+
+        alert(
+            "Choisis la catÃ©gorie dans laquelle les questions seront ajoutÃ©es."
+        );
+
+        return false;
+    }
+
+
+    if (!options.types.length) {
+
+        alert(
+            "Choisis au moins un type de question."
+        );
+
+        return false;
+    }
+
+
+    return true;
+}
+
+
+function updateAIQuestionGenerateButtonState() {
+
+    const button =
+        document.getElementById(
+            "aiGenerateQuestionsButton"
+        );
+
+
+    if (!button) {
+        return;
+    }
+
+
+    const text =
+        String(
+            document.getElementById(
+                "aiQuestionSourceText"
+            )?.value || ""
+        )
+        .trim();
+
+
+    const hasSource =
+        Boolean(text) ||
+        aiQuestionGeneratorState
+            .images
+            .length > 0;
+
+
+    button.disabled =
+        aiQuestionGeneratorState.isGenerating ||
+        !hasSource;
+}
+
+
+/* =========================================================
+   APPEL DE L'API IA
+========================================================= */
+
+async function generateQuestionsWithAI() {
+
+    if (
+        aiQuestionGeneratorState.isGenerating
+    ) {
+        return;
+    }
+
+
+    const options =
+        collectAIQuestionGeneratorOptions();
+
+
+    if (
+        !validateAIQuestionGeneratorOptions(
+            options
+        )
+    ) {
+        return;
+    }
+
+
+    const button =
+        document.getElementById(
+            "aiGenerateQuestionsButton"
+        );
+
+    const status =
+        document.getElementById(
+            "aiGenerationStatus"
+        );
+
+
+    aiQuestionGeneratorState.isGenerating =
+        true;
+
+    updateAIQuestionGenerateButtonState();
+
+
+    if (button) {
+
+        button.dataset.originalText =
+            button.textContent;
+
+        button.textContent =
+            "âœ¨ GÃ©nÃ©ration en cours...";
+    }
+
+
+    if (status) {
+
+        status.style.display =
+            "";
+
+        status.textContent =
+            options.images.length
+                ? "Analyse du texte et des images, puis crÃ©ation des questions..."
+                : "Analyse du texte et crÃ©ation des questions...";
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/generate-questions",
+                {
+                    method:
+                        "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            sourceType:
+                                options.text &&
+                                options.images.length
+                                    ? "mixed"
+                                    : options.images.length
+                                        ? "images"
+                                        : "text",
+
+                            text:
+                                options.text,
+
+                            images:
+                                options.images,
+
+                            questionCount:
+                                options.questionCount,
+
+                            types:
+                                options.types,
+
+                            difficulty:
+                                options.difficulty,
+
+                            categoryName:
+                                options.category,
+
+                            includeExplanation:
+                                true
+                        })
+                }
+            );
+
+
+        const responseText =
+            await response.text();
+
+
+        let data = null;
+
+
+        try {
+
+            data =
+                responseText
+                    ? JSON.parse(
+                        responseText
+                    )
+                    : null;
+
+        } catch (parseError) {
+
+            console.warn(
+                "RÃ©ponse IA non JSON :",
+                responseText,
+                parseError
+            );
+        }
+
+
+        if (!response.ok) {
+
+            const message =
+                data?.error ||
+                data?.message ||
+                responseText ||
+                `Erreur HTTP ${response.status}`;
+
+
+            throw new Error(
+                message
+            );
+        }
+
+
+        const rawQuestions =
+            Array.isArray(data)
+                ? data
+                : Array.isArray(
+                    data?.questions
+                )
+                    ? data.questions
+                    : [];
+
+
+        if (!rawQuestions.length) {
+
+            throw new Error(
+                "L'IA n'a retournÃ© aucune question exploitable."
+            );
+        }
+
+
+        aiQuestionGeneratorState.generatedQuestions =
+            rawQuestions
+                .map(
+                    (question, index) =>
+                        normalizeAIGeneratedQuestion(
+                            question,
+                            index,
+                            options.category
+                        )
+                )
+                .filter(Boolean);
+
+
+        if (
+            !aiQuestionGeneratorState
+                .generatedQuestions
+                .length
+        ) {
+
+            throw new Error(
+                "Les questions retournÃ©es par l'IA sont invalides."
+            );
+        }
+
+
+        renderAIGeneratedQuestions();
+
+
+        if (status) {
+
+            status.textContent =
+                `${aiQuestionGeneratorState.generatedQuestions.length} question(s) gÃ©nÃ©rÃ©e(s). Relis-les avant de les enregistrer.`;
+        }
+
+
+        const resultSection =
+            document.getElementById(
+                "aiGeneratedQuestionsSection"
+            );
+
+
+        if (resultSection) {
+
+            resultSection.style.display =
+                "";
+
+            resultSection.scrollIntoView({
+                behavior:
+                    "smooth",
+                block:
+                    "start"
+            });
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "Erreur gÃ©nÃ©ration IA :",
+            error
+        );
+
+
+        if (status) {
+
+            status.textContent =
+                "La gÃ©nÃ©ration a Ã©chouÃ©.";
+        }
+
+
+        alert(
+            "Impossible de gÃ©nÃ©rer les questions.\n\n" +
+            error.message
+        );
+
+
+    } finally {
+
+        aiQuestionGeneratorState.isGenerating =
+            false;
+
+
+        if (button) {
+
+            button.textContent =
+                button.dataset.originalText ||
+                "âœ¨ GÃ©nÃ©rer les questions";
+        }
+
+
+        updateAIQuestionGenerateButtonState();
+    }
+}
+
+
+/* =========================================================
+   NORMALISATION DES QUESTIONS IA
+========================================================= */
+
+function normalizeAIQuestionType(
+    value
+) {
+
+    const normalized =
+        String(value || "")
+        .trim()
+        .toLowerCase();
+
+
+    const aliases = {
+
+        truefalse:
+            "true_false",
+
+        "true-false":
+            "true_false",
+
+        vrai_faux:
+            "true_false",
+
+        vrai_faux_question:
+            "true_false",
+
+        single_choice:
+            "simple_choice",
+
+        simplechoice:
+            "simple_choice",
+
+        "simple-choice":
+            "simple_choice",
+
+        qcm_simple:
+            "simple_choice",
+
+        multiplechoice:
+            "multiple_choice",
+
+        "multiple-choice":
+            "multiple_choice",
+
+        qcm_multiple:
+            "multiple_choice",
+
+        open_question:
+            "open",
+
+        ouverte:
+            "open"
+    };
+
+
+    return (
+        aliases[normalized] ||
+        normalized
+    );
+}
+
+
+function normalizeAIGeneratedQuestion(
+    rawQuestion,
+    index,
+    defaultCategory
+) {
+
+    if (
+        !rawQuestion ||
+        typeof rawQuestion !==
+        "object"
+    ) {
+        return null;
+    }
+
+
+    const type =
+        normalizeAIQuestionType(
+            rawQuestion.type ||
+            rawQuestion.question_type
+        );
+
+
+    if (
+        ![
+            "true_false",
+            "simple_choice",
+            "multiple_choice",
+            "open"
+        ].includes(type)
+    ) {
+        return null;
+    }
+
+
+    const questionText =
+        String(
+            rawQuestion.question ||
+            rawQuestion.text ||
+            ""
+        )
+        .trim();
+
+
+    if (!questionText) {
+        return null;
+    }
+
+
+    const answers =
+        Array.isArray(
+            rawQuestion.answers
+        )
+            ? rawQuestion.answers
+            : [];
+
+
+    const choices = {
+        A: "",
+        B: "",
+        C: "",
+        D: ""
+    };
+
+
+    const correct = [];
+
+
+    if (
+        type ===
+        "true_false"
+    ) {
+
+        choices.A =
+            "Vrai";
+
+        choices.B =
+            "Faux";
+
+
+        let trueFalseCorrect =
+            rawQuestion.correct_answer ??
+            rawQuestion.correctAnswer ??
+            null;
+
+
+        if (
+            trueFalseCorrect === null &&
+            answers.length
+        ) {
+
+            const answerIndex =
+                answers.findIndex(
+                    answer =>
+                        answer?.correct ===
+                        true
+                );
+
+
+            if (
+                answerIndex === 0
+            ) {
+                trueFalseCorrect =
+                    "A";
+            }
+
+
+            if (
+                answerIndex === 1
+            ) {
+                trueFalseCorrect =
+                    "B";
+            }
+        }
+
+
+        const normalizedCorrect =
+            String(
+                trueFalseCorrect ?? ""
+            )
+            .trim()
+            .toLowerCase();
+
+
+        if (
+            [
+                "a",
+                "vrai",
+                "true"
+            ].includes(
+                normalizedCorrect
+            )
+        ) {
+
+            correct.push("A");
+        }
+
+
+        if (
+            [
+                "b",
+                "faux",
+                "false"
+            ].includes(
+                normalizedCorrect
+            )
+        ) {
+
+            correct.push("B");
+        }
+
+
+    } else if (
+        type !==
+        "open"
+    ) {
+
+        const letters =
+            [
+                "A",
+                "B",
+                "C",
+                "D"
+            ];
+
+
+        if (answers.length) {
+
+            answers
+                .slice(0, 4)
+                .forEach(
+                    (answer, answerIndex) => {
+
+                        const letter =
+                            letters[
+                                answerIndex
+                            ];
+
+
+                        choices[letter] =
+                            String(
+                                answer?.text ||
+                                answer?.answer ||
+                                ""
+                            )
+                            .trim();
+
+
+                        if (
+                            answer?.correct ===
+                            true
+                        ) {
+
+                            correct.push(
+                                letter
+                            );
+                        }
+                    }
+                );
+
+        } else {
+
+            choices.A =
+                String(
+                    rawQuestion.choice_a ||
+                    rawQuestion.choices?.A ||
+                    ""
+                ).trim();
+
+            choices.B =
+                String(
+                    rawQuestion.choice_b ||
+                    rawQuestion.choices?.B ||
+                    ""
+                ).trim();
+
+            choices.C =
+                String(
+                    rawQuestion.choice_c ||
+                    rawQuestion.choices?.C ||
+                    ""
+                ).trim();
+
+            choices.D =
+                String(
+                    rawQuestion.choice_d ||
+                    rawQuestion.choices?.D ||
+                    ""
+                ).trim();
+
+
+            const rawCorrect =
+                rawQuestion.correct ||
+                rawQuestion.correct_answer ||
+                rawQuestion.correctAnswer ||
+                [];
+
+
+            const correctValues =
+                Array.isArray(
+                    rawCorrect
+                )
+                    ? rawCorrect
+                    : String(
+                        rawCorrect || ""
+                    )
+                    .split(/[,;]+/);
+
+
+            correctValues
+                .map(
+                    value =>
+                        String(value)
+                        .trim()
+                        .toUpperCase()
+                )
+                .filter(
+                    value =>
+                        letters.includes(
+                            value
+                        )
+                )
+                .forEach(
+                    value => {
+
+                        if (
+                            !correct.includes(
+                                value
+                            )
+                        ) {
+
+                            correct.push(
+                                value
+                            );
+                        }
+                    }
+                );
+        }
+    }
+
+
+    return {
+
+        id:
+            `ai_${Date.now()}_${index}_${Math.random().toString(36).slice(2)}`,
+
+        selected:
+            true,
+
+        category:
+            String(
+                rawQuestion.category ||
+                defaultCategory ||
+                ""
+            ).trim(),
+
+        type:
+            type,
+
+        question:
+            questionText,
+
+        choices:
+            choices,
+
+        correct:
+            correct,
+
+        expectedAnswer:
+            String(
+                rawQuestion.expectedAnswer ||
+                rawQuestion.expected_answer ||
+                rawQuestion.answer_expected ||
+                ""
+            ).trim(),
+
+        explanation:
+            String(
+                rawQuestion.explanation ||
+                ""
+            ).trim(),
+
+        sourceNote:
+            String(
+                rawQuestion.sourceNote ||
+                rawQuestion.source_note ||
+                ""
+            ).trim()
+    };
+}
+
+
+/* =========================================================
+   RENDU DES QUESTIONS GÃ‰NÃ‰RÃ‰ES
+========================================================= */
+
+function renderAIGeneratedQuestions() {
+
+    const container =
+        document.getElementById(
+            "aiGeneratedQuestionsList"
+        );
+
+    const saveButton =
+        document.getElementById(
+            "aiSaveSelectedQuestionsButton"
+        );
+
+    const selectAll =
+        document.getElementById(
+            "aiSelectAllQuestions"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    const questions =
+        aiQuestionGeneratorState
+            .generatedQuestions;
+
+
+    if (!questions.length) {
+
+        container.innerHTML = `
+            <div class="question-management-empty">
+                Aucune question gÃ©nÃ©rÃ©e pour le moment.
+            </div>
+        `;
+
+
+        if (saveButton) {
+            saveButton.disabled =
+                true;
+        }
+
+
+        if (selectAll) {
+            selectAll.checked =
+                false;
+        }
+
+
+        return;
+    }
+
+
+    container.innerHTML =
+        questions
+            .map(
+                (item, index) =>
+                    renderAIGeneratedQuestionCard(
+                        item,
+                        index
+                    )
+            )
+            .join("");
+
+
+    bindAIGeneratedQuestionCardEvents();
+
+
+    const selectedCount =
+        questions.filter(
+            question =>
+                question.selected
+        ).length;
+
+
+    if (saveButton) {
+
+        saveButton.disabled =
+            selectedCount === 0;
+
+        saveButton.textContent =
+            `ðŸ’¾ Enregistrer ${selectedCount} question${selectedCount > 1 ? "s" : ""}`;
+    }
+
+
+    if (selectAll) {
+
+        selectAll.checked =
+            selectedCount ===
+            questions.length;
+
+        selectAll.indeterminate =
+            selectedCount > 0 &&
+            selectedCount <
+            questions.length;
+    }
+}
+
+
+function renderAIGeneratedQuestionCard(
+    item,
+    index
+) {
+
+    const typeLabels = {
+
+        true_false:
+            "Vrai / Faux",
+
+        simple_choice:
+            "Choix simple",
+
+        multiple_choice:
+            "Choix multiples",
+
+        open:
+            "Question ouverte"
+    };
+
+
+    const choicesHtml =
+        item.type === "open"
+            ? `
+                <div class="question-field">
+                    <label>
+                        RÃ©ponse attendue
+                    </label>
+
+                    <textarea
+                        data-ai-field="expectedAnswer"
+                        rows="3"
+                    >${escapeHtml(item.expectedAnswer)}</textarea>
+                </div>
+            `
+            : [
+                "A",
+                "B",
+                "C",
+                "D"
+            ]
+            .filter(
+                letter =>
+                    item.type !== "true_false" ||
+                    [
+                        "A",
+                        "B"
+                    ].includes(letter)
+            )
+            .map(
+                letter => {
+
+                    const inputType =
+                        item.type ===
+                        "multiple_choice"
+                            ? "checkbox"
+                            : "radio";
+
+
+                    return `
+                        <div class="ai-generated-answer-row">
+
+                            <input
+                                type="${inputType}"
+                                name="aiCorrect_${escapeHtml(item.id)}"
+                                value="${letter}"
+                                data-ai-correct="${letter}"
+                                ${
+                                    item.correct.includes(letter)
+                                        ? "checked"
+                                        : ""
+                                }
+                            >
+
+                            <strong>
+                                ${letter}
+                            </strong>
+
+                            <input
+                                type="text"
+                                data-ai-choice="${letter}"
+                                value="${escapeHtml(item.choices[letter] || "")}"
+                                ${
+                                    item.type === "true_false"
+                                        ? "readonly"
+                                        : ""
+                                }
+                            >
+
+                        </div>
+                    `;
+                }
+            )
+            .join("");
+
+
+    return `
+
+        <article
+            class="ai-generated-question-card"
+            data-ai-question-id="${escapeHtml(item.id)}"
+        >
+
+            <div class="ai-generated-question-head">
+
+                <label class="ai-generated-question-select">
+
+                    <input
+                        type="checkbox"
+                        data-ai-field="selected"
+                        ${
+                            item.selected
+                                ? "checked"
+                                : ""
+                        }
+                    >
+
+                    <span>
+                        Question ${index + 1}
+                    </span>
+
+                </label>
+
+
+                <button
+                    type="button"
+                    class="organization-action-button organization-action-delete"
+                    data-ai-remove="true"
+                    title="Supprimer cette proposition"
+                >
+                    ðŸ—‘
+                </button>
+
+            </div>
+
+
+            <div class="ai-generated-question-grid">
+
+                <div class="question-field">
+
+                    <label>
+                        Type
+                    </label>
+
+                    <select data-ai-field="type">
+
+                        ${
+                            Object.entries(
+                                typeLabels
+                            )
+                            .map(
+                                ([value, label]) => `
+                                    <option
+                                        value="${value}"
+                                        ${
+                                            item.type === value
+                                                ? "selected"
+                                                : ""
+                                        }
+                                    >
+                                        ${label}
+                                    </option>
+                                `
+                            )
+                            .join("")
+                        }
+
+                    </select>
+
+                </div>
+
+
+                <div class="question-field ai-generated-question-category">
+
+                    <label>
+                        CatÃ©gorie
+                    </label>
+
+                    <select data-ai-field="category">
+
+                        ${
+                            aiQuestionGeneratorState
+                                .categories
+                                .map(
+                                    category => `
+                                        <option
+                                            value="${escapeHtml(category)}"
+                                            ${
+                                                item.category === category
+                                                    ? "selected"
+                                                    : ""
+                                            }
+                                        >
+                                            ${escapeHtml(category)}
+                                        </option>
+                                    `
+                                )
+                                .join("")
+                        }
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <div class="question-field">
+
+                <label>
+                    Question
+                </label>
+
+                <textarea
+                    data-ai-field="question"
+                    rows="3"
+                >${escapeHtml(item.question)}</textarea>
+
+            </div>
+
+
+            <div class="ai-generated-answers">
+
+                ${choicesHtml}
+
+            </div>
+
+
+            <div class="question-field">
+
+                <label>
+                    Explication / justification IA
+                </label>
+
+                <textarea
+                    data-ai-field="explanation"
+                    rows="2"
+                >${escapeHtml(item.explanation)}</textarea>
+
+            </div>
+
+
+            ${
+                item.sourceNote
+                    ? `
+                        <div class="ai-generated-source-note">
+                            <strong>Source :</strong>
+                            ${escapeHtml(item.sourceNote)}
+                        </div>
+                    `
+                    : ""
+            }
+
+        </article>
+    `;
+}
+
+
+function bindAIGeneratedQuestionCardEvents() {
+
+    document
+        .querySelectorAll(
+            "[data-ai-question-id]"
+        )
+        .forEach(
+            card => {
+
+                const questionId =
+                    card.dataset
+                        .aiQuestionId;
+
+
+                const item =
+                    aiQuestionGeneratorState
+                        .generatedQuestions
+                        .find(
+                            question =>
+                                String(question.id) ===
+                                String(questionId)
+                        );
+
+
+                if (!item) {
+                    return;
+                }
+
+
+                card
+                    .querySelectorAll(
+                        "[data-ai-field]"
+                    )
+                    .forEach(
+                        element => {
+
+                            const field =
+                                element.dataset
+                                    .aiField;
+
+
+                            const eventName =
+                                element.type ===
+                                    "checkbox" ||
+                                element.tagName ===
+                                    "SELECT"
+                                    ? "change"
+                                    : "input";
+
+
+                            element.addEventListener(
+                                eventName,
+                                function () {
+
+                                    if (
+                                        field ===
+                                        "selected"
+                                    ) {
+
+                                        item.selected =
+                                            element.checked;
+
+                                        updateAIGeneratedQuestionsSelectionSummary();
+
+                                        return;
+                                    }
+
+
+                                    if (
+                                        field ===
+                                        "type"
+                                    ) {
+
+                                        item.type =
+                                            normalizeAIQuestionType(
+                                                element.value
+                                            );
+
+                                        resetAIQuestionAnswersForType(
+                                            item
+                                        );
+
+                                        renderAIGeneratedQuestions();
+
+                                        return;
+                                    }
+
+
+                                    item[field] =
+                                        element.value;
+                                }
+                            );
+                        }
+                    );
+
+
+                card
+                    .querySelectorAll(
+                        "[data-ai-choice]"
+                    )
+                    .forEach(
+                        element => {
+
+                            element.addEventListener(
+                                "input",
+                                function () {
+
+                                    const letter =
+                                        element.dataset
+                                            .aiChoice;
+
+                                    item.choices[letter] =
+                                        element.value;
+                                }
+                            );
+                        }
+                    );
+
+
+                card
+                    .querySelectorAll(
+                        "[data-ai-correct]"
+                    )
+                    .forEach(
+                        element => {
+
+                            element.addEventListener(
+                                "change",
+                                function () {
+
+                                    const letter =
+                                        element.dataset
+                                            .aiCorrect;
+
+
+                                    if (
+                                        item.type ===
+                                        "multiple_choice"
+                                    ) {
+
+                                        if (
+                                            element.checked &&
+                                            !item.correct.includes(
+                                                letter
+                                            )
+                                        ) {
+
+                                            item.correct.push(
+                                                letter
+                                            );
+                                        }
+
+
+                                        if (
+                                            !element.checked
+                                        ) {
+
+                                            item.correct =
+                                                item.correct
+                                                    .filter(
+                                                        value =>
+                                                            value !==
+                                                            letter
+                                                    );
+                                        }
+
+                                    } else {
+
+                                        item.correct =
+                                            element.checked
+                                                ? [letter]
+                                                : [];
+                                    }
+                                }
+                            );
+                        }
+                    );
+
+
+                const removeButton =
+                    card.querySelector(
+                        "[data-ai-remove]"
+                    );
+
+
+                if (removeButton) {
+
+                    removeButton.addEventListener(
+                        "click",
+                        function () {
+
+                            removeAIGeneratedQuestion(
+                                questionId
+                            );
+                        }
+                    );
+                }
+            }
+        );
+}
+
+
+function resetAIQuestionAnswersForType(
+    item
+) {
+
+    item.correct = [];
+
+
+    if (
+        item.type ===
+        "true_false"
+    ) {
+
+        item.choices = {
+            A: "Vrai",
+            B: "Faux",
+            C: "",
+            D: ""
+        };
+
+        item.expectedAnswer =
+            "";
+
+        return;
+    }
+
+
+    if (
+        item.type ===
+        "open"
+    ) {
+
+        item.choices = {
+            A: "",
+            B: "",
+            C: "",
+            D: ""
+        };
+
+        return;
+    }
+
+
+    item.choices = {
+        A: "",
+        B: "",
+        C: "",
+        D: ""
+    };
+
+    item.expectedAnswer =
+        "";
+}
+
+
+function updateAIGeneratedQuestionsSelectionSummary() {
+
+    const questions =
+        aiQuestionGeneratorState
+            .generatedQuestions;
+
+    const selectedCount =
+        questions.filter(
+            question =>
+                question.selected
+        ).length;
+
+    const saveButton =
+        document.getElementById(
+            "aiSaveSelectedQuestionsButton"
+        );
+
+    const selectAll =
+        document.getElementById(
+            "aiSelectAllQuestions"
+        );
+
+
+    if (saveButton) {
+
+        saveButton.disabled =
+            selectedCount === 0;
+
+        saveButton.textContent =
+            `ðŸ’¾ Enregistrer ${selectedCount} question${selectedCount > 1 ? "s" : ""}`;
+    }
+
+
+    if (selectAll) {
+
+        selectAll.checked =
+            selectedCount ===
+            questions.length &&
+            questions.length > 0;
+
+        selectAll.indeterminate =
+            selectedCount > 0 &&
+            selectedCount <
+            questions.length;
+    }
+}
+
+
+function removeAIGeneratedQuestion(
+    questionId
+) {
+
+    aiQuestionGeneratorState.generatedQuestions =
+        aiQuestionGeneratorState
+            .generatedQuestions
+            .filter(
+                question =>
+                    String(question.id) !==
+                    String(questionId)
+            );
+
+
+    renderAIGeneratedQuestions();
+}
+
+
+/* =========================================================
+   VALIDATION AVANT INSERTION
+========================================================= */
+
+function validateAIGeneratedQuestion(
+    item,
+    index = 0
+) {
+
+    const prefix =
+        `Question ${index + 1}`;
+
+
+    if (!item.category) {
+
+        return `${prefix} : catÃ©gorie manquante.`;
+    }
+
+
+    if (!item.question?.trim()) {
+
+        return `${prefix} : texte de question manquant.`;
+    }
+
+
+    if (
+        item.type ===
+        "open"
+    ) {
+
+        if (
+            !item.expectedAnswer?.trim()
+        ) {
+
+            return `${prefix} : rÃ©ponse attendue manquante.`;
+        }
+
+
+        return null;
+    }
+
+
+    const requiredLetters =
+        item.type ===
+        "true_false"
+            ? [
+                "A",
+                "B"
+            ]
+            : [
+                "A",
+                "B",
+                "C",
+                "D"
+            ];
+
+
+    for (
+        const letter
+        of requiredLetters
+    ) {
+
+        if (
+            !String(
+                item.choices?.[letter] ||
+                ""
+            ).trim()
+        ) {
+
+            return `${prefix} : proposition ${letter} manquante.`;
+        }
+    }
+
+
+    if (
+        item.type ===
+        "multiple_choice"
+    ) {
+
+        if (
+            item.correct.length < 2
+        ) {
+
+            return `${prefix} : sÃ©lectionne au moins deux bonnes rÃ©ponses pour un choix multiple.`;
+        }
+
+
+    } else if (
+        item.correct.length !== 1
+    ) {
+
+        return `${prefix} : sÃ©lectionne exactement une bonne rÃ©ponse.`;
+    }
+
+
+    return null;
+}
+
+
+/* =========================================================
+   TRANSFORMATION VERS LE SCHÃ‰MA QUESTIONS EXISTANT
+========================================================= */
+
+function buildAIGeneratedQuestionPayload(
+    item,
+    orderNumber
+) {
+
+    const type =
+        normalizeAIQuestionType(
+            item.type
+        );
+
+
+    const isOpen =
+        type ===
+        "open";
+
+
+    const correct =
+        isOpen
+            ? []
+            : [
+                ...item.correct
+            ]
+            .sort();
+
+
+    return {
+
+        order_number:
+            orderNumber,
+
+        category:
+            item.category,
+
+        question:
+            item.question.trim(),
+
+        expected_answer:
+            isOpen
+                ? item.expectedAnswer.trim()
+                : null,
+
+        keywords:
+            isOpen
+                ? item.expectedAnswer.trim()
+                : correct.join(
+                    ", "
+                ),
+
+        max_points:
+            type ===
+            "multiple_choice"
+                ? Math.max(
+                    1,
+                    correct.length
+                )
+                : 1,
+
+        question_type:
+            type,
+
+        correct_answer:
+            isOpen
+                ? null
+                : correct.join(
+                    ", "
+                ),
+
+        choice_a:
+            isOpen
+                ? null
+                : item.choices.A ||
+                null,
+
+        choice_b:
+            isOpen
+                ? null
+                : item.choices.B ||
+                null,
+
+        choice_c:
+            type ===
+                "true_false" ||
+            isOpen
+                ? null
+                : item.choices.C ||
+                null,
+
+        choice_d:
+            type ===
+                "true_false" ||
+            isOpen
+                ? null
+                : item.choices.D ||
+                null,
+
+        is_active:
+            true
+    };
+}
+
+
+/* =========================================================
+   ENREGISTREMENT DES QUESTIONS IA DANS SUPABASE
+========================================================= */
+
+async function saveSelectedAIGeneratedQuestions() {
+
+    const selectedQuestions =
+        aiQuestionGeneratorState
+            .generatedQuestions
+            .filter(
+                question =>
+                    question.selected
+            );
+
+
+    if (!selectedQuestions.length) {
+
+        alert(
+            "SÃ©lectionne au moins une question Ã  enregistrer."
+        );
+
+        return;
+    }
+
+
+    for (
+        let index = 0;
+        index < selectedQuestions.length;
+        index++
+    ) {
+
+        const validationError =
+            validateAIGeneratedQuestion(
+                selectedQuestions[index],
+                index
+            );
+
+
+        if (validationError) {
+
+            alert(
+                validationError
+            );
+
+            return;
+        }
+    }
+
+
+    const confirmation =
+        confirm(
+            `Enregistrer ${selectedQuestions.length} question(s) dans Nickel Master ?`
+        );
+
+
+    if (!confirmation) {
+        return;
+    }
+
+
+    const button =
+        document.getElementById(
+            "aiSaveSelectedQuestionsButton"
+        );
+
+
+    if (button) {
+
+        button.disabled =
+            true;
+
+        button.textContent =
+            "Enregistrement...";
+    }
+
+
+    try {
+
+        const nextOrders = {};
+
+
+        for (
+            const item
+            of selectedQuestions
+        ) {
+
+            if (
+                nextOrders[
+                    item.category
+                ] === undefined
+            ) {
+
+                nextOrders[
+                    item.category
+                ] =
+                    await getNextQuestionOrderNumber(
+                        item.category
+                    );
+            }
+        }
+
+
+        const payload =
+            selectedQuestions
+                .map(
+                    item => {
+
+                        const orderNumber =
+                            nextOrders[
+                                item.category
+                            ]++;
+
+
+                        return buildAIGeneratedQuestionPayload(
+                            item,
+                            orderNumber
+                        );
+                    }
+                );
+
+
+        const response =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/questions`,
+                {
+                    method:
+                        "POST",
+
+                    headers:
+                        supabaseHeaders({
+                            "Content-Type":
+                                "application/json",
+                            "Prefer":
+                                "return=minimal"
+                        }),
+
+                    body:
+                        JSON.stringify(
+                            payload
+                        )
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                await response.text()
+            );
+        }
+
+
+        const savedIds =
+            new Set(
+                selectedQuestions
+                    .map(
+                        question =>
+                            String(
+                                question.id
+                            )
+                    )
+            );
+
+
+        aiQuestionGeneratorState.generatedQuestions =
+            aiQuestionGeneratorState
+                .generatedQuestions
+                .filter(
+                    question =>
+                        !savedIds.has(
+                            String(
+                                question.id
+                            )
+                        )
+                );
+
+
+        renderAIGeneratedQuestions();
+
+
+        alert(
+            `${payload.length} question(s) ajoutÃ©e(s) Ã  Nickel Master âœ…`
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Erreur enregistrement questions IA :",
+            error
+        );
+
+
+        alert(
+            "Impossible d'enregistrer les questions gÃ©nÃ©rÃ©es.\n\n" +
+            error.message
+        );
+
+
+    } finally {
+
+        updateAIGeneratedQuestionsSelectionSummary();
+    }
+}
+
+
+/* =========================================================
+   INITIALISATION AUTOMATIQUE SI LA PAGE IA EST OUVERTE
+========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        if (
+            document.getElementById(
+                "aiQuestionGeneratorRoot"
+            )
+        ) {
+
+            initializeAIQuestionGeneratorPage()
+                .catch(
+                    error => {
+
+                        console.error(
+                            "Erreur initialisation gÃ©nÃ©rateur IA :",
+                            error
+                        );
+                    }
+                );
+        }
+    }
+);
