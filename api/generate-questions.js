@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <script>
+    const savedTheme =
+      localStorage.getItem("nickel_master_theme") || "light";
+
+    document.documentElement.setAttribute(
+      "data-theme",
+      savedTheme
+    );
+  </script>
+
+  <title>Ajouter des questions - Nickel Master</title>
+
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
+</head>
+
+
+<body class="dashboard-body">
+
+<div class="dashboard-layout">
+
+
+  <!-- =====================================================
+       SIDEBAR
+  ====================================================== -->
+
+  <aside class="sidebar">
+
+    <div class="logo">
+
+      <img
+        src="images/logo-nickel.png"
+        alt="Nickel"
+        class="sidebar-logo-img"
+      >
+
+      <span>
+        NICKEL<br>MASTER
+      </span>
+
+    </div>
+
+
+    <!-- ===================================================
+         MENU PRINCIPAL
+    ==================================================== -->
+
+    <nav class="side-menu">
+
+      <button
+        onclick="window.location.href='home.html'"
+      >
+        🏠 Accueil
+      </button>
+
+
+      <button
+        onclick="window.location.href='training.html'"
+      >
+        🎯 Entraînement
+      </button>
+
+
+      <button>
+        🏆 Challenges
+      </button>
+
+
+      <button
+        onclick="window.location.href='ranking.html'"
+      >
+        📊 Classements
+      </button>
+
+
+      <button>
+        ⚔️ Battle
+      </button>
+
+
+      <button>
+        🎮 Kahoot
+      </button>
+
+
+      <button
+        onclick="window.location.href='profile.html'"
+      >
+        📈 Mes stats
+      </button>
+
+
+      <button
+        onclick="window.location.href='badges.html'"
+      >
+        🏅 Badges
+      </button>
+
+    </nav>
+
+
+    <!-- ===================================================
+         BAS SIDEBAR
+    ==================================================== -->
+
+    <div class="sidebar-bottom">
+
+      <button
+        onclick="window.location.href='settings.html'"
+      >
+        ⚙️ Paramètres
+      </button>
+
+
+      <button
+        id="themeToggle"
+        class="sidebar-link theme-button"
+        onclick="toggleTheme()"
+      >
+        🌙 Mode sombre
+      </button>
+
+
+      <button
+        class="sidebar-link"
+        onclick="logout()"
+      >
+        🚪 Déconnexion
+      </button>
+
+    </div>
+
+  </aside>
+
+
+
+  <!-- =====================================================
+       CONTENU PRINCIPAL
+  ====================================================== -->
+
+  <main class="dashboard-main">
+
+
+    <!-- ===================================================
+         HEADER
+    ==================================================== -->
+
+    <header class="question-admin-header">
+
+      <div>
+
+        <h1>
+          Ajouter une question
+        </h1>
+
+        <p>
+          Ajoute une question seule ou importe plusieurs questions d'un coup.
+        </p>
+
+      </div>
+
+
+      <strong id="questionAdminUser">
+        Administrateur
+      </strong>
+
+    </header>
+
+
+
+    <!-- ===================================================
+         CHOIX DU MODE
+    ==================================================== -->
+
+    <div class="question-mode-selector">
+
+      <button
+        type="button"
+        id="singleQuestionModeButton"
+        class="question-mode-button active"
+      >
+
+        <span>
+          📝
+        </span>
+
+        <div>
+
+          <strong>
+            Ajout question par question
+          </strong>
+
+          <small>
+            Créer une question à la fois
+          </small>
+
+        </div>
+
+      </button>
+
+
+      <button
+        type="button"
+        id="bulkQuestionModeButton"
+        class="question-mode-button"
+      >
+
+        <span>
+          📚
+        </span>
+
+        <div>
+
+          <strong>
+            Ajout en bloc
+          </strong>
+
+          <small>
+            Coller plusieurs questions
+          </small>
+
+        </div>
+
+      </button>
+
+    </div>
+
+
+
+    <!-- ===================================================
+         MODE 1
+         QUESTION PAR QUESTION
+    ==================================================== -->
+
+    <section
+      id="singleQuestionPanel"
+      class="question-admin-panel"
+    >
+
+      <div class="question-admin-layout">
+
+
+        <!-- ===============================================
+             FORMULAIRE
+        ================================================ -->
+
+        <div class="question-editor-card">
+
+
+          <!-- =============================================
+               INFORMATIONS GÉNÉRALES
+          ============================================== -->
+
+          <div class="question-section">
+
+            <h2>
+              1. Informations générales
+            </h2>
+
+
+            <div class="question-form-row">
+
+
+              <!-- CATÉGORIE -->
+
+              <div class="question-field">
+
+                <label for="questionCategory">
+                  Catégorie
+                </label>
+
+                <select id="questionCategory">
+
+                  <option value="">
+                    Chargement...
+                  </option>
+
+                </select>
+
+              </div>
+
+
+              <!-- CRÉER CATÉGORIE -->
+
+              <button
+                type="button"
+                id="createCategoryButton"
+                class="btn-secondary question-create-category"
+              >
+                + Créer une catégorie
+              </button>
+
+            </div>
+
+
+
+            <!-- TYPE -->
+
+            <div class="question-field">
+
+              <label for="questionType">
+                Type de question
+              </label>
+
+              <select id="questionType">
+
+                <option value="true_false">
+                  Vrai / Faux
+                </option>
+
+                <option value="simple_choice">
+                  Choix simple
+                </option>
+
+                <option value="multiple_choice">
+                  Choix multiple
+                </option>
+
+              </select>
+
+            </div>
+
+
+
+            <!-- QUESTION -->
+
+            <div class="question-field">
+
+              <label for="questionText">
+                Question
+              </label>
+
+              <textarea
+                id="questionText"
+                maxlength="500"
+                placeholder="Rédige ta question..."
+              ></textarea>
+
+            </div>
+
+          </div>
+
+
+
+          <!-- =============================================
+               RÉPONSES DYNAMIQUES
+          ============================================== -->
+
+          <div class="question-section">
+
+            <h2>
+              2. Proposition(s) et réponse correcte
+            </h2>
+
+            <div id="questionAnswersContainer">
+            </div>
+
+          </div>
+
+
+
+          <!-- =============================================
+               PARAMÈTRES AUTOMATIQUES
+          ============================================== -->
+
+          <div class="question-section">
+
+            <h2>
+              3. Paramètres
+            </h2>
+
+
+            <div class="question-auto-info">
+
+
+              <div>
+
+                <small>
+                  Ordre automatique
+                </small>
+
+                <strong id="questionOrderPreview">
+                  —
+                </strong>
+
+              </div>
+
+
+              <div>
+
+                <small>
+                  Points maximum
+                </small>
+
+                <strong id="questionPointsPreview">
+                  1
+                </strong>
+
+              </div>
+
+
+              <div>
+
+                <small>
+                  Keywords auto
+                </small>
+
+                <strong id="questionKeywordsPreview">
+                  —
+                </strong>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+
+          <!-- =============================================
+               ACTIONS
+          ============================================== -->
+
+          <div class="question-actions">
+
+            <button
+              type="button"
+              id="resetQuestionButton"
+              class="btn-secondary"
+            >
+              Annuler
+            </button>
+
+
+            <button
+              type="button"
+              id="saveQuestionButton"
+              class="btn-primary"
+            >
+              ➕ Ajouter la question
+            </button>
+
+          </div>
+
+        </div>
+
+
+
+        <!-- ===============================================
+             APERÇU
+        ================================================ -->
+
+        <aside class="question-preview-card">
+
+          <h2>
+            Aperçu de la question
+          </h2>
+
+          <div id="questionPreview">
+
+            <div class="question-preview-empty">
+              Commence à rédiger ta question.
+            </div>
+
+          </div>
+
+        </aside>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ===================================================
+         MODE 2
+         AJOUT EN BLOC
+    ==================================================== -->
+
+    <section
+      id="bulkQuestionPanel"
+      class="question-admin-panel"
+      style="display:none;"
+    >
+
+      <div class="bulk-question-card">
+
+
+        <!-- ===============================================
+             COLLAGE
+        ================================================ -->
+
+        <div class="question-section">
+
+          <h2>
+            1. Colle tes questions
+          </h2>
+
+
+          <p class="question-help">
+            Sépare les questions avec un point-virgule « ; » ou une nouvelle ligne.
+          </p>
+
+
+          <textarea
+            id="bulkQuestionInput"
+            class="bulk-question-input"
+            placeholder="L'entreprise s'appelle Nickel ?;
+Wero permet-il d'envoyer de l'argent ?;
+Quel produit est réservé aux professionnels ?;"
+          ></textarea>
+
+
+          <div class="bulk-detection-row">
+
+            <span id="bulkDetectedCount">
+              0 question détectée
+            </span>
+
+
+            <button
+              type="button"
+              id="analyseBulkQuestionsButton"
+              class="btn-primary"
+            >
+              Analyser
+            </button>
+
+          </div>
+
+        </div>
+
+
+
+        <!-- ===============================================
+             CONFIGURATION APRÈS ANALYSE
+        ================================================ -->
+
+        <div
+          id="bulkQuestionConfiguration"
+          style="display:none;"
+        >
+
+
+          <!-- =============================================
+               CONFIGURATION PAR DÉFAUT
+          ============================================== -->
+
+          <div class="question-section">
+
+            <h2>
+              2. Configuration par défaut
+            </h2>
+
+
+            <div class="bulk-default-grid">
+
+
+              <!-- CATÉGORIE -->
+
+              <div class="question-field">
+
+                <label for="bulkCategory">
+                  Catégorie
+                </label>
+
+                <select id="bulkCategory">
+                </select>
+
+              </div>
+
+
+              <!-- TYPE -->
+
+              <div class="question-field">
+
+                <label for="bulkQuestionType">
+                  Type
+                </label>
+
+                <select id="bulkQuestionType">
+
+                  <option value="true_false">
+                    Vrai / Faux
+                  </option>
+
+                  <option value="simple_choice">
+                    Choix simple
+                  </option>
+
+                  <option value="multiple_choice">
+                    Choix multiple
+                  </option>
+
+                </select>
+
+              </div>
+
+            </div>
+
+
+
+            <!-- APPLICATION À TOUTES -->
+
+            <label class="bulk-apply-defaults">
+
+              <input
+                type="checkbox"
+                id="bulkApplyDefaults"
+                checked
+              >
+
+              Appliquer ces paramètres à toutes les questions
+
+            </label>
+
+          </div>
+
+
+
+          <!-- =============================================
+               QUESTION COURANTE
+          ============================================== -->
+
+          <div class="question-section">
+
+            <div class="bulk-question-heading">
+
+              <h2>
+                3. Paramétrer les questions
+              </h2>
+
+              <strong id="bulkQuestionPosition">
+                Question 1 / 1
+              </strong>
+
+            </div>
+
+
+            <div id="bulkQuestionEditor">
+            </div>
+
+
+
+            <!-- NAVIGATION -->
+
+            <div class="bulk-navigation">
+
+              <button
+                type="button"
+                id="previousBulkQuestionButton"
+                class="btn-secondary"
+              >
+                ← Précédente
+              </button>
+
+
+              <button
+                type="button"
+                id="nextBulkQuestionButton"
+                class="btn-primary"
+              >
+                Suivante →
+              </button>
+
+            </div>
+
+          </div>
+
+
+
+          <!-- =============================================
+               RÉCAPITULATIF
+          ============================================== -->
+
+          <div class="bulk-summary">
+
+            <div>
+
+              <strong>
+                Récapitulatif avant import
+              </strong>
+
+              <p id="bulkSummaryText">
+                —
+              </p>
+
+            </div>
+
+
+            <button
+              type="button"
+              id="importBulkQuestionsButton"
+              class="btn-primary"
+            >
+              Importer les questions
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</div>
+
+
+
+<!-- =====================================================
+     SCRIPTS
+====================================================== -->
+
+<script src="app.js"></script>
+<script src="theme.js"></script>
+
+
+<script>
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    async function () {
+
+      /* ===============================================
+         SÉCURITÉ ADMIN
+      ================================================ */
+
+      const role =
+        String(
+          localStorage.getItem("role") || ""
+        )
+        .trim()
+        .toLowerCase();
+
+
+      if (role !== "admin") {
+
+        alert(
+          "Cette page est réservée à l'administrateur."
+        );
+
+        window.location.href =
+          "home.html";
+
+        return;
+      }
+
+
+
+      /* ===============================================
+         NOM UTILISATEUR
+      ================================================ */
+
+      const name =
+        localStorage.getItem("full_name") ||
+        "Administrateur";
+
+
+      const userElement =
+        document.getElementById(
+          "questionAdminUser"
+        );
+
+
+      if (userElement) {
+
+        userElement.innerText =
+          name;
+      }
+
+
+
+      /* ===============================================
+         INITIALISATION PAGE
+      ================================================ */
+
+      if (
+        typeof initializeQuestionAdmin ===
+        "function"
+      ) {
+
+        await initializeQuestionAdmin();
+      }
+
+    }
+  );
+
+</script>
+
+</body>
+
+</html>
