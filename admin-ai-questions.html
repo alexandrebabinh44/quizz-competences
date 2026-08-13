@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <script>
+    const savedTheme =
+      localStorage.getItem("nickel_master_theme") || "light";
+
+    document.documentElement.setAttribute(
+      "data-theme",
+      savedTheme
+    );
+  </script>
+
+  <title>Générateur IA de questions - Nickel Master</title>
+
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
+</head>
+
+
+<body class="dashboard-body">
+
+<div class="dashboard-layout">
+
+
+  <!-- =====================================================
+       SIDEBAR
+  ====================================================== -->
+
+  <aside class="sidebar">
+
+    <div class="logo">
+
+      <img
+        src="images/logo-nickel.png"
+        alt="Nickel"
+        class="sidebar-logo-img"
+      >
+
+      <span>
+        NICKEL<br>MASTER
+      </span>
+
+    </div>
+
+
+    <nav class="side-menu">
+
+      <button onclick="window.location.href='home.html'">
+        🏠 Accueil
+      </button>
+
+      <button onclick="window.location.href='training.html'">
+        🎯 Entraînement
+      </button>
+
+      <button>
+        🏆 Challenges
+      </button>
+
+      <button onclick="window.location.href='ranking.html'">
+        📊 Classements
+      </button>
+
+      <button>
+        ⚔️ Battle
+      </button>
+
+      <button>
+        🎮 Kahoot
+      </button>
+
+      <button onclick="window.location.href='profile.html'">
+        📈 Mes stats
+      </button>
+
+      <button onclick="window.location.href='badges.html'">
+        🏅 Badges
+      </button>
+
+    </nav>
+
+
+    <div class="sidebar-bottom">
+
+      <button onclick="window.location.href='settings.html'">
+        ⚙️ Paramètres
+      </button>
+
+      <button
+        id="themeToggle"
+        class="sidebar-link theme-button"
+        onclick="toggleTheme()"
+      >
+        🌙 Mode sombre
+      </button>
+
+      <button
+        class="sidebar-link"
+        onclick="logout()"
+      >
+        🚪 Déconnexion
+      </button>
+
+    </div>
+
+  </aside>
+
+
+
+  <!-- =====================================================
+       CONTENU PRINCIPAL
+  ====================================================== -->
+
+  <main class="dashboard-main">
+
+
+    <!-- ===================================================
+         HEADER
+    ==================================================== -->
+
+    <header class="question-admin-header">
+
+      <div>
+
+        <h1>
+          ✨ Générateur IA de questions
+        </h1>
+
+        <p>
+          Transforme un texte ou plusieurs images en questions prêtes à être relues,
+          modifiées puis ajoutées à Nickel Master.
+        </p>
+
+      </div>
+
+
+      <strong id="aiQuestionAdminUser">
+        Administrateur
+      </strong>
+
+    </header>
+
+
+
+    <!-- ===================================================
+         NAVIGATION RAPIDE
+    ==================================================== -->
+
+    <div class="ai-question-top-actions">
+
+      <button
+        type="button"
+        class="btn-secondary"
+        onclick="window.location.href='admin-quizzes.html'"
+      >
+        ← Gestion des Quiz
+      </button>
+
+      <button
+        type="button"
+        class="btn-secondary"
+        onclick="window.location.href='admin-questions.html'"
+      >
+        📝 Ajout manuel
+      </button>
+
+    </div>
+
+
+
+    <!-- ===================================================
+         ÉTAPE 1 : SOURCE
+    ==================================================== -->
+
+    <section class="ai-question-card">
+
+      <div class="ai-question-section-heading">
+
+        <div class="ai-question-step">
+          1
+        </div>
+
+        <div>
+
+          <h2>
+            Source à analyser
+          </h2>
+
+          <p>
+            Colle un texte ou ajoute une ou plusieurs images.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="ai-source-selector">
+
+        <button
+          type="button"
+          id="aiSourceTextButton"
+          class="ai-source-button active"
+          data-ai-source="text"
+        >
+          📝 Texte
+        </button>
+
+        <button
+          type="button"
+          id="aiSourceImagesButton"
+          class="ai-source-button"
+          data-ai-source="images"
+        >
+          🖼️ Images
+        </button>
+
+      </div>
+
+
+      <!-- TEXTE -->
+
+      <div
+        id="aiTextSourcePanel"
+        class="ai-source-panel"
+      >
+
+        <div class="question-field">
+
+          <label for="aiSourceText">
+            Texte à analyser
+          </label>
+
+          <textarea
+            id="aiSourceText"
+            class="ai-source-textarea"
+            maxlength="30000"
+            placeholder="Colle ici une procédure, une fiche produit, un support de formation, une FAQ..."
+          ></textarea>
+
+          <div class="ai-character-counter">
+            <span id="aiSourceTextCount">0</span>
+            / 30 000 caractères
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- IMAGES -->
+
+      <div
+        id="aiImagesSourcePanel"
+        class="ai-source-panel"
+        style="display:none;"
+      >
+
+        <label
+          for="aiSourceImages"
+          class="ai-image-dropzone"
+          id="aiImageDropzone"
+        >
+
+          <div class="ai-dropzone-icon">
+            🖼️
+          </div>
+
+          <strong>
+            Ajouter des images
+          </strong>
+
+          <span>
+            PNG, JPG, JPEG ou WEBP
+          </span>
+
+          <small>
+            Tu peux sélectionner plusieurs captures en une seule fois.
+          </small>
+
+        </label>
+
+
+        <input
+          id="aiSourceImages"
+          type="file"
+          accept="image/png,image/jpeg,image/webp"
+          multiple
+          hidden
+        >
+
+
+        <div
+          id="aiImagePreviewList"
+          class="ai-image-preview-list"
+        >
+        </div>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ===================================================
+         ÉTAPE 2 : PARAMÈTRES
+    ==================================================== -->
+
+    <section class="ai-question-card">
+
+      <div class="ai-question-section-heading">
+
+        <div class="ai-question-step">
+          2
+        </div>
+
+        <div>
+
+          <h2>
+            Paramètres de génération
+          </h2>
+
+          <p>
+            Choisis ce que l'IA doit créer.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="ai-question-settings-grid">
+
+
+        <!-- CATÉGORIE -->
+
+        <div class="question-field">
+
+          <label for="aiQuestionCategory">
+            Catégorie cible
+          </label>
+
+          <select id="aiQuestionCategory">
+
+            <option value="">
+              Chargement...
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <!-- NOMBRE -->
+
+        <div class="question-field">
+
+          <label for="aiQuestionCount">
+            Nombre de questions
+          </label>
+
+          <select id="aiQuestionCount">
+
+            <option value="5">
+              5 questions
+            </option>
+
+            <option value="10" selected>
+              10 questions
+            </option>
+
+            <option value="15">
+              15 questions
+            </option>
+
+            <option value="20">
+              20 questions
+            </option>
+
+            <option value="25">
+              25 questions
+            </option>
+
+            <option value="30">
+              30 questions
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <!-- DIFFICULTÉ -->
+
+        <div class="question-field">
+
+          <label for="aiQuestionDifficulty">
+            Difficulté
+          </label>
+
+          <select id="aiQuestionDifficulty">
+
+            <option value="mixed" selected>
+              Mixte
+            </option>
+
+            <option value="easy">
+              Facile
+            </option>
+
+            <option value="standard">
+              Standard
+            </option>
+
+            <option value="hard">
+              Difficile
+            </option>
+
+          </select>
+
+        </div>
+
+      </div>
+
+
+
+      <!-- TYPES -->
+
+      <div class="ai-question-types">
+
+        <h3>
+          Types de questions autorisés
+        </h3>
+
+        <p>
+          L'IA répartira les questions entre les types cochés.
+        </p>
+
+
+        <div class="ai-question-type-grid">
+
+
+          <label class="ai-question-type-card">
+
+            <input
+              type="checkbox"
+              value="true_false"
+              data-ai-question-type
+              checked
+            >
+
+            <span class="ai-type-icon">
+              ✅
+            </span>
+
+            <div>
+
+              <strong>
+                Vrai / Faux
+              </strong>
+
+              <small>
+                Affirmation avec une réponse vraie ou fausse.
+              </small>
+
+            </div>
+
+          </label>
+
+
+
+          <label class="ai-question-type-card">
+
+            <input
+              type="checkbox"
+              value="simple_choice"
+              data-ai-question-type
+              checked
+            >
+
+            <span class="ai-type-icon">
+              🔘
+            </span>
+
+            <div>
+
+              <strong>
+                Choix simple
+              </strong>
+
+              <small>
+                Une seule bonne réponse parmi plusieurs propositions.
+              </small>
+
+            </div>
+
+          </label>
+
+
+
+          <label class="ai-question-type-card">
+
+            <input
+              type="checkbox"
+              value="multiple_choice"
+              data-ai-question-type
+              checked
+            >
+
+            <span class="ai-type-icon">
+              ☑️
+            </span>
+
+            <div>
+
+              <strong>
+                Choix multiples
+              </strong>
+
+              <small>
+                Plusieurs bonnes réponses possibles.
+              </small>
+
+            </div>
+
+          </label>
+
+
+
+          <label class="ai-question-type-card">
+
+            <input
+              type="checkbox"
+              value="open"
+              data-ai-question-type
+              checked
+            >
+
+            <span class="ai-type-icon">
+              💬
+            </span>
+
+            <div>
+
+              <strong>
+                Question ouverte
+              </strong>
+
+              <small>
+                L'IA fournit également la réponse attendue.
+              </small>
+
+            </div>
+
+          </label>
+
+
+        </div>
+
+      </div>
+
+
+
+      <!-- OPTIONS -->
+
+      <div class="ai-generation-options">
+
+        <label>
+
+          <input
+            id="aiIncludeExplanations"
+            type="checkbox"
+            checked
+          >
+
+          Ajouter une explication pour vérifier chaque réponse
+
+        </label>
+
+
+        <label>
+
+          <input
+            id="aiTrickyQuestions"
+            type="checkbox"
+          >
+
+          Inclure quelques questions pièges sans ambiguïté
+
+        </label>
+
+      </div>
+
+
+
+      <!-- ACTION -->
+
+      <div class="ai-generation-action">
+
+        <div>
+
+          <strong>
+            Prêt à analyser le contenu ?
+          </strong>
+
+          <small>
+            Aucune question ne sera enregistrée automatiquement.
+          </small>
+
+        </div>
+
+
+        <button
+          type="button"
+          id="aiGenerateQuestionsButton"
+          class="btn-primary ai-generate-button"
+        >
+          ✨ Générer les questions
+        </button>
+
+      </div>
+
+
+      <div
+        id="aiGenerationStatus"
+        class="ai-generation-status"
+        style="display:none;"
+      >
+      </div>
+
+    </section>
+
+
+
+    <!-- ===================================================
+         ÉTAPE 3 : RÉSULTATS
+    ==================================================== -->
+
+    <section
+      id="aiGeneratedQuestionsSection"
+      class="ai-question-card"
+      style="display:none;"
+    >
+
+      <div class="ai-question-section-heading">
+
+        <div class="ai-question-step">
+          3
+        </div>
+
+        <div>
+
+          <h2>
+            Questions générées
+          </h2>
+
+          <p>
+            Relis tout : tu peux modifier les questions et les réponses avant de les enregistrer.
+          </p>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="ai-generated-toolbar">
+
+        <div>
+
+          <strong id="aiGeneratedQuestionCount">
+            0 question
+          </strong>
+
+          <span id="aiSelectedQuestionCount">
+            0 sélectionnée
+          </span>
+
+        </div>
+
+
+        <div>
+
+          <button
+            type="button"
+            id="aiSelectAllQuestionsButton"
+            class="btn-secondary"
+          >
+            Tout sélectionner
+          </button>
+
+          <button
+            type="button"
+            id="aiDeselectAllQuestionsButton"
+            class="btn-secondary"
+          >
+            Tout désélectionner
+          </button>
+
+        </div>
+
+      </div>
+
+
+
+      <div
+        id="aiGeneratedQuestionsList"
+        class="ai-generated-question-list"
+      >
+      </div>
+
+
+
+      <div class="ai-save-generated-bar">
+
+        <div>
+
+          <strong>
+            Vérifie les questions avant l'import
+          </strong>
+
+          <small>
+            Seules les questions cochées seront enregistrées.
+          </small>
+
+        </div>
+
+
+        <button
+          type="button"
+          id="aiSaveGeneratedQuestionsButton"
+          class="btn-primary"
+        >
+          💾 Enregistrer les questions sélectionnées
+        </button>
+
+      </div>
+
+    </section>
+
+
+  </main>
+
+</div>
+
+
+
+<!-- =====================================================
+     SCRIPTS
+====================================================== -->
+
+<script src="app.js"></script>
+<script src="theme.js"></script>
+
+
+<script>
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    async function () {
+
+      const role =
+        String(
+          localStorage.getItem("role") || ""
+        )
+        .trim()
+        .toLowerCase();
+
+
+      if (role !== "admin") {
+
+        alert(
+          "Cette page est réservée à l'administrateur."
+        );
+
+        window.location.href =
+          "home.html";
+
+        return;
+      }
+
+
+      const name =
+        localStorage.getItem("full_name") ||
+        "Administrateur";
+
+
+      const user =
+        document.getElementById(
+          "aiQuestionAdminUser"
+        );
+
+
+      if (user) {
+
+        user.textContent =
+          name;
+      }
+
+
+      if (
+        typeof initializeAIQuestionGenerator ===
+        "function"
+      ) {
+
+        await initializeAIQuestionGenerator();
+
+      } else {
+
+        console.error(
+          "initializeAIQuestionGenerator() est introuvable dans app.js"
+        );
+      }
+
+    }
+  );
+
+</script>
+
+
+</body>
+
+</html>
