@@ -3829,26 +3829,9 @@ async function finishTraining() {
     localStorage.removeItem(
         "training_questions"
     );
+   window.location.href =
+      "training-result.html"
 
-
-    /*
-     * On prépare déjà la future page bilan.
-     *
-     * Pour l'instant, si training-result.html
-     * n'existe pas encore, on affiche un bilan
-     * directement dans la page.
-     */
-
-    showTrainingTemporaryResult({
-
-        total,
-        correct,
-        incorrect,
-        percentage,
-        duration:
-            trainingElapsedSeconds
-
-    });
 }
 
 
