@@ -1,43 +1,594 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
+
   <meta charset="UTF-8">
-  <title>Quiz entraînement</title>
-  <link rel="stylesheet" href="style.css">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
   <script>
+
     const savedTheme =
-        localStorage.getItem(
-            "nickel_master_theme"
-        ) || "light";
+      localStorage.getItem("nickel_master_theme") || "light";
 
     document.documentElement.setAttribute(
-        "data-theme",
-        savedTheme
+      "data-theme",
+      savedTheme
     );
-</script>
-<link
+
+  </script>
+
+  <title>
+    Quiz entraînement - Nickel Master
+  </title>
+
+  <link
     rel="stylesheet"
     href="style.css"
->
+  >
+
 </head>
-<body>
 
-<div class="container">
-  <h1 id="trainingTitle">Entraînement</h1>
 
-  <p id="trainingProgress"></p>
-  <h2 id="trainingQuestion"></h2>
+<body class="dashboard-body">
 
-  <div id="answerZone"></div>
 
-  <button onclick="submitTrainingAnswer()">Valider</button>
+<div class="dashboard-layout">
+
+
+  <!-- =====================================================
+       SIDEBAR
+  ====================================================== -->
+
+  <aside class="sidebar">
+
+
+    <div class="logo">
+
+      <img
+        src="images/logo-nickel.png"
+        alt="Nickel"
+        class="sidebar-logo-img"
+      >
+
+      <span>
+        NICKEL<br>
+        MASTER
+      </span>
+
+    </div>
+
+
+    <nav class="side-menu">
+
+
+      <button
+        onclick="window.location.href='home.html'"
+      >
+        🏠 Accueil
+      </button>
+
+
+      <button
+        class="active"
+        onclick="window.location.href='training.html'"
+      >
+        🎯 Entraînement
+      </button>
+
+
+      <button>
+        🏆 Challenges
+      </button>
+
+
+      <button
+        onclick="window.location.href='ranking.html'"
+      >
+        📊 Classements
+      </button>
+
+
+      <button>
+        ⚔️ Battle
+      </button>
+
+
+      <button>
+        🎮 Kahoot
+      </button>
+
+
+      <button
+        onclick="window.location.href='profile.html'"
+      >
+        📈 Mes stats
+      </button>
+
+
+      <button
+        onclick="window.location.href='badges.html'"
+      >
+        🏅 Badges
+      </button>
+
+
+      <button>
+        💡 Boîte à idées
+      </button>
+
+
+      <button>
+        🚩 Signalements
+      </button>
+
+
+    </nav>
+
+
+    <div class="sidebar-bottom">
+
+
+      <button
+        onclick="window.location.href='settings.html'"
+      >
+        ⚙️ Paramètres
+      </button>
+
+
+      <button
+        id="themeToggle"
+        class="sidebar-link theme-button"
+        onclick="toggleTheme()"
+      >
+        🌙 Mode sombre
+      </button>
+
+
+      <button
+        class="sidebar-link"
+        onclick="logout()"
+      >
+        🚪 Déconnexion
+      </button>
+
+
+    </div>
+
+
+  </aside>
+
+
+
+  <!-- =====================================================
+       CONTENU
+  ====================================================== -->
+
+  <main class="dashboard-main">
+
+
+    <section class="training-quiz-page">
+
+
+      <!-- =================================================
+           HEADER
+      ================================================== -->
+
+      <header class="training-quiz-header">
+
+
+        <div class="training-quiz-title-zone">
+
+          <h1 id="trainingTitle">
+            🎯 Entraînement
+          </h1>
+
+          <span
+            id="trainingCategoryBadge"
+            class="training-category-badge"
+          >
+            Catégorie
+          </span>
+
+        </div>
+
+
+        <div class="training-quiz-user-zone">
+
+          <div class="training-xp-box">
+
+            ⭐
+
+            <strong id="trainingUserXp">
+              0 XP
+            </strong>
+
+          </div>
+
+
+          <div class="training-user-card">
+
+            <strong id="trainingUserName">
+              Utilisateur
+            </strong>
+
+            <small id="trainingUserLevel">
+              Niveau
+            </small>
+
+          </div>
+
+        </div>
+
+
+      </header>
+
+
+
+      <!-- =================================================
+           LAYOUT PRINCIPAL
+      ================================================== -->
+
+      <div class="training-quiz-layout">
+
+
+        <!-- ===============================================
+             QUESTION
+        ================================================ -->
+
+        <section class="training-quiz-main-card">
+
+
+          <!-- PROGRESSION + TIMER -->
+
+          <div class="training-quiz-top">
+
+
+            <div class="training-progress-zone">
+
+              <strong id="trainingProgressText">
+                Question 1 sur 10
+              </strong>
+
+
+              <div class="training-progress-bar">
+
+                <div
+                  id="trainingProgressBar"
+                  class="training-progress-bar-fill"
+                >
+                </div>
+
+              </div>
+
+            </div>
+
+
+            <div class="training-timer">
+
+              ⏱
+
+              <strong id="trainingTimer">
+                00:00
+              </strong>
+
+            </div>
+
+
+          </div>
+
+
+
+          <div class="training-quiz-separator">
+          </div>
+
+
+
+          <!-- QUESTION -->
+
+          <div class="training-question-block">
+
+
+            <span class="training-question-label">
+              Question
+            </span>
+
+
+            <h2 id="trainingQuestion">
+
+              Chargement de la question...
+
+            </h2>
+
+
+          </div>
+
+
+
+          <!-- RÉPONSES -->
+
+          <div
+            id="answerZone"
+            class="training-answer-zone"
+          >
+          </div>
+
+
+
+          <!-- ACTIONS -->
+
+          <div class="training-question-actions">
+
+
+            <button
+              type="button"
+              id="trainingPreviousButton"
+              class="btn-secondary"
+              onclick="previousTrainingQuestion()"
+              disabled
+            >
+              ← Précédente
+            </button>
+
+
+            <button
+              type="button"
+              id="trainingValidateButton"
+              class="btn-primary"
+              onclick="submitTrainingAnswer()"
+            >
+              Valider
+            </button>
+
+
+            <button
+              type="button"
+              id="trainingNextButton"
+              class="btn-primary"
+              onclick="nextTrainingQuestion()"
+              style="display:none;"
+            >
+              Suivante →
+            </button>
+
+
+          </div>
+
+
+        </section>
+
+
+
+        <!-- ===============================================
+             COLONNE DROITE
+        ================================================ -->
+
+        <aside class="training-session-sidebar">
+
+
+          <!-- MA SESSION -->
+
+          <section class="training-session-card">
+
+
+            <h2>
+              Ma session
+            </h2>
+
+
+            <div class="training-session-score-layout">
+
+
+              <div class="training-session-circle">
+
+                <strong id="trainingSessionProgress">
+                  0 / 10
+                </strong>
+
+                <small>
+                  questions
+                </small>
+
+              </div>
+
+
+              <div class="training-session-stats">
+
+
+                <div>
+
+                  <span class="training-stat-icon success">
+                    ✓
+                  </span>
+
+                  <strong id="trainingCorrectCount">
+                    0
+                  </strong>
+
+                  <span>
+                    Bonnes
+                  </span>
+
+                </div>
+
+
+                <div>
+
+                  <span class="training-stat-icon error">
+                    ✕
+                  </span>
+
+                  <strong id="trainingWrongCount">
+                    0
+                  </strong>
+
+                  <span>
+                    Mauvaises
+                  </span>
+
+                </div>
+
+
+                <div>
+
+                  <span class="training-stat-icon neutral">
+                    »
+                  </span>
+
+                  <strong id="trainingRemainingCount">
+                    10
+                  </strong>
+
+                  <span>
+                    Restantes
+                  </span>
+
+                </div>
+
+
+              </div>
+
+
+            </div>
+
+
+          </section>
+
+
+
+          <!-- INFORMATIONS -->
+
+          <section class="training-session-card">
+
+
+            <h2>
+              Informations
+            </h2>
+
+
+            <div class="training-session-information">
+
+
+              <div>
+
+                <span>
+                  Catégorie
+                </span>
+
+                <strong id="trainingInfoCategory">
+                  —
+                </strong>
+
+              </div>
+
+
+              <div>
+
+                <span>
+                  Mode
+                </span>
+
+                <strong id="trainingInfoMode">
+                  —
+                </strong>
+
+              </div>
+
+
+              <div>
+
+                <span>
+                  Questions par session
+                </span>
+
+                <strong id="trainingInfoQuestionCount">
+                  10
+                </strong>
+
+              </div>
+
+
+              <div>
+
+                <span>
+                  Score requis
+                </span>
+
+                <strong>
+                  70%
+                </strong>
+
+              </div>
+
+
+            </div>
+
+
+          </section>
+
+
+
+          <!-- QUITTER -->
+
+          <button
+            type="button"
+            class="training-quit-button"
+            onclick="quitTrainingSession()"
+          >
+            🚪 Quitter l'entraînement
+          </button>
+
+
+        </aside>
+
+
+      </div>
+
+
+    </section>
+
+
+  </main>
+
+
 </div>
 
+
+
+<!-- =====================================================
+     SCRIPTS
+====================================================== -->
+
 <script src="app.js"></script>
-<script>
-  loadTrainingQuiz();
-</script>
+
 <script src="theme.js"></script>
 
+
+<script>
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    async function () {
+
+      if (
+        typeof loadTrainingQuiz ===
+        "function"
+      ) {
+
+        await loadTrainingQuiz();
+
+      }
+
+    }
+  );
+
+</script>
+
+
 </body>
+
 </html>
