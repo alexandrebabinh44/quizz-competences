@@ -4062,6 +4062,443 @@ function restartCurrentTraining() {
     window.location.href =
         "training.html";
 }
+/* =========================================================
+   PAGE BILAN ENTRAÎNEMENT
+========================================================= */
+
+function initializeTrainingResultPage() {
+
+    const raw =
+        localStorage.getItem(
+            "training_last_result"
+        );
+
+
+    if (!raw) {
+
+        window.location.href =
+            "training.html";
+
+        return;
+    }
+
+
+    let result;
+
+
+    try {
+
+        result =
+            JSON.parse(
+                raw
+            );
+
+    } catch (error) {
+
+        console.error(
+            "Résultat entraînement invalide :",
+            error
+        );
+
+        window.location.href =
+            "training.html";
+
+        return;
+    }
+
+
+    const user =
+        document.getElementById(
+            "trainingResultUser"
+        );
+
+
+    if (user) {
+
+        user.textContent =
+            localStorage.getItem(
+                "full_name"
+            ) ||
+            "Utilisateur";
+    }
+
+
+    const total =
+        Number(
+            result.total ||
+            0
+        );
+
+
+    const correct =
+        Number(
+            result.correct ||
+            0
+        );
+
+
+    const incorrect =
+        Number(
+            result.incorrect ||
+            0
+        );
+
+
+    const percentage =
+        Number(
+            result.percentage ||
+            0
+        );
+
+
+    const xp =
+        Number(
+            result.xp ||
+            0
+        );
+
+
+    const duration =
+        Number(
+            result.duration_seconds ||
+            0
+        );
+
+
+    const minutes =
+        Math.floor(
+            duration /
+            60
+        );
+
+
+    const seconds =
+        duration %
+        60;
+
+
+    const durationText =
+        String(minutes)
+            .padStart(
+                2,
+                "0"
+            ) +
+        ":" +
+        String(seconds)
+            .padStart(
+                2,
+                "0"
+            );
+
+
+    setTrainingResultText(
+        "trainingResultScore",
+        `${correct} / ${total}`
+    );
+
+
+    setTrainingResultText(
+        "trainingResultPercentage",
+        `${percentage}% de réussite`
+    );
+
+
+    setTrainingResultText(
+        "trainingResultCorrect",
+        correct
+    );
+
+
+    setTrainingResultText(
+        "trainingResultWrong",
+        incorrect
+    );
+
+
+    setTrainingResultText(
+        "trainingResultDuration",
+        durationText
+    );
+
+
+    setTrainingResultText(
+        "trainingResultXp",
+        `+${xp} XP`
+    );
+
+
+    setTrainingResultText(
+        "trainingResultCategory",
+        result.category ||
+        "Toutes les catégories"
+    );
+
+
+    setTrainingResultText(
+        "trainingResultMode",
+        getTrainingResultModeLabel(
+            result.mode
+        )
+    );
+
+
+    setTrainingResultText(
+        "trainingResultTotal",
+        total
+    );
+
+
+    updateTrainingResultMessage(
+        percentage
+    );
+}
+
+
+function setTrainingResultText(
+    id,
+    value
+) {
+
+    const element =
+        document.getElementById(
+            id
+        );
+
+
+    if (element) {
+
+        element.textContent =
+            value;
+    }
+}
+
+
+/* =========================================================
+   LIBELLÉ MODE
+========================================================= */
+
+function getTrainingResultModeLabel(
+    mode
+) {
+
+    const normalized =
+        String(
+            mode ||
+            ""
+        )
+        .trim()
+        .toLowerCase();
+
+
+    if (
+        normalized ===
+        "flash"
+    ) {
+
+        return "Flash";
+    }
+
+
+    if (
+        normalized ===
+        "xtrem"
+    ) {
+
+        return "Flash Xtrem";
+    }
+
+
+    return "Entraînement ciblé";
+}
+
+
+/* =========================================================
+   MESSAGE DU BILAN
+========================================================= */
+
+function updateTrainingResultMessage(
+    percentage
+) {
+
+    const icon =
+        document.getElementById(
+            "trainingResultMainIcon"
+        );
+
+
+    const title =
+        document.getElementById(
+            "trainingResultMessage"
+        );
+
+
+    const subtitle =
+        document.getElementById(
+            "trainingResultSubMessage"
+        );
+
+
+    if (
+        percentage >=
+        90
+    ) {
+
+        if (icon) {
+            icon.textContent =
+                "🏆";
+        }
+
+        if (title) {
+            title.textContent =
+                "Excellent travail !";
+        }
+
+        if (subtitle) {
+            subtitle.textContent =
+                "Tu maîtrises très bien cette catégorie.";
+        }
+
+        return;
+    }
+
+
+    if (
+        percentage >=
+        70
+    ) {
+
+        if (icon) {
+            icon.textContent =
+                "🎯";
+        }
+
+        if (title) {
+            title.textContent =
+                "Objectif atteint !";
+        }
+
+        if (subtitle) {
+            subtitle.textContent =
+                "Bonne session, continue comme ça.";
+        }
+
+        return;
+    }
+
+
+    if (icon) {
+        icon.textContent =
+            "💪";
+    }
+
+
+    if (title) {
+        title.textContent =
+            "Encore un petit effort !";
+    }
+
+
+    if (subtitle) {
+        subtitle.textContent =
+            "Un nouvel entraînement te permettra de progresser.";
+    }
+}
+
+
+/* =========================================================
+   RECOMMENCER DERNIÈRE SESSION
+========================================================= */
+
+function restartLastTraining() {
+
+    const raw =
+        localStorage.getItem(
+            "training_last_result"
+        );
+
+
+    if (!raw) {
+
+        window.location.href =
+            "training.html";
+
+        return;
+    }
+
+
+    let result;
+
+
+    try {
+
+        result =
+            JSON.parse(
+                raw
+            );
+
+    } catch (error) {
+
+        window.location.href =
+            "training.html";
+
+        return;
+    }
+
+
+    const mode =
+        String(
+            result.mode ||
+            ""
+        )
+        .trim()
+        .toLowerCase();
+
+
+    if (
+        result.category
+    ) {
+
+        localStorage.setItem(
+            "training_category",
+            result.category
+        );
+    }
+
+
+    localStorage.setItem(
+        "training_mode",
+        mode ||
+        "cible"
+    );
+
+
+    if (
+        mode ===
+        "flash"
+    ) {
+
+        window.location.href =
+            "training-flash.html";
+
+        return;
+    }
+
+
+    if (
+        mode ===
+        "xtrem"
+    ) {
+
+        window.location.href =
+            "training-xtrem.html";
+
+        return;
+    }
+
+
+    window.location.href =
+        "training-targeted.html";
+}
 
 /* =========================================================
    BADGES - CATALOGUE
