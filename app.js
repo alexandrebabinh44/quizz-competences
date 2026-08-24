@@ -1700,22 +1700,104 @@ async function loadTrainingQuiz() {
         new Date()
             .toISOString();
 
-    const mode =
-        localStorage.getItem(
-            "training_mode"
-        ) ||
-        "cible";
+
+    let mode =
+        String(
+            localStorage.getItem(
+                "training_mode"
+            ) ||
+            "cible"
+        )
+        .trim()
+        .toLowerCase();
+
+
+    /*
+     * Compatibilité avec le nouveau bouton
+     * Entraînement ciblé.
+     */
+    if (mode === "targeted") {
+        mode = "cible";
+    }
+
 
     let category =
         localStorage.getItem(
             "training_category"
         );
 
+
     let title =
         "Entraînement";
 
 
-    if (mode === "cible") {
+    /* =====================================================
+       NOUVEAU SYSTÈME
+       Les pages ciblé / flash / xtrem préparent déjà les
+       questions autorisées et les stockent dans localStorage.
+    ===================================================== */
+
+    let storedQuestions = [];
+
+    try {
+        const rawStoredQuestions =
+            localStorage.getItem(
+                "training_questions"
+            );
+
+        if (rawStoredQuestions) {
+            const parsed =
+                JSON.parse(
+                    rawStoredQuestions
+                );
+
+            if (Array.isArray(parsed)) {
+                storedQuestions = parsed;
+            }
+        }
+    } catch (error) {
+        console.warn(
+            "Questions d'entraînement stockées illisibles :",
+            error
+        );
+    }
+
+
+    if (storedQuestions.length) {
+
+        trainingQuestions =
+            storedQuestions.slice(0, 10);
+
+
+        if (mode === "cible") {
+            title =
+                category
+                    ? `Entraînement - ${category}`
+                    : "Entraînement ciblé";
+        }
+
+        else if (mode === "flash") {
+            title =
+                category
+                    ? `Flash - ${category}`
+                    : "Flash";
+        }
+
+        else if (mode === "xtrem") {
+            title =
+                "Flash Xtrem";
+        }
+    }
+
+
+    /* =====================================================
+       ANCIEN SYSTÈME / SECOURS
+       Conservé pour les anciennes pages qui ne stockent pas
+       encore training_questions.
+    ===================================================== */
+
+    else if (mode === "cible") {
+
         if (!category) {
             window.location.href =
                 "training.html";
@@ -1723,29 +1805,61 @@ async function loadTrainingQuiz() {
             return;
         }
 
-        const response = await fetch(
-            `${SUPABASE_URL}/rest/v1/questions?select=*&category=eq.${encodeURIComponent(category)}`,
-            {
-                headers:
-                    supabaseHeaders()
-            }
-        );
 
-        if (!response.ok) {
-            alert(
-                "Impossible de charger les questions."
-            );
+        const eligibleQuestions =
+            typeof getTrainingEligibleQuestions === "function"
+                ? await getTrainingEligibleQuestions()
+                : [];
 
-            return;
+
+        if (eligibleQuestions.length) {
+
+            const normalizedCategory =
+                normalizeTrainingName(
+                    category
+                );
+
+
+            trainingQuestions =
+                shuffleArray(
+                    eligibleQuestions.filter(
+                        question =>
+                            normalizeTrainingName(
+                                question.category
+                            ) ===
+                            normalizedCategory
+                    )
+                )
+                .slice(0, 10);
         }
 
-        trainingQuestions =
-            shuffleArray(
-                await response.json()
-            ).slice(
-                0,
-                10
+        else {
+
+            const response = await fetch(
+                `${SUPABASE_URL}/rest/v1/questions?select=*&category=eq.${encodeURIComponent(category)}`,
+                {
+                    headers:
+                        supabaseHeaders()
+                }
             );
+
+
+            if (!response.ok) {
+                alert(
+                    "Impossible de charger les questions."
+                );
+
+                return;
+            }
+
+
+            trainingQuestions =
+                shuffleArray(
+                    await response.json()
+                )
+                .slice(0, 10);
+        }
+
 
         title =
             `Entraînement - ${category}`;
@@ -1753,36 +1867,48 @@ async function loadTrainingQuiz() {
 
 
     else if (mode === "flash") {
-        const categoriesResponse =
-            await fetch(
-                `${SUPABASE_URL}/rest/v1/questions?select=category`,
-                {
-                    headers:
-                        supabaseHeaders()
-                }
-            );
 
-        if (!categoriesResponse.ok) {
-            alert(
-                "Impossible de charger les catégories."
-            );
+        const eligibleQuestions =
+            typeof getTrainingEligibleQuestions === "function"
+                ? await getTrainingEligibleQuestions()
+                : [];
 
-            return;
-        }
 
-        const rows =
-            await categoriesResponse.json();
+        const sourceQuestions =
+            eligibleQuestions.length
+                ? eligibleQuestions
+                : await (async () => {
+
+                    const response =
+                        await fetch(
+                            `${SUPABASE_URL}/rest/v1/questions?select=*`,
+                            {
+                                headers:
+                                    supabaseHeaders()
+                            }
+                        );
+
+                    if (!response.ok) {
+                        throw new Error(
+                            await response.text()
+                        );
+                    }
+
+                    return response.json();
+                })();
+
 
         const categories = [
             ...new Set(
-                rows
+                sourceQuestions
                     .map(
-                        row =>
-                            row.category
+                        question =>
+                            question.category
                     )
                     .filter(Boolean)
             )
         ];
+
 
         if (!categories.length) {
             alert(
@@ -1792,6 +1918,7 @@ async function loadTrainingQuiz() {
             return;
         }
 
+
         category =
             categories[
                 Math.floor(
@@ -1800,35 +1927,27 @@ async function loadTrainingQuiz() {
                 )
             ];
 
+
         localStorage.setItem(
             "training_category",
             category
         );
 
-        const response =
-            await fetch(
-                `${SUPABASE_URL}/rest/v1/questions?select=*&category=eq.${encodeURIComponent(category)}`,
-                {
-                    headers:
-                        supabaseHeaders()
-                }
-            );
-
-        if (!response.ok) {
-            alert(
-                "Impossible de charger les questions."
-            );
-
-            return;
-        }
 
         trainingQuestions =
             shuffleArray(
-                await response.json()
-            ).slice(
-                0,
-                10
-            );
+                sourceQuestions.filter(
+                    question =>
+                        normalizeTrainingName(
+                            question.category
+                        ) ===
+                        normalizeTrainingName(
+                            category
+                        )
+                )
+            )
+            .slice(0, 10);
+
 
         title =
             `Flash - ${category}`;
@@ -1836,34 +1955,54 @@ async function loadTrainingQuiz() {
 
 
     else if (mode === "xtrem") {
+
         localStorage.removeItem(
             "training_category"
         );
 
-        const response =
-            await fetch(
-                `${SUPABASE_URL}/rest/v1/questions?select=*`,
-                {
-                    headers:
-                        supabaseHeaders()
-                }
-            );
 
-        if (!response.ok) {
-            alert(
-                "Impossible de charger les questions."
-            );
+        const eligibleQuestions =
+            typeof getTrainingEligibleQuestions === "function"
+                ? await getTrainingEligibleQuestions()
+                : [];
 
-            return;
+
+        if (eligibleQuestions.length) {
+            trainingQuestions =
+                shuffleArray(
+                    eligibleQuestions
+                )
+                .slice(0, 10);
         }
 
-        trainingQuestions =
-            shuffleArray(
-                await response.json()
-            ).slice(
-                0,
-                10
-            );
+        else {
+
+            const response =
+                await fetch(
+                    `${SUPABASE_URL}/rest/v1/questions?select=*`,
+                    {
+                        headers:
+                            supabaseHeaders()
+                    }
+                );
+
+
+            if (!response.ok) {
+                alert(
+                    "Impossible de charger les questions."
+                );
+
+                return;
+            }
+
+
+            trainingQuestions =
+                shuffleArray(
+                    await response.json()
+                )
+                .slice(0, 10);
+        }
+
 
         title =
             "Flash Xtrem";
@@ -1881,15 +2020,18 @@ async function loadTrainingQuiz() {
         return;
     }
 
+
     const titleElement =
         document.getElementById(
             "trainingTitle"
         );
 
+
     if (titleElement) {
         titleElement.innerText =
             title;
     }
+
 
     await showTrainingQuestion();
 }
@@ -1987,7 +2129,9 @@ async function showTrainingQuestion() {
 
     else if (
         q.question_type ===
-        "single_choice"
+        "single_choice" ||
+        q.question_type ===
+        "simple_choice"
     ) {
         answerZone.innerHTML = `
             <label><input type="radio" name="answerChoice" value="A"> ${escapeHtml(q.choice_a)}</label><br>
@@ -2093,7 +2237,9 @@ async function submitTrainingAnswer() {
         q.question_type ===
         "true_false" ||
         q.question_type ===
-        "single_choice"
+        "single_choice" ||
+        q.question_type ===
+        "simple_choice"
     ) {
         isCorrect =
             answer ===
@@ -11468,24 +11614,6 @@ function normalizeTrainingName(value) {
 
 
 /* =========================================================
-   NORMALISATION DES NOMS
-========================================================= */
-
-function normalizeTrainingName(value) {
-
-    return String(value || "")
-        .trim()
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(
-            /[\u0300-\u036f]/g,
-            ""
-        );
-}
-
-
-
-/* =========================================================
    CATÉGORIES AUTORISÉES PAR LES FORMATIONS
 ========================================================= */
 
@@ -11767,7 +11895,7 @@ async function getTrainingEligibleQuestions() {
 
 
         console.log(
-            "❌ Questions récupérées :",
+            "📥 Questions récupérées :",
             questions.length
         );
 
@@ -12097,12 +12225,12 @@ async function startTargetedTraining(
     const authorized =
         allowedCategories.some(
             item =>
-                String(item.name)
-                    .trim()
-                    .toLowerCase() ===
-                category
-                    .trim()
-                    .toLowerCase()
+                normalizeTrainingName(
+                    item.name
+                ) ===
+                normalizeTrainingName(
+                    category
+                )
         );
 
 
@@ -12123,14 +12251,12 @@ async function startTargetedTraining(
     const categoryQuestions =
         questions.filter(
             question =>
-                String(
+                normalizeTrainingName(
                     question.category
+                ) ===
+                normalizeTrainingName(
+                    category
                 )
-                .trim()
-                .toLowerCase() ===
-                category
-                    .trim()
-                    .toLowerCase()
         );
 
 
@@ -12155,7 +12281,7 @@ async function startTargetedTraining(
 
 
     saveTrainingLaunch(
-        "targeted",
+        "cible",
         selected,
         category
     );
