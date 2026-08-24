@@ -1688,37 +1688,58 @@ function lancerFlashXtrem() {
 
 
 /* =========================================================
+   NOUVEL ÉCRAN QUIZ ENTRAÎNEMENT
+========================================================= */
+
+let trainingWrongAnswers = 0;
+
+let trainingAnsweredCount = 0;
+
+let trainingAnswerStates = [];
+
+let trainingTimerInterval = null;
+
+let trainingElapsedSeconds = 0;
+
+let trainingCurrentValidated = false;
+
+let trainingFinishRunning = false;
+
+
+/* =========================================================
    CHARGEMENT ENTRAÎNEMENT
 ========================================================= */
 
 async function loadTrainingQuiz() {
+
     trainingIndex = 0;
 
     trainingCorrectAnswers = 0;
 
+    trainingWrongAnswers = 0;
+
+    trainingAnsweredCount = 0;
+
+    trainingAnswerStates = [];
+
+    trainingCurrentValidated = false;
+
+    trainingFinishRunning = false;
+
+    trainingElapsedSeconds = 0;
+
     trainingStartedAt =
-        new Date()
-            .toISOString();
+        new Date().toISOString();
 
 
-    let mode =
+    const mode =
         String(
             localStorage.getItem(
                 "training_mode"
-            ) ||
-            "cible"
+            ) || "cible"
         )
         .trim()
         .toLowerCase();
-
-
-    /*
-     * Compatibilité avec le nouveau bouton
-     * Entraînement ciblé.
-     */
-    if (mode === "targeted") {
-        mode = "cible";
-    }
 
 
     let category =
@@ -1727,78 +1748,204 @@ async function loadTrainingQuiz() {
         );
 
 
-    let title =
-        "Entraînement";
-
-
-    /* =====================================================
-       NOUVEAU SYSTÈME
-       Les pages ciblé / flash / xtrem préparent déjà les
-       questions autorisées et les stockent dans localStorage.
-    ===================================================== */
-
-    let storedQuestions = [];
-
     try {
-        const rawStoredQuestions =
+
+        /* =================================================
+           1. QUESTIONS DÉJÀ PRÉPARÉES
+           par training-targeted / flash / xtrem
+        ================================================= */
+
+        const savedQuestions =
             localStorage.getItem(
                 "training_questions"
             );
 
-        if (rawStoredQuestions) {
-            const parsed =
-                JSON.parse(
-                    rawStoredQuestions
-                );
 
-            if (Array.isArray(parsed)) {
-                storedQuestions = parsed;
+        if (savedQuestions) {
+
+            try {
+
+                const parsed =
+                    JSON.parse(
+                        savedQuestions
+                    );
+
+
+                if (
+                    Array.isArray(parsed) &&
+                    parsed.length
+                ) {
+
+                    trainingQuestions =
+                        parsed.slice(
+                            0,
+                            10
+                        );
+                }
+
+            } catch (error) {
+
+                console.warn(
+                    "training_questions invalide :",
+                    error
+                );
             }
         }
-    } catch (error) {
-        console.warn(
-            "Questions d'entraînement stockées illisibles :",
-            error
-        );
-    }
 
 
-    if (storedQuestions.length) {
+        /* =================================================
+           2. FALLBACK SI AUCUNE QUESTION N'A ÉTÉ PRÉPARÉE
+        ================================================= */
 
-        trainingQuestions =
-            storedQuestions.slice(0, 10);
+        if (
+            !Array.isArray(
+                trainingQuestions
+            ) ||
+            !trainingQuestions.length
+        ) {
+
+            const eligibleQuestions =
+                typeof getTrainingEligibleQuestions ===
+                "function"
+                    ? await getTrainingEligibleQuestions()
+                    : [];
 
 
-        if (mode === "cible") {
-            title =
-                category
-                    ? `Entraînement - ${category}`
-                    : "Entraînement ciblé";
+            if (
+                mode === "cible" ||
+                mode === "targeted"
+            ) {
+
+                if (!category) {
+
+                    window.location.href =
+                        "training-targeted.html";
+
+                    return;
+                }
+
+
+                trainingQuestions =
+                    shuffleTrainingQuestions(
+                        eligibleQuestions.filter(
+                            question =>
+                                normalizeTrainingQuizText(
+                                    question.category
+                                ) ===
+                                normalizeTrainingQuizText(
+                                    category
+                                )
+                        )
+                    )
+                    .slice(
+                        0,
+                        10
+                    );
+            }
+
+
+            else if (
+                mode === "flash"
+            ) {
+
+                const availableCategories =
+                    [
+                        ...new Set(
+                            eligibleQuestions
+                                .map(
+                                    question =>
+                                        question.category
+                                )
+                                .filter(Boolean)
+                        )
+                    ];
+
+
+                if (
+                    !availableCategories.length
+                ) {
+
+                    alert(
+                        "Aucune catégorie disponible."
+                    );
+
+                    window.location.href =
+                        "training.html";
+
+                    return;
+                }
+
+
+                category =
+                    availableCategories[
+                        Math.floor(
+                            Math.random() *
+                            availableCategories.length
+                        )
+                    ];
+
+
+                localStorage.setItem(
+                    "training_category",
+                    category
+                );
+
+
+                trainingQuestions =
+                    shuffleTrainingQuestions(
+                        eligibleQuestions.filter(
+                            question =>
+                                normalizeTrainingQuizText(
+                                    question.category
+                                ) ===
+                                normalizeTrainingQuizText(
+                                    category
+                                )
+                        )
+                    )
+                    .slice(
+                        0,
+                        10
+                    );
+            }
+
+
+            else if (
+                mode === "xtrem"
+            ) {
+
+                localStorage.removeItem(
+                    "training_category"
+                );
+
+
+                category = null;
+
+
+                trainingQuestions =
+                    shuffleTrainingQuestions(
+                        eligibleQuestions
+                    )
+                    .slice(
+                        0,
+                        10
+                    );
+            }
+
         }
 
-        else if (mode === "flash") {
-            title =
-                category
-                    ? `Flash - ${category}`
-                    : "Flash";
-        }
 
-        else if (mode === "xtrem") {
-            title =
-                "Flash Xtrem";
-        }
-    }
+        if (
+            !Array.isArray(
+                trainingQuestions
+            ) ||
+            !trainingQuestions.length
+        ) {
 
+            alert(
+                "Aucune question disponible."
+            );
 
-    /* =====================================================
-       ANCIEN SYSTÈME / SECOURS
-       Conservé pour les anciennes pages qui ne stockent pas
-       encore training_questions.
-    ===================================================== */
-
-    else if (mode === "cible") {
-
-        if (!category) {
             window.location.href =
                 "training.html";
 
@@ -1806,420 +1953,1142 @@ async function loadTrainingQuiz() {
         }
 
 
-        const eligibleQuestions =
-            typeof getTrainingEligibleQuestions === "function"
-                ? await getTrainingEligibleQuestions()
-                : [];
+        /* =================================================
+           INITIALISER LES ÉTATS
+        ================================================= */
 
+        trainingAnswerStates =
+            trainingQuestions.map(
+                function () {
 
-        if (eligibleQuestions.length) {
-
-            const normalizedCategory =
-                normalizeTrainingName(
-                    category
-                );
-
-
-            trainingQuestions =
-                shuffleArray(
-                    eligibleQuestions.filter(
-                        question =>
-                            normalizeTrainingName(
-                                question.category
-                            ) ===
-                            normalizedCategory
-                    )
-                )
-                .slice(0, 10);
-        }
-
-        else {
-
-            const response = await fetch(
-                `${SUPABASE_URL}/rest/v1/questions?select=*&category=eq.${encodeURIComponent(category)}`,
-                {
-                    headers:
-                        supabaseHeaders()
+                    return {
+                        answered: false,
+                        answer: "",
+                        isCorrect: null
+                    };
                 }
             );
 
 
-            if (!response.ok) {
-                alert(
-                    "Impossible de charger les questions."
-                );
+        /* =================================================
+           INFORMATIONS UTILISATEUR
+        ================================================= */
 
-                return;
-            }
+        initializeTrainingQuizUser();
 
 
-            trainingQuestions =
-                shuffleArray(
-                    await response.json()
-                )
-                .slice(0, 10);
-        }
+        /* =================================================
+           INFORMATIONS SESSION
+        ================================================= */
 
-
-        title =
-            `Entraînement - ${category}`;
-    }
-
-
-    else if (mode === "flash") {
-
-        const eligibleQuestions =
-            typeof getTrainingEligibleQuestions === "function"
-                ? await getTrainingEligibleQuestions()
-                : [];
-
-
-        const sourceQuestions =
-            eligibleQuestions.length
-                ? eligibleQuestions
-                : await (async () => {
-
-                    const response =
-                        await fetch(
-                            `${SUPABASE_URL}/rest/v1/questions?select=*`,
-                            {
-                                headers:
-                                    supabaseHeaders()
-                            }
-                        );
-
-                    if (!response.ok) {
-                        throw new Error(
-                            await response.text()
-                        );
-                    }
-
-                    return response.json();
-                })();
-
-
-        const categories = [
-            ...new Set(
-                sourceQuestions
-                    .map(
-                        question =>
-                            question.category
-                    )
-                    .filter(Boolean)
-            )
-        ];
-
-
-        if (!categories.length) {
-            alert(
-                "Aucune catégorie disponible."
-            );
-
-            return;
-        }
-
-
-        category =
-            categories[
-                Math.floor(
-                    Math.random() *
-                    categories.length
-                )
-            ];
-
-
-        localStorage.setItem(
-            "training_category",
+        updateTrainingQuizSessionInfo(
+            mode,
             category
         );
 
 
-        trainingQuestions =
-            shuffleArray(
-                sourceQuestions.filter(
-                    question =>
-                        normalizeTrainingName(
-                            question.category
-                        ) ===
-                        normalizeTrainingName(
-                            category
-                        )
-                )
-            )
-            .slice(0, 10);
+        /* =================================================
+           TIMER
+        ================================================= */
+
+        startTrainingTimer();
 
 
-        title =
-            `Flash - ${category}`;
-    }
+        /* =================================================
+           PREMIÈRE QUESTION
+        ================================================= */
+
+        await showTrainingQuestion();
 
 
-    else if (mode === "xtrem") {
+    } catch (error) {
 
-        localStorage.removeItem(
-            "training_category"
+        console.error(
+            "❌ Chargement quiz entraînement :",
+            error
         );
 
 
-        const eligibleQuestions =
-            typeof getTrainingEligibleQuestions === "function"
-                ? await getTrainingEligibleQuestions()
-                : [];
+        alert(
+            "Impossible de charger l'entraînement."
+        );
+    }
+}
 
 
-        if (eligibleQuestions.length) {
-            trainingQuestions =
-                shuffleArray(
-                    eligibleQuestions
-                )
-                .slice(0, 10);
-        }
+/* =========================================================
+   NORMALISATION TEXTE
+========================================================= */
 
-        else {
+function normalizeTrainingQuizText(
+    value
+) {
 
-            const response =
-                await fetch(
-                    `${SUPABASE_URL}/rest/v1/questions?select=*`,
-                    {
-                        headers:
-                            supabaseHeaders()
-                    }
-                );
-
-
-            if (!response.ok) {
-                alert(
-                    "Impossible de charger les questions."
-                );
-
-                return;
-            }
+    return String(
+        value || ""
+    )
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(
+        /[\u0300-\u036f]/g,
+        ""
+    )
+    .replace(
+        /\s+/g,
+        " "
+    );
+}
 
 
-            trainingQuestions =
-                shuffleArray(
-                    await response.json()
-                )
-                .slice(0, 10);
-        }
+/* =========================================================
+   MÉLANGE QUESTIONS
+========================================================= */
+
+function shuffleTrainingQuestions(
+    source
+) {
+
+    const array =
+        Array.isArray(source)
+            ? [...source]
+            : [];
 
 
-        title =
+    for (
+        let i =
+            array.length - 1;
+
+        i > 0;
+
+        i--
+    ) {
+
+        const j =
+            Math.floor(
+                Math.random() *
+                (i + 1)
+            );
+
+
+        [
+            array[i],
+            array[j]
+        ] =
+        [
+            array[j],
+            array[i]
+        ];
+    }
+
+
+    return array;
+}
+
+
+/* =========================================================
+   UTILISATEUR
+========================================================= */
+
+function initializeTrainingQuizUser() {
+
+    const name =
+        localStorage.getItem(
+            "full_name"
+        ) ||
+        "Utilisateur";
+
+
+    const xp =
+        Number(
+            localStorage.getItem(
+                "xp"
+            ) ||
+            0
+        );
+
+
+    const level =
+        Number(
+            localStorage.getItem(
+                "level"
+            ) ||
+            1
+        );
+
+
+    const nameElement =
+        document.getElementById(
+            "trainingUserName"
+        );
+
+
+    const xpElement =
+        document.getElementById(
+            "trainingUserXp"
+        );
+
+
+    const levelElement =
+        document.getElementById(
+            "trainingUserLevel"
+        );
+
+
+    if (nameElement) {
+
+        nameElement.textContent =
+            name;
+    }
+
+
+    if (xpElement) {
+
+        xpElement.textContent =
+            `${xp} XP`;
+    }
+
+
+    if (levelElement) {
+
+        levelElement.textContent =
+            `Niveau ${level}`;
+    }
+}
+
+
+/* =========================================================
+   INFORMATIONS SESSION
+========================================================= */
+
+function updateTrainingQuizSessionInfo(
+    mode,
+    category
+) {
+
+    let modeLabel =
+        "Entraînement ciblé";
+
+
+    if (
+        mode === "flash"
+    ) {
+
+        modeLabel =
+            "Flash";
+    }
+
+
+    if (
+        mode === "xtrem"
+    ) {
+
+        modeLabel =
             "Flash Xtrem";
     }
 
 
-    if (!trainingQuestions.length) {
-        alert(
-            "Aucune question disponible."
+    const categoryLabel =
+        category ||
+        (
+            mode === "xtrem"
+                ? "Toutes les catégories"
+                : "—"
         );
 
-        window.location.href =
-            "training.html";
 
-        return;
-    }
-
-
-    const titleElement =
+    const title =
         document.getElementById(
             "trainingTitle"
         );
 
 
-    if (titleElement) {
-        titleElement.innerText =
-            title;
+    const badge =
+        document.getElementById(
+            "trainingCategoryBadge"
+        );
+
+
+    const categoryInfo =
+        document.getElementById(
+            "trainingInfoCategory"
+        );
+
+
+    const modeInfo =
+        document.getElementById(
+            "trainingInfoMode"
+        );
+
+
+    const countInfo =
+        document.getElementById(
+            "trainingInfoQuestionCount"
+        );
+
+
+    if (title) {
+
+        title.textContent =
+            mode === "flash"
+                ? "⚡ Entraînement Flash"
+                : mode === "xtrem"
+                    ? "🔥 Flash Xtrem"
+                    : "🎯 Entraînement ciblé";
     }
 
 
-    await showTrainingQuestion();
+    if (badge) {
+
+        badge.textContent =
+            categoryLabel;
+    }
+
+
+    if (categoryInfo) {
+
+        categoryInfo.textContent =
+            categoryLabel;
+    }
+
+
+    if (modeInfo) {
+
+        modeInfo.textContent =
+            modeLabel;
+    }
+
+
+    if (countInfo) {
+
+        countInfo.textContent =
+            trainingQuestions.length;
+    }
+
+
+    updateTrainingSessionStats();
 }
 
 
 /* =========================================================
-   AFFICHER QUESTION
+   TIMER
+========================================================= */
+
+function startTrainingTimer() {
+
+    stopTrainingTimer();
+
+
+    trainingElapsedSeconds =
+        0;
+
+
+    updateTrainingTimerDisplay();
+
+
+    trainingTimerInterval =
+        setInterval(
+            function () {
+
+                trainingElapsedSeconds++;
+
+                updateTrainingTimerDisplay();
+
+            },
+            1000
+        );
+}
+
+
+function stopTrainingTimer() {
+
+    if (
+        trainingTimerInterval
+    ) {
+
+        clearInterval(
+            trainingTimerInterval
+        );
+
+
+        trainingTimerInterval =
+            null;
+    }
+}
+
+
+function updateTrainingTimerDisplay() {
+
+    const element =
+        document.getElementById(
+            "trainingTimer"
+        );
+
+
+    if (!element) {
+        return;
+    }
+
+
+    const minutes =
+        Math.floor(
+            trainingElapsedSeconds /
+            60
+        );
+
+
+    const seconds =
+        trainingElapsedSeconds %
+        60;
+
+
+    element.textContent =
+        String(minutes)
+            .padStart(
+                2,
+                "0"
+            ) +
+        ":" +
+        String(seconds)
+            .padStart(
+                2,
+                "0"
+            );
+}
+
+
+/* =========================================================
+   AFFICHER UNE QUESTION
 ========================================================= */
 
 async function showTrainingQuestion() {
+
+    if (
+        trainingIndex <
+        0
+    ) {
+
+        trainingIndex =
+            0;
+    }
+
+
     if (
         trainingIndex >=
         trainingQuestions.length
     ) {
+
         await finishTraining();
 
         return;
     }
+
 
     const q =
         trainingQuestions[
             trainingIndex
         ];
 
-    const progress =
+
+    const state =
+        trainingAnswerStates[
+            trainingIndex
+        ];
+
+
+    trainingCurrentValidated =
+        state?.answered ===
+        true;
+
+
+    /* =====================================================
+       PROGRESSION
+    ====================================================== */
+
+    const progressText =
+        document.getElementById(
+            "trainingProgressText"
+        );
+
+
+    const oldProgress =
         document.getElementById(
             "trainingProgress"
         );
 
-    if (progress) {
-        progress.innerText =
-            `Question ${trainingIndex + 1} / ${trainingQuestions.length}`;
+
+    const progressBar =
+        document.getElementById(
+            "trainingProgressBar"
+        );
+
+
+    const progressLabel =
+        `Question ${trainingIndex + 1} sur ${trainingQuestions.length}`;
+
+
+    if (progressText) {
+
+        progressText.textContent =
+            progressLabel;
     }
 
-    const question =
+
+    if (oldProgress) {
+
+        oldProgress.textContent =
+            progressLabel;
+    }
+
+
+    if (progressBar) {
+
+        progressBar.style.width =
+            `${
+                (
+                    (
+                        trainingIndex + 1
+                    ) /
+                    trainingQuestions.length
+                ) *
+                100
+            }%`;
+    }
+
+
+    /* =====================================================
+       QUESTION
+    ====================================================== */
+
+    const questionElement =
         document.getElementById(
             "trainingQuestion"
         );
 
-    if (question) {
-        question.innerText =
-            q.question;
+
+    if (questionElement) {
+
+        questionElement.textContent =
+            q.question ||
+            "";
     }
+
+
+    /* =====================================================
+       RÉPONSES
+    ====================================================== */
 
     const answerZone =
         document.getElementById(
             "answerZone"
         );
 
+
+    if (!answerZone) {
+
+        return;
+    }
+
+
+    answerZone.innerHTML =
+        "";
+
+
+    renderTrainingAnswers(
+        q,
+        state
+    );
+
+
+    /* =====================================================
+       BOUTONS
+    ====================================================== */
+
+    updateTrainingNavigationButtons();
+
+
+    updateTrainingSessionStats();
+}
+
+
+/* =========================================================
+   RENDU DES RÉPONSES
+========================================================= */
+
+function renderTrainingAnswers(
+    question,
+    state
+) {
+
+    const answerZone =
+        document.getElementById(
+            "answerZone"
+        );
+
+
     if (!answerZone) {
         return;
     }
 
-    answerZone.innerHTML = "";
+
+    const type =
+        normalizeTrainingQuestionType(
+            question.question_type
+        );
+
 
     if (
-        q.question_type ===
+        type ===
         "open"
     ) {
+
         answerZone.innerHTML = `
-            <textarea
-                id="trainingAnswer"
-                rows="6"
-                placeholder="Écris ta réponse ici..."
-            ></textarea>
+
+            <div class="training-open-answer">
+
+                <textarea
+                    id="trainingAnswer"
+                    rows="6"
+                    placeholder="Écris ta réponse ici..."
+                    ${
+                        state?.answered
+                            ? "disabled"
+                            : ""
+                    }
+                >${escapeHtml(state?.answer || "")}</textarea>
+
+            </div>
+
         `;
+
+
+        if (
+            state?.answered
+        ) {
+
+            const status =
+                document.createElement(
+                    "div"
+                );
+
+
+            status.className =
+                state.isCorrect === true
+                    ? "training-answer-feedback correct"
+                    : state.isCorrect === false
+                        ? "training-answer-feedback incorrect"
+                        : "training-answer-feedback neutral";
+
+
+            status.textContent =
+                state.isCorrect === true
+                    ? "✓ Bonne réponse"
+                    : state.isCorrect === false
+                        ? "✕ Mauvaise réponse"
+                        : "✓ Réponse enregistrée";
+
+
+            answerZone.appendChild(
+                status
+            );
+        }
+
+
+        return;
     }
 
-    else if (
-        q.question_type ===
-        "true_false"
-    ) {
-        answerZone.innerHTML = `
-            <label>
+
+    const choices =
+        getTrainingQuestionChoices(
+            question
+        );
+
+
+    const multiple =
+        type ===
+        "multiple_choice";
+
+
+    choices.forEach(
+        function (
+            choice
+        ) {
+
+            const label =
+                document.createElement(
+                    "label"
+                );
+
+
+            label.className =
+                "training-answer-option";
+
+
+            const selectedAnswers =
+                String(
+                    state?.answer ||
+                    ""
+                )
+                .split(",")
+                .map(
+                    value =>
+                        value.trim()
+                )
+                .filter(Boolean);
+
+
+            const selected =
+                selectedAnswers.includes(
+                    choice.key
+                );
+
+
+            let resultClass =
+                "";
+
+
+            if (
+                state?.answered
+            ) {
+
+                const correctKeys =
+                    getTrainingCorrectAnswers(
+                        question
+                    );
+
+
+                if (
+                    correctKeys.includes(
+                        choice.key
+                    )
+                ) {
+
+                    resultClass =
+                        " correct";
+                }
+
+
+                else if (
+                    selected
+                ) {
+
+                    resultClass =
+                        " incorrect";
+                }
+
+
+                else {
+
+                    resultClass =
+                        " disabled";
+                }
+            }
+
+
+            if (
+                selected &&
+                !state?.answered
+            ) {
+
+                resultClass +=
+                    " selected";
+            }
+
+
+            label.className +=
+                resultClass;
+
+
+            label.innerHTML = `
+
                 <input
-                    type="radio"
+                    type="${
+                        multiple
+                            ? "checkbox"
+                            : "radio"
+                    }"
                     name="answerChoice"
-                    value="A"
+                    value="${choice.key}"
+                    ${
+                        selected
+                            ? "checked"
+                            : ""
+                    }
+                    ${
+                        state?.answered
+                            ? "disabled"
+                            : ""
+                    }
                 >
-                ${escapeHtml(q.choice_a)}
-            </label>
 
-            <br>
+                <span class="training-answer-letter">
+                    ${choice.key}
+                </span>
 
-            <label>
-                <input
-                    type="radio"
-                    name="answerChoice"
-                    value="B"
-                >
-                ${escapeHtml(q.choice_b)}
-            </label>
-        `;
-    }
+                <span class="training-answer-text">
+                    ${escapeHtml(choice.text)}
+                </span>
 
-    else if (
-        q.question_type ===
-        "single_choice" ||
-        q.question_type ===
-        "simple_choice"
+                ${
+                    state?.answered &&
+                    getTrainingCorrectAnswers(
+                        question
+                    ).includes(
+                        choice.key
+                    )
+                        ? `
+                            <span class="training-answer-result-icon">
+                                ✓
+                            </span>
+                        `
+                        : state?.answered &&
+                          selected
+                            ? `
+                                <span class="training-answer-result-icon">
+                                    ✕
+                                </span>
+                            `
+                            : ""
+                }
+
+            `;
+
+
+            answerZone.appendChild(
+                label
+            );
+        }
+    );
+
+
+    if (
+        !state?.answered
     ) {
-        answerZone.innerHTML = `
-            <label><input type="radio" name="answerChoice" value="A"> ${escapeHtml(q.choice_a)}</label><br>
-            <label><input type="radio" name="answerChoice" value="B"> ${escapeHtml(q.choice_b)}</label><br>
-            <label><input type="radio" name="answerChoice" value="C"> ${escapeHtml(q.choice_c)}</label><br>
-            <label><input type="radio" name="answerChoice" value="D"> ${escapeHtml(q.choice_d)}</label>
-        `;
-    }
 
-    else if (
-        q.question_type ===
-        "multiple_choice"
-    ) {
-        answerZone.innerHTML = `
-            <label><input type="checkbox" name="answerChoice" value="A"> ${escapeHtml(q.choice_a)}</label><br>
-            <label><input type="checkbox" name="answerChoice" value="B"> ${escapeHtml(q.choice_b)}</label><br>
-            <label><input type="checkbox" name="answerChoice" value="C"> ${escapeHtml(q.choice_c)}</label><br>
-            <label><input type="checkbox" name="answerChoice" value="D"> ${escapeHtml(q.choice_d)}</label>
-        `;
+        answerZone
+            .querySelectorAll(
+                ".training-answer-option input"
+            )
+            .forEach(
+                input => {
+
+                    input.addEventListener(
+                        "change",
+                        function () {
+
+                            refreshTrainingSelectedOptions();
+
+                        }
+                    );
+
+                }
+            );
     }
 }
+
+
 /* =========================================================
-   ENVOYER RÉPONSE ENTRAÎNEMENT
+   SURBRILLANCE SÉLECTION
+========================================================= */
+
+function refreshTrainingSelectedOptions() {
+
+    document
+        .querySelectorAll(
+            ".training-answer-option"
+        )
+        .forEach(
+            label => {
+
+                const input =
+                    label.querySelector(
+                        "input"
+                    );
+
+
+                label.classList.toggle(
+                    "selected",
+                    Boolean(
+                        input?.checked
+                    )
+                );
+            }
+        );
+}
+
+
+/* =========================================================
+   TYPE DE QUESTION
+========================================================= */
+
+function normalizeTrainingQuestionType(
+    value
+) {
+
+    const type =
+        String(
+            value ||
+            ""
+        )
+        .trim()
+        .toLowerCase();
+
+
+    if (
+        type ===
+        "simple_choice"
+    ) {
+
+        return "single_choice";
+    }
+
+
+    return type;
+}
+
+
+/* =========================================================
+   CHOIX DE RÉPONSES
+========================================================= */
+
+function getTrainingQuestionChoices(
+    question
+) {
+
+    const choices = [
+        {
+            key: "A",
+            text:
+                question.choice_a
+        },
+        {
+            key: "B",
+            text:
+                question.choice_b
+        },
+        {
+            key: "C",
+            text:
+                question.choice_c
+        },
+        {
+            key: "D",
+            text:
+                question.choice_d
+        }
+    ];
+
+
+    const type =
+        normalizeTrainingQuestionType(
+            question.question_type
+        );
+
+
+    if (
+        type ===
+        "true_false"
+    ) {
+
+        if (
+            !choices[0].text
+        ) {
+
+            choices[0].text =
+                "Vrai";
+        }
+
+
+        if (
+            !choices[1].text
+        ) {
+
+            choices[1].text =
+                "Faux";
+        }
+
+
+        return choices.slice(
+            0,
+            2
+        );
+    }
+
+
+    return choices.filter(
+        choice =>
+            String(
+                choice.text ||
+                ""
+            )
+            .trim()
+    );
+}
+
+
+/* =========================================================
+   BONNES RÉPONSES
+========================================================= */
+
+function getTrainingCorrectAnswers(
+    question
+) {
+
+    return String(
+        question.correct_answer ||
+        ""
+    )
+    .split(",")
+    .map(
+        value =>
+            value
+                .trim()
+                .toUpperCase()
+    )
+    .filter(Boolean)
+    .sort();
+}
+
+
+/* =========================================================
+   LIRE LA RÉPONSE UTILISATEUR
+========================================================= */
+
+function getCurrentTrainingAnswer(
+    question
+) {
+
+    const type =
+        normalizeTrainingQuestionType(
+            question.question_type
+        );
+
+
+    if (
+        type ===
+        "open"
+    ) {
+
+        return String(
+            document
+                .getElementById(
+                    "trainingAnswer"
+                )
+                ?.value ||
+            ""
+        )
+        .trim();
+    }
+
+
+    if (
+        type ===
+        "multiple_choice"
+    ) {
+
+        return Array.from(
+            document.querySelectorAll(
+                'input[name="answerChoice"]:checked'
+            )
+        )
+        .map(
+            input =>
+                input.value
+        )
+        .sort()
+        .join(",");
+    }
+
+
+    return (
+        document.querySelector(
+            'input[name="answerChoice"]:checked'
+        )
+        ?.value ||
+        ""
+    );
+}
+
+
+/* =========================================================
+   CORRECTION QUESTION OUVERTE
+========================================================= */
+
+function evaluateTrainingOpenAnswer(
+    answer,
+    correctAnswer
+) {
+
+    const user =
+        normalizeTrainingQuizText(
+            answer
+        );
+
+
+    const expected =
+        normalizeTrainingQuizText(
+            correctAnswer
+        );
+
+
+    if (
+        !user ||
+        !expected
+    ) {
+
+        return null;
+    }
+
+
+    return (
+        user === expected
+    );
+}
+
+
+/* =========================================================
+   VALIDER UNE RÉPONSE
 ========================================================= */
 
 async function submitTrainingAnswer() {
+
+    if (
+        trainingCurrentValidated
+    ) {
+
+        return;
+    }
+
+
     const profileId =
         localStorage.getItem(
             "profile_id"
         );
+
 
     const q =
         trainingQuestions[
             trainingIndex
         ];
 
-    if (!profileId || !q) {
+
+    if (
+        !profileId ||
+        !q
+    ) {
+
         return;
     }
 
-    let answer = "";
 
-    if (
-        q.question_type ===
-        "open"
-    ) {
-        const input =
-            document.getElementById(
-                "trainingAnswer"
-            );
+    const answer =
+        getCurrentTrainingAnswer(
+            q
+        );
 
-        answer =
-            input
-                ? input.value.trim()
-                : "";
-    }
-
-    else if (
-        q.question_type ===
-        "multiple_choice"
-    ) {
-        answer =
-            Array.from(
-                document.querySelectorAll(
-                    'input[name="answerChoice"]:checked'
-                )
-            )
-                .map(
-                    input =>
-                        input.value
-                )
-                .sort()
-                .join(",");
-    }
-
-    else {
-        const selected =
-            document.querySelector(
-                'input[name="answerChoice"]:checked'
-            );
-
-        answer =
-            selected
-                ? selected.value
-                : "";
-    }
 
     if (!answer) {
+
         alert(
             "Merci de saisir une réponse."
         );
@@ -2227,61 +3096,51 @@ async function submitTrainingAnswer() {
         return;
     }
 
-    let autoScore = null;
-    let finalScore = null;
-    let corrected = false;
-    let isCorrect = false;
 
+    const type =
+        normalizeTrainingQuestionType(
+            q.question_type
+        );
+
+
+    let autoScore =
+        null;
+
+
+    let finalScore =
+        null;
+
+
+    let corrected =
+        false;
+
+
+    let isCorrect =
+        null;
+
+
+    /* =====================================================
+       AUTO CORRECTION
+    ====================================================== */
 
     if (
-        q.question_type ===
+        type ===
         "true_false" ||
-        q.question_type ===
-        "single_choice" ||
-        q.question_type ===
-        "simple_choice"
+        type ===
+        "single_choice"
     ) {
+
         isCorrect =
-            answer ===
-            q.correct_answer;
-
-        autoScore =
-            isCorrect
-                ? Number(
-                    q.max_points ||
-                    1
-                )
-                : 0;
-
-        finalScore =
-            autoScore;
-
-        corrected =
-            true;
-    }
-
-
-    if (
-        q.question_type ===
-        "multiple_choice"
-    ) {
-        const correctChoices =
+            answer
+                .trim()
+                .toUpperCase() ===
             String(
                 q.correct_answer ||
                 ""
             )
-                .split(",")
-                .map(
-                    value =>
-                        value.trim()
-                )
-                .filter(Boolean)
-                .sort()
-                .join(",");
+            .trim()
+            .toUpperCase();
 
-        isCorrect =
-            answer ===
-            correctChoices;
 
         autoScore =
             isCorrect
@@ -2291,32 +3150,113 @@ async function submitTrainingAnswer() {
                 )
                 : 0;
 
+
         finalScore =
             autoScore;
+
 
         corrected =
             true;
     }
 
+
+    else if (
+        type ===
+        "multiple_choice"
+    ) {
+
+        const correctAnswer =
+            getTrainingCorrectAnswers(
+                q
+            )
+            .join(",");
+
+
+        isCorrect =
+            answer ===
+            correctAnswer;
+
+
+        autoScore =
+            isCorrect
+                ? Number(
+                    q.max_points ||
+                    1
+                )
+                : 0;
+
+
+        finalScore =
+            autoScore;
+
+
+        corrected =
+            true;
+    }
+
+
+    else if (
+        type ===
+        "open"
+    ) {
+
+        isCorrect =
+            evaluateTrainingOpenAnswer(
+                answer,
+                q.correct_answer
+            );
+
+
+        if (
+            isCorrect !==
+            null
+        ) {
+
+            autoScore =
+                isCorrect
+                    ? Number(
+                        q.max_points ||
+                        1
+                    )
+                    : 0;
+
+
+            finalScore =
+                autoScore;
+
+
+            corrected =
+                true;
+        }
+    }
+
+
+    /* =====================================================
+       ENREGISTREMENT SUPABASE
+    ====================================================== */
 
     const response =
         await fetch(
             `${SUPABASE_URL}/rest/v1/answers`,
             {
+
                 method:
                     "POST",
 
                 headers:
                     supabaseHeaders({
+
                         "Content-Type":
                             "application/json",
 
                         Prefer:
                             "return=minimal"
+
                     }),
 
                 body:
                     JSON.stringify({
+
                         profile_id:
                             profileId,
 
@@ -2334,12 +3274,17 @@ async function submitTrainingAnswer() {
 
                         corrected:
                             corrected
+
                     })
+
             }
         );
 
 
-    if (!response.ok) {
+    if (
+        !response.ok
+    ) {
+
         alert(
             "Erreur enregistrement : " +
             await response.text()
@@ -2349,14 +3294,185 @@ async function submitTrainingAnswer() {
     }
 
 
-    if (isCorrect) {
+    /* =====================================================
+       STATISTIQUES
+    ====================================================== */
+
+    trainingAnswerStates[
+        trainingIndex
+    ] = {
+
+        answered: true,
+
+        answer:
+            answer,
+
+        isCorrect:
+            isCorrect
+
+    };
+
+
+    trainingAnsweredCount++;
+
+
+    if (
+        isCorrect ===
+        true
+    ) {
+
         trainingCorrectAnswers++;
     }
 
 
-    await checkQuestionBadges(
-        profileId
-    );
+    else if (
+        isCorrect ===
+        false
+    ) {
+
+        trainingWrongAnswers++;
+    }
+
+
+    trainingCurrentValidated =
+        true;
+
+
+    try {
+
+        await checkQuestionBadges(
+            profileId
+        );
+
+    } catch (error) {
+
+        console.warn(
+            "Badge non vérifié :",
+            error
+        );
+    }
+
+
+    /* =====================================================
+       AFFICHER CORRECTION
+       PAS D'EXPLICATION TEXTE
+    ====================================================== */
+
+    await showTrainingQuestion();
+}
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+function updateTrainingNavigationButtons() {
+
+    const previousButton =
+        document.getElementById(
+            "trainingPreviousButton"
+        );
+
+
+    const validateButton =
+        document.getElementById(
+            "trainingValidateButton"
+        );
+
+
+    const nextButton =
+        document.getElementById(
+            "trainingNextButton"
+        );
+
+
+    const state =
+        trainingAnswerStates[
+            trainingIndex
+        ];
+
+
+    if (previousButton) {
+
+        previousButton.disabled =
+            trainingIndex ===
+            0;
+    }
+
+
+    if (validateButton) {
+
+        validateButton.style.display =
+            state?.answered
+                ? "none"
+                : "";
+    }
+
+
+    if (nextButton) {
+
+        nextButton.style.display =
+            state?.answered
+                ? ""
+                : "none";
+
+
+        nextButton.textContent =
+            trainingIndex ===
+            trainingQuestions.length - 1
+                ? "Voir mon bilan →"
+                : "Suivante →";
+    }
+}
+
+
+function previousTrainingQuestion() {
+
+    if (
+        trainingIndex <=
+        0
+    ) {
+
+        return;
+    }
+
+
+    trainingIndex--;
+
+
+    showTrainingQuestion();
+}
+
+
+async function nextTrainingQuestion() {
+
+    const state =
+        trainingAnswerStates[
+            trainingIndex
+        ];
+
+
+    if (
+        !state?.answered
+    ) {
+
+        alert(
+            "Valide d'abord ta réponse."
+        );
+
+        return;
+    }
+
+
+    if (
+        trainingIndex >=
+        trainingQuestions.length - 1
+    ) {
+
+        await finishTraining();
+
+        return;
+    }
 
 
     trainingIndex++;
@@ -2367,39 +3483,149 @@ async function submitTrainingAnswer() {
 
 
 /* =========================================================
+   STATS SESSION
+========================================================= */
+
+function updateTrainingSessionStats() {
+
+    const total =
+        trainingQuestions.length;
+
+
+    const remaining =
+        Math.max(
+            0,
+            total -
+            trainingAnsweredCount
+        );
+
+
+    const progress =
+        document.getElementById(
+            "trainingSessionProgress"
+        );
+
+
+    const correct =
+        document.getElementById(
+            "trainingCorrectCount"
+        );
+
+
+    const wrong =
+        document.getElementById(
+            "trainingWrongCount"
+        );
+
+
+    const remainingElement =
+        document.getElementById(
+            "trainingRemainingCount"
+        );
+
+
+    if (progress) {
+
+        progress.textContent =
+            `${trainingAnsweredCount} / ${total}`;
+    }
+
+
+    if (correct) {
+
+        correct.textContent =
+            trainingCorrectAnswers;
+    }
+
+
+    if (wrong) {
+
+        wrong.textContent =
+            trainingWrongAnswers;
+    }
+
+
+    if (remainingElement) {
+
+        remainingElement.textContent =
+            remaining;
+    }
+}
+
+
+/* =========================================================
+   QUITTER
+========================================================= */
+
+function quitTrainingSession() {
+
+    const confirmed =
+        confirm(
+            "Quitter l'entraînement ? Ta session en cours ne sera pas enregistrée."
+        );
+
+
+    if (!confirmed) {
+
+        return;
+    }
+
+
+    stopTrainingTimer();
+
+
+    localStorage.removeItem(
+        "training_questions"
+    );
+
+
+    window.location.href =
+        "training.html";
+}
+
+
+/* =========================================================
    SESSION D'ENTRAÎNEMENT
 ========================================================= */
 
 async function saveTrainingSession() {
+
     const profileId =
         localStorage.getItem(
             "profile_id"
         );
 
+
     if (!profileId) {
+
         throw new Error(
             "Profil connecté introuvable."
         );
     }
 
+
     const response =
         await fetch(
             `${SUPABASE_URL}/rest/v1/training_sessions`,
             {
+
                 method:
                     "POST",
 
                 headers:
                     supabaseHeaders({
+
                         "Content-Type":
                             "application/json",
 
                         Prefer:
                             "return=representation"
+
                     }),
 
                 body:
                     JSON.stringify({
+
                         profile_id:
                             profileId,
 
@@ -2432,18 +3658,26 @@ async function saveTrainingSession() {
                         completed_at:
                             new Date()
                                 .toISOString()
+
                     })
+
             }
         );
 
-    if (!response.ok) {
+
+    if (
+        !response.ok
+    ) {
+
         throw new Error(
             await response.text()
         );
     }
 
+
     const data =
         await response.json();
+
 
     return (
         data[0]?.id ||
@@ -2457,14 +3691,37 @@ async function saveTrainingSession() {
 ========================================================= */
 
 async function finishTraining() {
+
+    if (
+        trainingFinishRunning
+    ) {
+
+        return;
+    }
+
+
+    trainingFinishRunning =
+        true;
+
+
+    stopTrainingTimer();
+
+
     const profileId =
         localStorage.getItem(
             "profile_id"
         );
 
+
+    let sessionId =
+        null;
+
+
     try {
-        const sessionId =
+
+        sessionId =
             await saveTrainingSession();
+
 
         await addXp(
             5,
@@ -2472,30 +3729,44 @@ async function finishTraining() {
             sessionId
         );
 
+
         await checkAllBadges(
             profileId
         );
 
+
     } catch (error) {
-        console.error(error);
+
+        console.error(
+            "❌ Fin entraînement :",
+            error
+        );
+
 
         alert(
             "L'entraînement est terminé, mais son enregistrement n'a pas pu être finalisé : " +
             error.message
         );
 
+
+        trainingFinishRunning =
+            false;
+
         return;
     }
+
 
     const total =
         trainingQuestions.length;
 
+
     const correct =
         trainingCorrectAnswers;
 
+
     const incorrect =
-        total -
-        correct;
+        trainingWrongAnswers;
+
 
     const percentage =
         total > 0
@@ -2508,79 +3779,306 @@ async function finishTraining() {
             )
             : 0;
 
-    const container =
+
+    /* =====================================================
+       DONNÉES POUR LE FUTUR BILAN
+    ====================================================== */
+
+    localStorage.setItem(
+        "training_last_result",
+        JSON.stringify({
+
+            session_id:
+                sessionId,
+
+            mode:
+                localStorage.getItem(
+                    "training_mode"
+                ),
+
+            category:
+                localStorage.getItem(
+                    "training_category"
+                ),
+
+            total:
+                total,
+
+            correct:
+                correct,
+
+            incorrect:
+                incorrect,
+
+            percentage:
+                percentage,
+
+            duration_seconds:
+                trainingElapsedSeconds,
+
+            xp:
+                5,
+
+            answers:
+                trainingAnswerStates
+
+        })
+    );
+
+
+    localStorage.removeItem(
+        "training_questions"
+    );
+
+
+    /*
+     * On prépare déjà la future page bilan.
+     *
+     * Pour l'instant, si training-result.html
+     * n'existe pas encore, on affiche un bilan
+     * directement dans la page.
+     */
+
+    showTrainingTemporaryResult({
+
+        total,
+        correct,
+        incorrect,
+        percentage,
+        duration:
+            trainingElapsedSeconds
+
+    });
+}
+
+
+/* =========================================================
+   BILAN TEMPORAIRE
+========================================================= */
+
+function showTrainingTemporaryResult(
+    result
+) {
+
+    const page =
         document.querySelector(
-            ".container"
+            ".training-quiz-page"
         );
 
-    if (!container) {
+
+    if (!page) {
+
         return;
     }
 
-    container.innerHTML = `
-        <h2>
-            Entraînement terminé ✅
-        </h2>
 
-        <p>
-            Score :
-            <strong>
-                ${correct}/${total}
-            </strong>
-        </p>
+    const minutes =
+        Math.floor(
+            result.duration /
+            60
+        );
 
-        <p>
-            Pourcentage :
-            <strong>
-                ${percentage}%
-            </strong>
-        </p>
 
-        <p>
-            Bonnes réponses :
-            <strong>
-                ${correct}
-            </strong>
-        </p>
+    const seconds =
+        result.duration %
+        60;
 
-        <p>
-            Mauvaises réponses :
-            <strong>
-                ${incorrect}
-            </strong>
-        </p>
 
-        <p>
-            <strong>
-                +5 XP d'entraînement
-            </strong>
-        </p>
+    const duration =
+        `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 
-        <button
-            onclick="restartCurrentTraining()"
-        >
-            Recommencer
-        </button>
 
-        <button
-            onclick="window.location.href='training.html'"
-        >
-            Retour aux entraînements
-        </button>
+    page.innerHTML = `
 
-        <button
-            onclick="window.location.href='home.html'"
-        >
-            Retour au menu
-        </button>
+        <section class="training-result-preview">
+
+            <div class="training-result-main">
+
+                <div class="training-result-icon">
+                    ${
+                        result.percentage >= 70
+                            ? "🏆"
+                            : "🎯"
+                    }
+                </div>
+
+                <h1>
+                    Entraînement terminé !
+                </h1>
+
+                <p>
+                    Voici le bilan de ta session.
+                </p>
+
+
+                <div class="training-result-score">
+
+                    <strong>
+                        ${result.correct}/${result.total}
+                    </strong>
+
+                    <span>
+                        ${result.percentage}% de réussite
+                    </span>
+
+                </div>
+
+
+                <div class="training-result-stats">
+
+                    <div>
+
+                        <span>
+                            ✓
+                        </span>
+
+                        <strong>
+                            ${result.correct}
+                        </strong>
+
+                        <small>
+                            Bonnes réponses
+                        </small>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            ✕
+                        </span>
+
+                        <strong>
+                            ${result.incorrect}
+                        </strong>
+
+                        <small>
+                            Mauvaises réponses
+                        </small>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            ⏱
+                        </span>
+
+                        <strong>
+                            ${duration}
+                        </strong>
+
+                        <small>
+                            Temps total
+                        </small>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            ⭐
+                        </span>
+
+                        <strong>
+                            +5 XP
+                        </strong>
+
+                        <small>
+                            XP gagnée
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <div class="training-result-actions">
+
+                    <button
+                        type="button"
+                        class="btn-secondary"
+                        onclick="window.location.href='training.html'"
+                    >
+                        ← Autre entraînement
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="btn-primary"
+                        onclick="restartCurrentTraining()"
+                    >
+                        🔄 Recommencer
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
     `;
 }
 
 
-function restartCurrentTraining() {
-    window.location.reload();
-}
+/* =========================================================
+   RECOMMENCER
+========================================================= */
 
+function restartCurrentTraining() {
+
+    /*
+     * On revient à la sélection du mode/catégorie,
+     * car les questions temporaires ont été nettoyées.
+     */
+
+    const mode =
+        localStorage.getItem(
+            "training_mode"
+        );
+
+
+    if (
+        mode === "cible" ||
+        mode === "targeted"
+    ) {
+
+        window.location.href =
+            "training-targeted.html";
+
+        return;
+    }
+
+
+    if (
+        mode === "flash"
+    ) {
+
+        window.location.href =
+            "training-flash.html";
+
+        return;
+    }
+
+
+    if (
+        mode === "xtrem"
+    ) {
+
+        window.location.href =
+            "training-xtrem.html";
+
+        return;
+    }
+
+
+    window.location.href =
+        "training.html";
+}
 
 /* =========================================================
    BADGES - CATALOGUE
