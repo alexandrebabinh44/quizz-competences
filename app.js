@@ -11486,37 +11486,40 @@ function normalizeTrainingName(value) {
 
 
 /* =========================================================
-   CATÉGORIES AUTORISÉES POUR LE COLLABORATEUR
-   1 formation acquise = 1 catégorie du même nom
+   CATÉGORIES AUTORISÉES PAR LES FORMATIONS
 ========================================================= */
 
 async function getTrainingEligibleCategories() {
 
-    const profileId =
-        localStorage.getItem(
-            "profile_id"
-        );
-
-
-    if (!profileId) {
-
-        console.error(
-            "❌ profile_id introuvable dans le localStorage"
-        );
-
-        return [];
-    }
-
-
     try {
 
-        /* =================================================
-           1. RÉCUPÉRATION DES FORMATIONS ATTRIBUÉES
-        ================================================= */
+        /* ===============================================
+           1. IDENTIFIANT UTILISATEUR
+        ================================================ */
+
+        const userId =
+            localStorage.getItem("user_id") ||
+            localStorage.getItem("profile_id") ||
+            localStorage.getItem("id");
+
+
+        if (!userId) {
+
+            console.error(
+                "❌ Aucun identifiant utilisateur trouvé."
+            );
+
+            return [];
+        }
+
+
+        /* ===============================================
+           2. FORMATIONS DE L'UTILISATEUR
+        ================================================ */
 
         const userTrainingsResponse =
             await fetch(
-                `${SUPABASE_URL}/rest/v1/user_trainings?user_id=eq.${encodeURIComponent(profileId)}&select=training_id`,
+                `${SUPABASE_URL}/rest/v1/user_trainings?select=training_id&user_id=eq.${encodeURIComponent(userId)}`,
                 {
                     headers:
                         supabaseHeaders()
@@ -11526,20 +11529,17 @@ async function getTrainingEligibleCategories() {
 
         if (!userTrainingsResponse.ok) {
 
+            const errorText =
+                await userTrainingsResponse.text();
+
             throw new Error(
-                await userTrainingsResponse.text()
+                `user_trainings : ${errorText}`
             );
         }
 
 
         const userTrainings =
             await userTrainingsResponse.json();
-
-
-        console.log(
-            "🎓 user_trainings :",
-            userTrainings
-        );
 
 
         const trainingIds =
@@ -11551,38 +11551,37 @@ async function getTrainingEligibleCategories() {
                                 item.training_id
                         )
                         .filter(
-                            value =>
-                                value !== null &&
-                                value !== undefined
+                            id =>
+                                id !== null &&
+                                id !== undefined
                         )
                 )
             ];
 
 
         console.log(
-            "🎓 IDs formations attribuées :",
+            "🎓 Formations utilisateur :",
             trainingIds
         );
 
 
         if (!trainingIds.length) {
 
-            console.log(
-                "⚠️  Aucune formation attribuée."
-            );
-
             return [];
         }
 
 
+        /* ===============================================
+           3. CATÉGORIES LIÉES AUX FORMATIONS
+        ================================================ */
 
-        /* =================================================
-           2. RÉCUPÉRATION DES NOMS DES FORMATIONS
-        ================================================= */
+        const trainingFilter =
+            trainingIds.join(",");
 
-        const trainingsResponse =
+
+        const accessResponse =
             await fetch(
-                `${SUPABASE_URL}/rest/v1/trainings?select=id,name`,
+                `${SUPABASE_URL}/rest/v1/training_category_access?select=category_id,training_id&training_id=in.(${trainingFilter})`,
                 {
                     headers:
                         supabaseHeaders()
@@ -11590,79 +11589,108 @@ async function getTrainingEligibleCategories() {
             );
 
 
-        if (!trainingsResponse.ok) {
+        if (!accessResponse.ok) {
+
+            const errorText =
+                await accessResponse.text();
 
             throw new Error(
-                await trainingsResponse.text()
+                `training_category_access : ${errorText}`
             );
         }
 
 
-        const trainings =
-            await trainingsResponse.json();
+        const accesses =
+            await accessResponse.json();
 
 
-        const allowedTrainingIds =
-            new Set(
-                trainingIds.map(
-                    id =>
-                        String(id)
-                )
-            );
-
-
-        const eligibleCategories =
-            trainings
-                .filter(
-                    training =>
-                        allowedTrainingIds.has(
-                            String(
-                                training.id
-                            )
+        const categoryIds =
+            [
+                ...new Set(
+                    accesses
+                        .map(
+                            item =>
+                                item.category_id
                         )
+                        .filter(Boolean)
                 )
-                .map(
-                    training => ({
-                        id:
-                            training.id,
-
-                        name:
-                            training.name
-                    })
-                )
-                .sort(
-                    (a, b) =>
-                        String(a.name || "")
-                            .localeCompare(
-                                String(b.name || ""),
-                                "fr",
-                                {
-                                    sensitivity:
-                                        "base"
-                                }
-                            )
-                );
+            ];
 
 
         console.log(
-            "✅ Catégories autorisées selon les formations :",
-            eligibleCategories
+            "🔗 Catégories liées aux formations :",
+            categoryIds
         );
 
 
-        return eligibleCategories;
+        if (!categoryIds.length) {
+
+            return [];
+        }
+
+
+        /* ===============================================
+           4. RÉCUPÉRER LES CATÉGORIES
+        ================================================ */
+
+        const categoryFilter =
+            categoryIds.join(",");
+
+
+        const categoriesResponse =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/categories?select=id,name,description,icon,color,active&id=in.(${categoryFilter})&order=name.asc`,
+                {
+                    headers:
+                        supabaseHeaders()
+                }
+            );
+
+
+        if (!categoriesResponse.ok) {
+
+            const errorText =
+                await categoriesResponse.text();
+
+            throw new Error(
+                `categories : ${errorText}`
+            );
+        }
+
+
+        const categories =
+            await categoriesResponse.json();
+
+
+        /*
+         * IMPORTANT :
+         * on ne filtre PAS ici sur active.
+         *
+         * Si une catégorie est explicitement liée
+         * à une formation dans l'administration,
+         * elle est considérée comme autorisée.
+         */
+
+        console.log(
+            "✅ Catégories autorisées :",
+            categories
+        );
+
+
+        return categories;
 
 
     } catch (error) {
 
         console.error(
-            "❌ Erreur récupération formations autorisées :",
+            "❌ getTrainingEligibleCategories :",
             error
         );
 
         return [];
     }
 }
+
 
 
 
