@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Gestion des formations - Nickel Master</title>
+
+  <!-- Garde ici les mêmes fichiers CSS que tes autres pages
+       si leurs noms sont différents, remplace-les par les tiens. -->
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <main class="page-container">
+
+    <!-- =====================================================
+         EN-TÊTE
+    ====================================================== -->
+    <section class="page-header">
+      <div>
+        <h1>🎓 Gestion des formations</h1>
+        <p>
+          Crée les formations et définis les catégories de quiz
+          accessibles pour chacune d'elles.
+        </p>
+      </div>
+
+      <div>
+        <strong>ADMIN</strong>
+      </div>
+    </section>
+
+
+    <!-- =====================================================
+         ACTIONS
+    ====================================================== -->
+    <section class="card">
+
+      <div style="
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        gap:20px;
+        flex-wrap:wrap;
+      ">
+
+        <div>
+          <h2>Formations</h2>
+          <p>
+            Sélectionne une formation pour gérer les quiz associés.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          class="btn btn-primary"
+          id="addTrainingButton"
+        >
+          + Ajouter une formation
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         CONTENU
+    ====================================================== -->
+    <section
+      style="
+        display:grid;
+        grid-template-columns:minmax(260px, 0.8fr) minmax(400px, 2fr);
+        gap:20px;
+        margin-top:20px;
+      "
+    >
+
+      <!-- LISTE DES FORMATIONS -->
+      <div class="card">
+
+        <h2>Formations existantes</h2>
+
+        <input
+          type="search"
+          id="trainingSearch"
+          placeholder="🔎 Rechercher une formation..."
+          style="
+            width:100%;
+            margin:15px 0;
+          "
+        >
+
+        <div id="trainingList">
+          <p>Chargement des formations...</p>
+        </div>
+
+      </div>
+
+
+      <!-- CONFIGURATION -->
+      <div class="card">
+
+        <div id="noTrainingSelected">
+
+          <h2>🎓 Sélectionne une formation</h2>
+
+          <p>
+            Choisis une formation à gauche pour afficher
+            les catégories de quiz auxquelles elle donne accès.
+          </p>
+
+        </div>
+
+
+        <div
+          id="trainingConfiguration"
+          style="display:none;"
+        >
+
+          <div
+            style="
+              display:flex;
+              justify-content:space-between;
+              align-items:center;
+              gap:20px;
+              flex-wrap:wrap;
+            "
+          >
+
+            <div>
+              <h2 id="selectedTrainingName">
+                Formation
+              </h2>
+
+              <p>
+                Catégories de quiz accessibles avec cette formation.
+              </p>
+            </div>
+
+
+            <div
+              style="
+                display:flex;
+                gap:10px;
+              "
+            >
+
+              <button
+                type="button"
+                class="btn"
+                id="renameTrainingButton"
+              >
+                ✏️ Renommer
+              </button>
+
+              <button
+                type="button"
+                class="btn"
+                id="deleteTrainingButton"
+              >
+                🗑️ Supprimer
+              </button>
+
+            </div>
+
+          </div>
+
+
+          <hr style="margin:25px 0;">
+
+
+          <h3>Catégories de quiz</h3>
+
+          <p>
+            Coche toutes les catégories auxquelles les utilisateurs
+            formés doivent avoir accès.
+          </p>
+
+
+          <div
+            id="categoryList"
+            style="
+              display:grid;
+              grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+              gap:12px;
+              margin-top:20px;
+            "
+          >
+            <p>Chargement...</p>
+          </div>
+
+
+          <div style="margin-top:25px;">
+
+            <button
+              type="button"
+              class="btn btn-primary"
+              id="saveTrainingCategoriesButton"
+            >
+              💾 Enregistrer les accès
+            </button>
+
+          </div>
+
+
+          <div
+            id="saveMessage"
+            style="
+              display:none;
+              margin-top:15px;
+            "
+          ></div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- =====================================================
+       MODALE : NOUVELLE FORMATION
+  ====================================================== -->
+
+  <div
+    id="trainingModal"
+    style="
+      display:none;
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.55);
+      align-items:center;
+      justify-content:center;
+      z-index:9999;
+      padding:20px;
+    "
+  >
+
+    <div
+      class="card"
+      style="
+        width:min(500px,100%);
+      "
+    >
+
+      <h2 id="trainingModalTitle">
+        Ajouter une formation
+      </h2>
+
+      <p>
+        Indique le nom de la formation.
+      </p>
+
+      <input
+        type="text"
+        id="trainingNameInput"
+        placeholder="Ex : GDI"
+        style="
+          width:100%;
+          margin:15px 0;
+        "
+      >
+
+      <div
+        style="
+          display:flex;
+          justify-content:flex-end;
+          gap:10px;
+        "
+      >
+
+        <button
+          type="button"
+          class="btn"
+          id="cancelTrainingButton"
+        >
+          Annuler
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-primary"
+          id="confirmTrainingButton"
+        >
+          Enregistrer
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =====================================================
+       JAVASCRIPT
+  ====================================================== -->
+
+  <script src="app.js"></script>
+
+  <script>
+
+    let trainings = [];
+    let categories = [];
+
+    let selectedTrainingId = null;
+    let selectedCategoryIds = new Set();
+
+    let trainingModalMode = "create";
+
+
+    /* =====================================================
+       INITIALISATION
+    ====================================================== */
+
+    document.addEventListener("DOMContentLoaded", async () => {
+
+      bindTrainingEvents();
+
+      await loadTrainings();
+      await loadCategories();
+
+    });
+
+
+    /* =====================================================
+       API SUPABASE
+    ====================================================== */
+
+    async function supabaseRequest(path, options = {}) {
+
+      /*
+       * On réutilise les constantes déjà présentes
+       * dans app.js.
+       *
+       * Le projet Nickel Master utilise normalement :
+       *
+       * SUPABASE_URL
+       * SUPABASE_KEY
+       *
+       */
+
+      const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/${path}`,
+        {
+          ...options,
+
+          headers: {
+            "apikey": SUPABASE_KEY,
+            "Authorization": `Bearer ${SUPABASE_KEY}`,
+            "Content-Type": "application/json",
+            ...(options.headers || {})
+          }
+        }
+      );
+
+
+      if (!response.ok) {
+
+        const errorText = await response.text();
+
+        console.error(
+          "Erreur Supabase :",
+          response.status,
+          errorText
+        );
+
+        throw new Error(errorText);
+
+      }
+
+
+      const text = await response.text();
+
+      if (!text) {
+        return null;
+      }
+
+      return JSON.parse(text);
+
+    }
+
+
+    /* =====================================================
+       CHARGEMENT DES FORMATIONS
+    ====================================================== */
+
+    async function loadTrainings() {
+
+      const container =
+        document.getElementById("trainingList");
+
+      container.innerHTML =
+        "<p>Chargement des formations...</p>";
+
+
+      try {
+
+        trainings = await supabaseRequest(
+          "trainings?select=id,name&order=name.asc"
+        ) || [];
+
+        renderTrainings();
+
+      }
+
+      catch (error) {
+
+        console.error(error);
+
+        container.innerHTML =
+          "<p>❌ Impossible de charger les formations.</p>";
+
+      }
+
+    }
+
+
+    /* =====================================================
+       AFFICHAGE DES FORMATIONS
+    ====================================================== */
+
+    function renderTrainings() {
+
+      const container =
+        document.getElementById("trainingList");
+
+      const search =
+        document
+          .getElementById("trainingSearch")
+          .value
+          .trim()
+          .toLowerCase();
+
+
+      const filtered =
+        trainings.filter(training =>
+
+          training.name
+            .toLowerCase()
+            .includes(search)
+
+        );
+
+
+      if (!filtered.length) {
+
+        container.innerHTML =
+          "<p>Aucune formation trouvée.</p>";
+
+        return;
+
+      }
+
+
+      container.innerHTML = "";
+
+
+      filtered.forEach(training => {
+
+        const button =
+          document.createElement("button");
+
+        button.type = "button";
+
+        button.dataset.trainingId =
+          training.id;
+
+        button.style.cssText = `
+          width:100%;
+          text-align:left;
+          padding:14px;
+          margin-bottom:8px;
+          cursor:pointer;
+          border-radius:10px;
+        `;
+
+
+        button.innerHTML = `
+          <strong>
+            🎓 ${escapeHtml(training.name)}
+          </strong>
+        `;
+
+
+        button.addEventListener(
+          "click",
+          () => selectTraining(training.id)
+        );
+
+
+        container.appendChild(button);
+
+      });
+
+    }
+
+
+    /* =====================================================
+       CATÉGORIES
+    ====================================================== */
+
+    async function loadCategories() {
+
+      try {
+
+        categories = await supabaseRequest(
+          "categories?select=id,name,icon,active&order=name.asc"
+        ) || [];
+
+      }
+
+      catch (error) {
+
+        console.error(
+          "Impossible de charger les catégories",
+          error
+        );
+
+      }
+
+    }
+
+
+    /* =====================================================
+       SÉLECTION FORMATION
+    ====================================================== */
+
+    async function selectTraining(trainingId) {
+
+      selectedTrainingId =
+        Number(trainingId);
+
+
+      const training =
+        trainings.find(
+          item =>
+            Number(item.id) ===
+            Number(trainingId)
+        );
+
+
+      if (!training) {
+        return;
+      }
+
+
+      document
+        .getElementById("noTrainingSelected")
+        .style.display = "none";
+
+
+      document
+        .getElementById("trainingConfiguration")
+        .style.display = "block";
+
+
+      document
+        .getElementById("selectedTrainingName")
+        .textContent =
+          `🎓 ${training.name}`;
+
+
+      await loadTrainingCategoryAccess();
+
+    }
+
+
+    /* =====================================================
+       ACCÈS FORMATION → CATÉGORIES
+    ====================================================== */
+
+    async function loadTrainingCategoryAccess() {
+
+      const container =
+        document.getElementById("categoryList");
+
+
+      container.innerHTML =
+        "<p>Chargement...</p>";
+
+
+      try {
+
+        const access =
+          await supabaseRequest(
+            `training_category_access?select=category_id&training_id=eq.${selectedTrainingId}`
+          ) || [];
+
+
+        selectedCategoryIds =
+          new Set(
+            access.map(
+              item => item.category_id
+            )
+          );
+
+
+        renderCategories();
+
+      }
+
+      catch (error) {
+
+        console.error(error);
+
+        container.innerHTML =
+          "<p>❌ Impossible de charger les accès.</p>";
+
+      }
+
+    }
+
+
+    /* =====================================================
+       AFFICHAGE CATÉGORIES
+    ====================================================== */
+
+    function renderCategories() {
+
+      const container =
+        document.getElementById("categoryList");
+
+
+      container.innerHTML = "";
+
+
+      if (!categories.length) {
+
+        container.innerHTML =
+          "<p>Aucune catégorie disponible.</p>";
+
+        return;
+
+      }
+
+
+      categories.forEach(category => {
+
+        const label =
+          document.createElement("label");
+
+
+        label.style.cssText = `
+          display:flex;
+          align-items:center;
+          gap:10px;
+          padding:14px;
+          border:1px solid rgba(128,128,128,.3);
+          border-radius:10px;
+          cursor:pointer;
+        `;
+
+
+        const checked =
+          selectedCategoryIds.has(category.id)
+            ? "checked"
+            : "";
+
+
+        label.innerHTML = `
+
+          <input
+            type="checkbox"
+            class="training-category-checkbox"
+            value="${category.id}"
+            ${checked}
+          >
+
+          <span>
+            ${escapeHtml(category.icon || "🎯")}
+          </span>
+
+          <strong>
+            ${escapeHtml(category.name)}
+          </strong>
+
+        `;
+
+
+        container.appendChild(label);
+
+      });
+
+    }
+
+
+    /* =====================================================
+       ENREGISTRER LES CATÉGORIES
+    ====================================================== */
+
+    async function saveTrainingCategories() {
+
+      if (!selectedTrainingId) {
+        return;
+      }
+
+
+      const button =
+        document.getElementById(
+          "saveTrainingCategoriesButton"
+        );
+
+
+      button.disabled = true;
+      button.textContent = "Enregistrement...";
+
+
+      try {
+
+        const checked =
+          Array.from(
+            document.querySelectorAll(
+              ".training-category-checkbox:checked"
+            )
+          )
+          .map(
+            checkbox => checkbox.value
+          );
+
+
+        /*
+         * On supprime les anciennes associations.
+         */
+
+        await supabaseRequest(
+          `training_category_access?training_id=eq.${selectedTrainingId}`,
+          {
+            method: "DELETE"
+          }
+        );
+
+
+        /*
+         * Puis on recrée la sélection.
+         */
+
+        if (checked.length) {
+
+          const rows =
+            checked.map(categoryId => ({
+              training_id:
+                selectedTrainingId,
+
+              category_id:
+                categoryId
+            }));
+
+
+          await supabaseRequest(
+            "training_category_access",
+            {
+              method: "POST",
+
+              headers: {
+                "Prefer": "return=minimal"
+              },
+
+              body:
+                JSON.stringify(rows)
+            }
+          );
+
+        }
+
+
+        selectedCategoryIds =
+          new Set(checked);
+
+
+        showSaveMessage(
+          "✅ Accès enregistrés."
+        );
+
+      }
+
+      catch (error) {
+
+        console.error(error);
+
+        showSaveMessage(
+          "❌ Impossible d'enregistrer les accès."
+        );
+
+      }
+
+      finally {
+
+        button.disabled = false;
+
+        button.textContent =
+          "💾 Enregistrer les accès";
+
+      }
+
+    }
+
+
+    /* =====================================================
+       CRÉER / RENOMMER FORMATION
+    ====================================================== */
+
+    function openCreateTrainingModal() {
+
+      trainingModalMode =
+        "create";
+
+
+      document
+        .getElementById("trainingModalTitle")
+        .textContent =
+          "Ajouter une formation";
+
+
+      document
+        .getElementById("trainingNameInput")
+        .value = "";
+
+
+      openTrainingModal();
+
+    }
+
+
+    function openRenameTrainingModal() {
+
+      if (!selectedTrainingId) {
+        return;
+      }
+
+
+      const training =
+        trainings.find(
+          item =>
+            Number(item.id) ===
+            Number(selectedTrainingId)
+        );
+
+
+      if (!training) {
+        return;
+      }
+
+
+      trainingModalMode =
+        "rename";
+
+
+      document
+        .getElementById("trainingModalTitle")
+        .textContent =
+          "Renommer la formation";
+
+
+      document
+        .getElementById("trainingNameInput")
+        .value =
+          training.name;
+
+
+      openTrainingModal();
+
+    }
+
+
+    function openTrainingModal() {
+
+      const modal =
+        document.getElementById(
+          "trainingModal"
+        );
+
+
+      modal.style.display =
+        "flex";
+
+
+      setTimeout(() => {
+
+        document
+          .getElementById("trainingNameInput")
+          .focus();
+
+      }, 50);
+
+    }
+
+
+    function closeTrainingModal() {
+
+      document
+        .getElementById("trainingModal")
+        .style.display =
+          "none";
+
+    }
+
+
+    async function confirmTrainingModal() {
+
+      const input =
+        document.getElementById(
+          "trainingNameInput"
+        );
+
+
+      const name =
+        input.value.trim();
+
+
+      if (!name) {
+
+        alert(
+          "Indique le nom de la formation."
+        );
+
+        return;
+
+      }
+
+
+      try {
+
+        if (
+          trainingModalMode ===
+          "create"
+        ) {
+
+          await supabaseRequest(
+            "trainings",
+            {
+              method: "POST",
+
+              headers: {
+                "Prefer":
+                  "return=minimal"
+              },
+
+              body:
+                JSON.stringify({
+                  name
+                })
+            }
+          );
+
+        }
+
+        else {
+
+          await supabaseRequest(
+            `trainings?id=eq.${selectedTrainingId}`,
+            {
+              method: "PATCH",
+
+              headers: {
+                "Prefer":
+                  "return=minimal"
+              },
+
+              body:
+                JSON.stringify({
+                  name
+                })
+            }
+          );
+
+        }
+
+
+        closeTrainingModal();
+
+        await loadTrainings();
+
+
+        if (
+          trainingModalMode ===
+          "rename" &&
+          selectedTrainingId
+        ) {
+
+          await selectTraining(
+            selectedTrainingId
+          );
+
+        }
+
+      }
+
+      catch (error) {
+
+        console.error(error);
+
+        alert(
+          "Impossible d'enregistrer la formation."
+        );
+
+      }
+
+    }
+
+
+    /* =====================================================
+       SUPPRESSION FORMATION
+    ====================================================== */
+
+    async function deleteTraining() {
+
+      if (!selectedTrainingId) {
+        return;
+      }
+
+
+      const training =
+        trainings.find(
+          item =>
+            Number(item.id) ===
+            Number(selectedTrainingId)
+        );
+
+
+      if (!training) {
+        return;
+      }
+
+
+      const confirmed =
+        confirm(
+          `Supprimer la formation "${training.name}" ?`
+        );
+
+
+      if (!confirmed) {
+        return;
+      }
+
+
+      try {
+
+        await supabaseRequest(
+          `trainings?id=eq.${selectedTrainingId}`,
+          {
+            method: "DELETE"
+          }
+        );
+
+
+        selectedTrainingId =
+          null;
+
+
+        selectedCategoryIds =
+          new Set();
+
+
+        document
+          .getElementById(
+            "trainingConfiguration"
+          )
+          .style.display =
+            "none";
+
+
+        document
+          .getElementById(
+            "noTrainingSelected"
+          )
+          .style.display =
+            "block";
+
+
+        await loadTrainings();
+
+      }
+
+      catch (error) {
+
+        console.error(error);
+
+        alert(
+          "Impossible de supprimer cette formation."
+        );
+
+      }
+
+    }
+
+
+    /* =====================================================
+       ÉVÉNEMENTS
+    ====================================================== */
+
+    function bindTrainingEvents() {
+
+      document
+        .getElementById(
+          "trainingSearch"
+        )
+        .addEventListener(
+          "input",
+          renderTrainings
+        );
+
+
+      document
+        .getElementById(
+          "addTrainingButton"
+        )
+        .addEventListener(
+          "click",
+          openCreateTrainingModal
+        );
+
+
+      document
+        .getElementById(
+          "renameTrainingButton"
+        )
+        .addEventListener(
+          "click",
+          openRenameTrainingModal
+        );
+
+
+      document
+        .getElementById(
+          "deleteTrainingButton"
+        )
+        .addEventListener(
+          "click",
+          deleteTraining
+        );
+
+
+      document
+        .getElementById(
+          "saveTrainingCategoriesButton"
+        )
+        .addEventListener(
+          "click",
+          saveTrainingCategories
+        );
+
+
+      document
+        .getElementById(
+          "cancelTrainingButton"
+        )
+        .addEventListener(
+          "click",
+          closeTrainingModal
+        );
+
+
+      document
+        .getElementById(
+          "confirmTrainingButton"
+        )
+        .addEventListener(
+          "click",
+          confirmTrainingModal
+        );
+
+
+      document
+        .getElementById(
+          "trainingNameInput"
+        )
+        .addEventListener(
+          "keydown",
+          event => {
+
+            if (
+              event.key ===
+              "Enter"
+            ) {
+
+              confirmTrainingModal();
+
+            }
+
+          }
+        );
+
+    }
+
+
+    /* =====================================================
+       MESSAGE
+    ====================================================== */
+
+    function showSaveMessage(message) {
+
+      const element =
+        document.getElementById(
+          "saveMessage"
+        );
+
+
+      element.textContent =
+        message;
+
+
+      element.style.display =
+        "block";
+
+
+      setTimeout(() => {
+
+        element.style.display =
+          "none";
+
+      }, 3000);
+
+    }
+
+
+    /* =====================================================
+       SÉCURITÉ HTML
+    ====================================================== */
+
+    function escapeHtml(value) {
+
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+
+    }
+
+  </script>
+
+</body>
+</html>
