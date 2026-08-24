@@ -10,6 +10,10 @@
     content="width=device-width, initial-scale=1.0"
   >
 
+  <!-- =====================================================
+       THÈME
+  ====================================================== -->
+
   <script>
 
     const savedTheme =
@@ -24,7 +28,7 @@
 
 
   <title>
-    Gestion des formations - Nickel Master
+    Gestion de l'organisation - Nickel Master
   </title>
 
 
@@ -41,6 +45,7 @@
 
 
 <div class="dashboard-layout">
+
 
 
   <!-- =====================================================
@@ -173,159 +178,536 @@
   <main class="dashboard-main">
 
 
-    <section class="nm-page">
+
+    <!-- ===================================================
+         HEADER
+    ==================================================== -->
+
+    <header class="organization-admin-header">
+
+
+      <div>
+
+        <h1>
+          🏢 Gestion de l'organisation
+        </h1>
+
+        <p>
+          Gère les services, équipes, fonctions, rôles et accès de Nickel Master.
+        </p>
+
+      </div>
+
+
+      <strong id="organizationAdminUser">
+        Administrateur
+      </strong>
+
+
+    </header>
+
+
+
+    <!-- ===================================================
+         NAVIGATION
+    ==================================================== -->
+
+    <section class="organization-admin-tabs">
+
+
+      <!-- SERVICES -->
+
+      <button
+        type="button"
+        class="organization-tab active"
+        data-organization-tab="services"
+      >
+
+        <span>
+          🏢
+        </span>
+
+        <div>
+
+          <strong>
+            Services
+          </strong>
+
+          <small>
+            Créer et organiser les services
+          </small>
+
+        </div>
+
+      </button>
+
+
+
+      <!-- ÉQUIPES -->
+
+      <button
+        type="button"
+        class="organization-tab"
+        data-organization-tab="teams"
+      >
+
+        <span>
+          👥
+        </span>
+
+        <div>
+
+          <strong>
+            Équipes
+          </strong>
+
+          <small>
+            Créer et gérer les équipes
+          </small>
+
+        </div>
+
+      </button>
+
+
+
+      <!-- FONCTIONS -->
+
+      <button
+        type="button"
+        class="organization-tab"
+        data-organization-tab="positions"
+      >
+
+        <span>
+          💼
+        </span>
+
+        <div>
+
+          <strong>
+            Fonctions
+          </strong>
+
+          <small>
+            Gérer les fonctions métier
+          </small>
+
+        </div>
+
+      </button>
+
+
+
+      <!-- RÔLES & ACCÈS -->
+
+      <button
+        type="button"
+        class="organization-tab"
+        data-organization-tab="permissions"
+      >
+
+        <span>
+          🔐
+        </span>
+
+        <div>
+
+          <strong>
+            Rôles & accès
+          </strong>
+
+          <small>
+            Gérer les permissions et catégories
+          </small>
+
+        </div>
+
+      </button>
+
+
+    </section>
+
+
+
+    <!-- ===================================================
+         SERVICES
+    ==================================================== -->
+
+    <section
+      id="organizationServicesPanel"
+      class="organization-panel"
+    >
+
+
+      <div class="organization-panel-header">
+
+
+        <div>
+
+          <h2>
+            Services
+          </h2>
+
+          <p>
+            Les services sont disponibles automatiquement dans les équipes
+            et la gestion des utilisateurs.
+          </p>
+
+        </div>
+
+
+        <button
+          type="button"
+          class="btn-primary"
+          id="organizationAddServiceButton"
+          onclick="openOrganizationServiceModal()"
+        >
+          + Ajouter un service
+        </button>
+
+
+      </div>
+
+
+
+      <div class="organization-toolbar">
+
+
+        <input
+          id="organizationServiceSearch"
+          type="text"
+          placeholder="Rechercher un service..."
+        >
+
+
+        <select id="organizationServiceStatusFilter">
+
+          <option value="">
+            Tous les statuts
+          </option>
+
+          <option value="active">
+            Actifs
+          </option>
+
+          <option value="inactive">
+            Désactivés
+          </option>
+
+        </select>
+
+
+      </div>
+
+
+
+      <div
+        id="organizationServicesList"
+        class="organization-list"
+      >
+
+        <div class="question-management-empty">
+
+          Chargement des services...
+
+        </div>
+
+      </div>
+
+
+    </section>
+
+
+
+    <!-- ===================================================
+         ÉQUIPES
+    ==================================================== -->
+
+    <section
+      id="organizationTeamsPanel"
+      class="organization-panel"
+      style="display:none;"
+    >
+
+
+      <div class="organization-panel-header">
+
+
+        <div>
+
+          <h2>
+            Équipes
+          </h2>
+
+          <p>
+            Chaque équipe peut être rattachée à un service et à un manager.
+          </p>
+
+        </div>
+
+
+        <button
+          type="button"
+          class="btn-primary"
+          id="organizationAddTeamButton"
+          onclick="openOrganizationTeamModal()"
+        >
+          + Ajouter une équipe
+        </button>
+
+
+      </div>
+
+
+
+      <div class="organization-toolbar">
+
+
+        <input
+          id="organizationTeamSearch"
+          type="text"
+          placeholder="Rechercher une équipe..."
+        >
+
+
+        <select id="organizationTeamServiceFilter">
+
+          <option value="">
+            Tous les services
+          </option>
+
+        </select>
+
+
+        <select id="organizationTeamStatusFilter">
+
+          <option value="">
+            Tous les statuts
+          </option>
+
+          <option value="active">
+            Actives
+          </option>
+
+          <option value="inactive">
+            Désactivées
+          </option>
+
+        </select>
+
+
+      </div>
+
+
+
+      <div
+        id="organizationTeamsList"
+        class="organization-list"
+      >
+
+        <div class="question-management-empty">
+
+          Chargement des équipes...
+
+        </div>
+
+      </div>
+
+
+    </section>
+
+
+
+    <!-- ===================================================
+         FONCTIONS
+    ==================================================== -->
+
+    <section
+      id="organizationPositionsPanel"
+      class="organization-panel"
+      style="display:none;"
+    >
+
+
+      <div class="organization-panel-header">
+
+
+        <div>
+
+          <h2>
+            Fonctions
+          </h2>
+
+          <p>
+            Crée les fonctions métier utilisées dans les profils utilisateurs.
+          </p>
+
+        </div>
+
+
+        <button
+          type="button"
+          class="btn-primary"
+          id="organizationAddPositionButton"
+          onclick="openOrganizationPositionModal()"
+        >
+          + Ajouter une fonction
+        </button>
+
+
+      </div>
+
+
+
+      <div class="organization-toolbar">
+
+
+        <input
+          id="organizationPositionSearch"
+          type="text"
+          placeholder="Rechercher une fonction..."
+        >
+
+
+        <select id="organizationPositionServiceFilter">
+
+          <option value="">
+            Tous les services
+          </option>
+
+        </select>
+
+
+        <select id="organizationPositionStatusFilter">
+
+          <option value="">
+            Tous les statuts
+          </option>
+
+          <option value="active">
+            Actives
+          </option>
+
+          <option value="inactive">
+            Désactivées
+          </option>
+
+        </select>
+
+
+      </div>
+
+
+
+      <div
+        id="organizationPositionsList"
+        class="organization-list"
+      >
+
+        <div class="question-management-empty">
+
+          Chargement des fonctions...
+
+        </div>
+
+      </div>
+
+
+    </section>
+
+
+
+    <!-- ===================================================
+         RÔLES & ACCÈS
+    ==================================================== -->
+
+    <section
+      id="organizationPermissionsPanel"
+      class="organization-panel"
+      style="display:none;"
+    >
 
 
       <!-- =================================================
            HEADER
       ================================================== -->
 
-      <header class="nm-page-header">
+      <div class="organization-panel-header">
 
 
-        <div class="nm-page-header-main">
+        <div>
 
-          <h1 class="nm-page-title">
+          <h2>
+            Rôles & accès
+          </h2>
 
-            <span class="nm-page-title-icon">
-              🎓
-            </span>
-
-            Gestion des formations
-
-          </h1>
-
-
-          <p class="nm-page-subtitle">
-
-            Crée les formations et définis les catégories de quiz
-            accessibles pour chacune d'elles.
-
+          <p>
+            Configure les permissions et les catégories de quiz accessibles
+            à chaque rôle.
           </p>
 
         </div>
 
 
-        <strong
-          id="trainingAdminUser"
-          class="nm-page-user"
+        <button
+          type="button"
+          class="btn-primary"
+          id="organizationAddRoleButton"
+          onclick="openOrganizationRoleModal()"
         >
-          Administrateur
-        </strong>
+          + Ajouter un rôle
+        </button>
 
 
-      </header>
-
-
-
-      <!-- =================================================
-           BARRE PRINCIPALE
-      ================================================== -->
-
-      <section class="nm-card nm-card-padding">
-
-
-        <div class="nm-card-header">
-
-
-          <div>
-
-            <h2>
-              Formations
-            </h2>
-
-            <p>
-              Sélectionne une formation pour gérer les catégories
-              de quiz qui lui sont associées.
-            </p>
-
-          </div>
-
-
-          <button
-            type="button"
-            id="addTrainingButton"
-            class="nm-btn nm-btn-primary"
-          >
-            + Ajouter une formation
-          </button>
-
-
-        </div>
-
-
-      </section>
+      </div>
 
 
 
       <!-- =================================================
-           LAYOUT
+           LAYOUT 3 COLONNES
       ================================================== -->
 
-      <section
-        class="nm-grid"
-        style="
-          grid-template-columns:
-            minmax(280px, .8fr)
-            minmax(520px, 2fr);
-          margin-top:20px;
-        "
-      >
+      <div class="organization-permissions-final-layout">
+
 
 
         <!-- ===============================================
-             COLONNE GAUCHE
+             COLONNE 1
+             RÔLES
         ================================================ -->
 
-        <aside class="nm-card nm-card-padding">
+        <aside class="organization-role-list-card">
 
 
-          <div class="nm-card-header">
-
-            <div>
-
-              <h3>
-                Formations existantes
-              </h3>
-
-              <p>
-                Recherche puis sélectionne une formation.
-              </p>
-
-            </div>
-
-          </div>
+          <div class="organization-role-list-header">
 
 
+            <h3>
+              Rôles
+            </h3>
 
-          <div class="nm-field">
-
-            <label for="trainingSearch">
-              Rechercher
-            </label>
 
             <input
-              id="trainingSearch"
-              type="search"
-              placeholder="Rechercher une formation..."
+              id="organizationRoleSearch"
+              type="text"
+              placeholder="Rechercher un rôle..."
             >
+
 
           </div>
 
 
 
           <div
-            id="trainingList"
-            style="
-              margin-top:16px;
-              display:flex;
-              flex-direction:column;
-              gap:8px;
-            "
+            id="organizationRoleList"
+            class="organization-role-list"
           >
 
-            <div class="nm-empty-state">
-              Chargement des formations...
+            <div class="question-management-empty">
+
+              Chargement des rôles...
+
             </div>
 
           </div>
@@ -336,30 +718,29 @@
 
 
         <!-- ===============================================
-             COLONNE DROITE
+             COLONNE 2
+             PERMISSIONS
         ================================================ -->
 
-        <section class="nm-card nm-card-padding">
+        <section class="organization-permission-card">
 
 
-          <!-- AVANT SÉLECTION -->
-
-          <div id="noTrainingSelected">
+          <div class="organization-permission-heading">
 
 
-            <div class="nm-empty-state">
+            <div>
 
-              <span class="nm-empty-state-icon">
-                🎓
-              </span>
+              <h3 id="organizationPermissionTitle">
 
-              <strong>
-                Sélectionne une formation
-              </strong>
+                Sélectionne un rôle
 
-              <p>
-                Choisis une formation à gauche pour afficher
-                les catégories de quiz auxquelles elle donne accès.
+              </h3>
+
+
+              <p id="organizationPermissionSubtitle">
+
+                Choisis un rôle pour afficher ses permissions.
+
               </p>
 
             </div>
@@ -369,135 +750,33 @@
 
 
 
-          <!-- APRÈS SÉLECTION -->
+          <div class="organization-permission-column-title">
+
+
+            <h3>
+              Permissions
+            </h3>
+
+
+            <p>
+              Définit ce que ce rôle peut voir et faire dans Nickel Master.
+            </p>
+
+
+          </div>
+
+
 
           <div
-            id="trainingConfiguration"
-            style="display:none;"
+            id="organizationPermissionContent"
+            class="organization-permission-content"
           >
 
 
-            <div class="nm-card-header">
+            <div class="question-management-empty">
 
+              Aucun rôle sélectionné.
 
-              <div>
-
-                <h2 id="selectedTrainingName">
-                  Formation
-                </h2>
-
-                <p>
-                  Configure les catégories de quiz accessibles
-                  avec cette formation.
-                </p>
-
-              </div>
-
-
-
-              <div class="nm-actions">
-
-
-                <button
-                  type="button"
-                  id="renameTrainingButton"
-                  class="nm-action-button"
-                  title="Renommer"
-                >
-                  ✏️
-                </button>
-
-
-                <button
-                  type="button"
-                  id="deleteTrainingButton"
-                  class="nm-action-button nm-action-button-danger"
-                  title="Supprimer"
-                >
-                  🗑️
-                </button>
-
-
-              </div>
-
-
-            </div>
-
-
-
-            <div
-              style="
-                margin-top:20px;
-                padding-top:20px;
-                border-top:1px solid var(--nm-border);
-              "
-            >
-
-
-              <h3>
-                Catégories de quiz
-              </h3>
-
-
-              <p class="nm-page-subtitle">
-
-                Coche toutes les catégories qui doivent devenir
-                accessibles aux utilisateurs possédant cette formation.
-
-              </p>
-
-
-
-              <div
-                id="categoryList"
-                class="nm-grid"
-                style="
-                  margin-top:20px;
-                  grid-template-columns:
-                    repeat(auto-fit,minmax(220px,1fr));
-                "
-              >
-
-                <div class="nm-empty-state">
-                  Chargement...
-                </div>
-
-              </div>
-
-
-            </div>
-
-
-
-            <div
-              style="
-                display:flex;
-                justify-content:flex-end;
-                margin-top:24px;
-                padding-top:20px;
-                border-top:1px solid var(--nm-border);
-              "
-            >
-
-              <button
-                type="button"
-                id="saveTrainingCategoriesButton"
-                class="nm-btn nm-btn-primary"
-              >
-                💾 Enregistrer les accès
-              </button>
-
-            </div>
-
-
-
-            <div
-              id="saveMessage"
-              style="
-                display:none;
-                margin-top:14px;
-              "
-            >
             </div>
 
 
@@ -507,7 +786,119 @@
         </section>
 
 
-      </section>
+
+        <!-- ===============================================
+             COLONNE 3
+             CATÉGORIES DE QUIZ
+        ================================================ -->
+
+        <section class="organization-category-card">
+
+
+          <div class="organization-category-card-header">
+
+
+            <div>
+
+              <h3>
+                Catégories de quiz accessibles
+              </h3>
+
+
+              <p>
+                Choisis les catégories accessibles aux utilisateurs de ce rôle.
+              </p>
+
+            </div>
+
+
+          </div>
+
+
+
+          <!-- Message avant sélection d'un rôle -->
+
+          <div
+            id="organizationCategoryEmptyMessage"
+            class="organization-category-empty"
+          >
+
+            Sélectionne un rôle pour configurer ses catégories.
+
+          </div>
+
+
+
+          <!-- Catégories après sélection -->
+
+          <div
+            id="organizationRoleCategoriesSection"
+            class="organization-role-categories-section"
+            style="display:none;"
+          >
+
+
+            <div
+              id="organizationRoleCategories"
+              class="organization-role-categories"
+            >
+            </div>
+
+
+          </div>
+
+
+
+          <div class="organization-category-info">
+
+            ℹ️ Les catégories décochées ne seront pas proposées
+            aux utilisateurs de ce rôle.
+
+          </div>
+
+
+        </section>
+
+
+      </div>
+
+
+
+      <!-- =================================================
+           BARRE DE SAUVEGARDE
+      ================================================== -->
+
+      <div
+        id="organizationRoleSaveBar"
+        class="organization-role-save-bar"
+        style="display:none;"
+      >
+
+
+        <div>
+
+          <strong>
+            Modifications des accès
+          </strong>
+
+          <small>
+            Enregistre les permissions et catégories du rôle sélectionné.
+          </small>
+
+        </div>
+
+
+        <button
+          type="button"
+          class="btn-primary"
+          id="organizationSaveRolePermissionsButton"
+          onclick="saveOrganizationRolePermissions()"
+        >
+          💾 Enregistrer les accès
+        </button>
+
+
+      </div>
 
 
     </section>
@@ -521,30 +912,33 @@
 
 
 <!-- =====================================================
-     MODALE FORMATION
+     MODALE SERVICE
 ====================================================== -->
 
 <div
-  id="trainingModal"
-  class="nm-modal"
+  id="organizationServiceModal"
+  class="question-edit-modal"
+  style="display:none;"
 >
 
 
-  <div class="nm-modal-card">
+  <div class="question-edit-modal-card">
 
 
-    <div class="nm-modal-header">
+    <div class="question-edit-modal-header">
 
 
-      <h2 id="trainingModalTitle">
-        Ajouter une formation
+      <h2 id="organizationServiceModalTitle">
+
+        Ajouter un service
+
       </h2>
 
 
       <button
         type="button"
-        id="closeTrainingModalButton"
-        class="nm-modal-close"
+        id="organizationCloseServiceModal"
+        onclick="closeOrganizationServiceModal()"
         aria-label="Fermer"
       >
         ✕
@@ -555,36 +949,77 @@
 
 
 
-    <div class="nm-modal-body">
+    <div class="question-field">
 
 
-      <div class="nm-field">
+      <label for="organizationServiceName">
 
-        <label for="trainingNameInput">
-          Nom de la formation
-        </label>
+        Nom du service
 
-        <input
-          id="trainingNameInput"
-          type="text"
-          placeholder="Ex. GDI"
-          autocomplete="off"
-        >
+      </label>
 
-      </div>
+
+      <input
+        id="organizationServiceName"
+        type="text"
+        placeholder="Ex. Formation"
+        autocomplete="off"
+      >
 
 
     </div>
 
 
 
-    <div class="nm-modal-actions">
+    <div class="question-field">
+
+
+      <label for="organizationServiceCode">
+
+        Code
+
+      </label>
+
+
+      <input
+        id="organizationServiceCode"
+        type="text"
+        placeholder="formation"
+        autocomplete="off"
+      >
+
+
+    </div>
+
+
+
+    <div class="question-field">
+
+
+      <label for="organizationServiceDescription">
+
+        Description
+
+      </label>
+
+
+      <textarea
+        id="organizationServiceDescription"
+        placeholder="Description du service..."
+      ></textarea>
+
+
+    </div>
+
+
+
+    <div class="question-edit-actions">
 
 
       <button
         type="button"
-        id="cancelTrainingButton"
-        class="nm-btn nm-btn-secondary"
+        class="btn-secondary"
+        onclick="closeOrganizationServiceModal()"
       >
         Annuler
       </button>
@@ -592,10 +1027,470 @@
 
       <button
         type="button"
-        id="confirmTrainingButton"
-        class="nm-btn nm-btn-primary"
+        class="btn-primary"
+        id="organizationSaveService"
+        onclick="saveOrganizationService()"
       >
         💾 Enregistrer
+      </button>
+
+
+    </div>
+
+
+  </div>
+
+
+</div>
+
+
+
+<!-- =====================================================
+     MODALE ÉQUIPE
+====================================================== -->
+
+<div
+  id="organizationTeamModal"
+  class="question-edit-modal"
+  style="display:none;"
+>
+
+
+  <div class="question-edit-modal-card">
+
+
+    <div class="question-edit-modal-header">
+
+
+      <h2 id="organizationTeamModalTitle">
+
+        Ajouter une équipe
+
+      </h2>
+
+
+      <button
+        type="button"
+        onclick="closeOrganizationTeamModal()"
+        aria-label="Fermer"
+      >
+        ✕
+      </button>
+
+
+    </div>
+
+
+
+    <div class="question-field">
+
+
+      <label for="organizationTeamName">
+
+        Nom de l'équipe
+
+      </label>
+
+
+      <input
+        id="organizationTeamName"
+        type="text"
+        placeholder="Ex. Équipe Formation"
+        autocomplete="off"
+      >
+
+
+    </div>
+
+
+
+    <div class="question-field">
+
+
+      <label for="organizationTeamService">
+
+        Service
+
+      </label>
+
+
+      <select id="organizationTeamService">
+
+
+        <option value="">
+          Aucun service
+        </option>
+
+
+      </select>
+
+
+    </div>
+
+
+
+    <div class="question-field">
+
+
+      <label for="organizationTeamManager">
+
+        Manager
+
+      </label>
+
+
+      <select id="organizationTeamManager">
+
+
+        <option value="">
+          Aucun manager
+        </option>
+
+
+      </select>
+
+
+    </div>
+
+
+
+    <div class="question-edit-actions">
+
+
+      <button
+        type="button"
+        class="btn-secondary"
+        onclick="closeOrganizationTeamModal()"
+      >
+        Annuler
+      </button>
+
+
+      <button
+        type="button"
+        class="btn-primary"
+        id="organizationSaveTeam"
+        onclick="saveOrganizationTeam()"
+      >
+        💾 Enregistrer
+      </button>
+
+
+    </div>
+
+
+  </div>
+
+
+</div>
+
+
+
+<!-- =====================================================
+     MODALE FONCTION
+====================================================== -->
+
+<div
+  id="organizationPositionModal"
+  class="question-edit-modal"
+  style="display:none;"
+>
+
+
+  <div class="question-edit-modal-card">
+
+
+    <div class="question-edit-modal-header">
+
+
+      <h2 id="organizationPositionModalTitle">
+
+        Ajouter une fonction
+
+      </h2>
+
+
+      <button
+        type="button"
+        onclick="closeOrganizationPositionModal()"
+        aria-label="Fermer"
+      >
+        ✕
+      </button>
+
+
+    </div>
+
+
+
+    <div class="question-field">
+
+
+      <label for="organizationPositionName">
+
+        Nom de la fonction
+
+      </label>
+
+
+      <input
+        id="organizationPositionName"
+        type="text"
+        placeholder="Ex. Formateur"
+        autocomplete="off"
+      >
+
+
+    </div>
+
+
+
+    <div class="question-field">
+
+
+      <label for="organizationPositionCode">
+
+        Code
+
+      </label>
+
+
+      <input
+        id="organizationPositionCode"
+        type="text"
+        placeholder="formateur"
+        autocomplete="off"
+      >
+
+
+    </div>
+
+
+
+    <div class="question-field">
+
+
+      <label for="organizationPositionRole">
+
+        Rôle associé
+
+      </label>
+
+
+      <select id="organizationPositionRole">
+
+
+        <option value="">
+          Aucun rôle
+        </option>
+
+
+      </select>
+
+
+    </div>
+
+
+
+    <div class="question-field">
+
+
+      <label for="organizationPositionService">
+
+        Service
+
+      </label>
+
+
+      <select id="organizationPositionService">
+
+
+        <option value="">
+          Tous les services / Aucun
+        </option>
+
+
+      </select>
+
+
+    </div>
+
+
+
+    <div class="question-field">
+
+
+      <label for="organizationPositionDescription">
+
+        Description
+
+      </label>
+
+
+      <textarea
+        id="organizationPositionDescription"
+        placeholder="Description de la fonction..."
+      ></textarea>
+
+
+    </div>
+
+
+
+    <div class="question-edit-actions">
+
+
+      <button
+        type="button"
+        class="btn-secondary"
+        onclick="closeOrganizationPositionModal()"
+      >
+        Annuler
+      </button>
+
+
+      <button
+        type="button"
+        class="btn-primary"
+        id="organizationSavePosition"
+        onclick="saveOrganizationPosition()"
+      >
+        💾 Enregistrer
+      </button>
+
+
+    </div>
+
+
+  </div>
+
+
+</div>
+
+
+
+<!-- =====================================================
+     MODALE RÔLE
+====================================================== -->
+
+<div
+  id="organizationRoleModal"
+  class="question-edit-modal"
+  style="display:none;"
+>
+
+
+  <div class="question-edit-modal-card">
+
+
+    <div class="question-edit-modal-header">
+
+
+      <h2 id="organizationRoleModalTitle">
+
+        Ajouter un rôle
+
+      </h2>
+
+
+      <button
+        type="button"
+        onclick="closeOrganizationRoleModal()"
+        aria-label="Fermer"
+      >
+        ✕
+      </button>
+
+
+    </div>
+
+
+
+    <div class="question-field">
+
+
+      <label for="organizationRoleName">
+
+        Nom du rôle
+
+      </label>
+
+
+      <input
+        id="organizationRoleName"
+        type="text"
+        placeholder="Ex. Formateur"
+        autocomplete="off"
+      >
+
+
+    </div>
+
+
+
+    <div class="question-field">
+
+
+      <label for="organizationRoleCode">
+
+        Code technique
+
+      </label>
+
+
+      <input
+        id="organizationRoleCode"
+        type="text"
+        placeholder="trainer"
+        autocomplete="off"
+      >
+
+
+    </div>
+
+
+
+    <div class="question-field">
+
+
+      <label for="organizationRoleHierarchy">
+
+        Niveau hiérarchique
+
+      </label>
+
+
+      <input
+        id="organizationRoleHierarchy"
+        type="number"
+        min="1"
+        value="1"
+      >
+
+
+    </div>
+
+
+
+    <div class="question-edit-actions">
+
+
+      <button
+        type="button"
+        class="btn-secondary"
+        onclick="closeOrganizationRoleModal()"
+      >
+        Annuler
+      </button>
+
+
+      <button
+        type="button"
+        class="btn-primary"
+        id="organizationSaveRoleButton"
+        onclick="saveOrganizationRole()"
+      >
+        💾 Créer le rôle
       </button>
 
 
@@ -621,1459 +1516,87 @@
 
 <script>
 
+  document.addEventListener(
+    "DOMContentLoaded",
+    async function () {
 
-let trainings = [];
 
-let categories = [];
+      /* ===============================================
+         SÉCURITÉ ADMIN
+      ================================================ */
 
-let selectedTrainingId = null;
-
-let selectedCategoryIds =
-  new Set();
-
-let trainingModalMode =
-  "create";
-
-
-
-/* =========================================================
-   INITIALISATION
-========================================================= */
-
-document.addEventListener(
-  "DOMContentLoaded",
-  async function () {
-
-
-    /* ===============================================
-       SÉCURITÉ ADMIN
-    ================================================ */
-
-    const role =
-      String(
-        localStorage.getItem("role") || ""
-      )
-      .trim()
-      .toLowerCase();
-
-
-    if (
-      role !==
-      "admin"
-    ) {
-
-      alert(
-        "Cette page est réservée à l'administrateur."
-      );
-
-      window.location.href =
-        "home.html";
-
-      return;
-    }
-
-
-
-    /* ===============================================
-       NOM UTILISATEUR
-    ================================================ */
-
-    const name =
-      localStorage.getItem("full_name") ||
-      "Administrateur";
-
-
-    const user =
-      document.getElementById(
-        "trainingAdminUser"
-      );
-
-
-    if (user) {
-
-      user.textContent =
-        name;
-    }
-
-
-
-    bindTrainingEvents();
-
-
-    await loadTrainings();
-
-    await loadCategories();
-
-
-  }
-);
-
-
-
-/* =========================================================
-   REQUÊTE SUPABASE
-========================================================= */
-
-async function trainingSupabaseRequest(
-  path,
-  options = {}
-) {
-
-
-  const response =
-    await fetch(
-      `${SUPABASE_URL}/rest/v1/${path}`,
-      {
-
-        ...options,
-
-        headers: {
-
-          ...supabaseHeaders(),
-
-          "Content-Type":
-            "application/json",
-
-          ...(options.headers || {})
-
-        }
-
-      }
-    );
-
-
-  const text =
-    await response.text();
-
-
-  if (
-    !response.ok
-  ) {
-
-    console.error(
-      "❌ Supabase formations :",
-      response.status,
-      text
-    );
-
-    throw new Error(
-      text ||
-      `Erreur HTTP ${response.status}`
-    );
-  }
-
-
-  if (
-    !text
-  ) {
-
-    return null;
-  }
-
-
-  return JSON.parse(
-    text
-  );
-
-}
-
-
-
-/* =========================================================
-   CHARGEMENT FORMATIONS
-========================================================= */
-
-async function loadTrainings() {
-
-
-  const container =
-    document.getElementById(
-      "trainingList"
-    );
-
-
-  if (
-    !container
-  ) {
-
-    return;
-  }
-
-
-  container.innerHTML = `
-
-    <div class="nm-empty-state">
-      Chargement des formations...
-    </div>
-
-  `;
-
-
-  try {
-
-
-    trainings =
-      await trainingSupabaseRequest(
-        "trainings?select=id,name&order=name.asc"
-      ) || [];
-
-
-    renderTrainings();
-
-
-  } catch (error) {
-
-
-    console.error(
-      error
-    );
-
-
-    container.innerHTML = `
-
-      <div class="nm-empty-state">
-        ❌ Impossible de charger les formations.
-      </div>
-
-    `;
-
-
-  }
-
-}
-
-
-
-/* =========================================================
-   RENDER FORMATIONS
-========================================================= */
-
-function renderTrainings() {
-
-
-  const container =
-    document.getElementById(
-      "trainingList"
-    );
-
-
-  const search =
-    String(
-      document
-        .getElementById(
-          "trainingSearch"
-        )
-        ?.value ||
-      ""
-    )
-    .trim()
-    .toLowerCase();
-
-
-  const filtered =
-    trainings.filter(
-      training =>
-
+      const role =
         String(
-          training.name ||
-          ""
+          localStorage.getItem("role") || ""
         )
-        .toLowerCase()
-        .includes(
-          search
-        )
-    );
-
-
-  if (
-    !filtered.length
-  ) {
-
-    container.innerHTML = `
-
-      <div class="nm-empty-state">
-        Aucune formation trouvée.
-      </div>
-
-    `;
-
-    return;
-  }
-
-
-  container.innerHTML =
-    "";
-
-
-  filtered.forEach(
-    training => {
-
-
-      const button =
-        document.createElement(
-          "button"
-        );
-
-
-      button.type =
-        "button";
-
-
-      button.className =
-        "nm-navigation-card";
-
-
-      button.dataset.trainingId =
-        training.id;
-
-
-      button.style.minHeight =
-        "auto";
-
-
-      button.style.padding =
-        "13px 14px";
-
-
-      button.innerHTML = `
-
-        <div class="nm-navigation-icon"
-             style="
-               width:40px;
-               height:40px;
-               font-size:18px;
-             "
-        >
-          🎓
-        </div>
-
-        <div>
-
-          <strong>
-            ${escapeHtml(training.name)}
-          </strong>
-
-          <small>
-            Formation
-          </small>
-
-        </div>
-
-      `;
+        .trim()
+        .toLowerCase();
 
 
       if (
-        Number(training.id) ===
-        Number(selectedTrainingId)
+        role !==
+        "admin"
       ) {
 
-        button.style.borderColor =
-          "var(--nm-primary)";
+        alert(
+          "Cette page est réservée à l'administrateur."
+        );
+
+        window.location.href =
+          "home.html";
+
+        return;
       }
 
 
-      button.addEventListener(
-        "click",
-        function () {
 
-          selectTraining(
-            training.id
-          );
+      /* ===============================================
+         NOM UTILISATEUR
+      ================================================ */
 
-        }
-      );
+      const name =
+        localStorage.getItem("full_name") ||
+        "Administrateur";
 
 
-      container.appendChild(
-        button
-      );
-
-
-    }
-  );
-
-}
-
-
-
-/* =========================================================
-   CHARGEMENT CATÉGORIES
-========================================================= */
-
-async function loadCategories() {
-
-
-  try {
-
-
-    categories =
-      await trainingSupabaseRequest(
-        "categories?select=id,name,icon,active&order=name.asc"
-      ) || [];
-
-
-  } catch (error) {
-
-
-    console.error(
-      "❌ Chargement catégories :",
-      error
-    );
-
-
-  }
-
-}
-
-
-
-/* =========================================================
-   SÉLECTION FORMATION
-========================================================= */
-
-async function selectTraining(
-  trainingId
-) {
-
-
-  selectedTrainingId =
-    Number(
-      trainingId
-    );
-
-
-  const training =
-    trainings.find(
-      item =>
-
-        Number(
-          item.id
-        ) ===
-        selectedTrainingId
-    );
-
-
-  if (
-    !training
-  ) {
-
-    return;
-  }
-
-
-  renderTrainings();
-
-
-  document
-    .getElementById(
-      "noTrainingSelected"
-    )
-    .style.display =
-      "none";
-
-
-  document
-    .getElementById(
-      "trainingConfiguration"
-    )
-    .style.display =
-      "block";
-
-
-  document
-    .getElementById(
-      "selectedTrainingName"
-    )
-    .textContent =
-      `🎓 ${training.name}`;
-
-
-  await loadTrainingCategoryAccess();
-
-}
-
-
-
-/* =========================================================
-   CHARGEMENT ASSOCIATIONS
-========================================================= */
-
-async function loadTrainingCategoryAccess() {
-
-
-  const container =
-    document.getElementById(
-      "categoryList"
-    );
-
-
-  container.innerHTML = `
-
-    <div class="nm-empty-state">
-      Chargement...
-    </div>
-
-  `;
-
-
-  try {
-
-
-    const access =
-      await trainingSupabaseRequest(
-
-        `training_category_access?select=category_id&training_id=eq.${selectedTrainingId}`
-
-      ) || [];
-
-
-    selectedCategoryIds =
-      new Set(
-        access.map(
-          item =>
-            String(
-              item.category_id
-            )
-        )
-      );
-
-
-    renderTrainingCategories();
-
-
-  } catch (error) {
-
-
-    console.error(
-      error
-    );
-
-
-    container.innerHTML = `
-
-      <div class="nm-empty-state">
-        ❌ Impossible de charger les accès.
-      </div>
-
-    `;
-
-
-  }
-
-}
-
-
-
-/* =========================================================
-   RENDER CATÉGORIES
-========================================================= */
-
-function renderTrainingCategories() {
-
-
-  const container =
-    document.getElementById(
-      "categoryList"
-    );
-
-
-  container.innerHTML =
-    "";
-
-
-  const activeCategories =
-    categories.filter(
-      category =>
-        category.active !==
-        false
-    );
-
-
-  if (
-    !activeCategories.length
-  ) {
-
-    container.innerHTML = `
-
-      <div class="nm-empty-state">
-        Aucune catégorie active.
-      </div>
-
-    `;
-
-    return;
-  }
-
-
-  activeCategories.forEach(
-    category => {
-
-
-      const label =
-        document.createElement(
-          "label"
+      const user =
+        document.getElementById(
+          "organizationAdminUser"
         );
 
 
-      label.className =
-        "nm-card nm-card-padding";
+      if (user) {
 
-
-      label.style.cursor =
-        "pointer";
-
-
-      label.style.display =
-        "flex";
-
-
-      label.style.alignItems =
-        "center";
-
-
-      label.style.gap =
-        "10px";
-
-
-      const checked =
-        selectedCategoryIds.has(
-          String(
-            category.id
-          )
-        );
-
-
-      label.innerHTML = `
-
-        <input
-          type="checkbox"
-          class="training-category-checkbox"
-          value="${escapeHtml(category.id)}"
-          ${checked ? "checked" : ""}
-        >
-
-        <span style="font-size:20px;">
-          ${escapeHtml(category.icon || "🎯")}
-        </span>
-
-        <strong>
-          ${escapeHtml(category.name)}
-        </strong>
-
-      `;
-
-
-      container.appendChild(
-        label
-      );
-
-
-    }
-  );
-
-}
-
-
-
-/* =========================================================
-   SAUVEGARDE CATÉGORIES
-========================================================= */
-
-async function saveTrainingCategories() {
-
-
-  if (
-    !selectedTrainingId
-  ) {
-
-    return;
-  }
-
-
-  const button =
-    document.getElementById(
-      "saveTrainingCategoriesButton"
-    );
-
-
-  button.disabled =
-    true;
-
-
-  button.textContent =
-    "Enregistrement...";
-
-
-  try {
-
-
-    const checked =
-      Array.from(
-        document.querySelectorAll(
-          ".training-category-checkbox:checked"
-        )
-      )
-      .map(
-        checkbox =>
-          checkbox.value
-      );
-
-
-    await trainingSupabaseRequest(
-
-      `training_category_access?training_id=eq.${selectedTrainingId}`,
-
-      {
-
-        method:
-          "DELETE",
-
-        headers: {
-
-          "Prefer":
-            "return=minimal"
-
-        }
-
+        user.textContent =
+          name;
       }
 
-    );
 
 
-    if (
-      checked.length
-    ) {
+      /* ===============================================
+         INITIALISATION
+      ================================================ */
 
-
-      const rows =
-        checked.map(
-          categoryId => ({
-
-            training_id:
-              selectedTrainingId,
-
-            category_id:
-              categoryId
-
-          })
-        );
-
-
-      await trainingSupabaseRequest(
-
-        "training_category_access",
-
-        {
-
-          method:
-            "POST",
-
-          headers: {
-
-            "Prefer":
-              "return=minimal"
-
-          },
-
-          body:
-            JSON.stringify(
-              rows
-            )
-
-        }
-
-      );
-
-
-    }
-
-
-    selectedCategoryIds =
-      new Set(
-        checked
-      );
-
-
-    showTrainingMessage(
-      "✅ Les accès de la formation ont été enregistrés."
-    );
-
-
-  } catch (error) {
-
-
-    console.error(
-      error
-    );
-
-
-    showTrainingMessage(
-      "❌ Impossible d'enregistrer les accès."
-    );
-
-
-  } finally {
-
-
-    button.disabled =
-      false;
-
-
-    button.textContent =
-      "💾 Enregistrer les accès";
-
-
-  }
-
-}
-
-
-
-/* =========================================================
-   OUVERTURE MODALE
-========================================================= */
-
-function openCreateTrainingModal() {
-
-
-  trainingModalMode =
-    "create";
-
-
-  document
-    .getElementById(
-      "trainingModalTitle"
-    )
-    .textContent =
-      "Ajouter une formation";
-
-
-  document
-    .getElementById(
-      "trainingNameInput"
-    )
-    .value =
-      "";
-
-
-  openTrainingModal();
-
-}
-
-
-
-function openRenameTrainingModal() {
-
-
-  if (
-    !selectedTrainingId
-  ) {
-
-    return;
-  }
-
-
-  const training =
-    trainings.find(
-      item =>
-
-        Number(
-          item.id
-        ) ===
-        selectedTrainingId
-    );
-
-
-  if (
-    !training
-  ) {
-
-    return;
-  }
-
-
-  trainingModalMode =
-    "rename";
-
-
-  document
-    .getElementById(
-      "trainingModalTitle"
-    )
-    .textContent =
-      "Renommer la formation";
-
-
-  document
-    .getElementById(
-      "trainingNameInput"
-    )
-    .value =
-      training.name;
-
-
-  openTrainingModal();
-
-}
-
-
-
-function openTrainingModal() {
-
-
-  const modal =
-    document.getElementById(
-      "trainingModal"
-    );
-
-
-  modal.classList.add(
-    "open"
-  );
-
-
-  setTimeout(
-    function () {
-
-      document
-        .getElementById(
-          "trainingNameInput"
-        )
-        ?.focus();
-
-    },
-    50
-  );
-
-}
-
-
-
-function closeTrainingModal() {
-
-
-  document
-    .getElementById(
-      "trainingModal"
-    )
-    .classList.remove(
-      "open"
-    );
-
-}
-
-
-
-/* =========================================================
-   CRÉATION / RENOMMAGE
-========================================================= */
-
-async function confirmTrainingModal() {
-
-
-  const input =
-    document.getElementById(
-      "trainingNameInput"
-    );
-
-
-  const name =
-    String(
-      input.value ||
-      ""
-    )
-    .trim();
-
-
-  if (
-    !name
-  ) {
-
-    alert(
-      "Indique le nom de la formation."
-    );
-
-    input.focus();
-
-    return;
-  }
-
-
-  const duplicate =
-    trainings.some(
-      training => {
-
-        if (
-          trainingModalMode ===
-          "rename" &&
-          Number(training.id) ===
-          selectedTrainingId
-        ) {
-
-          return false;
-        }
-
-        return (
-          String(
-            training.name ||
-            ""
-          )
-          .trim()
-          .toLowerCase() ===
-          name.toLowerCase()
-        );
-
-      }
-    );
-
-
-  if (
-    duplicate
-  ) {
-
-    alert(
-      "Une formation avec ce nom existe déjà."
-    );
-
-    return;
-  }
-
-
-  try {
-
-
-    if (
-      trainingModalMode ===
-      "create"
-    ) {
-
-
-      await trainingSupabaseRequest(
-
-        "trainings",
-
-        {
-
-          method:
-            "POST",
-
-          headers: {
-
-            "Prefer":
-              "return=minimal"
-
-          },
-
-          body:
-            JSON.stringify({
-              name
-            })
-
-        }
-
-      );
-
-
-    } else {
-
-
-      await trainingSupabaseRequest(
-
-        `trainings?id=eq.${selectedTrainingId}`,
-
-        {
-
-          method:
-            "PATCH",
-
-          headers: {
-
-            "Prefer":
-              "return=minimal"
-
-          },
-
-          body:
-            JSON.stringify({
-              name
-            })
-
-        }
-
-      );
-
-
-    }
-
-
-    closeTrainingModal();
-
-
-    await loadTrainings();
-
-
-    if (
-      trainingModalMode ===
-      "rename" &&
-      selectedTrainingId
-    ) {
-
-      await selectTraining(
-        selectedTrainingId
-      );
-
-    }
-
-
-  } catch (error) {
-
-
-    console.error(
-      error
-    );
-
-
-    alert(
-      "Impossible d'enregistrer la formation."
-    );
-
-
-  }
-
-}
-
-
-
-/* =========================================================
-   SUPPRESSION
-========================================================= */
-
-async function deleteTraining() {
-
-
-  if (
-    !selectedTrainingId
-  ) {
-
-    return;
-  }
-
-
-  const training =
-    trainings.find(
-      item =>
-
-        Number(
-          item.id
-        ) ===
-        selectedTrainingId
-    );
-
-
-  if (
-    !training
-  ) {
-
-    return;
-  }
-
-
-  const confirmed =
-    confirm(
-      `Supprimer la formation "${training.name}" ?`
-    );
-
-
-  if (
-    !confirmed
-  ) {
-
-    return;
-  }
-
-
-  try {
-
-
-    await trainingSupabaseRequest(
-
-      `trainings?id=eq.${selectedTrainingId}`,
-
-      {
-
-        method:
-          "DELETE",
-
-        headers: {
-
-          "Prefer":
-            "return=minimal"
-
-        }
-
-      }
-
-    );
-
-
-    selectedTrainingId =
-      null;
-
-
-    selectedCategoryIds =
-      new Set();
-
-
-    document
-      .getElementById(
-        "trainingConfiguration"
-      )
-      .style.display =
-        "none";
-
-
-    document
-      .getElementById(
-        "noTrainingSelected"
-      )
-      .style.display =
-        "block";
-
-
-    await loadTrainings();
-
-
-  } catch (error) {
-
-
-    console.error(
-      error
-    );
-
-
-    alert(
-      "Impossible de supprimer cette formation."
-    );
-
-
-  }
-
-}
-
-
-
-/* =========================================================
-   MESSAGE
-========================================================= */
-
-function showTrainingMessage(
-  message
-) {
-
-
-  const element =
-    document.getElementById(
-      "saveMessage"
-    );
-
-
-  element.textContent =
-    message;
-
-
-  element.style.display =
-    "block";
-
-
-  setTimeout(
-    function () {
-
-      element.style.display =
-        "none";
-
-    },
-    3000
-  );
-
-}
-
-
-
-/* =========================================================
-   EVENTS
-========================================================= */
-
-function bindTrainingEvents() {
-
-
-  document
-    .getElementById(
-      "trainingSearch"
-    )
-    ?.addEventListener(
-      "input",
-      renderTrainings
-    );
-
-
-  document
-    .getElementById(
-      "addTrainingButton"
-    )
-    ?.addEventListener(
-      "click",
-      openCreateTrainingModal
-    );
-
-
-  document
-    .getElementById(
-      "renameTrainingButton"
-    )
-    ?.addEventListener(
-      "click",
-      openRenameTrainingModal
-    );
-
-
-  document
-    .getElementById(
-      "deleteTrainingButton"
-    )
-    ?.addEventListener(
-      "click",
-      deleteTraining
-    );
-
-
-  document
-    .getElementById(
-      "saveTrainingCategoriesButton"
-    )
-    ?.addEventListener(
-      "click",
-      saveTrainingCategories
-    );
-
-
-  document
-    .getElementById(
-      "cancelTrainingButton"
-    )
-    ?.addEventListener(
-      "click",
-      closeTrainingModal
-    );
-
-
-  document
-    .getElementById(
-      "closeTrainingModalButton"
-    )
-    ?.addEventListener(
-      "click",
-      closeTrainingModal
-    );
-
-
-  document
-    .getElementById(
-      "confirmTrainingButton"
-    )
-    ?.addEventListener(
-      "click",
-      confirmTrainingModal
-    );
-
-
-  document
-    .getElementById(
-      "trainingNameInput"
-    )
-    ?.addEventListener(
-      "keydown",
-      function (
-        event
+      if (
+        typeof initializeOrganizationAdminPage ===
+        "function"
       ) {
 
-        if (
-          event.key ===
-          "Enter"
-        ) {
+        await initializeOrganizationAdminPage();
 
-          confirmTrainingModal();
+      } else {
 
-        }
-
+        console.error(
+          "initializeOrganizationAdminPage() est introuvable dans app.js"
+        );
       }
-    );
 
 
-  document
-    .getElementById(
-      "trainingModal"
-    )
-    ?.addEventListener(
-      "click",
-      function (
-        event
-      ) {
-
-        if (
-          event.target ===
-          event.currentTarget
-        ) {
-
-          closeTrainingModal();
-
-        }
-
-      }
-    );
-
-
-}
-
-
-
-/* =========================================================
-   ESCAPE HTML
-========================================================= */
-
-function escapeHtml(
-  value
-) {
-
-
-  return String(
-    value ??
-    ""
-  )
-  .replaceAll(
-    "&",
-    "&amp;"
-  )
-  .replaceAll(
-    "<",
-    "&lt;"
-  )
-  .replaceAll(
-    ">",
-    "&gt;"
-  )
-  .replaceAll(
-    '"',
-    "&quot;"
-  )
-  .replaceAll(
-    "'",
-    "&#039;"
+    }
   );
-
-}
-
 
 </script>
+
 
 
 </body>
