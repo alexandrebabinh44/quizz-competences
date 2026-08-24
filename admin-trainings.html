@@ -1170,33 +1170,23 @@ async function loadTrainingCategoryAccess() {
 
 function renderTrainingCategories() {
 
-
   const container =
     document.getElementById(
       "categoryList"
     );
 
-
   container.innerHTML =
     "";
 
 
-  const activeCategories =
-    categories.filter(
-      category =>
-        category.active !==
-        false
-    );
-
-
   if (
-    !activeCategories.length
+    !categories.length
   ) {
 
     container.innerHTML = `
 
       <div class="nm-empty-state">
-        Aucune catégorie active.
+        Aucune catégorie disponible.
       </div>
 
     `;
@@ -1205,7 +1195,7 @@ function renderTrainingCategories() {
   }
 
 
-  activeCategories.forEach(
+  categories.forEach(
     category => {
 
 
@@ -1243,6 +1233,11 @@ function renderTrainingCategories() {
         );
 
 
+      const isActive =
+        category.active !==
+        false;
+
+
       label.innerHTML = `
 
         <input
@@ -1256,9 +1251,34 @@ function renderTrainingCategories() {
           ${escapeHtml(category.icon || "🎯")}
         </span>
 
-        <strong>
-          ${escapeHtml(category.name)}
-        </strong>
+        <div style="
+          display:flex;
+          flex-direction:column;
+          gap:3px;
+        ">
+
+          <strong>
+            ${escapeHtml(category.name)}
+          </strong>
+
+          <small style="
+            color:
+              ${
+                isActive
+                  ? "var(--nm-success)"
+                  : "var(--nm-muted)"
+              };
+          ">
+
+            ${
+              isActive
+                ? "Active"
+                : "Désactivée"
+            }
+
+          </small>
+
+        </div>
 
       `;
 
@@ -1272,8 +1292,6 @@ function renderTrainingCategories() {
   );
 
 }
-
-
 
 /* =========================================================
    SAUVEGARDE CATÉGORIES
