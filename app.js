@@ -14,6 +14,7 @@ let trainingQuestions = [];
 let trainingIndex = 0;
 let trainingCorrectAnswers = 0;
 let trainingStartedAt = null;
+let currentTrainingSessionId = null;
 
 let badgePopupQueue = [];
 let badgePopupRunning = false;
