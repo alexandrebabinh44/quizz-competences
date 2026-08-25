@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <script>
+    const savedTheme =
+      localStorage.getItem("nickel_master_theme") || "light";
+
+    document.documentElement.setAttribute(
+      "data-theme",
+      savedTheme
+    );
+  </script>
+
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
+
+  <style>
+    .feature-page-shell {
+      min-height: 100vh;
+    }
+
+    .feature-page-main {
+      padding: 34px;
+    }
+
+    .feature-page-loading-card {
+      padding: 24px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      box-shadow: var(--shadow-card);
+    }
+
+    @media (max-width: 760px) {
+      .feature-page-main {
+        padding: 20px;
+      }
+    }
+  </style>
+
+  <title>Gestion des signalements - Nickel Master</title>
+
+</head>
+
+<body class="dashboard-body feature-page-shell">
+
+<div class="dashboard-layout">
+
+
+<aside class="sidebar">
+
+  <div class="logo">
+
+    <img
+      src="images/logo-nickel.png"
+      alt="Nickel"
+      class="sidebar-logo-img"
+    >
+
+    <span>
+      NICKEL<br>
+      MASTER
+    </span>
+
+  </div>
+
+
+  <nav class="side-menu">
+
+    <button onclick="window.location.href='home.html'">
+      🏠 Accueil
+    </button>
+
+    <button onclick="window.location.href='administration.html'">
+      🛠️ Administration
+    </button>
+
+    <button onclick="window.location.href='admin-organization.html'">
+      👥 Organisation
+    </button>
+
+    <button onclick="window.location.href='admin-trainings.html'">
+      🎓 Formations
+    </button>
+
+    <button class="active" onclick="window.location.href='admin-reports.html'">
+      🚩 Signalements
+    </button>
+
+    <button onclick="window.location.href='admin-ideas.html'">
+      💡 Boîte à idées
+    </button>
+
+  </nav>
+
+
+  <div class="sidebar-bottom">
+
+    <button onclick="window.location.href='settings.html'">
+      ⚙️ Paramètres
+    </button>
+
+    <button
+      id="themeToggle"
+      class="sidebar-link theme-button"
+      onclick="toggleTheme()"
+    >
+      🌙 Mode sombre
+    </button>
+
+    <button
+      class="sidebar-link"
+      onclick="logout()"
+    >
+      🚪 Déconnexion
+    </button>
+
+  </div>
+
+</aside>
+
+
+  <main class="dashboard-main feature-page-main">
+
+    
+
+    <div id="adminReportsRoot">
+
+      <div class="feature-page-loading-card">
+        Chargement...
+      </div>
+
+    </div>
+
+  </main>
+
+</div>
+
+
+<script src="app.js"></script>
+<script src="theme.js"></script>
+
+
+</body>
+
+</html>
