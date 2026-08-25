@@ -3683,26 +3683,32 @@ async function submitTrainingAnswer() {
 
     try {
 
-        await checkQuestionBadges(
-            profileId
-        );
+    await checkQuestionBadges(
+        profileId
+    );
 
-    } catch (error) {
+} catch (error) {
 
-        console.warn(
-            "Badge non vérifié :",
-            error
-        );
-    }
-
-
-    /* =====================================================
-       AFFICHER CORRECTION
-       PAS D'EXPLICATION TEXTE
-    ====================================================== */
-
-    await showTrainingQuestion();
+    console.warn(
+        "Badge non vérifié :",
+        error
+    );
 }
+
+
+/* =====================================================
+   MISE À JOUR DE LA SESSION
+===================================================== */
+
+await updateCurrentTrainingSession();
+
+
+/* =====================================================
+   AFFICHER CORRECTION
+   PAS D'EXPLICATION TEXTE
+===================================================== */
+
+await showTrainingQuestion();
 
 
 /* =========================================================
