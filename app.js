@@ -2337,7 +2337,7 @@ async function loadTrainingQuiz() {
         /* =================================================
            PREMIÈRE QUESTION
         ================================================= */
-
+      await createTrainingSession();
         await showTrainingQuestion();
 
 
