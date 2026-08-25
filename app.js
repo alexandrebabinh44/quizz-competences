@@ -484,25 +484,40 @@ async function loadProfile() {
 ========================================================= */
 
 async function loadHomeDashboard() {
+
     const profileId =
         localStorage.getItem(
             "profile_id"
         );
-updateAdminNavigation();
+
+
+    if (
+        typeof updateAdminNavigation ===
+        "function"
+    ) {
+
+        updateAdminNavigation();
+    }
+
 
     if (!profileId) {
+
         window.location.href =
             "index.html";
 
         return;
     }
 
+
     try {
+
         await updatePresence(
             profileId
         );
 
+
         await Promise.all([
+
             loadHomeProfile(
                 profileId
             ),
@@ -528,13 +543,18 @@ updateAdminNavigation();
             ),
 
             loadHomeRecentActivity()
+
         ]);
+
 
         await loadHomeOnlineCount();
 
+
         startPresenceHeartbeat();
 
+
     } catch (error) {
+
         console.error(
             "Erreur dashboard :",
             error
