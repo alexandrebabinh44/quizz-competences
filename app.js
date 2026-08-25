@@ -15183,7 +15183,9 @@ function ensureAdministrationMenu() {
     "admin-categories.html",
     "admin-users.html",
     "admin-user-detail.html",
-    "approvals.html"
+    "approvals.html",
+    "admin-reports.html",
+    "admin-ideas.html"
 ];
 
 
@@ -26268,26 +26270,43 @@ function ensureQuestionReportModal() {
             .training-report-row {
                 display: flex;
                 justify-content: flex-end;
-                margin: 18px 0 4px;
+                margin: 8px 0 2px;
             }
 
             .training-report-question-button {
+                appearance: none;
+                -webkit-appearance: none;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 5px;
                 width: auto;
-                padding: 8px 12px;
-                border: 1px solid var(--border);
-                border-radius: 10px;
-                background: transparent;
+                padding: 6px 10px;
+                border: 1px solid color-mix(in srgb, var(--text-secondary) 24%, transparent);
+                border-radius: 999px;
+                background: color-mix(in srgb, var(--bg-card) 90%, transparent);
                 color: var(--text-secondary);
-                font-size: 12px;
-                font-weight: 700;
+                font: inherit;
+                font-size: 11px;
+                font-weight: 750;
+                line-height: 1;
                 cursor: pointer;
-                transition: .2s ease;
+                opacity: .82;
+                transition: .18s ease;
             }
 
             .training-report-question-button:hover {
-                border-color: var(--red);
+                opacity: 1;
                 color: var(--red);
-                background: rgba(232, 75, 75, .08);
+                border-color: color-mix(in srgb, var(--red) 38%, transparent);
+                background: color-mix(in srgb, var(--red) 9%, var(--bg-card));
+                transform: translateY(-1px);
+            }
+
+            .training-question-heading-tools {
+                display: flex;
+                justify-content: flex-end;
+                margin: -2px 0 8px;
             }
 
             .question-report-modal {
@@ -26909,3 +26928,1327 @@ document.addEventListener(
         }
     }
 );
+
+/* =========================================================
+   NICKEL MASTER - NAVIGATION / TRANSITIONS
+========================================================= */
+
+let nickelMasterNavigationRunning = false;
+let trainingNavigationRunning = false;
+
+function getNickelMasterCurrentPage() {
+    return String(window.location.pathname.split("/").pop() || "")
+        .trim().toLowerCase();
+}
+
+function isTrainingQuizPage() {
+    return getNickelMasterCurrentPage() === "training-quiz.html";
+}
+
+function installNickelMasterPageStabilizer() {
+    if (document.getElementById("nickelMasterPageStabilizerStyle")) return;
+
+    const style = document.createElement("style");
+    style.id = "nickelMasterPageStabilizerStyle";
+    style.textContent = `
+        html.nm-page-preparing body.dashboard-body {
+            visibility: hidden !important;
+        }
+        body.dashboard-body {
+            transition: opacity .12s ease;
+        }
+        body.dashboard-body.nm-page-leaving {
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+function prepareNickelMasterPage() {
+    installNickelMasterPageStabilizer();
+    document.documentElement.classList.add("nm-page-preparing");
+}
+
+async function revealNickelMasterPageStable() {
+    try {
+        if (document.fonts?.ready) {
+            await Promise.race([
+                document.fonts.ready,
+                new Promise(resolve => setTimeout(resolve, 220))
+            ]);
+        }
+    } catch (_) {}
+
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            document.documentElement.classList.remove("nm-page-preparing");
+            document.body?.classList.add("page-ready");
+        });
+    });
+}
+
+async function navigateNickelMaster(destination) {
+    if (!destination || nickelMasterNavigationRunning) return;
+    nickelMasterNavigationRunning = true;
+    document.body?.classList.add("nm-page-leaving");
+    setTimeout(() => {
+        window.location.href = destination;
+    }, 90);
+}
+
+async function navigateFromTraining(destination) {
+    if (!destination || trainingNavigationRunning) return;
+    trainingNavigationRunning = true;
+
+    const sessionId =
+        currentTrainingSessionId ||
+        localStorage.getItem("current_training_session_id");
+
+    if (!sessionId) {
+        trainingNavigationRunning = false;
+        await navigateNickelMaster(destination);
+        return;
+    }
+
+    const confirmed = window.confirm(
+        "Un entraînement est actuellement en cours.\n\n" +
+        "Si tu quittes cette page, la session sera enregistrée comme abandonnée.\n\n" +
+        "Continuer ?"
+    );
+
+    if (!confirmed) {
+        trainingNavigationRunning = false;
+        return;
+    }
+
+    try {
+        stopTrainingTimer();
+        await abandonCurrentTrainingSession();
+        localStorage.removeItem("training_questions");
+        trainingNavigationRunning = false;
+        await navigateNickelMaster(destination);
+    } catch (error) {
+        console.error("❌ Sortie entraînement :", error);
+        alert("Impossible d'enregistrer correctement l'abandon de la session.");
+        trainingNavigationRunning = false;
+    }
+}
+
+function getDestinationFromInlineOnclick(element) {
+    const onclick = String(element?.getAttribute("onclick") || "");
+    return onclick.match(/window\.location\.href\s*=\s*['"]([^'"]+)['"]/i)?.[1] || "";
+}
+
+function getSidebarDestinationFromLabel(label) {
+    const value = String(label || "").trim().toLowerCase();
+    const routes = [
+        ["accueil", "home.html"],
+        ["entraînement", "training.html"],
+        ["entrainement", "training.html"],
+        ["classement", "ranking.html"],
+        ["battle", "battle.html"],
+        ["kahoot", "kahoot.html"],
+        ["mes stats", "profile.html"],
+        ["badges", "badges.html"],
+        ["boîte à idées", "ideas.html"],
+        ["boite à idées", "ideas.html"],
+        ["signalement", "reports.html"],
+        ["paramètres", "settings.html"],
+        ["parametres", "settings.html"]
+    ];
+    return routes.find(([test]) => value.includes(test))?.[1] || "";
+}
+
+function initializeTrainingNavigationGuard() {
+    if (!isTrainingQuizPage()) return;
+
+    document.addEventListener("click", event => {
+        const button = event.target?.closest(".side-menu button, .sidebar-bottom button");
+        if (!button) return;
+
+        const label = String(button.textContent || "");
+        if (label.toLowerCase().includes("déconnexion")) return;
+
+        const destination =
+            getDestinationFromInlineOnclick(button) ||
+            getSidebarDestinationFromLabel(label);
+
+        if (!destination) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+
+        navigateFromTraining(destination);
+    }, true);
+}
+
+function wireNickelMasterSidebarRoutes() {
+    document.querySelectorAll(".side-menu button").forEach(button => {
+        if (getDestinationFromInlineOnclick(button)) return;
+
+        const destination =
+            getSidebarDestinationFromLabel(button.textContent);
+
+        if (!destination) return;
+
+        button.addEventListener("click", () => {
+            if (isTrainingQuizPage()) {
+                navigateFromTraining(destination);
+            } else {
+                navigateNickelMaster(destination);
+            }
+        });
+    });
+}
+
+function polishTrainingReportButton() {
+    const button =
+        document.querySelector(".training-report-question-button");
+
+    if (!button) return;
+
+    button.innerHTML = "🚩 <span>Signaler</span>";
+    button.title = "Signaler cette question";
+
+    const oldRow = button.closest(".training-report-row");
+    const questionBlock = document.querySelector(".training-question-block");
+
+    if (!oldRow || !questionBlock) return;
+
+    let tools =
+        questionBlock.querySelector(".training-question-heading-tools");
+
+    if (!tools) {
+        tools = document.createElement("div");
+        tools.className = "training-question-heading-tools";
+
+        const title = questionBlock.querySelector("#trainingQuestion");
+        if (title) questionBlock.insertBefore(tools, title);
+        else questionBlock.appendChild(tools);
+    }
+
+    tools.appendChild(button);
+    oldRow.remove();
+}
+
+
+/* =========================================================
+   BOÎTE À IDÉES
+========================================================= */
+
+const ideasPageState = {
+    ideas: [],
+    filter: "all",
+    sort: "popular"
+};
+
+function getIdeaStatusLabel(status) {
+    return ({
+        new: "Nouvelle",
+        reviewing: "À l'étude",
+        planned: "Planifiée",
+        accepted: "Acceptée",
+        rejected: "Refusée",
+        done: "Mise en place"
+    })[status] || status || "Nouvelle";
+}
+
+function getIdeaCategoryLabel(category) {
+    return ({
+        feature: "Nouvelle fonctionnalité",
+        training: "Entraînement",
+        design: "Design / ergonomie",
+        gamification: "Gamification",
+        content: "Contenu",
+        organization: "Organisation",
+        other: "Autre"
+    })[category] || category || "Autre";
+}
+
+function ensureIdeasStyles() {
+    if (document.getElementById("nickelMasterIdeasStyles")) return;
+
+    const style = document.createElement("style");
+    style.id = "nickelMasterIdeasStyles";
+    style.textContent = `
+        .ideas-page{display:grid;gap:22px}
+        .ideas-header{display:flex;align-items:flex-end;justify-content:space-between;gap:24px}
+        .ideas-header h1{margin:6px 0 7px}
+        .ideas-header p{margin:0;max-width:700px;color:var(--text-secondary)}
+        .ideas-kicker{color:var(--orange);font-size:12px;font-weight:850;text-transform:uppercase}
+        .ideas-toolbar{display:flex;justify-content:space-between;gap:16px;align-items:center;padding:14px;border:1px solid var(--border);border-radius:15px;background:var(--bg-card)}
+        .ideas-filters{display:flex;flex-wrap:wrap;gap:8px}
+        .ideas-filters button,#ideasSort{border:1px solid var(--border);border-radius:10px;padding:8px 11px;background:var(--bg-card);color:var(--text-main);font:inherit;font-size:12px;font-weight:700}
+        .ideas-filters button.active{border-color:var(--orange);background:var(--orange-soft);color:var(--orange)}
+        .ideas-list{display:grid;gap:14px}
+        .idea-card{display:grid;grid-template-columns:72px minmax(0,1fr);gap:18px;padding:20px;border:1px solid var(--border);border-radius:18px;background:var(--bg-card);box-shadow:var(--shadow-card)}
+        .idea-vote-box{display:flex;flex-direction:column;align-items:center;gap:7px}
+        .idea-vote-button{width:42px;height:42px;border:1px solid var(--border);border-radius:12px;background:var(--bg-card);color:var(--text-main);cursor:pointer;font-size:18px}
+        .idea-vote-button.voted{border-color:var(--orange);color:var(--orange);background:var(--orange-soft)}
+        .idea-vote-count{font-size:18px;font-weight:900}
+        .idea-card-top{display:flex;justify-content:space-between;gap:14px}
+        .idea-card h3{margin:0;font-size:18px}
+        .idea-status{flex-shrink:0;padding:6px 9px;border-radius:999px;background:var(--bg-main);color:var(--text-secondary);font-size:11px;font-weight:800}
+        .idea-description{margin:10px 0 13px;color:var(--text-secondary);line-height:1.55;white-space:pre-wrap}
+        .idea-meta{display:flex;flex-wrap:wrap;gap:8px 12px;color:var(--text-secondary);font-size:12px}
+        .idea-admin-note{margin-top:14px;padding:11px 12px;border-radius:11px;background:var(--orange-soft);font-size:12px}
+        .ideas-empty{padding:40px 18px;border:1px dashed var(--border);border-radius:16px;text-align:center;color:var(--text-secondary)}
+        .idea-modal{position:fixed;inset:0;z-index:10020;display:none;align-items:center;justify-content:center;padding:20px}
+        .idea-modal.open{display:flex}
+        .idea-modal-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.56);backdrop-filter:blur(3px)}
+        .idea-modal-dialog{position:relative;z-index:1;width:min(600px,100%);max-height:calc(100vh - 40px);overflow-y:auto;padding:24px;border:1px solid var(--border);border-radius:20px;background:var(--bg-card);box-shadow:0 24px 80px rgba(0,0,0,.30)}
+        .idea-modal-header{display:flex;justify-content:space-between;gap:16px;margin-bottom:20px}
+        .idea-modal-header h2{margin:5px 0 0}
+        .idea-modal-header>button{width:38px;height:38px;border:1px solid var(--border);border-radius:10px;background:transparent;color:var(--text-main);cursor:pointer}
+        .idea-modal label{display:block;margin:0 0 7px;font-size:13px;font-weight:800}
+        .idea-modal input,.idea-modal select,.idea-modal textarea{box-sizing:border-box;width:100%;margin:0 0 16px;padding:12px 13px;border:1px solid var(--border);border-radius:11px;background:var(--bg-card);color:var(--text-main);font:inherit}
+        .idea-modal-actions{display:flex;justify-content:flex-end;gap:10px}
+        .idea-form-message{margin-bottom:14px;padding:10px 12px;border-radius:10px;font-size:12px;font-weight:750}
+        .idea-form-error{background:rgba(232,75,75,.10);color:var(--red)}
+        @media(max-width:700px){.ideas-header,.ideas-toolbar{align-items:stretch;flex-direction:column}.idea-card{grid-template-columns:54px minmax(0,1fr);gap:12px}}
+    `;
+    document.head.appendChild(style);
+}
+
+async function initializeIdeasPage() {
+    const root = document.getElementById("ideasRoot");
+    if (!root) return;
+
+    root.innerHTML = `
+        <section class="ideas-page">
+            <header class="ideas-header">
+                <div>
+                    <span class="ideas-kicker">💡 Communauté Nickel Master</span>
+                    <h1>Boîte à idées</h1>
+                    <p>Propose une amélioration et soutiens les idées que tu aimerais voir arriver.</p>
+                </div>
+                <button type="button" class="btn-primary" onclick="openIdeaComposer()">+ Proposer une idée</button>
+            </header>
+
+            <section class="ideas-toolbar">
+                <div class="ideas-filters">
+                    <button data-idea-filter="all" class="active" onclick="setIdeasFilter('all')">Toutes</button>
+                    <button data-idea-filter="new" onclick="setIdeasFilter('new')">Nouvelles</button>
+                    <button data-idea-filter="reviewing" onclick="setIdeasFilter('reviewing')">À l'étude</button>
+                    <button data-idea-filter="planned" onclick="setIdeasFilter('planned')">Planifiées</button>
+                    <button data-idea-filter="done" onclick="setIdeasFilter('done')">Réalisées</button>
+                </div>
+                <select id="ideasSort" onchange="setIdeasSort(this.value)">
+                    <option value="popular">Plus populaires</option>
+                    <option value="recent">Plus récentes</option>
+                </select>
+            </section>
+
+            <section id="ideasList" class="ideas-list">
+                <div class="ideas-empty">Chargement...</div>
+            </section>
+        </section>
+
+        <div id="ideaComposerModal" class="idea-modal">
+            <div class="idea-modal-backdrop" onclick="closeIdeaComposer()"></div>
+            <section class="idea-modal-dialog">
+                <div class="idea-modal-header">
+                    <div><span>💡 Nouvelle proposition</span><h2>Partage ton idée</h2></div>
+                    <button type="button" onclick="closeIdeaComposer()">✕</button>
+                </div>
+                <form id="ideaForm" onsubmit="submitIdea(event)">
+                    <label for="ideaCategory">Catégorie</label>
+                    <select id="ideaCategory" required>
+                        <option value="">Choisir</option>
+                        <option value="feature">Nouvelle fonctionnalité</option>
+                        <option value="training">Entraînement</option>
+                        <option value="design">Design / ergonomie</option>
+                        <option value="gamification">Gamification</option>
+                        <option value="content">Contenu</option>
+                        <option value="organization">Organisation</option>
+                        <option value="other">Autre</option>
+                    </select>
+
+                    <label for="ideaTitle">Titre</label>
+                    <input id="ideaTitle" maxlength="140" required placeholder="Ex : Ajouter un duel entre collègues">
+
+                    <label for="ideaDescription">Description</label>
+                    <textarea id="ideaDescription" rows="7" maxlength="2500" required placeholder="Explique ton idée..."></textarea>
+
+                    <div id="ideaFormError" class="idea-form-message idea-form-error" style="display:none"></div>
+
+                    <div class="idea-modal-actions">
+                        <button type="button" class="btn-secondary" onclick="closeIdeaComposer()">Annuler</button>
+                        <button type="submit" id="ideaSubmitButton" class="btn-primary">Envoyer l'idée</button>
+                    </div>
+                </form>
+            </section>
+        </div>
+    `;
+
+    ensureIdeasStyles();
+    await loadIdeas();
+}
+
+function openIdeaComposer() {
+    const modal = document.getElementById("ideaComposerModal");
+    if (!modal) return;
+    modal.classList.add("open");
+    document.body.style.overflow = "hidden";
+}
+
+function closeIdeaComposer() {
+    const modal = document.getElementById("ideaComposerModal");
+    if (!modal) return;
+    modal.classList.remove("open");
+    document.body.style.overflow = "";
+}
+
+async function submitIdea(event) {
+    event.preventDefault();
+
+    const profileId = localStorage.getItem("profile_id");
+    if (!profileId) return;
+
+    const category = String(document.getElementById("ideaCategory")?.value || "").trim();
+    const title = String(document.getElementById("ideaTitle")?.value || "").trim();
+    const description = String(document.getElementById("ideaDescription")?.value || "").trim();
+    const errorBox = document.getElementById("ideaFormError");
+    const button = document.getElementById("ideaSubmitButton");
+
+    if (!category || !title || !description) {
+        if (errorBox) {
+            errorBox.textContent = "Merci de remplir tous les champs.";
+            errorBox.style.display = "block";
+        }
+        return;
+    }
+
+    button && (button.disabled = true);
+
+    try {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/ideas`, {
+            method: "POST",
+            headers: supabaseHeaders({
+                "Content-Type": "application/json",
+                Prefer: "return=minimal"
+            }),
+            body: JSON.stringify({
+                profile_id: profileId,
+                category,
+                title,
+                description,
+                status: "new"
+            })
+        });
+
+        if (!response.ok) throw new Error(await response.text());
+
+        document.getElementById("ideaForm")?.reset();
+        closeIdeaComposer();
+        await loadIdeas();
+    } catch (error) {
+        console.error("❌ Envoi idée :", error);
+        if (errorBox) {
+            errorBox.textContent = "Impossible d'envoyer l'idée.";
+            errorBox.style.display = "block";
+        }
+    } finally {
+        button && (button.disabled = false);
+    }
+}
+
+async function loadIdeas() {
+    const container = document.getElementById("ideasList");
+    if (!container) return;
+
+    try {
+        const profileId = localStorage.getItem("profile_id");
+
+        const [ideasR, votesR, myVotesR, profilesR] = await Promise.all([
+            fetch(`${SUPABASE_URL}/rest/v1/ideas?select=*&order=created_at.desc`, {headers:supabaseHeaders()}),
+            fetch(`${SUPABASE_URL}/rest/v1/idea_votes?select=idea_id`, {headers:supabaseHeaders()}),
+            profileId
+                ? fetch(`${SUPABASE_URL}/rest/v1/idea_votes?profile_id=eq.${encodeURIComponent(profileId)}&select=idea_id`, {headers:supabaseHeaders()})
+                : Promise.resolve({ok:true,json:async()=>[]}),
+            fetch(`${SUPABASE_URL}/rest/v1/profiles?select=id,full_name`, {headers:supabaseHeaders()})
+        ]);
+
+        if (![ideasR,votesR,myVotesR,profilesR].every(r => r.ok)) throw new Error("Chargement impossible");
+
+        const ideas = await ideasR.json();
+        const votes = await votesR.json();
+        const myVotes = await myVotesR.json();
+        const profiles = await profilesR.json();
+
+        const voteCounts = new Map();
+        votes.forEach(v => voteCounts.set(String(v.idea_id), (voteCounts.get(String(v.idea_id)) || 0) + 1));
+
+        const mine = new Set(myVotes.map(v => String(v.idea_id)));
+        const names = new Map(profiles.map(p => [String(p.id), p.full_name || "Collaborateur"]));
+
+        ideasPageState.ideas = ideas.map(idea => ({
+            ...idea,
+            voteCount: voteCounts.get(String(idea.id)) || 0,
+            voted: mine.has(String(idea.id)),
+            authorName: names.get(String(idea.profile_id)) || "Collaborateur"
+        }));
+
+        renderIdeas();
+    } catch (error) {
+        console.error(error);
+        container.innerHTML = `<div class="ideas-empty">Impossible de charger la boîte à idées.</div>`;
+    }
+}
+
+function setIdeasFilter(filter) {
+    ideasPageState.filter = filter || "all";
+    document.querySelectorAll("[data-idea-filter]").forEach(button => {
+        button.classList.toggle("active", button.dataset.ideaFilter === ideasPageState.filter);
+    });
+    renderIdeas();
+}
+
+function setIdeasSort(sort) {
+    ideasPageState.sort = sort || "popular";
+    renderIdeas();
+}
+
+function renderIdeas() {
+    const container = document.getElementById("ideasList");
+    if (!container) return;
+
+    let ideas = [...ideasPageState.ideas];
+
+    if (ideasPageState.filter !== "all") {
+        ideas = ideas.filter(i => i.status === ideasPageState.filter);
+    }
+
+    ideas.sort(
+        ideasPageState.sort === "popular"
+            ? (a,b) => b.voteCount - a.voteCount
+            : (a,b) => new Date(b.created_at) - new Date(a.created_at)
+    );
+
+    if (!ideas.length) {
+        container.innerHTML = `<div class="ideas-empty">Aucune idée dans cette sélection.</div>`;
+        return;
+    }
+
+    container.innerHTML = ideas.map(idea => `
+        <article class="idea-card">
+            <div class="idea-vote-box">
+                <button type="button"
+                    class="idea-vote-button ${idea.voted ? "voted" : ""}"
+                    onclick="toggleIdeaVote('${escapeHtml(idea.id)}')">▲</button>
+                <strong class="idea-vote-count">${idea.voteCount}</strong>
+                <small>vote${idea.voteCount > 1 ? "s" : ""}</small>
+            </div>
+
+            <div>
+                <div class="idea-card-top">
+                    <div>
+                        <h3>${escapeHtml(idea.title)}</h3>
+                        <div class="idea-meta">
+                            <span>${escapeHtml(getIdeaCategoryLabel(idea.category))}</span>
+                            <span>•</span>
+                            <span>${escapeHtml(idea.authorName)}</span>
+                            <span>•</span>
+                            <span>${escapeHtml(formatReportDate(idea.created_at))}</span>
+                        </div>
+                    </div>
+                    <span class="idea-status">${escapeHtml(getIdeaStatusLabel(idea.status))}</span>
+                </div>
+
+                <p class="idea-description">${escapeHtml(idea.description)}</p>
+
+                ${idea.admin_note ? `
+                    <div class="idea-admin-note">
+                        <strong>Réponse de l'administration :</strong>
+                        ${escapeHtml(idea.admin_note)}
+                    </div>
+                ` : ""}
+            </div>
+        </article>
+    `).join("");
+}
+
+async function toggleIdeaVote(ideaId) {
+    const profileId = localStorage.getItem("profile_id");
+    const idea = ideasPageState.ideas.find(i => String(i.id) === String(ideaId));
+    if (!profileId || !idea) return;
+
+    try {
+        if (idea.voted) {
+            const r = await fetch(
+                `${SUPABASE_URL}/rest/v1/idea_votes?idea_id=eq.${encodeURIComponent(ideaId)}&profile_id=eq.${encodeURIComponent(profileId)}`,
+                {method:"DELETE",headers:supabaseHeaders({Prefer:"return=minimal"})}
+            );
+            if (!r.ok) throw new Error(await r.text());
+            idea.voted = false;
+            idea.voteCount = Math.max(0, idea.voteCount - 1);
+        } else {
+            const r = await fetch(`${SUPABASE_URL}/rest/v1/idea_votes`, {
+                method:"POST",
+                headers:supabaseHeaders({"Content-Type":"application/json",Prefer:"return=minimal"}),
+                body:JSON.stringify({idea_id:ideaId,profile_id:profileId})
+            });
+            if (!r.ok) throw new Error(await r.text());
+            idea.voted = true;
+            idea.voteCount++;
+        }
+        renderIdeas();
+    } catch (error) {
+        console.error(error);
+        alert("Impossible d'enregistrer ton vote.");
+    }
+}
+
+
+/* =========================================================
+   ADMIN - SIGNALEMENTS & IDÉES
+========================================================= */
+
+function assertNickelMasterAdmin() {
+    const role = String(localStorage.getItem("role") || "").trim().toLowerCase();
+    if (role === "admin") return true;
+
+    alert("Accès réservé à l'administration.");
+    window.location.href = "home.html";
+    return false;
+}
+
+function ensureAdminFeedbackStyles() {
+    if (document.getElementById("nickelMasterAdminFeedbackStyles")) return;
+    const style = document.createElement("style");
+    style.id = "nickelMasterAdminFeedbackStyles";
+    style.textContent = `
+        .admin-feedback-page{display:grid;gap:20px}
+        .admin-feedback-header h1{margin:6px 0}.admin-feedback-header p{margin:0;color:var(--text-secondary)}
+        .admin-feedback-header span{color:var(--orange);font-size:12px;font-weight:850;text-transform:uppercase}
+        .admin-feedback-counters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+        .admin-feedback-counters article{display:grid;gap:4px;padding:16px;border:1px solid var(--border);border-radius:15px;background:var(--bg-card)}
+        .admin-feedback-counters strong{font-size:24px}.admin-feedback-counters small{color:var(--text-secondary)}
+        .admin-feedback-toolbar{display:grid;grid-template-columns:minmax(0,1fr) 190px 190px;gap:10px}
+        .admin-feedback-toolbar input,.admin-feedback-toolbar select,.admin-feedback-detail select,.admin-feedback-detail textarea{box-sizing:border-box;width:100%;padding:11px 12px;border:1px solid var(--border);border-radius:10px;background:var(--bg-card);color:var(--text-main);font:inherit}
+        .admin-feedback-layout{display:grid;grid-template-columns:minmax(340px,.85fr) minmax(420px,1.15fr);gap:18px;align-items:start}
+        .admin-feedback-list,.admin-feedback-detail{min-height:320px;border:1px solid var(--border);border-radius:17px;background:var(--bg-card);overflow:hidden}
+        .admin-feedback-list-item{width:100%;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:15px 16px;border:0;border-bottom:1px solid var(--border);background:transparent;color:var(--text-main);text-align:left;cursor:pointer}
+        .admin-feedback-list-item:hover,.admin-feedback-list-item.active{background:var(--bg-card-hover)}
+        .admin-feedback-list-item.active{box-shadow:inset 3px 0 0 var(--orange)}
+        .admin-feedback-list-item strong,.admin-feedback-list-item small{display:block}
+        .admin-feedback-list-item small{margin-top:5px;color:var(--text-secondary)}
+        .admin-feedback-list-item>span{flex-shrink:0;padding:5px 8px;border-radius:999px;background:var(--bg-main);color:var(--text-secondary);font-size:10px;font-weight:800}
+        .admin-feedback-detail{padding:20px}.admin-feedback-detail-header h2{margin:5px 0 18px}
+        .admin-feedback-detail-header span{color:var(--orange);font-size:11px;font-weight:850;text-transform:uppercase}
+        .admin-feedback-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0 0 18px}
+        .admin-feedback-meta>div{padding:11px;border:1px solid var(--border);border-radius:11px}
+        .admin-feedback-meta dt{color:var(--text-secondary);font-size:10px;text-transform:uppercase}.admin-feedback-meta dd{margin:4px 0 0;font-weight:750}
+        .admin-feedback-highlight{display:grid;gap:5px;padding:13px;margin-bottom:16px;border-radius:12px;background:var(--orange-soft)}
+        .admin-feedback-description{margin-bottom:18px}.admin-feedback-description p{color:var(--text-secondary);line-height:1.55;white-space:pre-wrap}
+        .admin-feedback-detail label{display:block;margin:13px 0 7px;font-size:12px;font-weight:800}.admin-feedback-detail .btn-primary{margin-top:14px}
+        .admin-feedback-empty{padding:40px 16px;color:var(--text-secondary);text-align:center}
+        @media(max-width:980px){.admin-feedback-counters{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-feedback-toolbar,.admin-feedback-layout{grid-template-columns:1fr}}
+    `;
+    document.head.appendChild(style);
+}
+
+const adminReportsState = {
+    reports: [], selectedId: null, status: "all", source: "all", search: ""
+};
+
+async function initializeAdminReportsPage() {
+    const root = document.getElementById("adminReportsRoot");
+    if (!root || !assertNickelMasterAdmin()) return;
+
+    root.innerHTML = `
+        <section class="admin-feedback-page">
+            <header class="admin-feedback-header">
+                <div>
+                    <span>🚩 Administration</span>
+                    <h1>Gestion des signalements</h1>
+                    <p>Tous les signalements généraux et les questions signalées arrivent ici.</p>
+                </div>
+            </header>
+
+            <section id="adminReportCounters" class="admin-feedback-counters"></section>
+
+            <section class="admin-feedback-toolbar">
+                <input type="search" placeholder="Rechercher..." oninput="adminReportsState.search=this.value.toLowerCase();renderAdminReports()">
+                <select onchange="adminReportsState.source=this.value;renderAdminReports()">
+                    <option value="all">Toutes les sources</option>
+                    <option value="general">Général</option>
+                    <option value="question">Questions</option>
+                </select>
+                <select onchange="adminReportsState.status=this.value;renderAdminReports()">
+                    <option value="all">Tous les statuts</option>
+                    <option value="new">Nouveaux</option>
+                    <option value="in_progress">En cours</option>
+                    <option value="resolved">Traités</option>
+                    <option value="rejected">Rejetés</option>
+                </select>
+            </section>
+
+            <section class="admin-feedback-layout">
+                <div id="adminReportsList" class="admin-feedback-list">Chargement...</div>
+                <aside id="adminReportDetail" class="admin-feedback-detail">
+                    <div class="admin-feedback-empty">Sélectionne un signalement.</div>
+                </aside>
+            </section>
+        </section>
+    `;
+
+    ensureAdminFeedbackStyles();
+    await loadAdminReports();
+}
+
+async function loadAdminReports() {
+    const [reportsR, profilesR, questionsR] = await Promise.all([
+        fetch(`${SUPABASE_URL}/rest/v1/reports?select=*&order=created_at.desc`, {headers:supabaseHeaders()}),
+        fetch(`${SUPABASE_URL}/rest/v1/profiles?select=id,full_name,role`, {headers:supabaseHeaders()}),
+        fetch(`${SUPABASE_URL}/rest/v1/questions?select=id,question,category`, {headers:supabaseHeaders()})
+    ]);
+
+    if (![reportsR,profilesR,questionsR].every(r => r.ok)) return;
+
+    const reports = await reportsR.json();
+    const profiles = await profilesR.json();
+    const questions = await questionsR.json();
+
+    const names = new Map(profiles.map(p => [String(p.id), p]));
+    const qmap = new Map(questions.map(q => [String(q.id), q]));
+
+    adminReportsState.reports = reports.map(report => ({
+        ...report,
+        reporter: names.get(String(report.reporter_id)) || null,
+        questionData: report.question_id ? qmap.get(String(report.question_id)) || null : null
+    }));
+
+    renderAdminReports();
+}
+
+function renderAdminReports() {
+    const list = document.getElementById("adminReportsList");
+    const counters = document.getElementById("adminReportCounters");
+    if (!list || !counters) return;
+
+    const all = adminReportsState.reports;
+    const count = s => all.filter(r => r.status === s).length;
+
+    counters.innerHTML = `
+        <article><span>🆕</span><strong>${count("new")}</strong><small>Nouveaux</small></article>
+        <article><span>🛠️</span><strong>${count("in_progress")}</strong><small>En cours</small></article>
+        <article><span>✅</span><strong>${count("resolved")}</strong><small>Traités</small></article>
+        <article><span>🚩</span><strong>${all.length}</strong><small>Total</small></article>
+    `;
+
+    const rows = all.filter(r => {
+        if (adminReportsState.status !== "all" && r.status !== adminReportsState.status) return false;
+        if (adminReportsState.source !== "all" && r.source_type !== adminReportsState.source) return false;
+
+        if (adminReportsState.search) {
+            const haystack = [
+                r.subject,r.description,r.category_name,
+                r.reporter?.full_name,r.questionData?.question
+            ].join(" ").toLowerCase();
+
+            if (!haystack.includes(adminReportsState.search)) return false;
+        }
+        return true;
+    });
+
+    list.innerHTML = rows.length
+        ? rows.map(r => `
+            <button type="button"
+                class="admin-feedback-list-item ${String(r.id)===String(adminReportsState.selectedId)?"active":""}"
+                onclick="selectAdminReport('${escapeHtml(r.id)}')">
+                <div>
+                    <strong>${r.source_type==="question"?"❓":"🚩"} ${escapeHtml(r.subject||"Signalement")}</strong>
+                    <small>${escapeHtml(r.reporter?.full_name||"Collaborateur")} • ${escapeHtml(formatReportDate(r.created_at))}</small>
+                </div>
+                <span>${escapeHtml(getReportStatusLabel(r.status))}</span>
+            </button>
+        `).join("")
+        : `<div class="admin-feedback-empty">Aucun signalement.</div>`;
+}
+
+function selectAdminReport(id) {
+    adminReportsState.selectedId = id;
+    renderAdminReports();
+    renderAdminReportDetail();
+}
+
+function renderAdminReportDetail() {
+    const detail = document.getElementById("adminReportDetail");
+    const r = adminReportsState.reports.find(x => String(x.id) === String(adminReportsState.selectedId));
+    if (!detail || !r) return;
+
+    detail.innerHTML = `
+        <div class="admin-feedback-detail-header">
+            <span>${r.source_type==="question"?"❓ Question signalée":"🚩 Signalement général"}</span>
+            <h2>${escapeHtml(r.subject||"Signalement")}</h2>
+        </div>
+
+        <dl class="admin-feedback-meta">
+            <div><dt>Collaborateur</dt><dd>${escapeHtml(r.reporter?.full_name||"—")}</dd></div>
+            <div><dt>Type</dt><dd>${escapeHtml(getReportTypeLabel(r.report_type))}</dd></div>
+            <div><dt>Catégorie</dt><dd>${escapeHtml(r.category_name||r.questionData?.category||"—")}</dd></div>
+            <div><dt>Date</dt><dd>${escapeHtml(formatReportDate(r.created_at))}</dd></div>
+        </dl>
+
+        ${r.questionData ? `
+            <section class="admin-feedback-highlight">
+                <small>Question concernée</small>
+                <strong>${escapeHtml(r.questionData.question)}</strong>
+            </section>
+        ` : ""}
+
+        <section class="admin-feedback-description">
+            <h3>Description</h3>
+            <p>${escapeHtml(r.description||"")}</p>
+        </section>
+
+        <label>Statut</label>
+        <select id="adminReportDetailStatus">
+            <option value="new" ${r.status==="new"?"selected":""}>Nouveau</option>
+            <option value="in_progress" ${r.status==="in_progress"?"selected":""}>En cours</option>
+            <option value="resolved" ${r.status==="resolved"?"selected":""}>Traité</option>
+            <option value="rejected" ${r.status==="rejected"?"selected":""}>Rejeté</option>
+        </select>
+
+        <label>Note administration</label>
+        <textarea id="adminReportDetailNote" rows="5">${escapeHtml(r.admin_note||"")}</textarea>
+
+        <button type="button" class="btn-primary" onclick="saveAdminReportDetail()">Enregistrer</button>
+    `;
+}
+
+async function saveAdminReportDetail() {
+    const id = adminReportsState.selectedId;
+    if (!id) return;
+
+    const status = document.getElementById("adminReportDetailStatus")?.value || "new";
+    const note = String(document.getElementById("adminReportDetailNote")?.value || "").trim();
+    const adminId = localStorage.getItem("profile_id");
+    const resolved = ["resolved","rejected"].includes(status);
+
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/reports?id=eq.${encodeURIComponent(id)}`, {
+        method:"PATCH",
+        headers:supabaseHeaders({"Content-Type":"application/json",Prefer:"return=minimal"}),
+        body:JSON.stringify({
+            status,
+            admin_note: note || null,
+            resolved_by: resolved ? adminId : null,
+            resolved_at: resolved ? new Date().toISOString() : null,
+            updated_at: new Date().toISOString()
+        })
+    });
+
+    if (!response.ok) {
+        alert("Impossible d'enregistrer le signalement.");
+        return;
+    }
+
+    await loadAdminReports();
+    selectAdminReport(id);
+}
+
+
+const adminIdeasState = {
+    ideas: [], selectedId: null, status: "all", search: ""
+};
+
+async function initializeAdminIdeasPage() {
+    const root = document.getElementById("adminIdeasRoot");
+    if (!root || !assertNickelMasterAdmin()) return;
+
+    root.innerHTML = `
+        <section class="admin-feedback-page">
+            <header class="admin-feedback-header">
+                <div>
+                    <span>💡 Administration</span>
+                    <h1>Gestion de la boîte à idées</h1>
+                    <p>Consulte les propositions des collaborateurs et fais évoluer leur statut.</p>
+                </div>
+            </header>
+
+            <section id="adminIdeaCounters" class="admin-feedback-counters"></section>
+
+            <section class="admin-feedback-toolbar">
+                <input type="search" placeholder="Rechercher..." oninput="adminIdeasState.search=this.value.toLowerCase();renderAdminIdeas()">
+                <select onchange="adminIdeasState.status=this.value;renderAdminIdeas()">
+                    <option value="all">Tous les statuts</option>
+                    <option value="new">Nouvelles</option>
+                    <option value="reviewing">À l'étude</option>
+                    <option value="planned">Planifiées</option>
+                    <option value="accepted">Acceptées</option>
+                    <option value="rejected">Refusées</option>
+                    <option value="done">Mises en place</option>
+                </select>
+                <div></div>
+            </section>
+
+            <section class="admin-feedback-layout">
+                <div id="adminIdeasList" class="admin-feedback-list">Chargement...</div>
+                <aside id="adminIdeaDetail" class="admin-feedback-detail">
+                    <div class="admin-feedback-empty">Sélectionne une idée.</div>
+                </aside>
+            </section>
+        </section>
+    `;
+
+    ensureAdminFeedbackStyles();
+    await loadAdminIdeas();
+}
+
+async function loadAdminIdeas() {
+    const [ideasR,votesR,profilesR] = await Promise.all([
+        fetch(`${SUPABASE_URL}/rest/v1/ideas?select=*&order=created_at.desc`, {headers:supabaseHeaders()}),
+        fetch(`${SUPABASE_URL}/rest/v1/idea_votes?select=idea_id`, {headers:supabaseHeaders()}),
+        fetch(`${SUPABASE_URL}/rest/v1/profiles?select=id,full_name`, {headers:supabaseHeaders()})
+    ]);
+
+    if (![ideasR,votesR,profilesR].every(r=>r.ok)) return;
+
+    const ideas = await ideasR.json();
+    const votes = await votesR.json();
+    const profiles = await profilesR.json();
+
+    const counts = new Map();
+    votes.forEach(v => counts.set(String(v.idea_id),(counts.get(String(v.idea_id))||0)+1));
+    const names = new Map(profiles.map(p=>[String(p.id),p.full_name||"Collaborateur"]));
+
+    adminIdeasState.ideas = ideas.map(i=>({
+        ...i,
+        voteCount: counts.get(String(i.id))||0,
+        authorName: names.get(String(i.profile_id))||"Collaborateur"
+    }));
+
+    renderAdminIdeas();
+}
+
+function renderAdminIdeas() {
+    const list = document.getElementById("adminIdeasList");
+    const counters = document.getElementById("adminIdeaCounters");
+    if (!list || !counters) return;
+
+    const all = adminIdeasState.ideas;
+    const count = s => all.filter(i=>i.status===s).length;
+
+    counters.innerHTML = `
+        <article><span>💡</span><strong>${count("new")}</strong><small>Nouvelles</small></article>
+        <article><span>🔎</span><strong>${count("reviewing")}</strong><small>À l'étude</small></article>
+        <article><span>🗓️</span><strong>${count("planned")}</strong><small>Planifiées</small></article>
+        <article><span>🚀</span><strong>${count("done")}</strong><small>Réalisées</small></article>
+    `;
+
+    const rows = all
+        .filter(i => adminIdeasState.status==="all" || i.status===adminIdeasState.status)
+        .filter(i => {
+            if (!adminIdeasState.search) return true;
+            return [i.title,i.description,i.category,i.authorName]
+                .join(" ").toLowerCase().includes(adminIdeasState.search);
+        })
+        .sort((a,b)=>b.voteCount-a.voteCount);
+
+    list.innerHTML = rows.length
+        ? rows.map(i=>`
+            <button type="button"
+                class="admin-feedback-list-item ${String(i.id)===String(adminIdeasState.selectedId)?"active":""}"
+                onclick="selectAdminIdea('${escapeHtml(i.id)}')">
+                <div>
+                    <strong>💡 ${escapeHtml(i.title)}</strong>
+                    <small>${escapeHtml(i.authorName)} • ▲ ${i.voteCount} • ${escapeHtml(getIdeaCategoryLabel(i.category))}</small>
+                </div>
+                <span>${escapeHtml(getIdeaStatusLabel(i.status))}</span>
+            </button>
+        `).join("")
+        : `<div class="admin-feedback-empty">Aucune idée.</div>`;
+}
+
+function selectAdminIdea(id) {
+    adminIdeasState.selectedId = id;
+    renderAdminIdeas();
+    renderAdminIdeaDetail();
+}
+
+function renderAdminIdeaDetail() {
+    const detail = document.getElementById("adminIdeaDetail");
+    const i = adminIdeasState.ideas.find(x => String(x.id)===String(adminIdeasState.selectedId));
+    if (!detail || !i) return;
+
+    detail.innerHTML = `
+        <div class="admin-feedback-detail-header">
+            <span>💡 Proposition</span>
+            <h2>${escapeHtml(i.title)}</h2>
+        </div>
+
+        <dl class="admin-feedback-meta">
+            <div><dt>Collaborateur</dt><dd>${escapeHtml(i.authorName)}</dd></div>
+            <div><dt>Votes</dt><dd>▲ ${i.voteCount}</dd></div>
+            <div><dt>Catégorie</dt><dd>${escapeHtml(getIdeaCategoryLabel(i.category))}</dd></div>
+            <div><dt>Date</dt><dd>${escapeHtml(formatReportDate(i.created_at))}</dd></div>
+        </dl>
+
+        <section class="admin-feedback-description">
+            <h3>Proposition</h3>
+            <p>${escapeHtml(i.description)}</p>
+        </section>
+
+        <label>Statut</label>
+        <select id="adminIdeaDetailStatus">
+            ${[
+                ["new","Nouvelle"],
+                ["reviewing","À l'étude"],
+                ["planned","Planifiée"],
+                ["accepted","Acceptée"],
+                ["rejected","Refusée"],
+                ["done","Mise en place"]
+            ].map(([value,label])=>`
+                <option value="${value}" ${i.status===value?"selected":""}>${label}</option>
+            `).join("")}
+        </select>
+
+        <label>Réponse / note administration</label>
+        <textarea id="adminIdeaDetailNote" rows="5">${escapeHtml(i.admin_note||"")}</textarea>
+
+        <button type="button" class="btn-primary" onclick="saveAdminIdeaDetail()">Enregistrer</button>
+    `;
+}
+
+async function saveAdminIdeaDetail() {
+    const id = adminIdeasState.selectedId;
+    if (!id) return;
+
+    const status = document.getElementById("adminIdeaDetailStatus")?.value || "new";
+    const note = String(document.getElementById("adminIdeaDetailNote")?.value || "").trim();
+
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/ideas?id=eq.${encodeURIComponent(id)}`, {
+        method:"PATCH",
+        headers:supabaseHeaders({"Content-Type":"application/json",Prefer:"return=minimal"}),
+        body:JSON.stringify({
+            status,
+            admin_note: note || null,
+            updated_at:new Date().toISOString()
+        })
+    });
+
+    if (!response.ok) {
+        alert("Impossible d'enregistrer cette idée.");
+        return;
+    }
+
+    await loadAdminIdeas();
+    selectAdminIdea(id);
+}
+
+
+/* =========================================================
+   BATTLE / KAHOOT - BASE
+========================================================= */
+
+function ensureGameHubStyles() {
+    if (document.getElementById("nickelMasterGameHubStyles")) return;
+    const style = document.createElement("style");
+    style.id = "nickelMasterGameHubStyles";
+    style.textContent = `
+        .game-hub-page{display:grid;gap:24px}.game-hub-page>header span{color:var(--orange);font-size:12px;font-weight:850;text-transform:uppercase}
+        .game-hub-page>header h1{margin:6px 0}.game-hub-page>header p{margin:0;color:var(--text-secondary)}
+        .game-hub-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+        .game-hub-card{display:grid;gap:12px;padding:22px;border:1px solid var(--border);border-radius:18px;background:var(--bg-card);box-shadow:var(--shadow-card)}
+        .game-hub-card h2,.game-hub-card p{margin:0}.game-hub-card p{color:var(--text-secondary)}.game-hub-icon{font-size:32px}
+        .game-hub-card input,.game-hub-card select{box-sizing:border-box;width:100%;padding:12px 13px;border:1px solid var(--border);border-radius:11px;background:var(--bg-card);color:var(--text-main);font:inherit}
+        .game-lobby{padding:20px;border:1px solid var(--border);border-radius:18px;background:var(--bg-card)}
+        .game-lobby-header{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:16px}
+        .game-lobby-header span,.game-lobby-header strong{display:block}.game-lobby-header strong{margin-top:4px;color:var(--orange);font-size:30px;letter-spacing:.13em}
+        .game-player-list{display:grid;gap:8px;margin-bottom:16px}.game-player-list>div{padding:11px 12px;border:1px solid var(--border);border-radius:10px;background:var(--bg-main)}
+        @media(max-width:780px){.game-hub-grid{grid-template-columns:1fr}}
+    `;
+    document.head.appendChild(style);
+}
+
+function generateNickelMasterRoomCode() {
+    const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    let code = "";
+    for (let i=0;i<6;i++) code += alphabet[Math.floor(Math.random()*alphabet.length)];
+    return code;
+}
+
+const battleState = {room:null,polling:null};
+
+async function initializeBattlePage() {
+    const root = document.getElementById("battleRoot");
+    if (!root) return;
+
+    root.innerHTML = `
+        <section class="game-hub-page">
+            <header><span>⚔️ Duel en direct</span><h1>Battle</h1><p>Affronte un collègue sur 10 questions Nickel.</p></header>
+            <section class="game-hub-grid">
+                <article class="game-hub-card">
+                    <div class="game-hub-icon">⚔️</div>
+                    <h2>Créer une Battle</h2>
+                    <select id="battleCategory"><option value="">Toutes mes catégories</option></select>
+                    <button type="button" class="btn-primary" onclick="createBattleRoom()">Créer</button>
+                </article>
+                <article class="game-hub-card">
+                    <div class="game-hub-icon">🔑</div>
+                    <h2>Rejoindre</h2>
+                    <input id="battleJoinCode" maxlength="6" placeholder="ABC123">
+                    <button type="button" class="btn-secondary" onclick="joinBattleRoom()">Rejoindre</button>
+                </article>
+            </section>
+            <section id="battleLobby" class="game-lobby" style="display:none"></section>
+        </section>
+    `;
+
+    ensureGameHubStyles();
+    const select = document.getElementById("battleCategory");
+    (await getTrainingEligibleCategories()).forEach(c=>{
+        const o=document.createElement("option");o.value=c.name;o.textContent=c.name;select.appendChild(o);
+    });
+}
+
+async function createBattleRoom() {
+    const profileId = localStorage.getItem("profile_id");
+    if (!profileId) return;
+
+    const category = document.getElementById("battleCategory")?.value || "";
+    let questions = await getTrainingEligibleQuestions();
+
+    if (category) {
+        const n=normalizeTrainingName(category);
+        questions=questions.filter(q=>normalizeTrainingName(q.category)===n);
+    }
+
+    const selected=shuffleTrainingQuestions(questions).slice(0,10);
+    if (!selected.length) return alert("Aucune question disponible.");
+
+    const response=await fetch(`${SUPABASE_URL}/rest/v1/battle_rooms`,{
+        method:"POST",
+        headers:supabaseHeaders({"Content-Type":"application/json",Prefer:"return=representation"}),
+        body:JSON.stringify({
+            code:generateNickelMasterRoomCode(),
+            host_profile_id:profileId,
+            category:category||null,
+            question_ids:selected.map(q=>q.id),
+            status:"waiting",
+            current_question_index:0
+        })
+    });
+
+    if(!response.ok)return alert("Impossible de créer la Battle. Lance d'abord le SQL fourni.");
+
+    battleState.room=(await response.json())[0];
+    await joinBattleAsPlayer(battleState.room.id,profileId);
+    await loadBattleLobby(battleState.room.id);
+}
+
+async function joinBattleRoom() {
+    const profileId=localStorage.getItem("profile_id");
+    const code=String(document.getElementById("battleJoinCode")?.value||"").trim().toUpperCase();
+    if(!profileId||!code)return;
+
+    const r=await fetch(`${SUPABASE_URL}/rest/v1/battle_rooms?code=eq.${encodeURIComponent(code)}&status=eq.waiting&select=*&limit=1`,{headers:supabaseHeaders()});
+    const room=r.ok?(await r.json())[0]:null;
+    if(!room)return alert("Battle introuvable ou déjà démarrée.");
+
+    battleState.room=room;
+    await joinBattleAsPlayer(room.id,profileId);
+    await loadBattleLobby(room.id);
+}
+
+async function joinBattleAsPlayer(roomId,profileId) {
+    const existing=await fetch(`${SUPABASE_URL}/rest/v1/battle_players?room_id=eq.${encodeURIComponent(roomId)}&profile_id=eq.${encodeURIComponent(profileId)}&select=id`,{headers:supabaseHeaders()});
+    if(existing.ok&&(await existing.json()).length)return;
+
+    const r=await fetch(`${SUPABASE_URL}/rest/v1/battle_players`,{
+        method:"POST",
+        headers:supabaseHeaders({"Content-Type":"application/json",Prefer:"return=minimal"}),
+        body:JSON.stringify({room_id:roomId,profile_id:profileId,score:0})
+    });
+    if(!r.ok)throw new Error(await r.text());
+}
+
+async function loadBattleLobby(roomId) {
+    const lobby=document.getElementById("battleLobby");if(!lobby)return;
+
+    const [rr,pr,nr]=await Promise.all([
+        fetch(`${SUPABASE_URL}/rest/v1/battle_rooms?id=eq.${encodeURIComponent(roomId)}&select=*&limit=1`,{headers:supabaseHeaders()}),
+        fetch(`${SUPABASE_URL}/rest/v1/battle_players?room_id=eq.${encodeURIComponent(roomId)}&select=*`,{headers:supabaseHeaders()}),
+        fetch(`${SUPABASE_URL}/rest/v1/profiles?select=id,full_name`,{headers:supabaseHeaders()})
+    ]);
+
+    if(!rr.ok||!pr.ok||!nr.ok)return;
+
+    const room=(await rr.json())[0],players=await pr.json(),profiles=await nr.json();
+    if(!room)return;
+
+    const names=new Map(profiles.map(p=>[String(p.id),p.full_name||"Joueur"]));
+    battleState.room=room;lobby.style.display="block";
+    const host=String(room.host_profile_id)===String(localStorage.getItem("profile_id"));
+
+    lobby.innerHTML=`
+        <div class="game-lobby-header"><div><span>Code</span><strong>${escapeHtml(room.code)}</strong></div><small>${players.length}/2 joueur(s)</small></div>
+        <div class="game-player-list">${players.map(p=>`<div>👤 ${escapeHtml(names.get(String(p.profile_id))||"Joueur")}</div>`).join("")}</div>
+        ${host?`<button class="btn-primary" onclick="startBattleRoom()" ${players.length<2?"disabled":""}>Démarrer</button>`:`<p>En attente de l'hôte...</p>`}
+    `;
+}
+
+async function startBattleRoom() {
+    const room=battleState.room;if(!room)return;
+    const r=await fetch(`${SUPABASE_URL}/rest/v1/battle_rooms?id=eq.${encodeURIComponent(room.id)}`,{
+        method:"PATCH",
+        headers:supabaseHeaders({"Content-Type":"application/json",Prefer:"return=minimal"}),
+        body:JSON.stringify({status:"in_progress",started_at:new Date().toISOString()})
+    });
+    if(!r.ok)return alert("Impossible de démarrer la Battle.");
+    battleState.room.status="in_progress";
+    alert("⚔️ Battle démarrée. Le moteur question par question sera la prochaine étape.");
+}
+
+
+const kahootState = {session:null};
+
+async function initializeKahootPage() {
+    const root=document.getElementById("kahootRoot");if(!root)return;
+
+    root.innerHTML=`
+        <section class="game-hub-page">
+            <header><span>🎮 Quiz collectif</span><h1>Kahoot Nickel</h1><p>Crée une partie ou rejoins-la avec un code.</p></header>
+            <section class="game-hub-grid">
+                <article class="game-hub-card">
+                    <div class="game-hub-icon">🎤</div>
+                    <h2>Créer une partie</h2>
+                    <select id="kahootCategory"><option value="">Toutes mes catégories</option></select>
+                    <button class="btn-primary" onclick="createKahootSession()">Créer</button>
+                </article>
+                <article class="game-hub-card">
+                    <div class="game-hub-icon">🔑</div>
+                    <h2>Rejoindre</h2>
+                    <input id="kahootJoinCode" maxlength="6" placeholder="ABC123">
+                    <button class="btn-secondary" onclick="joinKahootSession()">Rejoindre</button>
+                </article>
+            </section>
+            <section id="kahootLobby" class="game-lobby" style="display:none"></section>
+        </section>
+    `;
+
+    ensureGameHubStyles();
+    const select=document.getElementById("kahootCategory");
+    (await getTrainingEligibleCategories()).forEach(c=>{
+        const o=document.createElement("option");o.value=c.name;o.textContent=c.name;select.appendChild(o);
+    });
+}
+
+async function createKahootSession() {
+    const profileId=localStorage.getItem("profile_id");if(!profileId)return;
+    const category=document.getElementById("kahootCategory")?.value||"";
+
+    let questions=await getTrainingEligibleQuestions();
+    if(category){
+        const n=normalizeTrainingName(category);
+        questions=questions.filter(q=>normalizeTrainingName(q.category)===n);
+    }
+
+    const selected=shuffleTrainingQuestions(questions).slice(0,10);
+    if(!selected.length)return alert("Aucune question disponible.");
+
+    const r=await fetch(`${SUPABASE_URL}/rest/v1/kahoot_sessions`,{
+        method:"POST",
+        headers:supabaseHeaders({"Content-Type":"application/json",Prefer:"return=representation"}),
+        body:JSON.stringify({
+            code:generateNickelMasterRoomCode(),
+            host_profile_id:profileId,
+            category:category||null,
+            question_ids:selected.map(q=>q.id),
+            status:"waiting",
+            current_question_index:0
+        })
+    });
+
+    if(!r.ok)return alert("Impossible de créer la partie. Lance d'abord le SQL fourni.");
+    kahootState.session=(await r.json())[0];
+    await joinKahootAsPlayer(kahootState.session.id,profileId);
+    await loadKahootLobby(kahootState.session.id);
+}
+
+async function joinKahootSession() {
+    const profileId=localStorage.getItem("profile_id");
+    const code=String(document.getElementById("kahootJoinCode")?.value||"").trim().toUpperCase();
+    if(!profileId||!code)return;
+
+    const r=await fetch(`${SUPABASE_URL}/rest/v1/kahoot_sessions?code=eq.${encodeURIComponent(code)}&status=eq.waiting&select=*&limit=1`,{headers:supabaseHeaders()});
+    const session=r.ok?(await r.json())[0]:null;
+    if(!session)return alert("Partie introuvable ou déjà démarrée.");
+
+    kahootState.session=session;
+    await joinKahootAsPlayer(session.id,profileId);
+    await loadKahootLobby(session.id);
+}
+
+async function joinKahootAsPlayer(sessionId,profileId) {
+    const existing=await fetch(`${SUPABASE_URL}/rest/v1/kahoot_players?session_id=eq.${encodeURIComponent(sessionId)}&profile_id=eq.${encodeURIComponent(profileId)}&select=id`,{headers:supabaseHeaders()});
+    if(existing.ok&&(await existing.json()).length)return;
+
+    const r=await fetch(`${SUPABASE_URL}/rest/v1/kahoot_players`,{
+        method:"POST",
+        headers:supabaseHeaders({"Content-Type":"application/json",Prefer:"return=minimal"}),
+        body:JSON.stringify({session_id:sessionId,profile_id:profileId,score:0})
+    });
+    if(!r.ok)throw new Error(await r.text());
+}
+
+async function loadKahootLobby(sessionId) {
+    const lobby=document.getElementById("kahootLobby");if(!lobby)return;
+
+    const [sr,pr,nr]=await Promise.all([
+        fetch(`${SUPABASE_URL}/rest/v1/kahoot_sessions?id=eq.${encodeURIComponent(sessionId)}&select=*&limit=1`,{headers:supabaseHeaders()}),
+        fetch(`${SUPABASE_URL}/rest/v1/kahoot_players?session_id=eq.${encodeURIComponent(sessionId)}&select=*`,{headers:supabaseHeaders()}),
+        fetch(`${SUPABASE_URL}/rest/v1/profiles?select=id,full_name`,{headers:supabaseHeaders()})
+    ]);
+
+    if(!sr.ok||!pr.ok||!nr.ok)return;
+
+    const session=(await sr.json())[0],players=await pr.json(),profiles=await nr.json();
+    if(!session)return;
+
+    const names=new Map(profiles.map(p=>[String(p.id),p.full_name||"Participant"]));
+    kahootState.session=session;lobby.style.display="block";
+    const host=String(session.host_profile_id)===String(localStorage.getItem("profile_id"));
+
+    lobby.innerHTML=`
+        <div class="game-lobby-header"><div><span>Code</span><strong>${escapeHtml(session.code)}</strong></div><small>${players.length} participant(s)</small></div>
+        <div class="game-player-list">${players.map(p=>`<div>👤 ${escapeHtml(names.get(String(p.profile_id))||"Participant")}</div>`).join("")}</div>
+        ${host?`<button class="btn-primary" onclick="startKahootSession()">Démarrer</button>`:`<p>En attente de l'animateur...</p>`}
+    `;
+}
+
+async function startKahootSession() {
+    const session=kahootState.session;if(!session)return;
+    const r=await fetch(`${SUPABASE_URL}/rest/v1/kahoot_sessions?id=eq.${encodeURIComponent(session.id)}`,{
+        method:"PATCH",
+        headers:supabaseHeaders({"Content-Type":"application/json",Prefer:"return=minimal"}),
+        body:JSON.stringify({status:"in_progress",started_at:new Date().toISOString()})
+    });
+    if(!r.ok)return alert("Impossible de démarrer la partie.");
+    kahootState.session.status="in_progress";
+    alert("🎮 Partie démarrée. Le moteur question par question sera la prochaine étape.");
+}
+
+
+/* =========================================================
+   INITIALISATION NOUVEAUX MODULES
+========================================================= */
+
+prepareNickelMasterPage();
+
+document.addEventListener("DOMContentLoaded", async function () {
+    wireNickelMasterSidebarRoutes();
+    initializeTrainingNavigationGuard();
+    polishTrainingReportButton();
+
+    if (document.getElementById("ideasRoot")) await initializeIdeasPage();
+    if (document.getElementById("adminReportsRoot")) await initializeAdminReportsPage();
+    if (document.getElementById("adminIdeasRoot")) await initializeAdminIdeasPage();
+    if (document.getElementById("battleRoot")) await initializeBattlePage();
+    if (document.getElementById("kahootRoot")) await initializeKahootPage();
+
+    await revealNickelMasterPageStable();
+}, {once:true});
