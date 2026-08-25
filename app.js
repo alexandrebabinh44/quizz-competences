@@ -3594,28 +3594,31 @@ async function submitTrainingAnswer() {
 
                     }),
 
-                body:
-                    JSON.stringify({
+               body:
+    JSON.stringify({
 
-                        profile_id:
-                            profileId,
+        profile_id:
+            profileId,
 
-                        question_id:
-                            q.id,
+        question_id:
+            q.id,
 
-                        answer_text:
-                            answer,
+        training_session_id:
+            currentTrainingSessionId,
 
-                        auto_score:
-                            autoScore,
+        answer_text:
+            answer,
 
-                        final_score:
-                            finalScore,
+        auto_score:
+            autoScore,
 
-                        corrected:
-                            corrected
+        final_score:
+            finalScore,
 
-                    })
+        corrected:
+            corrected
+
+    })
 
             }
         );
