@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script>
+        const savedTheme =
+            localStorage.getItem("nickel_master_theme") || "light";
+
+        document.documentElement.setAttribute(
+            "data-theme",
+            savedTheme
+        );
+    </script>
+
+    <title>Signalements - Nickel Master</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .reports-page {
+            min-height: 100vh;
+            background: var(--nm-page-bg, var(--bg-main, #f4f5f6));
+            color: var(--nm-text, var(--text-main, #151515));
+        }
+
+        .reports-main {
+            padding: 34px;
+        }
+
+        .reports-header {
+            margin-bottom: 26px;
+        }
+
+        .reports-header h1 {
+            margin: 0 0 8px;
+            font-size: 32px;
+            line-height: 1.15;
+        }
+
+        .reports-header p {
+            margin: 0;
+            color: var(--nm-muted, var(--text-secondary, #777));
+        }
+
+        .reports-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.15fr) minmax(320px, .85fr);
+            gap: 24px;
+            align-items: start;
+        }
+
+        .reports-card {
+            background: var(--nm-surface, var(--bg-card, #fff));
+            border: 1px solid var(--nm-border, var(--border, #e8e8e8));
+            border-radius: 18px;
+            box-shadow: var(--nm-shadow, var(--shadow-card, 0 4px 18px rgba(0,0,0,.04)));
+            padding: 24px;
+        }
+
+        .reports-card h2 {
+            margin: 0 0 6px;
+            font-size: 21px;
+        }
+
+        .reports-card-intro {
+            margin: 0 0 22px;
+            color: var(--nm-muted, var(--text-secondary, #777));
+            line-height: 1.5;
+        }
+
+        .reports-form-group {
+            margin-bottom: 18px;
+        }
+
+        .reports-form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .reports-input,
+        .reports-select,
+        .reports-textarea {
+            box-sizing: border-box;
+            width: 100%;
+            border: 1px solid var(--nm-border, var(--border, #e8e8e8));
+            border-radius: 12px;
+            background: var(--nm-surface, var(--bg-card, #fff));
+            color: var(--nm-text, var(--text-main, #151515));
+            font: inherit;
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        .reports-input,
+        .reports-select {
+            min-height: 48px;
+            padding: 0 14px;
+        }
+
+        .reports-textarea {
+            min-height: 170px;
+            resize: vertical;
+            padding: 14px;
+            line-height: 1.5;
+        }
+
+        .reports-input:focus,
+        .reports-select:focus,
+        .reports-textarea:focus {
+            border-color: var(--nm-primary, var(--orange, #ff5a00));
+            box-shadow: 0 0 0 3px var(--nm-primary-soft, var(--orange-soft, #fff1e8));
+        }
+
+        .reports-counter {
+            margin-top: 6px;
+            text-align: right;
+            font-size: 12px;
+            color: var(--nm-muted, var(--text-secondary, #777));
+        }
+
+        .reports-info {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            padding: 14px;
+            margin: 4px 0 20px;
+            border-radius: 12px;
+            background: var(--nm-primary-soft, var(--orange-soft, #fff1e8));
+            color: var(--nm-text, var(--text-main, #151515));
+            font-size: 13px;
+            line-height: 1.45;
+        }
+
+        .reports-info-icon {
+            font-size: 19px;
+            flex: 0 0 auto;
+        }
+
+        .reports-submit {
+            width: 100%;
+            border: 0;
+            border-radius: 12px;
+            padding: 14px 18px;
+            background: var(--nm-primary, var(--orange, #ff5a00));
+            color: #fff;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform .15s, opacity .15s;
+        }
+
+        .reports-submit:hover {
+            transform: translateY(-1px);
+        }
+
+        .reports-submit:disabled {
+            opacity: .55;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .reports-success,
+        .reports-error {
+            display: none;
+            margin-top: 16px;
+            padding: 13px 14px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .reports-success {
+            background: var(--nm-success-soft, #eaf8ee);
+            color: var(--nm-success, #2d9145);
+        }
+
+        .reports-error {
+            background: var(--nm-danger-soft, #ffecec);
+            color: var(--nm-danger, #c83e3e);
+        }
+
+        .reports-side-title {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .reports-side-title h2 {
+            margin: 0;
+        }
+
+        .reports-refresh {
+            border: 1px solid var(--nm-border, var(--border, #e8e8e8));
+            border-radius: 10px;
+            padding: 8px 10px;
+            background: transparent;
+            color: var(--nm-text, var(--text-main, #151515));
+            cursor: pointer;
+        }
+
+        .reports-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .reports-empty {
+            padding: 26px 12px;
+            text-align: center;
+            color: var(--nm-muted, var(--text-secondary, #777));
+        }
+
+        .report-item {
+            padding: 15px;
+            border: 1px solid var(--nm-border, var(--border, #e8e8e8));
+            border-radius: 14px;
+            background: var(--nm-surface, var(--bg-card, #fff));
+        }
+
+        .report-item-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .report-item-title {
+            font-weight: 800;
+            line-height: 1.3;
+        }
+
+        .report-item-meta {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-top: 7px;
+            color: var(--nm-muted, var(--text-secondary, #777));
+            font-size: 12px;
+        }
+
+        .report-status {
+            white-space: nowrap;
+            border-radius: 999px;
+            padding: 5px 9px;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .report-status-new {
+            background: var(--nm-primary-soft, var(--orange-soft, #fff1e8));
+            color: var(--nm-primary, var(--orange, #ff5a00));
+        }
+
+        .report-status-in_progress {
+            background: #fff7dc;
+            color: #9b6b00;
+        }
+
+        .report-status-resolved {
+            background: var(--nm-success-soft, #eaf8ee);
+            color: var(--nm-success, #2d9145);
+        }
+
+        .report-status-rejected {
+            background: var(--nm-danger-soft, #ffecec);
+            color: var(--nm-danger, #c83e3e);
+        }
+
+        .report-description {
+            color: var(--nm-muted, var(--text-secondary, #777));
+            font-size: 13px;
+            line-height: 1.45;
+            white-space: pre-wrap;
+        }
+
+        .reports-small-card {
+            margin-top: 18px;
+            padding: 18px;
+            border: 1px solid var(--nm-border, var(--border, #e8e8e8));
+            border-radius: 14px;
+            background: var(--nm-primary-soft, var(--orange-soft, #fff1e8));
+        }
+
+        .reports-small-card strong {
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .reports-small-card p {
+            margin: 0;
+            color: var(--nm-muted, var(--text-secondary, #777));
+            font-size: 13px;
+            line-height: 1.45;
+        }
+
+        @media (max-width: 1050px) {
+            .reports-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 760px) {
+            .reports-main {
+                padding: 20px;
+            }
+
+            .reports-header h1 {
+                font-size: 26px;
+            }
+        }
+    </style>
+</head>
+
+<body class="dashboard-body reports-page">
+
+<div class="dashboard-layout">
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            <div class="logo-icon">≡</div>
+
+            <div>
+                <strong>NICKEL</strong><br>
+                <span>MASTER</span>
+            </div>
+        </div>
+
+        <nav class="side-menu">
+
+            <button onclick="window.location.href='home.html'">
+                🏠 Accueil
+            </button>
+
+            <button onclick="window.location.href='training.html'">
+                🎯 Entraînement
+            </button>
+
+            <button onclick="window.location.href='#'">
+                🏆 Challenges
+            </button>
+
+            <button onclick="window.location.href='ranking.html'">
+                📊 Classements
+            </button>
+
+            <button onclick="window.location.href='#'">
+                ⚔️ Battle
+            </button>
+
+            <button onclick="window.location.href='#'">
+                🎮 Kahoot
+            </button>
+
+            <button onclick="window.location.href='profile.html'">
+                📈 Mes stats
+            </button>
+
+            <button onclick="window.location.href='badges.html'">
+                🏅 Badges
+            </button>
+
+            <button onclick="window.location.href='#'">
+                💡 Boîte à idées
+            </button>
+
+            <button class="active">
+                🚩 Signalements
+            </button>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <button onclick="window.location.href='settings.html'">
+                ⚙️ Paramètres
+            </button>
+
+            <button
+                id="themeToggle"
+                class="sidebar-link theme-button"
+                onclick="toggleTheme()"
+            >
+                🌙 Mode sombre
+            </button>
+
+            <button
+                class="sidebar-link"
+                onclick="logout()"
+            >
+                🚪 Déconnexion
+            </button>
+
+        </div>
+
+    </aside>
+
+    <main class="dashboard-main reports-main">
+
+        <header class="reports-header">
+
+            <h1>
+                🚩 Signalements
+            </h1>
+
+            <p>
+                Un bug, un contenu incorrect ou un problème sur Nickel Master ?
+                Signale-le ici.
+            </p>
+
+        </header>
+
+        <section class="reports-grid">
+
+            <div class="reports-card">
+
+                <h2>
+                    Faire un signalement
+                </h2>
+
+                <p class="reports-card-intro">
+                    Donne-nous le maximum d'informations pour faciliter
+                    le traitement de ton signalement.
+                </p>
+
+                <form
+                    id="generalReportForm"
+                    onsubmit="submitGeneralReport(event)"
+                >
+
+                    <div class="reports-form-group">
+
+                        <label for="reportType">
+                            Type de signalement *
+                        </label>
+
+                        <select
+                            id="reportType"
+                            class="reports-select"
+                            required
+                        >
+                            <option value="">
+                                Choisir un type
+                            </option>
+
+                            <option value="bug">
+                                🐛 Bug / problème technique
+                            </option>
+
+                            <option value="incorrect_content">
+                                📝 Contenu incorrect
+                            </option>
+
+                            <option value="display">
+                                🖥️ Problème d'affichage
+                            </option>
+
+                            <option value="access">
+                                🔐 Problème d'accès
+                            </option>
+
+                            <option value="other">
+                                🚩 Autre
+                            </option>
+                        </select>
+
+                    </div>
+
+                    <div class="reports-form-group">
+
+                        <label for="reportSubject">
+                            Sujet *
+                        </label>
+
+                        <input
+                            id="reportSubject"
+                            class="reports-input"
+                            type="text"
+                            maxlength="120"
+                            placeholder="Ex. Le bouton Suivant ne fonctionne pas"
+                            required
+                        >
+
+                    </div>
+
+                    <div class="reports-form-group">
+
+                        <label for="reportDescription">
+                            Description *
+                        </label>
+
+                        <textarea
+                            id="reportDescription"
+                            class="reports-textarea"
+                            maxlength="1000"
+                            placeholder="Décris précisément ce qui s'est passé, sur quelle page, et ce que tu faisais au moment du problème..."
+                            oninput="updateReportCharacterCount()"
+                            required
+                        ></textarea>
+
+                        <div
+                            id="reportCharacterCount"
+                            class="reports-counter"
+                        >
+                            0 / 1000
+                        </div>
+
+                    </div>
+
+                    <div class="reports-info">
+
+                        <span class="reports-info-icon">
+                            ℹ️
+                        </span>
+
+                        <div>
+                            Le signalement sera transmis à l'administration
+                            de Nickel Master avec ton profil afin que l'équipe
+                            puisse te recontacter si nécessaire.
+                        </div>
+
+                    </div>
+
+                    <button
+                        id="reportSubmitButton"
+                        class="reports-submit"
+                        type="submit"
+                    >
+                        🚩 Envoyer le signalement
+                    </button>
+
+                    <div
+                        id="reportSuccess"
+                        class="reports-success"
+                    >
+                        ✅ Ton signalement a bien été envoyé.
+                    </div>
+
+                    <div
+                        id="reportError"
+                        class="reports-error"
+                    ></div>
+
+                </form>
+
+            </div>
+
+            <aside>
+
+                <div class="reports-card">
+
+                    <div class="reports-side-title">
+
+                        <h2>
+                            Mes signalements
+                        </h2>
+
+                        <button
+                            class="reports-refresh"
+                            type="button"
+                            onclick="loadMyReports()"
+                            title="Actualiser"
+                        >
+                            ↻
+                        </button>
+
+                    </div>
+
+                    <div
+                        id="myReportsList"
+                        class="reports-list"
+                    >
+                        <div class="reports-empty">
+                            Chargement...
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="reports-small-card">
+
+                    <strong>
+                        💡 Une question de quiz est incorrecte ?
+                    </strong>
+
+                    <p>
+                        Un bouton « Signaler cette question » sera ajouté
+                        directement dans les entraînements pour transmettre
+                        automatiquement la question concernée.
+                    </p>
+
+                </div>
+
+            </aside>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script src="app.js"></script>
+<script src="theme.js"></script>
+
+<script>
+    function updateReportCharacterCount() {
+
+        const textarea =
+            document.getElementById(
+                "reportDescription"
+            );
+
+        const counter =
+            document.getElementById(
+                "reportCharacterCount"
+            );
+
+        if (!textarea || !counter) {
+            return;
+        }
+
+        counter.textContent =
+            `${textarea.value.length} / 1000`;
+    }
+
+
+    function getReportTypeLabel(
+        type
+    ) {
+
+        const labels = {
+            bug:
+                "Bug / problème technique",
+
+            incorrect_content:
+                "Contenu incorrect",
+
+            display:
+                "Problème d'affichage",
+
+            access:
+                "Problème d'accès",
+
+            other:
+                "Autre"
+        };
+
+        return labels[type] ||
+            type ||
+            "Signalement";
+    }
+
+
+    function getReportStatusLabel(
+        status
+    ) {
+
+        const labels = {
+            new:
+                "Nouveau",
+
+            in_progress:
+                "En cours",
+
+            resolved:
+                "Traité",
+
+            rejected:
+                "Rejeté"
+        };
+
+        return labels[status] ||
+            status ||
+            "Nouveau";
+    }
+
+
+    function formatReportDate(
+        value
+    ) {
+
+        if (!value) {
+            return "";
+        }
+
+        const date =
+            new Date(value);
+
+        if (
+            Number.isNaN(
+                date.getTime()
+            )
+        ) {
+            return "";
+        }
+
+        return date.toLocaleString(
+            "fr-FR",
+            {
+                day:
+                    "2-digit",
+
+                month:
+                    "2-digit",
+
+                year:
+                    "numeric",
+
+                hour:
+                    "2-digit",
+
+                minute:
+                    "2-digit"
+            }
+        );
+    }
+
+
+    async function submitGeneralReport(
+        event
+    ) {
+
+        event.preventDefault();
+
+        const profileId =
+            localStorage.getItem(
+                "profile_id"
+            );
+
+        if (!profileId) {
+
+            window.location.href =
+                "index.html";
+
+            return;
+        }
+
+        const typeElement =
+            document.getElementById(
+                "reportType"
+            );
+
+        const subjectElement =
+            document.getElementById(
+                "reportSubject"
+            );
+
+        const descriptionElement =
+            document.getElementById(
+                "reportDescription"
+            );
+
+        const submitButton =
+            document.getElementById(
+                "reportSubmitButton"
+            );
+
+        const successBox =
+            document.getElementById(
+                "reportSuccess"
+            );
+
+        const errorBox =
+            document.getElementById(
+                "reportError"
+            );
+
+        const reportType =
+            typeElement.value.trim();
+
+        const subject =
+            subjectElement.value.trim();
+
+        const description =
+            descriptionElement.value.trim();
+
+        successBox.style.display =
+            "none";
+
+        errorBox.style.display =
+            "none";
+
+        if (
+            !reportType ||
+            !subject ||
+            !description
+        ) {
+
+            errorBox.textContent =
+                "Merci de remplir tous les champs obligatoires.";
+
+            errorBox.style.display =
+                "block";
+
+            return;
+        }
+
+        submitButton.disabled =
+            true;
+
+        submitButton.textContent =
+            "Envoi en cours...";
+
+        try {
+
+            const response =
+                await fetch(
+                    `${SUPABASE_URL}/rest/v1/reports`,
+                    {
+                        method:
+                            "POST",
+
+                        headers:
+                            supabaseHeaders({
+                                "Content-Type":
+                                    "application/json",
+
+                                Prefer:
+                                    "return=minimal"
+                            }),
+
+                        body:
+                            JSON.stringify({
+
+                                reporter_id:
+                                    profileId,
+
+                                source_type:
+                                    "general",
+
+                                report_type:
+                                    reportType,
+
+                                subject:
+                                    subject,
+
+                                description:
+                                    description,
+
+                                question_id:
+                                    null,
+
+                                category_name:
+                                    null,
+
+                                status:
+                                    "new"
+
+                            })
+                    }
+                );
+
+            if (!response.ok) {
+
+                throw new Error(
+                    await response.text()
+                );
+            }
+
+            document
+                .getElementById(
+                    "generalReportForm"
+                )
+                .reset();
+
+            updateReportCharacterCount();
+
+            successBox.style.display =
+                "block";
+
+            await loadMyReports();
+
+        } catch (error) {
+
+            console.error(
+                "Erreur signalement :",
+                error
+            );
+
+            errorBox.textContent =
+                "Impossible d'envoyer le signalement. Réessaie dans quelques instants.";
+
+            errorBox.style.display =
+                "block";
+
+        } finally {
+
+            submitButton.disabled =
+                false;
+
+            submitButton.textContent =
+                "🚩 Envoyer le signalement";
+        }
+    }
+
+
+    async function loadMyReports() {
+
+        const profileId =
+            localStorage.getItem(
+                "profile_id"
+            );
+
+        const container =
+            document.getElementById(
+                "myReportsList"
+            );
+
+        if (!container) {
+            return;
+        }
+
+        if (!profileId) {
+
+            window.location.href =
+                "index.html";
+
+            return;
+        }
+
+        container.innerHTML =
+            `
+                <div class="reports-empty">
+                    Chargement...
+                </div>
+            `;
+
+        try {
+
+            const response =
+                await fetch(
+                    `${SUPABASE_URL}/rest/v1/reports?reporter_id=eq.${encodeURIComponent(profileId)}&select=id,source_type,report_type,subject,description,category_name,status,created_at&order=created_at.desc&limit=10`,
+                    {
+                        headers:
+                            supabaseHeaders()
+                    }
+                );
+
+            if (!response.ok) {
+
+                throw new Error(
+                    await response.text()
+                );
+            }
+
+            const reports =
+                await response.json();
+
+            if (!reports.length) {
+
+                container.innerHTML =
+                    `
+                        <div class="reports-empty">
+                            Aucun signalement envoyé pour le moment.
+                        </div>
+                    `;
+
+                return;
+            }
+
+            container.innerHTML =
+                reports
+                    .map(
+                        report => {
+
+                            const status =
+                                report.status ||
+                                "new";
+
+                            const sourceLabel =
+                                report.source_type ===
+                                "question"
+                                    ? "Question"
+                                    : "Général";
+
+                            const title =
+                                report.subject ||
+                                (
+                                    report.source_type ===
+                                    "question"
+                                        ? "Question signalée"
+                                        : "Signalement"
+                                );
+
+                            return `
+                                <article class="report-item">
+
+                                    <div class="report-item-top">
+
+                                        <div>
+
+                                            <div class="report-item-title">
+                                                ${escapeHtml(title)}
+                                            </div>
+
+                                            <div class="report-item-meta">
+
+                                                <span>
+                                                    ${escapeHtml(
+                                                        getReportTypeLabel(
+                                                            report.report_type
+                                                        )
+                                                    )}
+                                                </span>
+
+                                                <span>•</span>
+
+                                                <span>
+                                                    ${escapeHtml(sourceLabel)}
+                                                </span>
+
+                                            </div>
+
+                                        </div>
+
+                                        <span
+                                            class="report-status report-status-${escapeHtml(status)}"
+                                        >
+                                            ${escapeHtml(
+                                                getReportStatusLabel(
+                                                    status
+                                                )
+                                            )}
+                                        </span>
+
+                                    </div>
+
+                                    <div class="report-description">
+                                        ${escapeHtml(
+                                            report.description ||
+                                            ""
+                                        )}
+                                    </div>
+
+                                    <div class="report-item-meta">
+
+                                        ${
+                                            report.category_name
+                                                ? `
+                                                    <span>
+                                                        📚 ${escapeHtml(
+                                                            report.category_name
+                                                        )}
+                                                    </span>
+
+                                                    <span>•</span>
+                                                `
+                                                : ""
+                                        }
+
+                                        <span>
+                                            ${escapeHtml(
+                                                formatReportDate(
+                                                    report.created_at
+                                                )
+                                            )}
+                                        </span>
+
+                                    </div>
+
+                                </article>
+                            `;
+                        }
+                    )
+                    .join("");
+
+        } catch (error) {
+
+            console.error(
+                "Erreur chargement signalements :",
+                error
+            );
+
+            container.innerHTML =
+                `
+                    <div class="reports-empty">
+                        Impossible de charger tes signalements.
+                    </div>
+                `;
+        }
+    }
+
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+            const profileId =
+                localStorage.getItem(
+                    "profile_id"
+                );
+
+            if (!profileId) {
+
+                window.location.href =
+                    "index.html";
+
+                return;
+            }
+
+            updateReportCharacterCount();
+
+            loadMyReports();
+        }
+    );
+</script>
+
+</body>
+</html>
