@@ -28239,16 +28239,303 @@ async function startKahootSession() {
 
 prepareNickelMasterPage();
 
-document.addEventListener("DOMContentLoaded", async function () {
-    wireNickelMasterSidebarRoutes();
-    initializeTrainingNavigationGuard();
-    polishTrainingReportButton();
 
-    if (document.getElementById("ideasRoot")) await initializeIdeasPage();
-    if (document.getElementById("adminReportsRoot")) await initializeAdminReportsPage();
-    if (document.getElementById("adminIdeasRoot")) await initializeAdminIdeasPage();
-    if (document.getElementById("battleRoot")) await initializeBattlePage();
-    if (document.getElementById("kahootRoot")) await initializeKahootPage();
+/*
+ * Sécurité anti-écran vide :
+ * même si une requête Supabase ou une nouvelle page plante,
+ * l'interface redevient visible automatiquement.
+ */
+const nickelMasterRevealFailsafe =
+    setTimeout(
+        function () {
 
-    await revealNickelMasterPageStable();
-}, {once:true});
+            document.documentElement
+                .classList
+                .remove(
+                    "nm-page-preparing"
+                );
+
+
+            if (document.body) {
+
+                document.body
+                    .classList
+                    .add(
+                        "page-ready"
+                    );
+            }
+
+        },
+        900
+    );
+
+
+document.addEventListener(
+    "DOMContentLoaded",
+    async function () {
+
+        try {
+
+            try {
+
+                wireNickelMasterSidebarRoutes();
+
+            } catch (error) {
+
+                console.error(
+                    "❌ Navigation Nickel Master :",
+                    error
+                );
+            }
+
+
+            try {
+
+                initializeTrainingNavigationGuard();
+
+            } catch (error) {
+
+                console.error(
+                    "❌ Protection navigation entraînement :",
+                    error
+                );
+            }
+
+
+            try {
+
+                polishTrainingReportButton();
+
+            } catch (error) {
+
+                console.error(
+                    "❌ Bouton signalement question :",
+                    error
+                );
+            }
+
+
+            if (
+                document.getElementById(
+                    "ideasRoot"
+                )
+            ) {
+
+                try {
+
+                    await initializeIdeasPage();
+
+                } catch (error) {
+
+                    console.error(
+                        "❌ Page Boîte à idées :",
+                        error
+                    );
+
+
+                    const root =
+                        document.getElementById(
+                            "ideasRoot"
+                        );
+
+
+                    if (root) {
+
+                        root.innerHTML = `
+                            <div class="feature-page-loading-card">
+                                Impossible de charger la boîte à idées.
+                                Ouvre la console pour voir le détail.
+                            </div>
+                        `;
+                    }
+                }
+            }
+
+
+            if (
+                document.getElementById(
+                    "adminReportsRoot"
+                )
+            ) {
+
+                try {
+
+                    await initializeAdminReportsPage();
+
+                } catch (error) {
+
+                    console.error(
+                        "❌ Gestion admin signalements :",
+                        error
+                    );
+
+
+                    const root =
+                        document.getElementById(
+                            "adminReportsRoot"
+                        );
+
+
+                    if (root) {
+
+                        root.innerHTML = `
+                            <div class="feature-page-loading-card">
+                                Impossible de charger la gestion des signalements.
+                            </div>
+                        `;
+                    }
+                }
+            }
+
+
+            if (
+                document.getElementById(
+                    "adminIdeasRoot"
+                )
+            ) {
+
+                try {
+
+                    await initializeAdminIdeasPage();
+
+                } catch (error) {
+
+                    console.error(
+                        "❌ Gestion admin boîte à idées :",
+                        error
+                    );
+
+
+                    const root =
+                        document.getElementById(
+                            "adminIdeasRoot"
+                        );
+
+
+                    if (root) {
+
+                        root.innerHTML = `
+                            <div class="feature-page-loading-card">
+                                Impossible de charger la gestion de la boîte à idées.
+                            </div>
+                        `;
+                    }
+                }
+            }
+
+
+            if (
+                document.getElementById(
+                    "battleRoot"
+                )
+            ) {
+
+                try {
+
+                    await initializeBattlePage();
+
+                } catch (error) {
+
+                    console.error(
+                        "❌ Page Battle :",
+                        error
+                    );
+
+
+                    const root =
+                        document.getElementById(
+                            "battleRoot"
+                        );
+
+
+                    if (root) {
+
+                        root.innerHTML = `
+                            <div class="feature-page-loading-card">
+                                Impossible de charger Battle.
+                            </div>
+                        `;
+                    }
+                }
+            }
+
+
+            if (
+                document.getElementById(
+                    "kahootRoot"
+                )
+            ) {
+
+                try {
+
+                    await initializeKahootPage();
+
+                } catch (error) {
+
+                    console.error(
+                        "❌ Page Kahoot :",
+                        error
+                    );
+
+
+                    const root =
+                        document.getElementById(
+                            "kahootRoot"
+                        );
+
+
+                    if (root) {
+
+                        root.innerHTML = `
+                            <div class="feature-page-loading-card">
+                                Impossible de charger Kahoot.
+                            </div>
+                        `;
+                    }
+                }
+            }
+
+
+        } finally {
+
+            clearTimeout(
+                nickelMasterRevealFailsafe
+            );
+
+
+            try {
+
+                await revealNickelMasterPageStable();
+
+            } catch (error) {
+
+                console.error(
+                    "❌ Affichage page :",
+                    error
+                );
+
+
+                document.documentElement
+                    .classList
+                    .remove(
+                        "nm-page-preparing"
+                    );
+
+
+                if (document.body) {
+
+                    document.body
+                        .classList
+                        .add(
+                            "page-ready"
+                        );
+                }
+            }
+        }
+
+    },
+    {
+        once:
+            true
+    }
+);
