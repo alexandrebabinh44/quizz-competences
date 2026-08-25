@@ -695,15 +695,12 @@ async function loadHomeProfile(
 async function loadHomeStats(
     profileId
 ) {
-
-    const response =
-        await fetch(
-            `${SUPABASE_URL}/rest/v1/training_sessions?profile_id=eq.${encodeURIComponent(profileId)}&status=in.(completed,abandoned)&select=id,status,total_questions,answered_questions,correct_answers`,
-            {
-                headers:
-                    supabaseHeaders()
-            }
-        );
+    const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/training_sessions?profile_id=eq.${encodeURIComponent(profileId)}&status=in.(completed,abandoned)&select=id,status,total_questions,answered_questions,correct_answers`,
+        {
+            headers: supabaseHeaders()
+        }
+    );
 
     if (!response.ok) {
         console.warn(
@@ -713,51 +710,42 @@ async function loadHomeStats(
         return;
     }
 
-    const sessions =
-        await response.json();
+    const sessions = await response.json();
 
-    const completedSessions =
-        sessions.filter(
-            session =>
-                session.status === "completed"
-        );
+    const completedSessions = sessions.filter(
+        session => session.status === "completed"
+    );
 
-    const totalQuiz =
-        completedSessions.length;
+    const totalQuiz = completedSessions.length;
 
-    const totalAnswered =
-        sessions.reduce(
-            (total, session) => {
-                const answered =
-                    Number(
-                        session.answered_questions ??
-                        (
-                            session.status === "completed"
-                                ? session.total_questions
-                                : 0
-                        ) ??
-                        0
-                    );
-                return total + answered;
-            },
-            0
-        );
+    const totalAnswered = sessions.reduce(
+        (total, session) => {
+            const answered = Number(
+                session.answered_questions ??
+                (session.status === "completed" ? session.total_questions : 0) ??
+                0
+            );
 
-    const totalCorrect =
-        sessions.reduce(
-            (total, session) =>
-                total +
-                Number(
-                    session.correct_answers ||
-                    0
-                ),
-            0
-        );
+            return total + answered;
+        },
+        0
+    );
+
+    const totalCorrect = sessions.reduce(
+        (total, session) =>
+            total +
+            Number(
+                session.correct_answers ||
+                0
+            ),
+        0
+    );
 
     const rate =
         totalAnswered > 0
             ? Math.round(
-                (totalCorrect / totalAnswered) * 100
+                (totalCorrect / totalAnswered) *
+                100
             )
             : 0;
 
@@ -772,11 +760,13 @@ async function loadHomeStats(
         );
 
     if (quizElement) {
-        quizElement.innerText = totalQuiz;
+        quizElement.innerText =
+            totalQuiz;
     }
 
     if (rateElement) {
-        rateElement.innerText = `${rate}%`;
+        rateElement.innerText =
+            `${rate}%`;
     }
 }
 
@@ -1251,11 +1241,6 @@ async function loadHomeWeeklyRanking() {
 async function loadDailyMissions(
     profileId
 ) {
-
-    if (!profileId) {
-        return;
-    }
-
     const today =
         encodeURIComponent(
             getLocalDayStartIso()
@@ -1271,19 +1256,18 @@ async function loadDailyMissions(
         );
 
     if (answersResponse.ok) {
-
         const answers =
             await answersResponse.json();
 
         const uniqueQuestionIds =
             new Set(
                 answers
-                    .map(answer => answer.question_id)
+                    .map(
+                        answer =>
+                            answer.question_id
+                    )
                     .filter(Boolean)
             );
-
-        const questionCount =
-            uniqueQuestionIds.size;
 
         const element =
             document.getElementById(
@@ -1292,15 +1276,11 @@ async function loadDailyMissions(
 
         if (element) {
             element.innerText =
-                `${Math.min(questionCount, 3)}/3`;
+                `${Math.min(
+                    uniqueQuestionIds.size,
+                    3
+                )}/3`;
         }
-
-    } else {
-
-        console.warn(
-            "Impossible de charger la mission questions :",
-            await answersResponse.text()
-        );
     }
 
     const sessionsResponse =
@@ -1313,7 +1293,6 @@ async function loadDailyMissions(
         );
 
     if (sessionsResponse.ok) {
-
         const sessions =
             await sessionsResponse.json();
 
@@ -1324,15 +1303,11 @@ async function loadDailyMissions(
 
         if (element) {
             element.innerText =
-                `${Math.min(sessions.length, 1)}/1`;
+                `${Math.min(
+                    sessions.length,
+                    1
+                )}/1`;
         }
-
-    } else {
-
-        console.warn(
-            "Impossible de charger la mission entraînement :",
-            await sessionsResponse.text()
-        );
     }
 
     const role =
@@ -1341,9 +1316,7 @@ async function loadDailyMissions(
                 "role"
             ) ||
             ""
-        )
-        .trim()
-        .toLowerCase();
+        ).toLowerCase();
 
     const allowedRoles = [
         "admin",
@@ -1363,12 +1336,14 @@ async function loadDailyMissions(
 
     if (
         correctionLine &&
-        allowedRoles.includes(role)
+        allowedRoles.includes(
+            role
+        )
     ) {
-        correctionLine.style.display = "";
+        correctionLine.style.display =
+            "";
     }
 }
-
 
 /* =========================================================
    PRÉSENCE
@@ -2058,48 +2033,6 @@ async function abandonCurrentTrainingSession() {
     currentTrainingSessionId =
         null;
 }
-
-/* =========================================================
-   QUITTER L'ENTRAÎNEMENT
-========================================================= */
-
-async function quitTrainingSession() {
-
-    const confirmed =
-        confirm(
-            "Quitter l'entraînement ?\n\n" +
-            "Ta progression sera enregistrée et cette session sera considérée comme abandonnée."
-        );
-
-    if (!confirmed) {
-        return;
-    }
-
-    stopTrainingTimer();
-
-    try {
-        await abandonCurrentTrainingSession();
-    } catch (error) {
-        console.error(
-            "Erreur abandon entraînement :",
-            error
-        );
-
-        alert(
-            "Impossible d'enregistrer l'abandon de la session."
-        );
-
-        return;
-    }
-
-    localStorage.removeItem(
-        "training_questions"
-    );
-
-    window.location.href =
-        "training.html";
-}
-
 
 
 /* =========================================================
@@ -3981,27 +3914,38 @@ function updateTrainingSessionStats() {
    QUITTER
 ========================================================= */
 
-function quitTrainingSession() {
+async function quitTrainingSession() {
 
     const confirmed =
         confirm(
-            "Quitter l'entraînement ? Ta session en cours ne sera pas enregistrée."
+            "Quitter l'entraînement ?\n\n" +
+            "Ta progression sera enregistrée et cette session sera considérée comme abandonnée."
         );
 
-
     if (!confirmed) {
+        return;
+    }
+
+    stopTrainingTimer();
+
+    try {
+        await abandonCurrentTrainingSession();
+    } catch (error) {
+        console.error(
+            "Erreur abandon entraînement :",
+            error
+        );
+
+        alert(
+            "Impossible d'enregistrer l'abandon de la session."
+        );
 
         return;
     }
 
-
-    stopTrainingTimer();
-
-
     localStorage.removeItem(
         "training_questions"
     );
-
 
     window.location.href =
         "training.html";
@@ -4009,7 +3953,7 @@ function quitTrainingSession() {
 
 
 /* =========================================================
-   SESSION D'ENTRAÎNEMENT
+   FINALISER LA SESSION D'ENTRAÎNEMENT
 ========================================================= */
 
 async function completeCurrentTrainingSession() {
@@ -4033,10 +3977,7 @@ async function completeCurrentTrainingSession() {
     const percentage =
         total > 0
             ? Math.round(
-                (
-                    trainingCorrectAnswers /
-                    total
-                ) *
+                (trainingCorrectAnswers / total) *
                 100
             )
             : 0;
@@ -4056,6 +3997,7 @@ async function completeCurrentTrainingSession() {
                     supabaseHeaders({
                         "Content-Type":
                             "application/json",
+
                         Prefer:
                             "return=minimal"
                     }),
@@ -5338,11 +5280,6 @@ async function checkAndAwardBadge(
 async function checkQuestionBadges(
     profileId
 ) {
-
-    if (!profileId) {
-        return;
-    }
-
     const response =
         await fetch(
             `${SUPABASE_URL}/rest/v1/answers?profile_id=eq.${encodeURIComponent(profileId)}&select=question_id`,
@@ -5357,6 +5294,7 @@ async function checkQuestionBadges(
             "Impossible de vérifier les badges questions :",
             await response.text()
         );
+
         return;
     }
 
@@ -5366,7 +5304,10 @@ async function checkQuestionBadges(
     const uniqueQuestionIds =
         new Set(
             answers
-                .map(answer => answer.question_id)
+                .map(
+                    answer =>
+                        answer.question_id
+                )
                 .filter(Boolean)
         );
 
