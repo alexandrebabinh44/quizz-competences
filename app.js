@@ -488,7 +488,12 @@ async function loadHomeDashboard() {
         localStorage.getItem(
             "profile_id"
         );
-updateAdminNavigation();
+if (
+        typeof updateAdminNavigation ===
+        "function"
+    ) {
+        updateAdminNavigation();
+    }
 
     if (!profileId) {
         window.location.href =
@@ -695,14 +700,18 @@ async function loadHomeProfile(
 async function loadHomeStats(
     profileId
 ) {
-    const response = await fetch(
-        `${SUPABASE_URL}/rest/v1/training_sessions?profile_id=eq.${profileId}&select=id,total_questions,correct_answers`,
-        {
-            headers: supabaseHeaders()
-        }
-    );
+
+    const response =
+        await fetch(
+            `${SUPABASE_URL}/rest/v1/training_sessions?profile_id=eq.${encodeURIComponent(profileId)}&status=in.(completed,abandoned)&select=id,status,total_questions,answered_questions,correct_answers`,
+            {
+                headers:
+                    supabaseHeaders()
+            }
+        );
 
     if (!response.ok) {
+
         console.warn(
             "Statistiques indisponibles :",
             await response.text()
@@ -714,17 +723,33 @@ async function loadHomeStats(
     const sessions =
         await response.json();
 
-    const totalQuiz =
-        sessions.length;
+    const completedSessions =
+        sessions.filter(
+            session =>
+                session.status ===
+                "completed"
+        );
 
-    const totalQuestions =
+    const totalQuiz =
+        completedSessions.length;
+
+    const totalAnswered =
         sessions.reduce(
-            (total, session) =>
-                total +
-                Number(
-                    session.total_questions ||
-                    0
-                ),
+            (total, session) => {
+
+                const answered =
+                    Number(
+                        session.answered_questions ??
+                        (
+                            session.status === "completed"
+                                ? session.total_questions
+                                : 0
+                        ) ??
+                        0
+                    );
+
+                return total + answered;
+            },
             0
         );
 
@@ -740,11 +765,11 @@ async function loadHomeStats(
         );
 
     const rate =
-        totalQuestions > 0
+        totalAnswered > 0
             ? Math.round(
                 (
                     totalCorrect /
-                    totalQuestions
+                    totalAnswered
                 ) *
                 100
             )
@@ -761,11 +786,13 @@ async function loadHomeStats(
         );
 
     if (quizElement) {
+
         quizElement.innerText =
             totalQuiz;
     }
 
     if (rateElement) {
+
         rateElement.innerText =
             `${rate}%`;
     }
@@ -1242,6 +1269,11 @@ async function loadHomeWeeklyRanking() {
 async function loadDailyMissions(
     profileId
 ) {
+
+    if (!profileId) {
+        return;
+    }
+
     const today =
         encodeURIComponent(
             getLocalDayStartIso()
@@ -1249,7 +1281,7 @@ async function loadDailyMissions(
 
     const answersResponse =
         await fetch(
-            `${SUPABASE_URL}/rest/v1/answers?profile_id=eq.${profileId}&submitted_at=gte.${today}&select=id`,
+            `${SUPABASE_URL}/rest/v1/answers?profile_id=eq.${encodeURIComponent(profileId)}&submitted_at=gte.${today}&select=question_id`,
             {
                 headers:
                     supabaseHeaders()
@@ -1257,8 +1289,19 @@ async function loadDailyMissions(
         );
 
     if (answersResponse.ok) {
+
         const answers =
             await answersResponse.json();
+
+        const uniqueQuestionIds =
+            new Set(
+                answers
+                    .map(
+                        answer =>
+                            answer.question_id
+                    )
+                    .filter(Boolean)
+            );
 
         const element =
             document.getElementById(
@@ -1266,17 +1309,25 @@ async function loadDailyMissions(
             );
 
         if (element) {
+
             element.innerText =
                 `${Math.min(
-                    answers.length,
+                    uniqueQuestionIds.size,
                     3
                 )}/3`;
         }
+
+    } else {
+
+        console.warn(
+            "Impossible de charger la mission questions :",
+            await answersResponse.text()
+        );
     }
 
     const sessionsResponse =
         await fetch(
-            `${SUPABASE_URL}/rest/v1/training_sessions?profile_id=eq.${profileId}&completed_at=gte.${today}&select=id`,
+            `${SUPABASE_URL}/rest/v1/training_sessions?profile_id=eq.${encodeURIComponent(profileId)}&status=eq.completed&completed_at=gte.${today}&select=id`,
             {
                 headers:
                     supabaseHeaders()
@@ -1284,6 +1335,7 @@ async function loadDailyMissions(
         );
 
     if (sessionsResponse.ok) {
+
         const sessions =
             await sessionsResponse.json();
 
@@ -1293,12 +1345,20 @@ async function loadDailyMissions(
             );
 
         if (element) {
+
             element.innerText =
                 `${Math.min(
                     sessions.length,
                     1
                 )}/1`;
         }
+
+    } else {
+
+        console.warn(
+            "Impossible de charger la mission entraînement :",
+            await sessionsResponse.text()
+        );
     }
 
     const role =
@@ -1307,7 +1367,9 @@ async function loadDailyMissions(
                 "role"
             ) ||
             ""
-        ).toLowerCase();
+        )
+        .trim()
+        .toLowerCase();
 
     const allowedRoles = [
         "admin",
@@ -1331,6 +1393,7 @@ async function loadDailyMissions(
             role
         )
     ) {
+
         correctionLine.style.display =
             "";
     }
@@ -1478,7 +1541,7 @@ async function loadHomeRecentActivity() {
     }
 
     const response = await fetch(
-        `${SUPABASE_URL}/rest/v1/training_sessions?select=profile_id,category,mode,completed_at&order=completed_at.desc&limit=3`,
+        `${SUPABASE_URL}/rest/v1/training_sessions?status=eq.completed&select=profile_id,category,mode,completed_at&order=completed_at.desc&limit=3`,
         {
             headers:
                 supabaseHeaders()
@@ -3710,6 +3773,8 @@ await updateCurrentTrainingSession();
 
 await showTrainingQuestion();
 
+}
+
 
 /* =========================================================
    NAVIGATION
@@ -3906,27 +3971,41 @@ function updateTrainingSessionStats() {
    QUITTER
 ========================================================= */
 
-function quitTrainingSession() {
+async function quitTrainingSession() {
 
     const confirmed =
         confirm(
-            "Quitter l'entraînement ? Ta session en cours ne sera pas enregistrée."
+            "Quitter l'entraînement ?\n\n" +
+            "Ta progression sera enregistrée et cette session sera considérée comme abandonnée."
         );
 
-
     if (!confirmed) {
+        return;
+    }
+
+    stopTrainingTimer();
+
+    try {
+
+        await abandonCurrentTrainingSession();
+
+    } catch (error) {
+
+        console.error(
+            "Erreur abandon entraînement :",
+            error
+        );
+
+        alert(
+            "Impossible d'enregistrer l'abandon de la session."
+        );
 
         return;
     }
 
-
-    stopTrainingTimer();
-
-
     localStorage.removeItem(
         "training_questions"
     );
-
 
     window.location.href =
         "training.html";
@@ -3937,101 +4016,104 @@ function quitTrainingSession() {
    SESSION D'ENTRAÎNEMENT
 ========================================================= */
 
-async function saveTrainingSession() {
+async function completeCurrentTrainingSession() {
 
-    const profileId =
-        localStorage.getItem(
-            "profile_id"
-        );
+    if (!currentTrainingSessionId) {
 
+        currentTrainingSessionId =
+            localStorage.getItem(
+                "current_training_session_id"
+            );
+    }
 
-    if (!profileId) {
+    if (!currentTrainingSessionId) {
 
         throw new Error(
-            "Profil connecté introuvable."
+            "Session d'entraînement introuvable."
         );
     }
 
+    const total =
+        trainingQuestions.length;
+
+    const percentage =
+        total > 0
+            ? Math.round(
+                (
+                    trainingCorrectAnswers /
+                    total
+                ) *
+                100
+            )
+            : 0;
+
+    const now =
+        new Date()
+            .toISOString();
 
     const response =
         await fetch(
-            `${SUPABASE_URL}/rest/v1/training_sessions`,
+            `${SUPABASE_URL}/rest/v1/training_sessions?id=eq.${encodeURIComponent(currentTrainingSessionId)}`,
             {
-
                 method:
-                    "POST",
+                    "PATCH",
 
                 headers:
                     supabaseHeaders({
-
                         "Content-Type":
                             "application/json",
 
                         Prefer:
-                            "return=representation"
-
+                            "return=minimal"
                     }),
 
                 body:
                     JSON.stringify({
+                        status:
+                            "completed",
 
-                        profile_id:
-                            profileId,
-
-                        mode:
-                            localStorage.getItem(
-                                "training_mode"
-                            ) ||
-                            "cible",
-
-                        category:
-                            localStorage.getItem(
-                                "training_category"
-                            ),
-
-                        total_questions:
-                            trainingQuestions.length,
+                        answered_questions:
+                            trainingAnsweredCount,
 
                         correct_answers:
                             trainingCorrectAnswers,
 
+                        wrong_answers:
+                            trainingWrongAnswers,
+
                         score:
-                            trainingCorrectAnswers,
+                            percentage,
 
                         xp_earned:
                             5,
 
-                        started_at:
-                            trainingStartedAt,
-
                         completed_at:
-                            new Date()
-                                .toISOString()
+                            now,
 
+                        last_activity_at:
+                            now
                     })
-
             }
         );
 
-
-    if (
-        !response.ok
-    ) {
+    if (!response.ok) {
 
         throw new Error(
             await response.text()
         );
     }
 
+    const sessionId =
+        currentTrainingSessionId;
 
-    const data =
-        await response.json();
-
-
-    return (
-        data[0]?.id ||
-        null
+    localStorage.removeItem(
+        "current_training_session_id"
     );
+
+    currentTrainingSessionId =
+        null;
+
+    return sessionId;
 }
 
 
@@ -4069,7 +4151,7 @@ async function finishTraining() {
     try {
 
         sessionId =
-            await saveTrainingSession();
+            await completeCurrentTrainingSession();
 
 
         await addXp(
@@ -5264,9 +5346,14 @@ async function checkAndAwardBadge(
 async function checkQuestionBadges(
     profileId
 ) {
+
+    if (!profileId) {
+        return;
+    }
+
     const response =
         await fetch(
-            `${SUPABASE_URL}/rest/v1/answers?profile_id=eq.${profileId}&select=id`,
+            `${SUPABASE_URL}/rest/v1/answers?profile_id=eq.${encodeURIComponent(profileId)}&select=question_id`,
             {
                 headers:
                     supabaseHeaders()
@@ -5274,6 +5361,7 @@ async function checkQuestionBadges(
         );
 
     if (!response.ok) {
+
         console.warn(
             "Impossible de vérifier les badges questions :",
             await response.text()
@@ -5285,42 +5373,52 @@ async function checkQuestionBadges(
     const answers =
         await response.json();
 
+    const uniqueQuestionIds =
+        new Set(
+            answers
+                .map(
+                    answer =>
+                        answer.question_id
+                )
+                .filter(Boolean)
+        );
+
     const count =
-        answers.length;
+        uniqueQuestionIds.size;
 
     await checkAndAwardBadge(
         profileId,
         "FIRST_ANSWER",
         count >= 1,
-        `${count} réponse(s)`
+        `${count} question(s) différente(s)`
     );
 
     await checkAndAwardBadge(
         profileId,
         "CURIOUS_25",
         count >= 25,
-        `${count} réponse(s)`
+        `${count} question(s) différente(s)`
     );
 
     await checkAndAwardBadge(
         profileId,
         "ASSIDU_100",
         count >= 100,
-        `${count} réponse(s)`
+        `${count} question(s) différente(s)`
     );
 
     await checkAndAwardBadge(
         profileId,
         "QUIZ_MACHINE_500",
         count >= 500,
-        `${count} réponse(s)`
+        `${count} question(s) différente(s)`
     );
 
     await checkAndAwardBadge(
         profileId,
         "ENCYCLOPEDIA_1000",
         count >= 1000,
-        `${count} réponse(s)`
+        `${count} question(s) différente(s)`
     );
 }
 
@@ -5330,7 +5428,7 @@ async function checkTrainingBadges(
 ) {
     const response =
         await fetch(
-            `${SUPABASE_URL}/rest/v1/training_sessions?profile_id=eq.${profileId}&select=*&order=completed_at.asc`,
+            `${SUPABASE_URL}/rest/v1/training_sessions?profile_id=eq.${encodeURIComponent(profileId)}&status=eq.completed&select=*&order=completed_at.asc`,
             {
                 headers:
                     supabaseHeaders()
@@ -13888,17 +13986,24 @@ async function getTrainingEligibleCategories() {
 
     try {
 
-        /* ===============================================
-           1. IDENTIFIANT UTILISATEUR
-        ================================================ */
+        /* =================================================
+           1. IDENTIFIANTS POSSIBLES DU COLLABORATEUR
+        ================================================= */
 
-        const userId =
-            localStorage.getItem("user_id") ||
-            localStorage.getItem("profile_id") ||
-            localStorage.getItem("id");
+        const candidateUserIds =
+            [
+                localStorage.getItem("profile_id"),
+                localStorage.getItem("user_id"),
+                localStorage.getItem("id")
+            ]
+            .filter(Boolean)
+            .filter(
+                (value, index, array) =>
+                    array.indexOf(value) === index
+            );
 
 
-        if (!userId) {
+        if (!candidateUserIds.length) {
 
             console.error(
                 "❌ Aucun identifiant utilisateur trouvé."
@@ -13908,33 +14013,75 @@ async function getTrainingEligibleCategories() {
         }
 
 
-        /* ===============================================
-           2. FORMATIONS DE L'UTILISATEUR
-        ================================================ */
+        /* =================================================
+           2. FORMATIONS DU COLLABORATEUR
 
-        const userTrainingsResponse =
-            await fetch(
-                `${SUPABASE_URL}/rest/v1/user_trainings?select=training_id&user_id=eq.${encodeURIComponent(userId)}`,
-                {
-                    headers:
-                        supabaseHeaders()
-                }
-            );
+           On essaie les identifiants connus afin de rester
+           compatible avec les anciennes données/localStorage.
+        ================================================= */
+
+        let userTrainings = [];
+        let resolvedUserId = null;
 
 
-        if (!userTrainingsResponse.ok) {
+        for (
+            const userId
+            of candidateUserIds
+        ) {
 
-            const errorText =
-                await userTrainingsResponse.text();
+            const userTrainingsResponse =
+                await fetch(
+                    `${SUPABASE_URL}/rest/v1/user_trainings?select=training_id&user_id=eq.${encodeURIComponent(userId)}`,
+                    {
+                        headers:
+                            supabaseHeaders()
+                    }
+                );
 
-            throw new Error(
-                `user_trainings : ${errorText}`
-            );
+
+            if (!userTrainingsResponse.ok) {
+
+                console.warn(
+                    "⚠️ Lecture user_trainings impossible pour",
+                    userId,
+                    await userTrainingsResponse.text()
+                );
+
+                continue;
+            }
+
+
+            const rows =
+                await userTrainingsResponse.json();
+
+
+            if (rows.length) {
+
+                userTrainings =
+                    rows;
+
+                resolvedUserId =
+                    userId;
+
+                break;
+            }
         }
 
 
-        const userTrainings =
-            await userTrainingsResponse.json();
+        console.log(
+            "👤 Identifiant utilisé pour les formations :",
+            resolvedUserId
+        );
+
+
+        if (!userTrainings.length) {
+
+            console.log(
+                "⚠️ Aucune formation attribuée au collaborateur."
+            );
+
+            return [];
+        }
 
 
         const trainingIds =
@@ -13966,9 +14113,9 @@ async function getTrainingEligibleCategories() {
         }
 
 
-        /* ===============================================
+        /* =================================================
            3. CATÉGORIES LIÉES AUX FORMATIONS
-        ================================================ */
+        ================================================= */
 
         const trainingFilter =
             trainingIds.join(",");
@@ -13986,11 +14133,8 @@ async function getTrainingEligibleCategories() {
 
         if (!accessResponse.ok) {
 
-            const errorText =
-                await accessResponse.text();
-
             throw new Error(
-                `training_category_access : ${errorText}`
+                `training_category_access : ${await accessResponse.text()}`
             );
         }
 
@@ -14024,9 +14168,9 @@ async function getTrainingEligibleCategories() {
         }
 
 
-        /* ===============================================
-           4. RÉCUPÉRER LES CATÉGORIES
-        ================================================ */
+        /* =================================================
+           4. RÉCUPÉRATION DES CATÉGORIES
+        ================================================= */
 
         const categoryFilter =
             categoryIds.join(",");
@@ -14044,11 +14188,8 @@ async function getTrainingEligibleCategories() {
 
         if (!categoriesResponse.ok) {
 
-            const errorText =
-                await categoriesResponse.text();
-
             throw new Error(
-                `categories : ${errorText}`
+                `categories : ${await categoriesResponse.text()}`
             );
         }
 
@@ -14056,15 +14197,6 @@ async function getTrainingEligibleCategories() {
         const categories =
             await categoriesResponse.json();
 
-
-        /*
-         * IMPORTANT :
-         * on ne filtre PAS ici sur active.
-         *
-         * Si une catégorie est explicitement liée
-         * à une formation dans l'administration,
-         * elle est considérée comme autorisée.
-         */
 
         console.log(
             "✅ Catégories autorisées :",
@@ -25211,4 +25343,1569 @@ document.addEventListener(
         }
     }
 );
+
+/* =========================================================
+   SIGNALEMENTS - PAGE GÉNÉRALE
+========================================================= */
+
+function updateReportCharacterCount() {
+
+    const textarea =
+        document.getElementById(
+            "reportDescription"
+        );
+
+    const counter =
+        document.getElementById(
+            "reportCharacterCount"
+        ) ||
+        document.getElementById(
+            "reportDescriptionCounter"
+        );
+
+
+    if (
+        !textarea ||
+        !counter
+    ) {
+        return;
+    }
+
+
+    const maxLength =
+        Number(
+            textarea.maxLength
+        ) > 0
+            ? Number(
+                textarea.maxLength
+            )
+            : 1000;
+
+
+    counter.textContent =
+        `${textarea.value.length} / ${maxLength}`;
 }
+
+
+
+function getReportTypeLabel(
+    type
+) {
+
+    const labels = {
+
+        bug:
+            "Bug / problème technique",
+
+        incorrect_content:
+            "Contenu incorrect",
+
+        content:
+            "Problème de contenu",
+
+        display:
+            "Problème d'affichage",
+
+        access:
+            "Problème d'accès",
+
+        wrong_answer:
+            "Mauvaise réponse indiquée",
+
+        wording:
+            "Formulation / faute",
+
+        outdated:
+            "Question obsolète",
+
+        wrong_category:
+            "Mauvaise catégorie",
+
+        duplicate:
+            "Question en double",
+
+        other:
+            "Autre"
+
+    };
+
+
+    return (
+        labels[type] ||
+        type ||
+        "Signalement"
+    );
+}
+
+
+
+function getReportStatusLabel(
+    status
+) {
+
+    const labels = {
+
+        new:
+            "Nouveau",
+
+        in_progress:
+            "En cours",
+
+        resolved:
+            "Traité",
+
+        rejected:
+            "Rejeté"
+
+    };
+
+
+    return (
+        labels[status] ||
+        status ||
+        "Nouveau"
+    );
+}
+
+
+
+function formatReportDate(
+    value
+) {
+
+    if (!value) {
+        return "";
+    }
+
+
+    const date =
+        new Date(
+            value
+        );
+
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+        return "";
+    }
+
+
+    return date
+        .toLocaleString(
+            "fr-FR",
+            {
+                day:
+                    "2-digit",
+
+                month:
+                    "2-digit",
+
+                year:
+                    "numeric",
+
+                hour:
+                    "2-digit",
+
+                minute:
+                    "2-digit"
+            }
+        );
+}
+
+
+
+function initializeReportsPage() {
+
+    const profileId =
+        localStorage.getItem(
+            "profile_id"
+        );
+
+
+    if (!profileId) {
+
+        window.location.href =
+            "index.html";
+
+        return;
+    }
+
+
+    const description =
+        document.getElementById(
+            "reportDescription"
+        );
+
+
+    if (
+        description &&
+        !description.dataset.reportCounterBound
+    ) {
+
+        description.addEventListener(
+            "input",
+            updateReportCharacterCount
+        );
+
+
+        description.dataset.reportCounterBound =
+            "true";
+    }
+
+
+    updateReportCharacterCount();
+
+
+    if (
+        document.getElementById(
+            "myReportsList"
+        )
+    ) {
+
+        loadMyReports();
+    }
+}
+
+
+
+async function submitGeneralReport(
+    event
+) {
+
+    if (event) {
+        event.preventDefault();
+    }
+
+
+    const profileId =
+        localStorage.getItem(
+            "profile_id"
+        );
+
+
+    if (!profileId) {
+
+        window.location.href =
+            "index.html";
+
+        return;
+    }
+
+
+    const typeElement =
+        document.getElementById(
+            "reportType"
+        );
+
+
+    const subjectElement =
+        document.getElementById(
+            "reportSubject"
+        );
+
+
+    const descriptionElement =
+        document.getElementById(
+            "reportDescription"
+        );
+
+
+    const submitButton =
+        document.getElementById(
+            "reportSubmitButton"
+        );
+
+
+    const successBox =
+        document.getElementById(
+            "reportSuccess"
+        );
+
+
+    const errorBox =
+        document.getElementById(
+            "reportError"
+        );
+
+
+    const reportType =
+        String(
+            typeElement?.value ||
+            ""
+        )
+        .trim();
+
+
+    const subject =
+        String(
+            subjectElement?.value ||
+            ""
+        )
+        .trim();
+
+
+    const description =
+        String(
+            descriptionElement?.value ||
+            ""
+        )
+        .trim();
+
+
+    if (successBox) {
+
+        successBox.style.display =
+            "none";
+    }
+
+
+    if (errorBox) {
+
+        errorBox.style.display =
+            "none";
+    }
+
+
+    if (
+        !reportType ||
+        !subject ||
+        !description
+    ) {
+
+        if (errorBox) {
+
+            errorBox.textContent =
+                "Merci de remplir tous les champs obligatoires.";
+
+            errorBox.style.display =
+                "block";
+
+        } else {
+
+            alert(
+                "Merci de remplir tous les champs obligatoires."
+            );
+        }
+
+        return;
+    }
+
+
+    if (submitButton) {
+
+        submitButton.disabled =
+            true;
+
+        submitButton.textContent =
+            "Envoi en cours...";
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/reports`,
+                {
+                    method:
+                        "POST",
+
+                    headers:
+                        supabaseHeaders({
+                            "Content-Type":
+                                "application/json",
+
+                            Prefer:
+                                "return=minimal"
+                        }),
+
+                    body:
+                        JSON.stringify({
+
+                            reporter_id:
+                                profileId,
+
+                            source_type:
+                                "general",
+
+                            report_type:
+                                reportType,
+
+                            subject:
+                                subject,
+
+                            description:
+                                description,
+
+                            question_id:
+                                null,
+
+                            category_name:
+                                null,
+
+                            status:
+                                "new"
+
+                        })
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                await response.text()
+            );
+        }
+
+
+        const form =
+            document.getElementById(
+                "generalReportForm"
+            ) ||
+            document.getElementById(
+                "reportForm"
+            );
+
+
+        if (form) {
+
+            form.reset();
+        }
+
+
+        updateReportCharacterCount();
+
+
+        if (successBox) {
+
+            successBox.style.display =
+                "block";
+        }
+
+
+        await loadMyReports();
+
+
+    } catch (error) {
+
+        console.error(
+            "❌ Erreur signalement général :",
+            error
+        );
+
+
+        const message =
+            "Impossible d'envoyer le signalement.";
+
+
+        if (errorBox) {
+
+            errorBox.textContent =
+                message;
+
+            errorBox.style.display =
+                "block";
+
+        } else {
+
+            alert(
+                message
+            );
+        }
+
+
+    } finally {
+
+        if (submitButton) {
+
+            submitButton.disabled =
+                false;
+
+            submitButton.textContent =
+                "🚩 Envoyer le signalement";
+        }
+    }
+}
+
+
+
+async function loadMyReports() {
+
+    const profileId =
+        localStorage.getItem(
+            "profile_id"
+        );
+
+
+    const container =
+        document.getElementById(
+            "myReportsList"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    if (!profileId) {
+
+        window.location.href =
+            "index.html";
+
+        return;
+    }
+
+
+    container.innerHTML = `
+        <div class="reports-empty">
+            Chargement...
+        </div>
+    `;
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/reports?reporter_id=eq.${encodeURIComponent(profileId)}&select=id,source_type,report_type,subject,description,category_name,status,created_at&order=created_at.desc&limit=10`,
+                {
+                    headers:
+                        supabaseHeaders()
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                await response.text()
+            );
+        }
+
+
+        const reports =
+            await response.json();
+
+
+        if (!reports.length) {
+
+            container.innerHTML = `
+                <div class="reports-empty">
+                    Aucun signalement envoyé pour le moment.
+                </div>
+            `;
+
+            return;
+        }
+
+
+        container.innerHTML =
+            reports
+                .map(
+                    report => {
+
+                        const status =
+                            report.status ||
+                            "new";
+
+
+                        const sourceLabel =
+                            report.source_type ===
+                            "question"
+                                ? "Question"
+                                : "Général";
+
+
+                        const title =
+                            report.subject ||
+                            (
+                                report.source_type ===
+                                "question"
+                                    ? "Question signalée"
+                                    : "Signalement"
+                            );
+
+
+                        return `
+                            <article class="report-item">
+
+                                <div class="report-item-top">
+
+                                    <div>
+
+                                        <div class="report-item-title">
+                                            ${escapeHtml(title)}
+                                        </div>
+
+                                        <div class="report-item-meta">
+
+                                            <span>
+                                                ${escapeHtml(
+                                                    getReportTypeLabel(
+                                                        report.report_type
+                                                    )
+                                                )}
+                                            </span>
+
+                                            <span>•</span>
+
+                                            <span>
+                                                ${escapeHtml(sourceLabel)}
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <span
+                                        class="report-status report-status-${escapeHtml(status)}"
+                                    >
+                                        ${escapeHtml(
+                                            getReportStatusLabel(
+                                                status
+                                            )
+                                        )}
+                                    </span>
+
+                                </div>
+
+
+                                <div class="report-description">
+                                    ${escapeHtml(
+                                        report.description ||
+                                        ""
+                                    )}
+                                </div>
+
+
+                                <div class="report-item-meta">
+
+                                    ${
+                                        report.category_name
+                                            ? `
+                                                <span>
+                                                    📚 ${escapeHtml(
+                                                        report.category_name
+                                                    )}
+                                                </span>
+
+                                                <span>•</span>
+                                            `
+                                            : ""
+                                    }
+
+                                    <span>
+                                        ${escapeHtml(
+                                            formatReportDate(
+                                                report.created_at
+                                            )
+                                        )}
+                                    </span>
+
+                                </div>
+
+                            </article>
+                        `;
+                    }
+                )
+                .join("");
+
+
+    } catch (error) {
+
+        console.error(
+            "❌ Erreur chargement signalements :",
+            error
+        );
+
+
+        container.innerHTML = `
+            <div class="reports-empty">
+                Impossible de charger tes signalements.
+            </div>
+        `;
+    }
+}
+
+
+
+/* =========================================================
+   SIGNALEMENT D'UNE QUESTION D'ENTRAÎNEMENT
+========================================================= */
+
+let currentQuestionReportContext =
+    null;
+
+
+
+function ensureQuestionReportModal() {
+
+    let modal =
+        document.getElementById(
+            "questionReportModal"
+        );
+
+
+    if (modal) {
+        return modal;
+    }
+
+
+    modal =
+        document.createElement(
+            "div"
+        );
+
+
+    modal.id =
+        "questionReportModal";
+
+
+    modal.className =
+        "question-report-modal";
+
+
+    modal.innerHTML = `
+
+        <div
+            class="question-report-backdrop"
+            onclick="closeQuestionReportModal()"
+        ></div>
+
+
+        <section
+            class="question-report-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="questionReportTitle"
+        >
+
+            <div class="question-report-header">
+
+                <div>
+
+                    <span class="question-report-kicker">
+                        🚩 Signalement
+                    </span>
+
+                    <h2 id="questionReportTitle">
+                        Signaler cette question
+                    </h2>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="question-report-close"
+                    onclick="closeQuestionReportModal()"
+                    aria-label="Fermer"
+                >
+                    ✕
+                </button>
+
+            </div>
+
+
+            <div class="question-report-preview">
+
+                <small>
+                    Question concernée
+                </small>
+
+                <strong id="questionReportPreview">
+                    —
+                </strong>
+
+                <span id="questionReportCategory">
+                    —
+                </span>
+
+            </div>
+
+
+            <form
+                id="questionReportForm"
+                onsubmit="submitQuestionReport(event)"
+            >
+
+                <label
+                    class="question-report-label"
+                    for="questionReportType"
+                >
+                    Quel est le problème ?
+                </label>
+
+
+                <select
+                    id="questionReportType"
+                    class="question-report-select"
+                    required
+                >
+
+                    <option value="">
+                        Choisir un motif
+                    </option>
+
+                    <option value="wrong_answer">
+                        ❌ Mauvaise réponse indiquée
+                    </option>
+
+                    <option value="wording">
+                        ✏️ Faute / formulation incorrecte
+                    </option>
+
+                    <option value="outdated">
+                        🔄 Question obsolète
+                    </option>
+
+                    <option value="wrong_category">
+                        📚 Mauvaise catégorie
+                    </option>
+
+                    <option value="duplicate">
+                        📄 Question en double
+                    </option>
+
+                    <option value="other">
+                        📝 Autre problème
+                    </option>
+
+                </select>
+
+
+                <label
+                    class="question-report-label"
+                    for="questionReportDescription"
+                >
+                    Commentaire
+                </label>
+
+
+                <textarea
+                    id="questionReportDescription"
+                    class="question-report-textarea"
+                    rows="5"
+                    maxlength="1000"
+                    placeholder="Explique ce qui semble incorrect..."
+                    required
+                ></textarea>
+
+
+                <div
+                    id="questionReportError"
+                    class="question-report-message question-report-error"
+                    style="display:none;"
+                >
+                </div>
+
+
+                <div
+                    id="questionReportSuccess"
+                    class="question-report-message question-report-success"
+                    style="display:none;"
+                >
+                    ✅ Signalement envoyé.
+                </div>
+
+
+                <div class="question-report-actions">
+
+                    <button
+                        type="button"
+                        class="btn-secondary"
+                        onclick="closeQuestionReportModal()"
+                    >
+                        Annuler
+                    </button>
+
+
+                    <button
+                        type="submit"
+                        id="questionReportSubmitButton"
+                        class="btn-primary"
+                    >
+                        🚩 Envoyer
+                    </button>
+
+                </div>
+
+            </form>
+
+        </section>
+    `;
+
+
+    document.body.appendChild(
+        modal
+    );
+
+
+    if (
+        !document.getElementById(
+            "questionReportModalStyles"
+        )
+    ) {
+
+        const style =
+            document.createElement(
+                "style"
+            );
+
+
+        style.id =
+            "questionReportModalStyles";
+
+
+        style.textContent = `
+
+            .training-report-row {
+                display: flex;
+                justify-content: flex-end;
+                margin: 18px 0 4px;
+            }
+
+            .training-report-question-button {
+                width: auto;
+                padding: 8px 12px;
+                border: 1px solid var(--border);
+                border-radius: 10px;
+                background: transparent;
+                color: var(--text-secondary);
+                font-size: 12px;
+                font-weight: 700;
+                cursor: pointer;
+                transition: .2s ease;
+            }
+
+            .training-report-question-button:hover {
+                border-color: var(--red);
+                color: var(--red);
+                background: rgba(232, 75, 75, .08);
+            }
+
+            .question-report-modal {
+                position: fixed;
+                inset: 0;
+                z-index: 10000;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+            }
+
+            .question-report-modal.open {
+                display: flex;
+            }
+
+            .question-report-backdrop {
+                position: absolute;
+                inset: 0;
+                background: rgba(0, 0, 0, .56);
+                backdrop-filter: blur(3px);
+            }
+
+            .question-report-dialog {
+                position: relative;
+                z-index: 1;
+                width: min(560px, 100%);
+                max-height: calc(100vh - 40px);
+                overflow-y: auto;
+                padding: 24px;
+                border: 1px solid var(--border);
+                border-radius: 20px;
+                background: var(--bg-card);
+                color: var(--text-main);
+                box-shadow: 0 24px 80px rgba(0, 0, 0, .30);
+            }
+
+            .question-report-header {
+                display: flex;
+                align-items: flex-start;
+                justify-content: space-between;
+                gap: 16px;
+                margin-bottom: 18px;
+            }
+
+            .question-report-header h2 {
+                margin: 4px 0 0;
+                font-size: 22px;
+            }
+
+            .question-report-kicker {
+                color: var(--orange);
+                font-size: 11px;
+                font-weight: 900;
+                text-transform: uppercase;
+                letter-spacing: .08em;
+            }
+
+            .question-report-close {
+                width: 38px;
+                height: 38px;
+                flex-shrink: 0;
+                border: 1px solid var(--border);
+                border-radius: 10px;
+                background: transparent;
+                color: var(--text-main);
+                cursor: pointer;
+            }
+
+            .question-report-preview {
+                display: grid;
+                gap: 6px;
+                margin-bottom: 20px;
+                padding: 14px;
+                border: 1px solid var(--border);
+                border-radius: 13px;
+                background: var(--bg-main);
+            }
+
+            .question-report-preview small,
+            .question-report-preview span {
+                color: var(--text-secondary);
+            }
+
+            .question-report-preview strong {
+                line-height: 1.45;
+            }
+
+            .question-report-label {
+                display: block;
+                margin: 0 0 7px;
+                font-size: 13px;
+                font-weight: 800;
+            }
+
+            .question-report-select,
+            .question-report-textarea {
+                box-sizing: border-box;
+                width: 100%;
+                margin: 0 0 16px;
+                padding: 12px 13px;
+                border: 1px solid var(--border);
+                border-radius: 11px;
+                background: var(--bg-card);
+                color: var(--text-main);
+                font: inherit;
+                outline: none;
+            }
+
+            .question-report-select:focus,
+            .question-report-textarea:focus {
+                border-color: var(--orange);
+            }
+
+            .question-report-textarea {
+                resize: vertical;
+                min-height: 120px;
+            }
+
+            .question-report-message {
+                margin: 0 0 14px;
+                padding: 11px 12px;
+                border-radius: 10px;
+                font-size: 13px;
+                font-weight: 700;
+            }
+
+            .question-report-error {
+                background: rgba(232, 75, 75, .10);
+                color: var(--red);
+            }
+
+            .question-report-success {
+                background: rgba(65, 183, 94, .12);
+                color: var(--green);
+            }
+
+            .question-report-actions {
+                display: flex;
+                justify-content: flex-end;
+                gap: 10px;
+                margin-top: 4px;
+            }
+
+            @media (max-width: 600px) {
+
+                .question-report-dialog {
+                    padding: 18px;
+                    border-radius: 16px;
+                }
+
+                .question-report-actions {
+                    flex-direction: column-reverse;
+                }
+
+                .question-report-actions button {
+                    width: 100%;
+                }
+            }
+        `;
+
+
+        document.head.appendChild(
+            style
+        );
+    }
+
+
+    return modal;
+}
+
+
+
+function openQuestionReportModal() {
+
+    const question =
+        trainingQuestions?.[
+            trainingIndex
+        ];
+
+
+    if (!question) {
+
+        alert(
+            "Impossible d'identifier la question à signaler."
+        );
+
+        return;
+    }
+
+
+    currentQuestionReportContext = {
+
+        id:
+            question.id ||
+            null,
+
+        question:
+            question.question ||
+            "",
+
+        category:
+            question.category ||
+            localStorage.getItem(
+                "training_category"
+            ) ||
+            ""
+
+    };
+
+
+    const modal =
+        ensureQuestionReportModal();
+
+
+    const preview =
+        document.getElementById(
+            "questionReportPreview"
+        );
+
+
+    const category =
+        document.getElementById(
+            "questionReportCategory"
+        );
+
+
+    const form =
+        document.getElementById(
+            "questionReportForm"
+        );
+
+
+    const errorBox =
+        document.getElementById(
+            "questionReportError"
+        );
+
+
+    const successBox =
+        document.getElementById(
+            "questionReportSuccess"
+        );
+
+
+    if (form) {
+
+        form.reset();
+    }
+
+
+    if (preview) {
+
+        preview.textContent =
+            currentQuestionReportContext.question ||
+            "Question";
+    }
+
+
+    if (category) {
+
+        category.textContent =
+            currentQuestionReportContext.category
+                ? `Catégorie : ${currentQuestionReportContext.category}`
+                : "Catégorie non renseignée";
+    }
+
+
+    if (errorBox) {
+
+        errorBox.style.display =
+            "none";
+    }
+
+
+    if (successBox) {
+
+        successBox.style.display =
+            "none";
+    }
+
+
+    modal.classList.add(
+        "open"
+    );
+
+
+    document.body.style.overflow =
+        "hidden";
+}
+
+
+
+function closeQuestionReportModal() {
+
+    const modal =
+        document.getElementById(
+            "questionReportModal"
+        );
+
+
+    if (modal) {
+
+        modal.classList.remove(
+            "open"
+        );
+    }
+
+
+    document.body.style.overflow =
+        "";
+}
+
+
+
+async function submitQuestionReport(
+    event
+) {
+
+    event.preventDefault();
+
+
+    const profileId =
+        localStorage.getItem(
+            "profile_id"
+        );
+
+
+    const context =
+        currentQuestionReportContext;
+
+
+    if (
+        !profileId ||
+        !context
+    ) {
+
+        alert(
+            "Impossible d'envoyer ce signalement."
+        );
+
+        return;
+    }
+
+
+    const typeElement =
+        document.getElementById(
+            "questionReportType"
+        );
+
+
+    const descriptionElement =
+        document.getElementById(
+            "questionReportDescription"
+        );
+
+
+    const submitButton =
+        document.getElementById(
+            "questionReportSubmitButton"
+        );
+
+
+    const errorBox =
+        document.getElementById(
+            "questionReportError"
+        );
+
+
+    const successBox =
+        document.getElementById(
+            "questionReportSuccess"
+        );
+
+
+    const reportType =
+        String(
+            typeElement?.value ||
+            ""
+        )
+        .trim();
+
+
+    const userComment =
+        String(
+            descriptionElement?.value ||
+            ""
+        )
+        .trim();
+
+
+    if (errorBox) {
+
+        errorBox.style.display =
+            "none";
+    }
+
+
+    if (successBox) {
+
+        successBox.style.display =
+            "none";
+    }
+
+
+    if (
+        !reportType ||
+        !userComment
+    ) {
+
+        if (errorBox) {
+
+            errorBox.textContent =
+                "Choisis un motif et ajoute un commentaire.";
+
+            errorBox.style.display =
+                "block";
+        }
+
+        return;
+    }
+
+
+    if (
+        !context.id
+    ) {
+
+        if (errorBox) {
+
+            errorBox.textContent =
+                "L'identifiant de la question est introuvable.";
+
+            errorBox.style.display =
+                "block";
+        }
+
+        return;
+    }
+
+
+    if (submitButton) {
+
+        submitButton.disabled =
+            true;
+
+        submitButton.textContent =
+            "Envoi...";
+    }
+
+
+    try {
+
+        const questionText =
+            String(
+                context.question ||
+                ""
+            );
+
+
+        const subject =
+            questionText.length > 100
+                ? `${questionText.slice(0, 97)}...`
+                : (
+                    questionText ||
+                    "Question signalée"
+                );
+
+
+        const description =
+            [
+                `Motif : ${getReportTypeLabel(reportType)}`,
+                "",
+                `Question : ${questionText}`,
+                "",
+                `Commentaire : ${userComment}`
+            ]
+            .join("\n");
+
+
+        const response =
+            await fetch(
+                `${SUPABASE_URL}/rest/v1/reports`,
+                {
+                    method:
+                        "POST",
+
+                    headers:
+                        supabaseHeaders({
+                            "Content-Type":
+                                "application/json",
+
+                            Prefer:
+                                "return=minimal"
+                        }),
+
+                    body:
+                        JSON.stringify({
+
+                            reporter_id:
+                                profileId,
+
+                            source_type:
+                                "question",
+
+                            report_type:
+                                reportType,
+
+                            subject:
+                                subject,
+
+                            description:
+                                description,
+
+                            question_id:
+                                context.id,
+
+                            category_name:
+                                context.category ||
+                                null,
+
+                            status:
+                                "new"
+
+                        })
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                await response.text()
+            );
+        }
+
+
+        if (successBox) {
+
+            successBox.style.display =
+                "block";
+        }
+
+
+        if (submitButton) {
+
+            submitButton.textContent =
+                "✓ Envoyé";
+        }
+
+
+        setTimeout(
+            function () {
+
+                closeQuestionReportModal();
+
+            },
+            900
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "❌ Erreur signalement question :",
+            error
+        );
+
+
+        if (errorBox) {
+
+            errorBox.textContent =
+                "Impossible d'envoyer le signalement.";
+
+            errorBox.style.display =
+                "block";
+        }
+
+
+    } finally {
+
+        setTimeout(
+            function () {
+
+                if (submitButton) {
+
+                    submitButton.disabled =
+                        false;
+
+                    submitButton.textContent =
+                        "🚩 Envoyer";
+                }
+
+            },
+            1000
+        );
+    }
+}
+
+
+
+/* =========================================================
+   INITIALISATION AUTOMATIQUE PAGE SIGNALEMENTS
+========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        if (
+            document.getElementById(
+                "generalReportForm"
+            ) ||
+            document.getElementById(
+                "reportForm"
+            )
+        ) {
+
+            initializeReportsPage();
+        }
+    }
+);
