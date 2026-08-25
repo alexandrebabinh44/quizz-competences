@@ -1686,6 +1686,345 @@ function lancerFlashXtrem() {
     window.location.href =
         "training-quiz.html";
 }
+/* =========================================================
+   SESSION D'ENTRAÎNEMENT ACTIVE
+========================================================= */
+
+async function abandonOldTrainingSessions(
+    profileId
+) {
+
+    if (!profileId) {
+        return;
+    }
+
+
+    const response =
+        await fetch(
+            `${SUPABASE_URL}/rest/v1/training_sessions?profile_id=eq.${encodeURIComponent(profileId)}&status=eq.in_progress`,
+            {
+                method:
+                    "PATCH",
+
+                headers:
+                    supabaseHeaders({
+                        "Content-Type":
+                            "application/json",
+
+                        Prefer:
+                            "return=minimal"
+                    }),
+
+                body:
+                    JSON.stringify({
+                        status:
+                            "abandoned",
+
+                        last_activity_at:
+                            new Date()
+                                .toISOString()
+                    })
+            }
+        );
+
+
+    if (!response.ok) {
+
+        console.warn(
+            "Impossible de clôturer les anciennes sessions :",
+            await response.text()
+        );
+    }
+}
+
+
+/* =========================================================
+   CRÉER LA SESSION AU DÉMARRAGE
+========================================================= */
+
+async function createTrainingSession() {
+
+    const profileId =
+        localStorage.getItem(
+            "profile_id"
+        );
+
+
+    if (!profileId) {
+
+        throw new Error(
+            "Profil connecté introuvable."
+        );
+    }
+
+
+    /*
+     * Toute ancienne session laissée ouverte
+     * devient abandonnée.
+     */
+
+    await abandonOldTrainingSessions(
+        profileId
+    );
+
+
+    const now =
+        new Date()
+            .toISOString();
+
+
+    const response =
+        await fetch(
+            `${SUPABASE_URL}/rest/v1/training_sessions`,
+            {
+                method:
+                    "POST",
+
+                headers:
+                    supabaseHeaders({
+                        "Content-Type":
+                            "application/json",
+
+                        Prefer:
+                            "return=representation"
+                    }),
+
+                body:
+                    JSON.stringify({
+
+                        profile_id:
+                            profileId,
+
+                        mode:
+                            localStorage.getItem(
+                                "training_mode"
+                            ) ||
+                            "cible",
+
+                        category:
+                            localStorage.getItem(
+                                "training_category"
+                            ),
+
+                        total_questions:
+                            trainingQuestions.length,
+
+                        answered_questions:
+                            0,
+
+                        correct_answers:
+                            0,
+
+                        wrong_answers:
+                            0,
+
+                        score:
+                            0,
+
+                        xp_earned:
+                            0,
+
+                        status:
+                            "in_progress",
+
+                        started_at:
+                            now,
+
+                        last_activity_at:
+                            now
+
+                    })
+            }
+        );
+
+
+    if (!response.ok) {
+
+        throw new Error(
+            await response.text()
+        );
+    }
+
+
+    const data =
+        await response.json();
+
+
+    currentTrainingSessionId =
+        data[0]?.id ||
+        null;
+
+
+    if (!currentTrainingSessionId) {
+
+        throw new Error(
+            "Impossible de récupérer l'identifiant de la session."
+        );
+    }
+
+
+    localStorage.setItem(
+        "current_training_session_id",
+        currentTrainingSessionId
+    );
+
+
+    return currentTrainingSessionId;
+}
+
+
+/* =========================================================
+   METTRE À JOUR LA SESSION
+========================================================= */
+
+async function updateCurrentTrainingSession() {
+
+    if (!currentTrainingSessionId) {
+
+        currentTrainingSessionId =
+            localStorage.getItem(
+                "current_training_session_id"
+            );
+    }
+
+
+    if (!currentTrainingSessionId) {
+        return;
+    }
+
+
+    const response =
+        await fetch(
+            `${SUPABASE_URL}/rest/v1/training_sessions?id=eq.${encodeURIComponent(currentTrainingSessionId)}`,
+            {
+                method:
+                    "PATCH",
+
+                headers:
+                    supabaseHeaders({
+                        "Content-Type":
+                            "application/json",
+
+                        Prefer:
+                            "return=minimal"
+                    }),
+
+                body:
+                    JSON.stringify({
+
+                        answered_questions:
+                            trainingAnsweredCount,
+
+                        correct_answers:
+                            trainingCorrectAnswers,
+
+                        wrong_answers:
+                            trainingWrongAnswers,
+
+                        score:
+                            trainingCorrectAnswers,
+
+                        last_activity_at:
+                            new Date()
+                                .toISOString()
+
+                    })
+            }
+        );
+
+
+    if (!response.ok) {
+
+        console.warn(
+            "Impossible de mettre à jour la session :",
+            await response.text()
+        );
+    }
+}
+
+
+/* =========================================================
+   ABANDONNER LA SESSION
+========================================================= */
+
+async function abandonCurrentTrainingSession() {
+
+    if (!currentTrainingSessionId) {
+
+        currentTrainingSessionId =
+            localStorage.getItem(
+                "current_training_session_id"
+            );
+    }
+
+
+    if (!currentTrainingSessionId) {
+        return;
+    }
+
+
+    const response =
+        await fetch(
+            `${SUPABASE_URL}/rest/v1/training_sessions?id=eq.${encodeURIComponent(currentTrainingSessionId)}`,
+            {
+                method:
+                    "PATCH",
+
+                headers:
+                    supabaseHeaders({
+                        "Content-Type":
+                            "application/json",
+
+                        Prefer:
+                            "return=minimal"
+                    }),
+
+                body:
+                    JSON.stringify({
+
+                        status:
+                            "abandoned",
+
+                        answered_questions:
+                            trainingAnsweredCount,
+
+                        correct_answers:
+                            trainingCorrectAnswers,
+
+                        wrong_answers:
+                            trainingWrongAnswers,
+
+                        score:
+                            trainingCorrectAnswers,
+
+                        last_activity_at:
+                            new Date()
+                                .toISOString()
+
+                    })
+            }
+        );
+
+
+    if (!response.ok) {
+
+        console.warn(
+            "Impossible d'abandonner la session :",
+            await response.text()
+        );
+
+        return;
+    }
+
+
+    localStorage.removeItem(
+        "current_training_session_id"
+    );
+
+
+    currentTrainingSessionId =
+        null;
+}
 
 
 /* =========================================================
