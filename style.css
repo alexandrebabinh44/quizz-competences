@@ -4624,13 +4624,9 @@ html[data-theme="dark"] .login-card {
 ========================================================= */
 
 .dashboard-body {
-    opacity: 0;
+    opacity: 1;
 }
 
-.dashboard-body.page-ready {
-    opacity: 1;
-    transition: opacity 0.10s ease;
-}
 /* =========================================================
    ADMIN USERS - BASE
 ========================================================= */
